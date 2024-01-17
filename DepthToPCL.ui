@@ -203,7 +203,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>237</width>
+              <width>242</width>
               <height>334</height>
              </rect>
             </property>
@@ -213,16 +213,16 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
-            <widget class="QPushButton" name="MarkCompletedBtn">
+            <widget class="QPushButton" name="MarkCompleted">
              <property name="text">
-              <string>标记完毕</string>
+              <string>完成标记</string>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QPushButton" name="clearMarkersBtn">
              <property name="text">
-              <string>清除标记</string>
+              <string>清除标记内容</string>
              </property>
             </widget>
            </item>

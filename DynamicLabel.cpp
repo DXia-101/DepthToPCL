@@ -23,19 +23,9 @@ void DynamicLabel::PushCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
 	clouds.emplace_back(tempcloud);
 }
 
-void DynamicLabel::PushMarkPolyon(GraphicsPolygonItem* Polygons)
-{
-	markedPolygons.push_back(Polygons);
-}
-
 void DynamicLabel::ClearCloudVector()
 {
 	clouds.clear();
-}
-
-GraphicsPolygonItem* DynamicLabel::GetMarkedPolyonsBack()
-{
-	return markedPolygons.back();
 }
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr DynamicLabel::GetBack()

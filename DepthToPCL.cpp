@@ -29,10 +29,12 @@
 #include <vector>
 #include <Windows.h>
 #include <string>
+#include <stdexcept>
 
 #include "CategoryTag.h"
 #include "Configure.h"
 #include "DynamicLabel.h"
+#include "teRapidjsonObjectTree.h"
 
 
 DepthToPCL::DepthToPCL(QWidget *parent)
@@ -148,6 +150,9 @@ void DepthToPCL::Interface_Initialization()
     totalHeight = 0;
 
     point_size = 1;
+
+    currentDisplayImageLength = 0;
+    currentDisplayImageHeight = 0;
 }
 
 /**
@@ -189,7 +194,7 @@ void DepthToPCL::CloudToContour(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin,QStr
     pcl::PointXYZ max;//用于存放三个轴的最大值
     pcl::getMinMax3D(*vtkWidget->cloud, min, max);
 
-    cv::Mat image(cvImageWidget->height(), cvImageWidget->width(), CV_8UC3);
+    cv::Mat image(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC3);
     for (int j = 0; j < image.rows; j++)
     {
         for (int i = 0; i < image.cols; i++)
@@ -201,8 +206,8 @@ void DepthToPCL::CloudToContour(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin,QStr
     }
     
     float l; //单个像素代表的实际长度
-    float a = (max.x - min.x) / cvImageWidget->width();   //分辨率，根据实际需要设置，这里采用648*cvImageWidget->height()
-    float b = (max.y - min.y) / cvImageWidget->height();
+    float a = (max.x - min.x) / currentDisplayImageLength;   //分辨率，根据实际需要设置，这里采用648*cvImageWidget->height()
+    float b = (max.y - min.y) / currentDisplayImageHeight;
     if (a > b)
     {
         l = a;
@@ -219,7 +224,7 @@ void DepthToPCL::CloudToContour(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin,QStr
         int y = (cloudin->points[i].y - min.y) / l;
 
         //将颜色信息赋予像素
-        if (x > 0 && x < cvImageWidget->width() && y>0 && y < cvImageWidget->height())
+        if (x > 0 && x < currentDisplayImageLength && y>0 && y < currentDisplayImageHeight)
         {
             image.at<cv::Vec3b>(y, x)[0] = cloudin->points[i].z;
             image.at<cv::Vec3b>(y, x)[1] = cloudin->points[i].z;
@@ -262,7 +267,7 @@ void DepthToPCL::TDTo2D(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& im
     pcl::PointXYZ max;//用于存放三个轴的最大值
     pcl::getMinMax3D(*cloudin, min, max);
 
-    cv::Mat image(cvImageWidget->height(), cvImageWidget->width(), CV_8UC3);
+    cv::Mat image(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC3);
     for (int j = 0; j < image.rows; j++)
     {
         for (int i = 0; i < image.cols; i++)
@@ -274,8 +279,8 @@ void DepthToPCL::TDTo2D(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& im
     }
 
     float l; //单个像素代表的实际长度
-    float a = (max.x - min.x) / cvImageWidget->width();   //分辨率，根据实际需要设置，这里采用648*cvImageWidget->height()
-    float b = (max.y - min.y) / cvImageWidget->height();
+    float a = (max.x - min.x) / currentDisplayImageLength;   //分辨率
+    float b = (max.y - min.y) / currentDisplayImageHeight;
 
     if (a > b)
     {
@@ -293,7 +298,7 @@ void DepthToPCL::TDTo2D(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& im
         int y = (cloudin->points[i].y - min.y) / l;
 
         //将颜色信息赋予像素
-        if (x > 0 && x < cvImageWidget->width() && y>0 && y < cvImageWidget->height())
+        if (x > 0 && x < currentDisplayImageLength && y>0 && y < currentDisplayImageHeight)
         {
             image.at<cv::Vec3b>(y, x)[0] = cloudin->points[i].z;
             image.at<cv::Vec3b>(y, x)[1] = cloudin->points[i].z;
@@ -344,6 +349,13 @@ void DepthToPCL::paintEvent(QPaintEvent* event)
     //    painter.setPen(Qt::DashLine);
     //    painter.drawRect(pos.x() - 5, pos.y() - 5, size.width() + 10, size.height() + 10);
     //}
+}
+
+void DepthToPCL::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Q) {
+        on_startTagBtn_clicked();
+    }
 }
 
 /// <summary>
@@ -582,18 +594,33 @@ void DepthToPCL::on_drawCounterBtn_clicked()
 /// <summary>
 /// 标记完成
 /// </summary>
-void DepthToPCL::on_MarkCompletedBtn_clicked()
+void DepthToPCL::on_MarkCompleted_clicked()
 {
-    for (int i = 0; i < labelVLayout->count(); ++i) {
-        QWidget* widget = labelVLayout->itemAt(i)->widget();
-        DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
-        if (nullptr != curlabel) {
-            for (int j = 0; j < curlabel->GetCloudSize(); ++j) {
-                CloudToContour(curlabel->CloudAt(j), curlabel->GetLabel());
+    if (ThrDState->active()) {
+        for (int i = 0; i < labelVLayout->count(); ++i) {
+            QWidget* widget = labelVLayout->itemAt(i)->widget();
+            DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
+            if (nullptr != curlabel) {
+                for (int j = 0; j < curlabel->GetCloudSize(); ++j) {
+                    CloudToContour(curlabel->CloudAt(j), curlabel->GetLabel());
+                }
+            }
+        }
+        emit MarkComplete();
+    }
+    else if (TwoDState->active()) {
+        //将标记与轮廓进行比对，最后将轮廓保存为新的轮廓，以新标记的为基准
+        for (int i = 0; i < labelVLayout->count(); ++i) {
+            QWidget* widget = labelVLayout->itemAt(i)->widget();
+            DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
+            if (nullptr != curlabel) {
+                for (int j = 0; j < curlabel->markedPolygons.size(); ++j) {
+                    //将新标记与之前所有的轮廓依次进行比对，看新标记是否在之前的轮廓上，如果在则进行合并处理，如果不在，则将新标记作为轮廓添加进去
+                    // function(curlabel->markedPolygons.at(j));
+                }
             }
         }
     }
-    emit MarkComplete();
 }
 
 /// <summary>
@@ -626,6 +653,14 @@ void DepthToPCL::on_drawMarkersBtn_clicked()
 
 void DepthToPCL::on_clearMarkersBtn_clicked()
 {
+    for (int i = 0; i < labelVLayout->count(); ++i) {
+        QWidget* widget = labelVLayout->itemAt(i)->widget();
+        DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
+        if (nullptr != curlabel) {
+            curlabel->ClearCloudVector();
+            curlabel->markedPolygons.clear();
+        }
+    }
 }
 
 //void DepthToPCL::on_clearMarkersBtn_clicked()
@@ -646,175 +681,33 @@ void DepthToPCL::on_clearMarkersBtn_clicked()
 
 void DepthToPCL::SaveContour()
 {
-    //QString filePath = QFileDialog::getSaveFileName(nullptr, "选择保存路径和文件名", "", "(*.txt)");
-    //if (filePath.isEmpty())
-    //{
-    //    return;
-    //}
+    on_MarkCompleted_clicked();
+    te::Image obj;
+    te::SampleMark gt_write;
 
-    //QFile file(filePath);
-    //if (file.open(QIODevice::WriteOnly | QIODevice::Text))
-    //{
-    //    QTextStream out(&file);
+    QString filePath = QFileDialog::getSaveFileName(nullptr, "选择保存路径和文件名", "", "(*.gt)");
+    if (filePath.isEmpty())
+    {
+        return;
+    }
 
-    //    size_t arraySize = ContourVector.size();
-    //    out << "Array Size: " << arraySize << "\n";
-
-    //    for (auto labelContour : ContourVector)
-    //    {
-    //        QString label = labelContour->GetLabel();
-    //        out << "Label: " << label << "\n";
-
-    //        const std::vector<std::vector<cv::Point>>& contourVec = labelContour->GetContourVec();
-    //        size_t contourVecSize = contourVec.size();
-    //        out << "Contour Vec Size: " << contourVecSize << "\n";
-    //        for (const std::vector<cv::Point>& contour : contourVec)
-    //        {
-    //            size_t contourSize = contour.size();
-    //            out << "Contour Size: " << contourSize << "\n";
-    //            for (const cv::Point& point : contour)
-    //            {
-    //                out << point.x << " " << point.y << "\n";
-    //            }
-    //        }
-    //        const std::vector<cv::Vec4i>& hierarchy = labelContour->GetHierarchy();
-    //        size_t hierarchySize = hierarchy.size();
-    //        out << "Hierarchy Size: " << hierarchySize << "\n";
-    //        for (const cv::Vec4i& item : hierarchy)
-    //        {
-    //            out << item[0] << " " << item[1] << " " << item[2] << " " << item[3] << "\n";
-    //        }
-
-    //        out << "\n";
-    //    }
-    //    file.close();
-    //}
-    //else
-    //{
-    //    qDebug() << "file open failed";
-    //}
+    gt_write.gtDataSet.assign(allResultAiInstance.begin(), allResultAiInstance.end());
+    te::serializeJsonToOFStream(filePath.toStdString(), gt_write);
 }
 
 void DepthToPCL::LoadContour()
 {
-    //QString filePath = QFileDialog::getOpenFileName(nullptr, "选择文件", "", "(*.txt)");
-    //if (filePath.isEmpty())
-    //{
-    //    return ;
-    //}
+    te::Image obj;
+    te::SampleMark gt_read;
 
-    //QFile file(filePath);
-    //if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-    //{
-    //    QTextStream in(&file);
+    QString filePath = QFileDialog::getOpenFileName(nullptr, "选择文件", "", "(*.gt)");
+    if (filePath.isEmpty())
+    {
+        return ;
+    }
 
-    //    size_t arraySize = 0;
-    //    QString line;
-
-    //    ContourVector.clear();
-
-    //    if (in.readLineInto(&line))
-    //    {
-    //        size_t pos = line.indexOf(": ");
-    //        if (pos != -1)
-    //        {
-    //            arraySize = line.mid(pos + 2).toULong();
-    //        }
-    //    }
-
-    //    for (size_t i = 0; i < arraySize; ++i)
-    //    {
-    //        QString label;
-    //        std::vector<std::vector<cv::Point>> contourVec;
-    //        std::vector<cv::Vec4i> hierarchy;
-
-    //        if (in.readLineInto(&line))
-    //        {
-    //            size_t pos = line.indexOf(": ");
-    //            if (pos != -1)
-    //            {
-    //                label = line.mid(pos + 2);
-    //            }
-    //        }
-
-    //        size_t contourVecSize = 0;
-    //        if (in.readLineInto(&line))
-    //        {
-    //            size_t pos = line.indexOf(": ");
-    //            if (pos != -1)
-    //            {
-    //                contourVecSize = line.mid(pos + 2).toULong();
-    //            }
-    //        }
-    //        for (size_t j = 0; j < contourVecSize; ++j)
-    //        {
-    //            size_t contourSize = 0;
-    //            if (in.readLineInto(&line))
-    //            {
-    //                size_t pos = line.indexOf(": ");
-    //                if (pos != -1)
-    //                {
-    //                    contourSize = line.mid(pos + 2).toULong();
-    //                }
-    //            }
-
-    //            std::vector<cv::Point> contour;
-    //            for (size_t k = 0; k < contourSize; ++k)
-    //            {
-    //                if (in.readLineInto(&line))
-    //                {
-    //                    QStringList coordinates = line.split(' ');
-    //                    if (coordinates.size() == 2)
-    //                    {
-    //                        int x = coordinates.at(0).toInt();
-    //                        int y = coordinates.at(1).toInt();
-    //                        contour.push_back(cv::Point(x, y));
-    //                    }
-    //                }
-    //            }
-
-    //            contourVec.push_back(std::move(contour));
-    //        }
-
-    //        size_t hierarchySize = 0;
-    //        if (in.readLineInto(&line))
-    //        {
-    //            size_t pos = line.indexOf(": ");
-    //            if (pos != -1)
-    //            {
-    //                hierarchySize = line.mid(pos + 2).toULong();
-    //            }
-    //        }
-    //        for (size_t j = 0; j < hierarchySize; ++j)
-    //        {
-    //            if (in.readLineInto(&line))
-    //            {
-    //                QStringList items = line.split(' ');
-    //                if (items.size() == 4)
-    //                {
-    //                    int item0 = items.at(0).toInt();
-    //                    int item1 = items.at(1).toInt();
-    //                    int item2 = items.at(2).toInt();
-    //                    int item3 = items.at(3).toInt();
-    //                    hierarchy.push_back(cv::Vec4i(item0, item1, item2, item3));
-    //                }
-    //            }
-    //        }
-    //        Te_Gt* temp = new Te_Gt(label);
-    //        temp->GetContourVec() = contourVec;
-    //        temp->GetHierarchy() = hierarchy;
-    //        ContourVector.emplace_back(temp);
-
-    //        in.readLineInto(&line);
-    //    }
-
-    //    file.close();
-    //}
-    //else
-    //{
-    //    qDebug() << "file open failed";
-    //}
-
+    te::deserializeJsonFromIFStream(filePath.toStdString(), &gt_read);
+    allResultAiInstance.assign(gt_read.gtDataSet.begin(), gt_read.gtDataSet.end());
 }
 
 void DepthToPCL::SaveMat()
@@ -837,26 +730,35 @@ void DepthToPCL::on_addDynamicLabel_clicked()
 
 void DepthToPCL::on_delDynamicLabel_clicked()
 {
-
+    if (nullptr == vtkWidget->currentdynamicLabel)
+        return;
+    labelVLayout->removeWidget(vtkWidget->currentdynamicLabel);
+    totalHeight -= vtkWidget->currentdynamicLabel->height();
+    ui.scrollAreaWidgetContents->setGeometry(0, 0, vtkWidget->currentdynamicLabel->width(), totalHeight);
+    vtkWidget->currentdynamicLabel->deleteLater();
+    vtkWidget->currentdynamicLabel = nullptr;
 }
 
 void DepthToPCL::on_startTagBtn_clicked()
 {
+    if (nullptr == vtkWidget->currentdynamicLabel)
+        return;
     if (ThrDState->active()) {
         vtkWidget->isPickingMode = !vtkWidget->isPickingMode;
         if (vtkWidget->isPickingMode) {
             vtkWidget->line_id++;
             vtkWidget->cloud_polygon->clear();
             vtkWidget->flag = false;
+            ui.startTagBtn->setText("完成标记");
         }
         else {
+            ui.startTagBtn->setText("开始标记");
             vtkWidget->projectInliers(vtkWidget,currentLabelNAme);
         }
     }
     else if (TwoDState->active()) {
 
     }
-
 }
 
 /// <summary>
@@ -883,6 +785,11 @@ void DepthToPCL::Open_clicked() {
             qDebug() << "Couldn't read pcd file  \n";
             return;
         }
+        pcl::PointXYZ min;
+        pcl::PointXYZ max;
+        pcl::getMinMax3D(*vtkWidget->cloud, min, max);
+        currentDisplayImageLength = max.x - min.x;
+        currentDisplayImageHeight = max.y - min.y;
     }
     else if (fileName.endsWith("tif")) {
         cv::Mat image = cv::imread(fileName.toStdString(), cv::IMREAD_UNCHANGED);
@@ -908,8 +815,11 @@ void DepthToPCL::Open_clicked() {
             vtkWidget->cloud->at(x, y).y = static_cast<float>(y);
             vtkWidget->cloud->at(x, y).z = depth*255;
         }
-
-        //pcl::io::savePCDFile("output_cloud.pcd", cloud);
+        pcl::PointXYZ min;
+        pcl::PointXYZ max;
+        pcl::getMinMax3D(*vtkWidget->cloud, min, max);
+        currentDisplayImageLength = max.x - min.x;
+        currentDisplayImageHeight = max.y - min.y;
     }
     else {
         QMessageBox::warning(this, "Warning", "点云读取格式错误！");
@@ -926,6 +836,13 @@ void DepthToPCL::Open_clicked() {
     vtkWidget->viewer->resetCamera();
     vtkWidget->update();
     vtkWidget->m_renderWindow->Render();//重新渲染
-
+    allResultAiInstance.clear();
+    for (int i = 0; i < labelVLayout->count(); ++i) {
+        QWidget* widget = labelVLayout->itemAt(i)->widget();
+        DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
+        if (nullptr != curlabel) {
+            curlabel->ClearCloudVector();
+        }
+    }
     vtkWidget->viewer->resetCameraViewpoint("cloud");
 }

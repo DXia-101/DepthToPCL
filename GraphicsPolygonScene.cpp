@@ -37,24 +37,19 @@ void GraphicsPolygonScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 			if (MarkState->active()) {
 				// 开始标记不规则框选区域
 				if (isStart) {
+					currentMarkedPolygon << event->scenePos();
 					GraphicsPolygonItem* polygon = new GraphicsPolygonItem();
 					polygon->setPen(QPen(Qt::white));
 					polygon->setBrush(QBrush(currentColor));
 					polygon->setOpacity(0.5);
 					addItem(polygon);
-					currentdynamicLabel->PushMarkPolyon(polygon);
-					
-					currentMarkedPolygon << event->scenePos();
+					currentdynamicLabel->markedPolygons.append(polygon);
 					isStart = false;
-				}
-				else {
-
 				}
 			}
 		}
 		else if (event->button() == Qt::RightButton) {
 			if (MarkState->active()) {
-				
 			}
 		}
 	}
@@ -65,7 +60,7 @@ void GraphicsPolygonScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 	if (MarkState->active() && !currentMarkedPolygon.isEmpty()) {
 		// 更新不规则框选区域
 		currentMarkedPolygon << event->scenePos();
-		currentdynamicLabel->GetMarkedPolyonsBack()->setPolygon(currentMarkedPolygon);
+		currentdynamicLabel->markedPolygons.back()->setPolygon(currentMarkedPolygon);
 	}
 	else {
 		QGraphicsScene::mouseMoveEvent(event);
@@ -75,7 +70,7 @@ void GraphicsPolygonScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 void GraphicsPolygonScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
-
+		
 	}
 	else if (event->button() == Qt::RightButton) {
 		if (MarkState->active()) {

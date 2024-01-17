@@ -20,9 +20,8 @@ public:
 	~DynamicLabel();
 
 	void PushCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
-	void PushMarkPolyon(GraphicsPolygonItem* Polygons);
 	void ClearCloudVector();
-	GraphicsPolygonItem* GetMarkedPolyonsBack();
+
 	pcl::PointCloud<pcl::PointXYZ>::Ptr GetBack();
 	pcl::PointCloud<pcl::PointXYZ>::Ptr CloudAt(int index);
 
@@ -36,12 +35,12 @@ private slots:
 	void setLabelName(QString tag);
 
 public:
-	
+	QVector<GraphicsPolygonItem*> markedPolygons;
 private:
 	Ui::DynamicLabelClass *ui;
 	
 	std::vector<pcl::PointCloud<pcl::PointXYZ>> clouds;
-	QVector<GraphicsPolygonItem*> markedPolygons;
+	
 	
 	QString label;
 	QColor penColor;

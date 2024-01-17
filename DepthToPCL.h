@@ -18,6 +18,7 @@
 #include <QVBoxLayout>
 #include <QStateMachine>
 #include <QPaintEvent>
+#include <QKeyEvent>
 #include <QState>
 
 class DepthToPCL : public QWidget
@@ -37,7 +38,9 @@ public:
 private:
     void mousePressEvent(QMouseEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
+    void keyPressEvent(QKeyEvent* event) override;
     void CloudToContour(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, QString label);
+    
 
 private slots:
     void Open_clicked(); //打开点云
@@ -71,7 +74,7 @@ private slots:
     void on_changeFormBtn_clicked(); //转换界面按钮
     void on_drawCounterBtn_clicked(); //绘制原图轮廓按钮
 
-    void on_MarkCompletedBtn_clicked(); //完成标记
+    void on_MarkCompleted_clicked(); //完成标记
     void on_drawMarkersBtn_clicked(); //绘制标记
     void on_clearMarkersBtn_clicked(); //清空所有标记
 
@@ -115,4 +118,7 @@ private:
     QState* ThrDState;
 
     QString currentLabelNAme;
+
+    float currentDisplayImageLength;
+    float currentDisplayImageHeight;
 };
