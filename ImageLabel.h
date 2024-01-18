@@ -20,7 +20,6 @@ public:
 protected:
 
 private:
-	//std::vector<std::vector<cv::Point>> extractContours(const QImage& image, const QVector<QPolygonF>& polygons);
 
 signals:
 	void markedRegion(const QPolygonF& polygon);
@@ -28,7 +27,5 @@ signals:
 public:
 	GraphicsPolygonScene* scene;
 private:
-	
-
 	QImage image;
 };

@@ -62,7 +62,7 @@ void GraphicsPolygonScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 		currentMarkedPolygon << event->scenePos();
 		currentdynamicLabel->markedPolygons.back()->setPolygon(currentMarkedPolygon);
 	}
-	else {
+	else{
 		QGraphicsScene::mouseMoveEvent(event);
 	}
 }

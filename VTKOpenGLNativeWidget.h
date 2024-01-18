@@ -63,4 +63,8 @@ private:
     pcl::MomentOfInertiaEstimation <pcl::PointXYZ> feature_extractor;
     Filter_Guass* dialog_Guass_filter;
     Filter_Direct* dialog_Direct_filter;
+
+    bool PositiveAndNegative_X_axis;
+    bool PositiveAndNegative_Y_axis;
+    bool PositiveAndNegative_Z_axis;
 };

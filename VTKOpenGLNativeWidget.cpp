@@ -54,6 +54,10 @@ void VTKOpenGLNativeWidget::PCL_Initalization()
     viewer->registerMouseCallback(&VTKOpenGLNativeWidget::mouseEventOccurred, *this);
 
     currentdynamicLabel = nullptr;
+
+    PositiveAndNegative_X_axis = true;
+    PositiveAndNegative_Y_axis = true;
+    PositiveAndNegative_Z_axis = true;
 }
 
 /// <summary>
@@ -495,7 +499,13 @@ void VTKOpenGLNativeWidget::subtractTargetPointcloud(pcl::PointCloud<pcl::PointX
 /// </summary>
 void VTKOpenGLNativeWidget::ViewYBtn()
 {
-    viewer->setCameraPosition(0, 3, 0, 0, 1, 0, 0, 0, -1);
+    Eigen::Vector4f centroid;
+    pcl::compute3DCentroid(*cloud, centroid);
+    if(PositiveAndNegative_Y_axis)
+        viewer->setCameraPosition(centroid.x(), centroid.y(), centroid.z(), 0, 1, 0, 0, 0, 1);
+    else
+        viewer->setCameraPosition(centroid.x(), centroid.y(), centroid.z(), 0, 1, 0, 0, 0, -1);
+    PositiveAndNegative_Y_axis = !PositiveAndNegative_Y_axis;
     viewer->updateCamera();
     viewer->spinOnce();
 }
@@ -505,7 +515,13 @@ void VTKOpenGLNativeWidget::ViewYBtn()
 /// </summary>
 void VTKOpenGLNativeWidget::ViewXBtn()
 {
-    viewer->setCameraPosition(-3, 0, 0, 1, 0, 0, 0, 1, 0);
+    Eigen::Vector4f centroid;
+    pcl::compute3DCentroid(*cloud, centroid);
+    if (PositiveAndNegative_X_axis)
+        viewer->setCameraPosition(centroid.x(), centroid.y(), centroid.z(), 1, 0, 0, 0, 1, 0);
+    else
+        viewer->setCameraPosition(centroid.x(), centroid.y(), centroid.z(), 1, 0, 0, 0, -1, 0);
+    PositiveAndNegative_X_axis = !PositiveAndNegative_X_axis;
     viewer->updateCamera();
     viewer->spinOnce();
 }
@@ -515,7 +531,13 @@ void VTKOpenGLNativeWidget::ViewXBtn()
 /// </summary>
 void VTKOpenGLNativeWidget::ViewZBtn()
 {
-    viewer->setCameraPosition(0, 0, 3, 0, 0, -1, 0, 1, 0);
+    Eigen::Vector4f centroid;
+    pcl::compute3DCentroid(*cloud, centroid);
+    if (PositiveAndNegative_Z_axis)
+        viewer->setCameraPosition(0, 0, centroid.z(), 0, 0, -1, 0, 1, 0);
+    else
+        viewer->setCameraPosition(0, 0, -centroid.z(), 0, 0, -1,0, 1, 0);
+        PositiveAndNegative_Z_axis = !PositiveAndNegative_Z_axis;
     viewer->updateCamera();
     viewer->spinOnce();
 }
@@ -540,8 +562,6 @@ void VTKOpenGLNativeWidget::GuassFilter(QString data1, QString data2, QString da
         }
         pcl_filter_guass(cloud, data1.toFloat(), data2.toFloat(), data3.toFloat(), data4.toFloat());
         *cloud = *cloud_Filter_out;
-
-        //Display_Properites();
 
         viewer->removeAllPointClouds();
         viewer->removeAllShapes();
@@ -623,7 +643,7 @@ void VTKOpenGLNativeWidget::pcl_filter_direct(pcl::PointCloud<pcl::PointXYZ>::Pt
     pcl::PassThrough<pcl::PointXYZ> pass;//设置滤波器对象
     //参数设置
     pass.setInputCloud(cloud_in);
-    pass.setFilterFieldName(axis.toStdString());
+    pass.setFilterFieldName(axis.toStdString());//滤波的字段，即滤波的方向。可以是XYZ
     pass.setFilterLimits(min, max);//区间设置
     pass.setNegative(is_save);//设置为保留还是去除（true是去除上述坐标范围内的点）
 

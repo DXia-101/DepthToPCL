@@ -9,7 +9,6 @@
 #include "PointCloud_PointSize_Set_Dialog.h"
 #include "Filter_Guass.h"
 #include "Filter_Direct.h"
-#include "DropGraphicsView.h"
 #include "ImageLabel.h"
 #include "teAiExTypes.h"
 
@@ -32,7 +31,7 @@ public:
     void Interface_Initialization();
     void PCL_Initalization();
     void InitStateMachine();
-    void TDTo2D(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin,cv::Mat& imageout);
+    void PCL2Mat(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin,cv::Mat& imageout);
     //void ExtractContours(Te_Gt& contour, cv::Mat imgIn);
     
 private:
@@ -83,6 +82,8 @@ private slots:
 
     void SaveMat();
     void SaveSampleLabel();
+
+    void on_ConfirmTransformationBtn_clicked();
 signals:
     void MarkComplete();
     void ConversionBetween2Dand3D();
@@ -121,4 +122,6 @@ private:
 
     float currentDisplayImageLength;
     float currentDisplayImageHeight;
+
+    QImage currentDisplayImage;
 };

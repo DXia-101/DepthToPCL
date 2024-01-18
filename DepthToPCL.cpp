@@ -194,47 +194,27 @@ void DepthToPCL::CloudToContour(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin,QStr
     pcl::PointXYZ max;//用于存放三个轴的最大值
     pcl::getMinMax3D(*vtkWidget->cloud, min, max);
 
-    cv::Mat image(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC3);
-    for (int j = 0; j < image.rows; j++)
-    {
-        for (int i = 0; i < image.cols; i++)
-        {
-            image.at<cv::Vec3b>(j, i)[0] = 0;
-            image.at<cv::Vec3b>(j, i)[1] = 0;
-            image.at<cv::Vec3b>(j, i)[2] = 0;
-        }
-    }
+    cv::Mat imageout(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC3);
+    imageout.create(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC3);
     
-    float l; //单个像素代表的实际长度
-    float a = (max.x - min.x) / currentDisplayImageLength;   //分辨率，根据实际需要设置，这里采用648*cvImageWidget->height()
-    float b = (max.y - min.y) / currentDisplayImageHeight;
-    if (a > b)
-    {
-        l = a;
-    }
-    else
-    {
-        l = b;
-    }
-
     for (int i = 0; i < cloudin->size(); i++)
     {
         //计算点对应的像素坐标
-        int x = (cloudin->points[i].x - min.x) / l;
-        int y = (cloudin->points[i].y - min.y) / l;
+        int x = (cloudin->points[i].x - min.x);
+        int y = (cloudin->points[i].y - min.y);
 
         //将颜色信息赋予像素
         if (x > 0 && x < currentDisplayImageLength && y>0 && y < currentDisplayImageHeight)
         {
-            image.at<cv::Vec3b>(y, x)[0] = cloudin->points[i].z;
-            image.at<cv::Vec3b>(y, x)[1] = cloudin->points[i].z;
-            image.at<cv::Vec3b>(y, x)[2] = cloudin->points[i].z;
+            imageout.at<cv::Vec3b>(y, x)[0] = cloudin->points[i].z;
+            imageout.at<cv::Vec3b>(y, x)[1] = cloudin->points[i].z;
+            imageout.at<cv::Vec3b>(y, x)[2] = cloudin->points[i].z;
         }
     }
     te::AiInstance instance;
     instance.name = label.toStdString();
     cv::Mat grayImg, binImg;
-    cv::cvtColor(image, grayImg, cv::COLOR_BGR2GRAY);
+    cv::cvtColor(imageout, grayImg, cv::COLOR_BGR2GRAY);
     threshold(grayImg, binImg, 0, 255, cv::ThresholdTypes::THRESH_OTSU);
     std::vector<cv::Vec4i> hierarchy;
     std::vector<std::vector<cv::Point>> contours;
@@ -260,52 +240,47 @@ void DepthToPCL::CloudToContour(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin,QStr
 /// <summary>
 /// 点云转图片
 /// </summary>
-void DepthToPCL::TDTo2D(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& imageout)
+void DepthToPCL::PCL2Mat(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& imageout)
 {
-
     pcl::PointXYZ min;//用于存放三个轴的最小值
     pcl::PointXYZ max;//用于存放三个轴的最大值
     pcl::getMinMax3D(*cloudin, min, max);
 
-    cv::Mat image(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC3);
-    for (int j = 0; j < image.rows; j++)
-    {
-        for (int i = 0; i < image.cols; i++)
-        {
-            image.at<cv::Vec3b>(j, i)[0] = 0;
-            image.at<cv::Vec3b>(j, i)[1] = 0;
-            image.at<cv::Vec3b>(j, i)[2] = 0;
-        }
-    }
+    if (!imageout.empty())
+        imageout.release();
+    imageout.create(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC3);
 
-    float l; //单个像素代表的实际长度
-    float a = (max.x - min.x) / currentDisplayImageLength;   //分辨率
-    float b = (max.y - min.y) / currentDisplayImageHeight;
-
-    if (a > b)
-    {
-        l = a;
-    }
-    else
-    {
-        l = b;
-    }
 
     for (int i = 0; i < cloudin->size(); i++)
     {
         //计算点对应的像素坐标
-        int x = (cloudin->points[i].x - min.x) / l;
-        int y = (cloudin->points[i].y - min.y) / l;
+        int x = (cloudin->points[i].x - min.x);
+        int y = (cloudin->points[i].y - min.y);
 
         //将颜色信息赋予像素
         if (x > 0 && x < currentDisplayImageLength && y>0 && y < currentDisplayImageHeight)
         {
-            image.at<cv::Vec3b>(y, x)[0] = cloudin->points[i].z;
-            image.at<cv::Vec3b>(y, x)[1] = cloudin->points[i].z;
-            image.at<cv::Vec3b>(y, x)[2] = cloudin->points[i].z;
+            imageout.at<cv::Vec3b>(y, x)[0] = cloudin->points[i].z;
+            imageout.at<cv::Vec3b>(y, x)[1] = cloudin->points[i].z;
+            imageout.at<cv::Vec3b>(y, x)[2] = cloudin->points[i].z;
         }
     }
-    imageout = image;
+
+    //if (!imageout.empty())
+    //    imageout.release();
+    //imageout.create(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC3);
+    //int count = 0;
+    //for (int v = 0; v < imageout.rows; ++v) {
+    //    if (count > cloudin->size()) {
+    //        break;
+    //    }
+    //    for (int u = 0; u < imageout.cols; ++u) {
+    //        imageout.at<cv::Vec3b>(v, u)[0] = cloudin->points[count].z;
+    //        imageout.at<cv::Vec3b>(v, u)[1] = cloudin->points[count].z;
+    //        imageout.at<cv::Vec3b>(v, u)[2] = cloudin->points[count].z;
+    //        count++;
+    //    }
+    //}
 }
 
 //void DepthToPCL::ExtractContours(Te_Gt& contour, cv::Mat imgIn)
@@ -386,7 +361,6 @@ void DepthToPCL::Save_clicked()
             return;
         }
     }
-    
 }
 
 
@@ -556,9 +530,9 @@ void DepthToPCL::DirectFilterAction()
 void DepthToPCL::on_changeFormBtn_clicked()
 {
     if (ThrDState->active()) {
-        TDTo2D(vtkWidget->cloud,m_image);
-        QImage qImg = QImage((unsigned char*)(m_image.data), m_image.cols, m_image.rows, m_image.cols * m_image.channels(), QImage::Format_RGB888);
-        cvImageWidget->setImage(qImg);
+        PCL2Mat(vtkWidget->cloud,m_image);
+        currentDisplayImage = QImage((unsigned char*)(m_image.data), m_image.cols, m_image.rows, m_image.cols * m_image.channels(), QImage::Format_RGB888);
+        cvImageWidget->setImage(currentDisplayImage);
         emit ConversionBetween2Dand3D();
     }
     else {
@@ -628,7 +602,7 @@ void DepthToPCL::on_MarkCompleted_clicked()
 /// </summary>
 void DepthToPCL::on_drawMarkersBtn_clicked()
 {
-    cv::Mat blkImg(cvImageWidget->height(), cvImageWidget->width(), CV_8UC1, cv::Scalar(255));
+    cv::Mat blkImg(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC1, cv::Scalar(255));
 
     for (te::AiInstance aiContour : allResultAiInstance)
     {
@@ -646,7 +620,6 @@ void DepthToPCL::on_drawMarkersBtn_clicked()
 
         drawContours(blkImg, contour_vec, -1, cv::Scalar(0), 2);
         QImage qImg = QImage((unsigned char*)(blkImg.data), blkImg.cols, blkImg.rows, blkImg.cols * blkImg.channels(), QImage::Format_Grayscale8);
-        //scene->addPixmap(QPixmap::fromImage(qImg.scaled(cvImageWidget->size(), Qt::KeepAspectRatio)));
         cvImageWidget->setImage(qImg);
     }
 }
@@ -661,23 +634,16 @@ void DepthToPCL::on_clearMarkersBtn_clicked()
             curlabel->markedPolygons.clear();
         }
     }
-}
+    vtkWidget->viewer->removeAllPointClouds();
+    vtkWidget->viewer->removeAllShapes();
 
-//void DepthToPCL::on_clearMarkersBtn_clicked()
-//{
-//    Test1Label->ClearCloudVector();
-//    Test2Label->ClearCloudVector();
-//    Test3Label->ClearCloudVector();
-//    ContourVector.clear();
-//    viewer->removeAllPointClouds();
-//    viewer->removeAllShapes();
-//
-//    viewer->addPointCloud<pcl::PointXYZ>(cloud->makeShared(), "cloud");
-//    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
-//    viewer->resetCamera();
-//    vtkWidget->update();
-//    renderWindow->Render();//重新渲染
-//}
+    vtkWidget->viewer->addPointCloud<pcl::PointXYZ>(vtkWidget->cloud->makeShared(), "cloud");
+    vtkWidget->viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
+    vtkWidget->viewer->resetCamera();
+    vtkWidget->update();
+    vtkWidget->m_renderWindow->Render();//重新渲染
+    allResultAiInstance.clear();
+}
 
 void DepthToPCL::SaveContour()
 {
@@ -718,6 +684,25 @@ void DepthToPCL::SaveMat()
 void DepthToPCL::SaveSampleLabel()
 {
     /*vSampleLabel.push_back(ContourVector);*/
+}
+
+/// <summary>
+/// 高度系数的控制
+/// </summary>
+void DepthToPCL::on_ConfirmTransformationBtn_clicked()
+{
+    int factor = ui.HeightCoefficientSpinBox->value();
+    for (int i = 0; i < vtkWidget->cloud->size(); ++i) {
+        vtkWidget->cloud->at(i).z *= factor;
+    }
+    vtkWidget->viewer->removeAllPointClouds();
+    vtkWidget->viewer->removeAllShapes();
+
+    vtkWidget->viewer->addPointCloud<pcl::PointXYZ>(vtkWidget->cloud->makeShared(), "cloud");
+    vtkWidget->viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
+    vtkWidget->viewer->resetCamera();
+    vtkWidget->update();
+    vtkWidget->m_renderWindow->Render();//重新渲染
 }
 
 void DepthToPCL::on_addDynamicLabel_clicked()
@@ -766,7 +751,7 @@ void DepthToPCL::on_startTagBtn_clicked()
 /// </summary>
 void DepthToPCL::Open_clicked() {
     QString fileName = QFileDialog::getOpenFileName(this, tr("open  file"),
-        "", tr("pcb files(*.pcd *.ply *.tif) ;;All files (*.*)"));
+        "", tr("pcb files(*.pcd *.ply *.tif *.tiff) ;;All files (*.*)"));
 
     if (fileName.isEmpty())
     {
@@ -791,7 +776,7 @@ void DepthToPCL::Open_clicked() {
         currentDisplayImageLength = max.x - min.x;
         currentDisplayImageHeight = max.y - min.y;
     }
-    else if (fileName.endsWith("tif")) {
+    else if (fileName.endsWith("tif")|| fileName.endsWith("tiff")) {
         cv::Mat image = cv::imread(fileName.toStdString(), cv::IMREAD_UNCHANGED);
         if (image.empty()) {
             QMessageBox::warning(this, "Warning", "无法读取图像文件");
@@ -813,13 +798,11 @@ void DepthToPCL::Open_clicked() {
 
             vtkWidget->cloud->at(x, y).x = static_cast<float>(x);
             vtkWidget->cloud->at(x, y).y = static_cast<float>(y);
-            vtkWidget->cloud->at(x, y).z = depth*255;
+            vtkWidget->cloud->at(x, y).z = depth;
         }
-        pcl::PointXYZ min;
-        pcl::PointXYZ max;
-        pcl::getMinMax3D(*vtkWidget->cloud, min, max);
-        currentDisplayImageLength = max.x - min.x;
-        currentDisplayImageHeight = max.y - min.y;
+
+        currentDisplayImageLength = vtkWidget->cloud->width;
+        currentDisplayImageHeight = vtkWidget->cloud->height;
     }
     else {
         QMessageBox::warning(this, "Warning", "点云读取格式错误！");
