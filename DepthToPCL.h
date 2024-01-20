@@ -31,7 +31,7 @@ public:
     void Interface_Initialization();
     void PCL_Initalization();
     void InitStateMachine();
-    void PCL2Mat(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin,cv::Mat& imageout);
+    void PCL2cvMat(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin,cv::Mat& imageout);
     //void ExtractContours(Te_Gt& contour, cv::Mat imgIn);
     
 private:

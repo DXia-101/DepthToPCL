@@ -334,9 +334,11 @@ void DepthToPCL::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
 }
 
 /// <summary>
-/// 点云转图片
+/// 点云转为cv::Mat格式(转换完的是没有z轴的)
 /// </summary>
-void DepthToPCL::PCL2Mat(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& imageout)
+/// <param name="cloudin">待转换的点云</param>
+/// <param name="imageout">转换完的cv::Mat</param>
+void DepthToPCL::PCL2cvMat(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& imageout)
 {
     pcl::PointXYZ min;//用于存放三个轴的最小值
     pcl::PointXYZ max;//用于存放三个轴的最大值
@@ -601,8 +603,7 @@ void DepthToPCL::DirectFilterAction()
 void DepthToPCL::on_changeFormBtn_clicked()
 {
     if (ThrDState->active()) {
-        PCL2Mat(vtkWidget->cloud,m_image);
-        currentDisplayImage = QImage((unsigned char*)(m_image.data), m_image.cols, m_image.rows, m_image.cols * m_image.channels(), QImage::Format_RGB888);
+
         cvImageWidget->setImage(currentDisplayImage);
         emit ConversionBetween2Dand3D();
     }
@@ -849,6 +850,8 @@ void DepthToPCL::Open_clicked() {
 
     //移除窗口点云
     reRendering(vtkWidget->cloud->makeShared());
+    PCL2cvMat(vtkWidget->cloud, m_image);
+    currentDisplayImage = QImage((unsigned char*)(m_image.data), m_image.cols, m_image.rows, m_image.cols * m_image.channels(), QImage::Format_RGB888);
     allResultAiInstance.clear();
     for (int i = 0; i < labelVLayout->count(); ++i) {
         QWidget* widget = labelVLayout->itemAt(i)->widget();
