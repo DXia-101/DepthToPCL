@@ -31,8 +31,13 @@ public:
     void Interface_Initialization();
     void PCL_Initalization();
     void InitStateMachine();
-    void PCL2cvMat(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin,cv::Mat& imageout);
     //void ExtractContours(Te_Gt& contour, cv::Mat imgIn);
+protected:
+
+    void addAiInstance(DynamicLabel* curlabel,GraphicsPolygonItem* markedPolygon);
+    void addAiInstance(DynamicLabel* curlabel,pcl::PointCloud<pcl::PointXYZ>::Ptr markedCloud);
+    void AiInstSet2Cloud(DynamicLabel* curlabel);
+    void AiInstSet2PolygonItem(DynamicLabel* curlabel);
     
 private:
     void mousePressEvent(QMouseEvent* event) override;
@@ -41,9 +46,10 @@ private:
     void Cloud2cvMat(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin,cv::Mat& imageout);
     void cvMat2Cloud(cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut);
     void cvMat2Contour(cv::Mat& Matin, std::vector<std::vector<cv::Point>>* contours);
-    void SaveContour2Label(cv::Mat& Matin, DynamicLabel* curlabel);
+    void SaveMatContour2Label(cv::Mat& Matin, DynamicLabel* curlabel);
     void ExtractImages(QImage* imageToBeExtracted, GraphicsPolygonItem* extractedContours,cv::Mat* extractedImages);
     void reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin);
+    void ClearAllMarkedContent();
 
 private slots:
     void Open_clicked(); //´ò¿ªµãÔÆ
@@ -84,12 +90,11 @@ private slots:
     void SaveContour();
     void LoadContour();
 
-    void SaveMat();
-    void SaveSampleLabel();
-
     void on_ConfirmTransformationBtn_clicked();
+
+    void ReceiveMarkedPointClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+    void ReceiveMarkedPolygonItem(GraphicsPolygonItem* polygonItem);
 signals:
-    void MarkComplete();
     void ConversionBetween2Dand3D();
 
 private:
@@ -109,8 +114,6 @@ private:
 
     Filter_Guass* dialog_Guass_filter;
     Filter_Direct* dialog_Direct_filter;
-
-    te::AiInstSet allResultAiInstance;
 
     QVBoxLayout* labelVLayout;
 

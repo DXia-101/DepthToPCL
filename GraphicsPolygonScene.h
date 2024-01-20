@@ -16,7 +16,8 @@ class GraphicsPolygonScene : public QGraphicsScene
 public:
 	GraphicsPolygonScene(QGraphicsScene* parent = nullptr);
 	~GraphicsPolygonScene();
-	void DrawPolygon(const te::PolygonF& polygon);
+	void DrawPolygon(const te::PolygonF& polygon, QColor color);
+	void AiInstance2GraphicsPolygonItem(te::AiInstance* instance, QColor color);
 protected:
 	// 左键：添加item  右键：移除item
 	void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
@@ -27,15 +28,15 @@ protected:
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
 
 	void InitStateMachine();
-
-	
 signals:
 	void markedRegion(const QPolygonF& polygon);
 	void StateChange();
+	void GraphicsPolygonItemMarkingCompleted(GraphicsPolygonItem* polygonItem);
 public:
 	DynamicLabel* currentdynamicLabel;  //当前标签对象
 	QColor currentColor;
 private:
+	GraphicsPolygonItem* polygon;
 	bool isStart;
 	
 	QStateMachine* m_pStateMachine;

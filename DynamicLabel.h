@@ -19,14 +19,6 @@ public:
 	DynamicLabel(QString tag,QWidget *parent = nullptr);
 	~DynamicLabel();
 
-	void PushCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
-	void ClearCloudVector();
-
-	pcl::PointCloud<pcl::PointXYZ>::Ptr GetBack();
-	pcl::PointCloud<pcl::PointXYZ>::Ptr CloudAt(int index);
-
-	int GetCloudSize();
-
 	QString GetLabel();
 	QColor GetColor();
 
@@ -35,13 +27,10 @@ private slots:
 	void setLabelName(QString tag);
 
 public:
-	QVector<GraphicsPolygonItem*> markedPolygons;
 	te::AiInstSet LabelAiInstSet;
 
 private:
 	Ui::DynamicLabelClass *ui;
-	
-	std::vector<pcl::PointCloud<pcl::PointXYZ>> clouds;
 	
 	QString label;
 	QColor penColor;

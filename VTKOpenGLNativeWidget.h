@@ -3,6 +3,7 @@
 #include "Filter_Guass.h"
 #include "Filter_Direct.h"
 #include "DynamicLabel.h"
+#include "teAiExTypes.h"
 
 class VTKOpenGLNativeWidget  : public QVTKOpenGLNativeWidget
 {
@@ -20,6 +21,9 @@ public:
     void ComfirmFramePick();
     void ComfirmPointPick();
     void projectInliers(void* viewer_void, QString mode);
+
+public:
+    void AiInstance2Cloud(te::AiInstance* instance,QColor color);
 
 protected:
     void Frame_PickingCallBack(const pcl::visualization::AreaPickingEvent& event, void* viewer_void);
@@ -42,6 +46,8 @@ public slots:
 
     void GuassFilter(QString data1, QString data2, QString data3, QString data4);
     void DirectFilter(QString data1, QString data2, QString data3, QString data4);
+signals:
+    void PointCloudMarkingCompleted(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 public:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr Point_clicked_cloud;

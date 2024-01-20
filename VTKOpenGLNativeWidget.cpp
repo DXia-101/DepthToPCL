@@ -258,10 +258,10 @@ void VTKOpenGLNativeWidget::projectInliers(void* viewer_void, QString mode)
     //创建一个平面
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());//ax+by+cz+d=0
     coefficients->values.resize(4);
-    coefficients->values[0] = eyeLine.x;
-    coefficients->values[1] = eyeLine.y;
-    coefficients->values[2] = eyeLine.z;
-    coefficients->values[3] = 0;
+    coefficients->values[0] = eyeLine.x;// 法向量 x 分量
+    coefficients->values[1] = eyeLine.y;// 法向量 y 分量
+    coefficients->values[2] = eyeLine.z;// 法向量 z 分量
+    coefficients->values[3] = 0;        // 平面偏移量
 
     //创建保存结果投影的点云
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloudIn_Prj(new pcl::PointCloud<pcl::PointXYZ>);//输入的点云
@@ -338,12 +338,55 @@ void VTKOpenGLNativeWidget::projectInliers(void* viewer_void, QString mode)
                 cloud_cliped->points.push_back(cloud->points[i]);
             }//表示在外面
         }
-        currentdynamicLabel->PushCloud(cloud_cliped);
-        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(currentdynamicLabel->GetBack(), currentdynamicLabel->GetColor().red(), currentdynamicLabel->GetColor().green(), currentdynamicLabel->GetColor().blue());
+        
+        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_cliped, currentdynamicLabel->GetColor().red(), currentdynamicLabel->GetColor().green(), currentdynamicLabel->GetColor().blue());
         std::string CloudId = mode.toStdString() + rand_str(3);
-        viewer->addPointCloud(currentdynamicLabel->GetBack(), currentColor, CloudId);
+        viewer->addPointCloud(cloud_cliped, currentColor, CloudId);
+        emit PointCloudMarkingCompleted(cloud_cliped);
         m_renderWindow->Render();
     }
+}
+
+void VTKOpenGLNativeWidget::AiInstance2Cloud(te::AiInstance* instance, QColor color)
+{
+    //创建一个平面
+    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());//ax+by+cz+d=0
+    coefficients->values.resize(4);
+    coefficients->values[0] = 0;// 法向量 x 分量
+    coefficients->values[1] = 0;// 法向量 y 分量
+    coefficients->values[2] = 1;// 法向量 z 分量
+    coefficients->values[3] = 0;        // 平面偏移量
+
+    //创建保存结果投影的点云
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloudIn_Prj(new pcl::PointCloud<pcl::PointXYZ>);//输入的点云
+
+    // 创建滤波器对象
+    pcl::ProjectInliers<pcl::PointXYZ> projCloudIn;//建立投影对象
+    projCloudIn.setModelType(pcl::SACMODEL_PLANE);//设置投影类型
+    projCloudIn.setInputCloud(cloud);//设置输入点云
+    projCloudIn.setModelCoefficients(coefficients);//加载投影参数
+    projCloudIn.filter(*cloudIn_Prj);//执行程序，并将结果保存
+
+    int ret = -1;
+    double* PloyXarr = new double[instance->contour.polygons[0].size()];
+    double* PloyYarr = new double[instance->contour.polygons[0].size()];
+    for (int i = 0; i < instance->contour.polygons[0].size();++i) {
+        PloyXarr[i] = instance->contour.polygons[0].at(i).x;
+        PloyYarr[i] = instance->contour.polygons[0].at(i).y;
+    }
+    cloud_cliped->clear();
+    for (int i = 0; i < cloudIn_Prj->points.size(); i++)
+    {
+        ret = inOrNot1(cloud_polygon->points.size(), PloyXarr, PloyYarr, cloudIn_Prj->points[i].x, cloudIn_Prj->points[i].y);
+        if (1 == ret)//表示在里面
+        {
+            cloud_cliped->points.push_back(cloud->points[i]);
+        }//表示在外面
+    }
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_cliped, color.red(), color.green(), color.blue());
+    std::string CloudId = rand_str(3);
+    viewer->addPointCloud(cloud_cliped, currentColor, CloudId);
+    m_renderWindow->Render();
 }
 
 /**

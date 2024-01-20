@@ -16,33 +16,6 @@ DynamicLabel::~DynamicLabel()
 	delete ui;
 }
 
-void DynamicLabel::PushCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
-{
-	pcl::PointCloud<pcl::PointXYZ> tempcloud;
-	pcl::copyPointCloud(*cloud, tempcloud);
-	clouds.emplace_back(tempcloud);
-}
-
-void DynamicLabel::ClearCloudVector()
-{
-	clouds.clear();
-}
-
-pcl::PointCloud<pcl::PointXYZ>::Ptr DynamicLabel::GetBack()
-{
-	return clouds.back().makeShared();
-}
-
-pcl::PointCloud<pcl::PointXYZ>::Ptr DynamicLabel::CloudAt(int index)
-{
-	return clouds.at(index).makeShared();
-}
-
-int DynamicLabel::GetCloudSize()
-{
-	return clouds.size();
-}
-
 QString DynamicLabel::GetLabel()
 {
 	return this->label;
