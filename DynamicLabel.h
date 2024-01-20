@@ -3,8 +3,8 @@
 #include <QWidget>
 #include "ui_DynamicLabel.h"
 #include "pcl_function.h"
-#include "Configure.h"
 #include "GraphicsPolygonItem.h"
+#include "teAiExTypes.h"
 #include <vector>
 
 QT_BEGIN_NAMESPACE
@@ -36,11 +36,12 @@ private slots:
 
 public:
 	QVector<GraphicsPolygonItem*> markedPolygons;
+	te::AiInstSet LabelAiInstSet;
+
 private:
 	Ui::DynamicLabelClass *ui;
 	
 	std::vector<pcl::PointCloud<pcl::PointXYZ>> clouds;
-	
 	
 	QString label;
 	QColor penColor;

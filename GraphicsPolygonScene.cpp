@@ -4,6 +4,8 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
 #include <QPolygon>
+#include <QPolygonF>
+#include <QPainterPath>
 
 GraphicsPolygonScene::GraphicsPolygonScene(QGraphicsScene* parent):QGraphicsScene(parent)
 {
@@ -28,6 +30,23 @@ void GraphicsPolygonScene::InitStateMachine()
 	m_pStateMachine->setInitialState(BlankState);
 	m_pStateMachine->start();
 }
+
+void GraphicsPolygonScene::DrawPolygon(const te::PolygonF& polygon)
+{
+	QPolygonF CurrentlyDawingPlygons;
+	for (const te::Point2f& point : polygon) {
+		QPointF contourPoint(point.x, point.y);
+		CurrentlyDawingPlygons << contourPoint;
+	}
+
+	GraphicsPolygonItem* polyItem = new GraphicsPolygonItem();
+	polyItem->setPen(QPen(Qt::white));
+	polyItem->setBrush(QBrush(currentColor));
+	polyItem->setPolygon(CurrentlyDawingPlygons);
+	addItem(polyItem);
+	currentdynamicLabel->markedPolygons.push_back(polyItem);
+}
+
 
 void GraphicsPolygonScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {

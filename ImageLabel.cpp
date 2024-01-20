@@ -21,6 +21,6 @@ void ImageLabel::setImage(const QImage& image)
     this->image = image;
     scene->clear();
     scene->addPixmap(QPixmap::fromImage(this->image));
-    fitInView(sceneRect(), Qt::KeepAspectRatio);
+    fitInView(sceneRect(), Qt::KeepAspectRatio); //保持纵横比，适应到视图中但不改变纵横比。
 }
 

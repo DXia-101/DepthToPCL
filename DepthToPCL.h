@@ -38,8 +38,12 @@ private:
     void mousePressEvent(QMouseEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
-    void CloudToContour(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, QString label);
-    
+    void Cloud2cvMat(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin,cv::Mat& imageout);
+    void cvMat2Cloud(cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut);
+    void cvMat2Contour(cv::Mat& Matin, std::vector<std::vector<cv::Point>>* contours);
+    void SaveContour2Label(cv::Mat& Matin, DynamicLabel* curlabel);
+    void ExtractImages(QImage* imageToBeExtracted, GraphicsPolygonItem* extractedContours,cv::Mat* extractedImages);
+    void reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin);
 
 private slots:
     void Open_clicked(); //打开点云
@@ -105,10 +109,6 @@ private:
 
     Filter_Guass* dialog_Guass_filter;
     Filter_Direct* dialog_Direct_filter;
-
-    //std::vector<cv::Mat> vImg; //多张图片的Mat对象
-    //SampleLabel ContourVector; //多张图片的内外轮廓集
-    //std::vector<SampleLabel> vSampleLabel;
 
     te::AiInstSet allResultAiInstance;
 

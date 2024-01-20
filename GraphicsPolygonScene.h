@@ -16,6 +16,7 @@ class GraphicsPolygonScene : public QGraphicsScene
 public:
 	GraphicsPolygonScene(QGraphicsScene* parent = nullptr);
 	~GraphicsPolygonScene();
+	void DrawPolygon(const te::PolygonF& polygon);
 protected:
 	// ×ó¼ü£ºÌí¼Óitem  ÓÒ¼ü£ºÒÆ³ýitem
 	void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
@@ -27,6 +28,7 @@ protected:
 
 	void InitStateMachine();
 
+	
 signals:
 	void markedRegion(const QPolygonF& polygon);
 	void StateChange();

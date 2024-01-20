@@ -17,6 +17,12 @@
 #include <QToolBar>
 #include <QStatusBar>
 #include <QKeyEvent>
+#include <QPixmap>
+#include <QPainter>
+#include <QPainterPath>
+#include <QImage>
+#include <QVector>
+#include <QRect>
 //#include <QtConcurrent>
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -31,8 +37,6 @@
 #include <string>
 #include <stdexcept>
 
-#include "CategoryTag.h"
-#include "Configure.h"
 #include "DynamicLabel.h"
 #include "teRapidjsonObjectTree.h"
 
@@ -53,7 +57,7 @@ DepthToPCL::~DepthToPCL()
 {}
 
 /**
- * @brief 界面初始化程序
+ * @brief 界面初始化
  * @return
  */
 void DepthToPCL::Interface_Initialization()
@@ -169,6 +173,9 @@ void DepthToPCL::PCL_Initalization()
     cvImageWidget->hide();
 }
 
+/// <summary>
+/// 初始化状态机
+/// </summary>
 void DepthToPCL::InitStateMachine()
 {
     m_pStateMachine = new QStateMachine();
@@ -188,14 +195,16 @@ void DepthToPCL::InitStateMachine()
     m_pStateMachine->start();
 }
 
-void DepthToPCL::CloudToContour(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin,QString label)
+/// <summary>
+/// 点云转换为cv::Mat
+/// </summary>
+/// <param name="cloudin">要转换的点云</param>
+/// <param name="imageout">转换成功的图像</param>
+void DepthToPCL::Cloud2cvMat(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& imageout)
 {
     pcl::PointXYZ min;//用于存放三个轴的最小值
     pcl::PointXYZ max;//用于存放三个轴的最大值
     pcl::getMinMax3D(*vtkWidget->cloud, min, max);
-
-    cv::Mat imageout(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC3);
-    imageout.create(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC3);
     
     for (int i = 0; i < cloudin->size(); i++)
     {
@@ -211,30 +220,117 @@ void DepthToPCL::CloudToContour(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin,QStr
             imageout.at<cv::Vec3b>(y, x)[2] = cloudin->points[i].z;
         }
     }
-    te::AiInstance instance;
-    instance.name = label.toStdString();
+    
+}
+
+/// <summary>
+/// cv::Mat转为点云
+/// </summary>
+/// <param name="imageIn">待转换的cv::Mat</param>
+/// <param name="cloudOut">转换完后的点云</param>
+void DepthToPCL::cvMat2Cloud(cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)
+{
+    cloudOut->width = imageIn.cols;
+    cloudOut->height = imageIn.rows;
+    cloudOut->points.resize(cloudOut->width * cloudOut->height);
+
+    cv::MatIterator_<float> pixel_it, pixel_end;
+    pixel_it = imageIn.begin<float>();
+    pixel_end = imageIn.end<float>();
+
+    for (int i = 0; pixel_it != pixel_end; ++pixel_it, ++i) {
+        int y = i / imageIn.cols;
+        int x = i % imageIn.cols;
+        float depth = *pixel_it;
+
+        cloudOut->at(x, y).x = static_cast<float>(x);
+        cloudOut->at(x, y).y = static_cast<float>(y);
+        cloudOut->at(x, y).z = depth;
+    }
+}
+
+/// <summary>
+/// cv::Mat格式的图片提取轮廓
+/// </summary>
+/// <param name="Matin">需要提取的cv::Mat图片</param>
+/// <param name="curlabel">当前的标签</param>
+void DepthToPCL::cvMat2Contour(cv::Mat& Matin, std::vector<std::vector<cv::Point>>* contours)
+{
     cv::Mat grayImg, binImg;
-    cv::cvtColor(imageout, grayImg, cv::COLOR_BGR2GRAY);
+    cv::cvtColor(Matin, grayImg, cv::COLOR_BGR2GRAY);
     threshold(grayImg, binImg, 0, 255, cv::ThresholdTypes::THRESH_OTSU);
     std::vector<cv::Vec4i> hierarchy;
+    findContours(binImg, *contours, hierarchy, cv::RetrievalModes::RETR_TREE, cv::CHAIN_APPROX_NONE);//会将整个图像的最外层轮廓算进去
+}
+
+/// <summary>
+/// 保存图像轮廓到标签当中
+/// </summary>
+/// <param name="Matin">待查找轮廓的图像</param>
+/// <param name="curlabel">保存轮廓的标签</param>
+void DepthToPCL::SaveContour2Label(cv::Mat& Matin, DynamicLabel* curlabel)
+{
+    te::AiInstance instance;
+    instance.name = curlabel->GetLabel().toStdString();
     std::vector<std::vector<cv::Point>> contours;
-    findContours(binImg, contours, hierarchy, cv::RetrievalModes::RETR_TREE, cv::CHAIN_APPROX_NONE);
-    
+    cvMat2Contour(Matin, &contours);
+    contours.erase(contours.begin());
     te::PolygonF polygon;
     for (const std::vector<cv::Point>& contourPoints : contours) {
 
         te::PolygonF::PointType point;
         for (const cv::Point& contourPoint : contourPoints) {
-            
+
             point.x = static_cast<float>(contourPoint.x);
             point.y = static_cast<float>(contourPoint.y);
             polygon.push_back(point);
-            
+
         }
         instance.contour.polygons.push_back(polygon);
         polygon.clear();
     }
-    allResultAiInstance.push_back(instance);
+    //allResultAiInstance.push_back(instance);
+    curlabel->LabelAiInstSet.push_back(instance);
+}
+
+/// <summary>
+/// 对轮廓覆盖到的图片部分进行提取
+/// </summary>
+/// <param name="imageToBeExtracted">待提取的图片</param>
+/// <param name="extractedContours">提取的轮廓</param>
+/// <param name="extractedImages">提取出的图片</param>
+void DepthToPCL::ExtractImages(QImage* imageToBeExtracted, GraphicsPolygonItem* extractedContours, cv::Mat* extractedImages)
+{
+    cv::Mat currentImg = cv::Mat(imageToBeExtracted->height(), imageToBeExtracted->width(), CV_8UC(3), (void*)imageToBeExtracted->constBits(), imageToBeExtracted->bytesPerLine());
+    
+    cv::Mat selectionRangeImg = cv::Mat::zeros(currentImg.size(), CV_8UC3);
+
+    std::vector<std::vector<cv::Point>> contours;
+    std::vector<cv::Point> contour;
+
+    for (const QPointF& pointF : extractedContours->polygon()) {
+        contour.push_back(cv::Point(pointF.x(), pointF.y()));
+    }
+    contours.push_back(contour);
+    cv::drawContours(selectionRangeImg, contours, 0, cv::Scalar(255), -1);
+    currentImg.copyTo(*extractedImages, selectionRangeImg);
+}
+
+/// <summary>
+/// 重新渲染3D界面
+/// </summary>
+/// <param name="cloudin">需要显示的点云</param>
+void DepthToPCL::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
+{
+    vtkWidget->viewer->removeAllPointClouds();
+    vtkWidget->viewer->removeAllShapes();
+
+    vtkWidget->viewer->addPointCloud<pcl::PointXYZ>(cloudin, "cloud");
+    vtkWidget->viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
+    vtkWidget->viewer->resetCamera();
+    vtkWidget->update();
+    vtkWidget->m_renderWindow->Render();//重新渲染
+    allResultAiInstance.clear();
 }
 
 /// <summary>
@@ -265,32 +361,7 @@ void DepthToPCL::PCL2Mat(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& i
             imageout.at<cv::Vec3b>(y, x)[2] = cloudin->points[i].z;
         }
     }
-
-    //if (!imageout.empty())
-    //    imageout.release();
-    //imageout.create(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC3);
-    //int count = 0;
-    //for (int v = 0; v < imageout.rows; ++v) {
-    //    if (count > cloudin->size()) {
-    //        break;
-    //    }
-    //    for (int u = 0; u < imageout.cols; ++u) {
-    //        imageout.at<cv::Vec3b>(v, u)[0] = cloudin->points[count].z;
-    //        imageout.at<cv::Vec3b>(v, u)[1] = cloudin->points[count].z;
-    //        imageout.at<cv::Vec3b>(v, u)[2] = cloudin->points[count].z;
-    //        count++;
-    //    }
-    //}
 }
-
-//void DepthToPCL::ExtractContours(Te_Gt& contour, cv::Mat imgIn)
-//{
-//    cv::Mat grayImg, binImg;
-//    cv::cvtColor(imgIn, grayImg, cv::COLOR_BGR2GRAY);
-//    threshold(grayImg, binImg, 0, 255, cv::ThresholdTypes::THRESH_OTSU);
-//
-//    findContours(binImg, contour.GetContourVec(), contour.GetHierarchy(), cv::RetrievalModes::RETR_TREE, cv::CHAIN_APPROX_NONE);
-//}
 
 void DepthToPCL::mousePressEvent(QMouseEvent* event)
 {
@@ -535,7 +606,7 @@ void DepthToPCL::on_changeFormBtn_clicked()
         cvImageWidget->setImage(currentDisplayImage);
         emit ConversionBetween2Dand3D();
     }
-    else {
+    else if(TwoDState->active()) {
         emit ConversionBetween2Dand3D();
     }
 }
@@ -545,19 +616,12 @@ void DepthToPCL::on_changeFormBtn_clicked()
 /// </summary>
 void DepthToPCL::on_drawCounterBtn_clicked()
 {
-    cv::Mat grayImg,binImg;
-    cv::cvtColor(m_image, grayImg, cv::COLOR_BGR2GRAY);
-
-    //进行二值化
-    threshold(grayImg, binImg, 0, 255, cv::ThresholdTypes::THRESH_OTSU);
-
     //提取二值化图像中的轮廓数据
     std::vector<std::vector<cv::Point> > contour_vec;
-    std::vector<cv::Vec4i> hierarchy;
-    findContours(binImg, contour_vec, hierarchy, cv::RetrievalModes::RETR_TREE, cv::CHAIN_APPROX_NONE);
-
+    cvMat2Contour(m_image, &contour_vec);
+    contour_vec.erase(contour_vec.begin());
     //绘制单通道轮廓图像，背景为白色，轮廓线条用黑色
-    cv::Mat blkImg(binImg.size(), CV_8UC1, cv::Scalar(255));
+    cv::Mat blkImg(m_image.size(), CV_8UC1, cv::Scalar(255));
     drawContours(blkImg, contour_vec, -1, cv::Scalar(0), 2);
     QImage qImg = QImage((unsigned char*)(blkImg.data), blkImg.cols, blkImg.rows, blkImg.cols * blkImg.channels(), QImage::Format_Grayscale8);
     //scene->addPixmap(QPixmap::fromImage(qImg.scaled(cvImageWidget->size(), Qt::KeepAspectRatio)));
@@ -566,7 +630,7 @@ void DepthToPCL::on_drawCounterBtn_clicked()
 
 
 /// <summary>
-/// 标记完成
+/// 2D&3D状态下的标记完成
 /// </summary>
 void DepthToPCL::on_MarkCompleted_clicked()
 {
@@ -576,21 +640,24 @@ void DepthToPCL::on_MarkCompleted_clicked()
             DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
             if (nullptr != curlabel) {
                 for (int j = 0; j < curlabel->GetCloudSize(); ++j) {
-                    CloudToContour(curlabel->CloudAt(j), curlabel->GetLabel());
+                    cv::Mat imageout(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC3);
+                    Cloud2cvMat(curlabel->CloudAt(j), imageout);
+                    SaveContour2Label(imageout, curlabel);
                 }
             }
         }
         emit MarkComplete();
     }
     else if (TwoDState->active()) {
-        //将标记与轮廓进行比对，最后将轮廓保存为新的轮廓，以新标记的为基准
         for (int i = 0; i < labelVLayout->count(); ++i) {
             QWidget* widget = labelVLayout->itemAt(i)->widget();
             DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
             if (nullptr != curlabel) {
                 for (int j = 0; j < curlabel->markedPolygons.size(); ++j) {
-                    //将新标记与之前所有的轮廓依次进行比对，看新标记是否在之前的轮廓上，如果在则进行合并处理，如果不在，则将新标记作为轮廓添加进去
-                    // function(curlabel->markedPolygons.at(j));
+                    //将覆盖的图片上的图像抽出来进行轮廓查找输入到当前标签的AiInstSet中
+                    cv::Mat extractedImage;
+                    ExtractImages(&cvImageWidget->image,curlabel->markedPolygons[i], &extractedImage);
+                    SaveContour2Label(extractedImage,curlabel);
                 }
             }
         }
@@ -602,25 +669,18 @@ void DepthToPCL::on_MarkCompleted_clicked()
 /// </summary>
 void DepthToPCL::on_drawMarkersBtn_clicked()
 {
-    cv::Mat blkImg(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC1, cv::Scalar(255));
-
-    for (te::AiInstance aiContour : allResultAiInstance)
-    {
-        // 获取轮廓相关的数据
-        std::vector<std::vector<cv::Point>> contour_vec;
-        for (const te::PolygonF& polygon : aiContour.contour.polygons) {
-            std::vector<cv::Point> contourPoints;
-            for (const te::Point2f& point : polygon) {
-                cv::Point contourPoint(static_cast<int>(point.x), static_cast<int>(point.y));
-                contourPoints.push_back(contourPoint);
+    for (int i = 0; i < labelVLayout->count(); ++i) {
+        QWidget* widget = labelVLayout->itemAt(i)->widget();
+        DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
+        if (nullptr != curlabel) {
+            for (te::AiInstance aiContour : curlabel->LabelAiInstSet)
+            {
+                // 获取轮廓相关的数据
+                for (const te::PolygonF& polygon : aiContour.contour.polygons) {
+                    cvImageWidget->scene->DrawPolygon(polygon);
+                }
             }
-
-            contour_vec.push_back(contourPoints);
         }
-
-        drawContours(blkImg, contour_vec, -1, cv::Scalar(0), 2);
-        QImage qImg = QImage((unsigned char*)(blkImg.data), blkImg.cols, blkImg.rows, blkImg.cols * blkImg.channels(), QImage::Format_Grayscale8);
-        cvImageWidget->setImage(qImg);
     }
 }
 
@@ -632,16 +692,10 @@ void DepthToPCL::on_clearMarkersBtn_clicked()
         if (nullptr != curlabel) {
             curlabel->ClearCloudVector();
             curlabel->markedPolygons.clear();
+            curlabel->LabelAiInstSet.clear();
         }
     }
-    vtkWidget->viewer->removeAllPointClouds();
-    vtkWidget->viewer->removeAllShapes();
-
-    vtkWidget->viewer->addPointCloud<pcl::PointXYZ>(vtkWidget->cloud->makeShared(), "cloud");
-    vtkWidget->viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
-    vtkWidget->viewer->resetCamera();
-    vtkWidget->update();
-    vtkWidget->m_renderWindow->Render();//重新渲染
+    reRendering(vtkWidget->cloud->makeShared());
     allResultAiInstance.clear();
 }
 
@@ -695,16 +749,12 @@ void DepthToPCL::on_ConfirmTransformationBtn_clicked()
     for (int i = 0; i < vtkWidget->cloud->size(); ++i) {
         vtkWidget->cloud->at(i).z *= factor;
     }
-    vtkWidget->viewer->removeAllPointClouds();
-    vtkWidget->viewer->removeAllShapes();
-
-    vtkWidget->viewer->addPointCloud<pcl::PointXYZ>(vtkWidget->cloud->makeShared(), "cloud");
-    vtkWidget->viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
-    vtkWidget->viewer->resetCamera();
-    vtkWidget->update();
-    vtkWidget->m_renderWindow->Render();//重新渲染
+    reRendering(vtkWidget->cloud->makeShared());
 }
 
+/// <summary>
+/// 添加标签按钮
+/// </summary>
 void DepthToPCL::on_addDynamicLabel_clicked()
 {
     DynamicLabel* label = new DynamicLabel(tr("默认"));
@@ -713,6 +763,9 @@ void DepthToPCL::on_addDynamicLabel_clicked()
     ui.scrollAreaWidgetContents->setGeometry(0, 0, label->width(), totalHeight);
 }
 
+/// <summary>
+/// 删除标签按钮
+/// </summary>
 void DepthToPCL::on_delDynamicLabel_clicked()
 {
     if (nullptr == vtkWidget->currentdynamicLabel)
@@ -724,6 +777,9 @@ void DepthToPCL::on_delDynamicLabel_clicked()
     vtkWidget->currentdynamicLabel = nullptr;
 }
 
+/// <summary>
+/// 开始标记按钮
+/// </summary>
 void DepthToPCL::on_startTagBtn_clicked()
 {
     if (nullptr == vtkWidget->currentdynamicLabel)
@@ -734,7 +790,7 @@ void DepthToPCL::on_startTagBtn_clicked()
             vtkWidget->line_id++;
             vtkWidget->cloud_polygon->clear();
             vtkWidget->flag = false;
-            ui.startTagBtn->setText("完成标记");
+            ui.startTagBtn->setText("结束标记");
         }
         else {
             ui.startTagBtn->setText("开始标记");
@@ -782,24 +838,7 @@ void DepthToPCL::Open_clicked() {
             QMessageBox::warning(this, "Warning", "无法读取图像文件");
             return;
         }
-        vtkWidget->cloud->width = image.cols;
-        vtkWidget->cloud->height = image.rows;
-        vtkWidget->cloud->points.resize(vtkWidget->cloud->width * vtkWidget->cloud->height);
-
-        cv::MatIterator_<float> pixel_it, pixel_end;
-        pixel_it = image.begin<float>();
-        pixel_end = image.end<float>();
-
-
-        for (int i = 0; pixel_it != pixel_end; ++pixel_it, ++i) {
-            int y = i / image.cols;
-            int x = i % image.cols;
-            float depth = *pixel_it;
-
-            vtkWidget->cloud->at(x, y).x = static_cast<float>(x);
-            vtkWidget->cloud->at(x, y).y = static_cast<float>(y);
-            vtkWidget->cloud->at(x, y).z = depth;
-        }
+        cvMat2Cloud(image, vtkWidget->cloud);
 
         currentDisplayImageLength = vtkWidget->cloud->width;
         currentDisplayImageHeight = vtkWidget->cloud->height;
@@ -808,17 +847,8 @@ void DepthToPCL::Open_clicked() {
         QMessageBox::warning(this, "Warning", "点云读取格式错误！");
     }
 
-    //Display_Properites();
-
     //移除窗口点云
-    vtkWidget->viewer->removeAllPointClouds();
-    vtkWidget->viewer->removeAllShapes();
-    
-    vtkWidget->viewer->addPointCloud<pcl::PointXYZ>(vtkWidget->cloud->makeShared(), "cloud");
-    vtkWidget->viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
-    vtkWidget->viewer->resetCamera();
-    vtkWidget->update();
-    vtkWidget->m_renderWindow->Render();//重新渲染
+    reRendering(vtkWidget->cloud->makeShared());
     allResultAiInstance.clear();
     for (int i = 0; i < labelVLayout->count(); ++i) {
         QWidget* widget = labelVLayout->itemAt(i)->widget();

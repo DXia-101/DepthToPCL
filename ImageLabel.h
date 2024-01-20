@@ -26,6 +26,7 @@ signals:
 	void StateChange();
 public:
 	GraphicsPolygonScene* scene;
-private:
 	QImage image;
+private:
+	
 };
