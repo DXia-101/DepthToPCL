@@ -6,6 +6,7 @@
 #include <QPolygon>
 #include <QPolygonF>
 #include <QPainterPath>
+#include <QMessageBox>
 
 GraphicsPolygonScene::GraphicsPolygonScene(QGraphicsScene* parent):QGraphicsScene(parent)
 {
@@ -70,6 +71,11 @@ void GraphicsPolygonScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 			if (MarkState->active()) {
 				// 开始标记不规则框选区域
 				if (isStart) {
+					if (nullptr == currentdynamicLabel) {
+						emit UnselectedTags();
+						return;
+					}
+						
 					currentMarkedPolygon << event->scenePos();
 					polygon = new GraphicsPolygonItem();
 					polygon->setPen(QPen(Qt::white));

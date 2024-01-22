@@ -9,6 +9,11 @@ View_Render::View_Render(QWidget *parent)
 View_Render::~View_Render()
 {}
 
+QString View_Render::GetAxis()
+{
+	return axis;
+}
+
 void View_Render::on_XRadioButton_clicked()
 {
 	if (ui.XRadioButton->isChecked()) {
@@ -38,11 +43,12 @@ void View_Render::on_ZRadioButton_clicked()
 
 void View_Render::on_cancelButton_clicked()
 {
+	emit determine();
 	this->close();
 }
 
 void View_Render::on_okButton_clicked()
 {
-	emit sendData(axis);
+	
 	this->close();
 }

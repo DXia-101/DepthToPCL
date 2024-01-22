@@ -11,6 +11,9 @@ public:
 	PointCloud_PointSize_Set_Dialog(QWidget *parent = nullptr);
 	~PointCloud_PointSize_Set_Dialog();
 
+public:
+	int GetSize();
+
 signals:
 	void sendData(QString data);
 
@@ -21,4 +24,5 @@ private slots:
 
 private:
 	Ui::PointCloud_PointSize_Set_DialogClass ui;
+	int pointCloudSize;
 };

@@ -22,6 +22,11 @@ PointCloud_PointSize_Set_Dialog::PointCloud_PointSize_Set_Dialog(QWidget *parent
 PointCloud_PointSize_Set_Dialog::~PointCloud_PointSize_Set_Dialog()
 {}
 
+int PointCloud_PointSize_Set_Dialog::GetSize()
+{
+	return pointCloudSize;
+}
+
 void PointCloud_PointSize_Set_Dialog::on_PointSize_SpinBox_valueChanged(int value)
 {
 	ui.PointSizeHSlider->setValue(value);
@@ -34,7 +39,6 @@ void PointCloud_PointSize_Set_Dialog::on_PointSizeHSlider_valueChanged(int value
 
 
 void PointCloud_PointSize_Set_Dialog::on_buttonBox_accepted() {
-	QString value = QString("%1").arg(ui.PointSizeHSlider->value());
-	emit sendData(value);
+	pointCloudSize = QString("%1").arg(ui.PointSizeHSlider->value()).toInt();
 	this->close();
 }

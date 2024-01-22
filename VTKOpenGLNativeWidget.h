@@ -14,16 +14,22 @@ public:
 	~VTKOpenGLNativeWidget();
 
     void PCL_Initalization();
-
+public:
     void ViewYBtn();
     void ViewXBtn();
     void ViewZBtn();
     void ComfirmFramePick();
     void ComfirmPointPick();
     void projectInliers(void* viewer_void, QString mode);
-
+    void PolygonConversionPolygonPointCloud(te::PolygonF* toConvertPolygon, pcl::PointCloud<pcl::PointXYZ>::Ptr polygonCloud);
 public:
     void AiInstance2Cloud(te::AiInstance* instance,QColor color);
+
+    /// <summary>
+    /// 重新渲染3D界面
+    /// </summary>
+    /// <param name="cloudin">需要显示的点云</param>
+    void reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin);
 
 protected:
     void Frame_PickingCallBack(const pcl::visualization::AreaPickingEvent& event, void* viewer_void);

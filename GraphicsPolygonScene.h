@@ -31,7 +31,9 @@ protected:
 signals:
 	void markedRegion(const QPolygonF& polygon);
 	void StateChange();
+	void UnselectedTags();
 	void GraphicsPolygonItemMarkingCompleted(GraphicsPolygonItem* polygonItem);
+	
 public:
 	DynamicLabel* currentdynamicLabel;  //当前标签对象
 	QColor currentColor;

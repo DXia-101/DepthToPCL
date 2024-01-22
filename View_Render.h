@@ -11,8 +11,11 @@ public:
 	View_Render(QWidget *parent = nullptr);
 	~View_Render();
 
+public:
+	QString GetAxis();
+
 signals:
-	void sendData(QString data);
+	void determine();
 
 private slots:
 	void on_XRadioButton_clicked();
