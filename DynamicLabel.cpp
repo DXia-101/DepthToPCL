@@ -7,6 +7,7 @@ DynamicLabel::DynamicLabel(QString tag, QWidget *parent)
 	, ui(new Ui::DynamicLabelClass())
 {
 	ui->setupUi(this);
+	ui->LabelNameEdit->setText(tag);
 	penColor = Qt::white;
 	connect(ui->LabelNameEdit, &QLineEdit::textEdited, this, &DynamicLabel::setLabelName);
 }
@@ -24,6 +25,11 @@ QString DynamicLabel::GetLabel()
 QColor DynamicLabel::GetColor()
 {
 	return penColor;
+}
+
+void DynamicLabel::SetColor(QColor color)
+{
+	penColor = color;
 }
 
 void DynamicLabel::setLabelName(QString tag)

@@ -21,7 +21,7 @@ public:
 
 	QString GetLabel();
 	QColor GetColor();
-
+	void SetColor(QColor color);
 private slots:
 	void on_colorSelectBtn_clicked();
 	void setLabelName(QString tag);

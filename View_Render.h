@@ -15,7 +15,7 @@ public:
 	QString GetAxis();
 
 signals:
-	void determine();
+	void determine(QString data);
 
 private slots:
 	void on_XRadioButton_clicked();

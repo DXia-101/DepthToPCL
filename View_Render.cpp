@@ -43,12 +43,12 @@ void View_Render::on_ZRadioButton_clicked()
 
 void View_Render::on_cancelButton_clicked()
 {
-	emit determine();
+	
 	this->close();
 }
 
 void View_Render::on_okButton_clicked()
 {
-	
+	emit determine(axis);
 	this->close();
 }

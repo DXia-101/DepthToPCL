@@ -115,7 +115,7 @@ private slots:
 
     void WarningForUnselectedTags();
 
-    void ReceiveCompletion();
+    void UpdatePointCloud2DImage();
 signals:
     void ConversionBetween2Dand3D();
 

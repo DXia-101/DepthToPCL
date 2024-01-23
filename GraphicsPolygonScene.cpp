@@ -50,7 +50,13 @@ void GraphicsPolygonScene::DrawPolygon(const te::PolygonF& polygon, QColor color
 void GraphicsPolygonScene::AiInstance2GraphicsPolygonItem(te::AiInstance* instance, QColor color)
 {
 	QPolygonF CurrentlyDawingPlygons;
-	for (const te::Point2f& point : instance->contour.polygons[0]) {
+	te::PolygonF maxpolygon = instance->contour.polygons[0];
+	for (te::PolygonF polygon : instance->contour.polygons) {
+		if (maxpolygon.size() < polygon.size()) {
+			maxpolygon = polygon;
+		}
+	}
+	for (const te::Point2f& point : maxpolygon) {
 		QPointF contourPoint(point.x, point.y);
 		CurrentlyDawingPlygons << contourPoint;
 	}

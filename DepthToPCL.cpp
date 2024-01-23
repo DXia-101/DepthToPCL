@@ -4,32 +4,17 @@
 
 #include <QDebug>
 #include <QHBoxLayout>
-#include <QColorDialog>
 #include <QMessageBox>
 #include <QFileDialog>
-#include <QTime>
 #include <QDir>
 #include <QFile>
-#include <QtMath>
 #include <QDirIterator>
 #include <QMenuBar>
 #include <QMenu>
 #include <QToolBar>
 #include <QStatusBar>
 #include <QKeyEvent>
-#include <QPixmap>
-#include <QPainter>
-#include <QPainterPath>
-#include <QImage>
-#include <QVector>
-#include <QRect>
-#include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QImage>
-#include <QPixmap>
-#include <QPoint>
-#include <QTextStream>
-#include <QIODevice>
+#include <QRandomGenerator>
 
 #include <vector>
 #include <Windows.h>
@@ -102,7 +87,8 @@ void DepthToPCL::Interface_Initialization()
     ui.vtkToolBarLayout->addWidget(m_vtkToolBar);
     ui.menuInterfaceLayout->addWidget(m_thrDMenuInterface);
 
-    connect(m_vtkToolBar, &VTKToolBar::LoadingCompleted, this, &DepthToPCL::ReceiveCompletion);
+    connect(m_vtkToolBar, &VTKToolBar::LoadingCompleted, this, &DepthToPCL::UpdatePointCloud2DImage);
+    connect(m_thrDMenuInterface, &_3DMenuInterface::SizeChange, this, &DepthToPCL::UpdatePointCloud2DImage);
 }
 
 void DepthToPCL::PCL_Initalization()
@@ -201,7 +187,6 @@ void DepthToPCL::SaveMatContour2Label(cv::Mat& Matin, DynamicLabel* curlabel)
         instance.contour.polygons.push_back(polygon);
         polygon.clear();
     }
-    //allResultAiInstance.push_back(instance);
     curlabel->LabelAiInstSet.push_back(instance);
 }
 
@@ -349,24 +334,36 @@ void DepthToPCL::on_drawMarkersBtn_clicked()
 
 void DepthToPCL::on_clearMarkersBtn_clicked()
 {
-    ClearAllMarkedContent();
-    vtkWidget->reRendering(vtkWidget->cloud->makeShared());
+    if (TwoDState->active()) {
+        ClearAllMarkedContent();
+        cvImageWidget->scene->clear();
+    }
+    else if (ThrDState->active()) {
+        ClearAllMarkedContent();
+        vtkWidget->reRendering(vtkWidget->cloud->makeShared());
+    }
+
+
 }
 
 void DepthToPCL::SaveContour()
 {
-    on_MarkCompleted_clicked();
     te::Image obj;
-    te::SampleMark gt_write;
-
     QString filePath = QFileDialog::getSaveFileName(nullptr, "选择保存路径和文件名", "", "(*.gt)");
-    if (filePath.isEmpty())
-    {
-        return;
-    }
+    std::cout << labelVLayout->count() << std::endl;
+    for (int i = 0; i < labelVLayout->count()-1; ++i) {   //从1开始是因为Layout里面添加了一个Stretch，需要跳过他
+        QWidget* widget = labelVLayout->itemAt(i)->widget();
+        DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
+        te::SampleMark gt_write;
+        //gt_write.gtDataSet = curlabel->LabelAiInstSet;
+        gt_write.gtDataSet.assign(curlabel->LabelAiInstSet.begin(), curlabel->LabelAiInstSet.end());
 
-    //gt_write.gtDataSet.assign(allResultAiInstance.begin(), allResultAiInstance.end());
-    te::serializeJsonToOFStream(filePath.toStdString(), gt_write);
+        if (filePath.isEmpty())
+        {
+            return;
+        }
+        te::serializeJsonToOFStream(filePath.toStdString(), gt_write);
+    }
 }
 
 void DepthToPCL::LoadContour()
@@ -380,9 +377,23 @@ void DepthToPCL::LoadContour()
         return ;
     }
 
-    if (te::deserializeJsonFromIFStream(filePath.toStdString(), &gt_read)) {
+    for (int i = 0; i < labelVLayout->count(); ++i) {
+        QWidget* widget = labelVLayout->itemAt(i)->widget();
+        DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
+        if (nullptr != curlabel) {
+            curlabel->LabelAiInstSet.clear();
+            curlabel->deleteLater();
+        }
     }
-    //allResultAiInstance.assign(gt_read.gtDataSet.begin(), gt_read.gtDataSet.end());
+
+    if (te::deserializeJsonFromIFStream(filePath.toStdString(), &gt_read)) {
+        DynamicLabel* label = new DynamicLabel(QString::fromStdString(gt_read.gtDataSet.front().name));
+        label->LabelAiInstSet = gt_read.gtDataSet;
+        label->SetColor(QColor(QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256)));
+        labelVLayout->insertWidget(0,label);
+        totalHeight += label->height();
+        ui.scrollAreaWidgetContents->setGeometry(0, 0, label->width(), totalHeight);
+    }
 }
 
 void DepthToPCL::ReceiveMarkedPointClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
@@ -401,12 +412,11 @@ void DepthToPCL::WarningForUnselectedTags()
     QMessageBox::warning(this, tr("错误"), tr("没有选择标签"));
 }
 
-void DepthToPCL::ReceiveCompletion()
+void DepthToPCL::UpdatePointCloud2DImage()
 {
     ClearAllMarkedContent();
     Transfer_Function::Cloud2cvMat(vtkWidget->cloud, vtkWidget->cloud, m_image);
     currentDisplayImage = QImage((unsigned char*)(m_image.data), m_image.cols, m_image.rows, m_image.cols * m_image.channels(), QImage::Format_RGB888);
-
 }
 
 /// <summary>
@@ -414,8 +424,9 @@ void DepthToPCL::ReceiveCompletion()
 /// </summary>
 void DepthToPCL::on_addDynamicLabel_clicked()
 {
-    DynamicLabel* label = new DynamicLabel(tr("默认"));
-    labelVLayout->addWidget(label);
+    DynamicLabel* label = new DynamicLabel(tr(""));
+    labelVLayout->insertWidget(0, label);
+    //labelVLayout->addWidget(label);
     totalHeight += label->height();
     ui.scrollAreaWidgetContents->setGeometry(0, 0, label->width(), totalHeight);
 }
