@@ -94,79 +94,25 @@ void VTKToolBar::LoadPointCloud()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("open  file"),
         "", tr("pcb files(*.pcd *.ply *.tif *.tiff) ;;All files (*.*)"));
-
-    if (fileName.isEmpty())
-    {
-        return;
-    }
-
-    vtkWidget->cloud->points.clear();
-    vtkWidget->Frame_clicked_cloud->points.clear();
-    vtkWidget->Point_clicked_cloud->points.clear();
-
-    int currentDisplayImageWidth, currentDisplayImageHeight;
-
-    if (fileName.endsWith("pcd"))
-    {
-        if (pcl::io::loadPCDFile<pcl::PointXYZ>(fileName.toStdString(), *vtkWidget->cloud) == -1)
-        {
-            qDebug() << "Couldn't read pcd file  \n";
-            return;
-        }
-    }
-    else if (fileName.endsWith("tif") || fileName.endsWith("tiff")) {
-        cv::Mat image = cv::imread(fileName.toStdString(), cv::IMREAD_UNCHANGED);
-        if (image.empty()) {
-            QMessageBox::warning(this, "Warning", "无法读取图像文件");
-            return;
-        }
-        Transfer_Function::cvMat2Cloud(image, vtkWidget->cloud);
-    }
-    else {
-        QMessageBox::warning(this, "Warning", "点云读取格式错误！");
-    }
-
-    //移除窗口点云
-    //ClearAllMarkedContent();
-    emit LoadingCompleted();
-    vtkWidget->reRendering(vtkWidget->cloud->makeShared());
-    vtkWidget->viewer->resetCameraViewpoint("cloud");
+    if(vtkWidget->LoadPointCloud(fileName))
+        emit LoadingCompleted();
+    else
+        QMessageBox::warning(this, "Warning", "加载失败");
 }
 
 void VTKToolBar::SavePointCloud()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Open point cloud"), "", tr("Point cloud data (*.pcd *.ply)"));
-    if (vtkWidget->cloud->empty()) {
-        return;
-    }
-    else {
-        if (filename.isEmpty()) {
-            return;
-        }
-        int return_status;
-        if (filename.endsWith(".pcd", Qt::CaseInsensitive))
-            return_status = pcl::io::savePCDFileBinary(filename.toStdString(), *vtkWidget->cloud);
-        else if (filename.endsWith(".ply", Qt::CaseInsensitive))
-            return_status = pcl::io::savePCDFileBinary(filename.toStdString(), *vtkWidget->cloud);
-        else {
-            filename.append(".pcd");
-            return_status = pcl::io::savePCDFileBinary(filename.toStdString(), *vtkWidget->cloud);
-        }
-        if (return_status != 0) {
-            QString errorinfo = QString::fromStdString("Error writing point cloud" + filename.toStdString());
-            QMessageBox::warning(this, "Warning", errorinfo);
-            return;
-        }
-    }
+    if(!vtkWidget->SavePointCloud(filename))
+        QMessageBox::warning(this, "Warning", "保存失败");
 }
 
 void VTKToolBar::BackgroundColorSettingAction()
 {
     dialog_colorselect = new pcl_view_select_color();
     QColor color = dialog_colorselect->getColor();
-
-    vtkWidget->viewer->setBackgroundColor(color.redF(), color.greenF(), color.blueF());
-    vtkWidget->m_renderWindow->Render();
+    
+    vtkWidget->SetBackgroundColor(color);
     return;
 }
 
@@ -180,31 +126,16 @@ void VTKToolBar::CoordinateAxisRenderingAction()
     if (dialog_render->exec() == QDialog::Accepted) {}
     delete dialog_render;
 
-    if (!vtkWidget->cloud->empty()) {
-        pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> render(vtkWidget->cloud, curaxis.toStdString());
-        vtkWidget->viewer->updatePointCloud(vtkWidget->cloud, render, "cloud");
-        vtkWidget->m_renderWindow->Render();
-    }
-    return;
+    vtkWidget->CoordinateAxisRendering(curaxis);
 }
 
 void VTKToolBar::PointCloudColorSettingsAction()
 {
     dialog_colorselect = new pcl_view_select_color();
     QColor color = dialog_colorselect->getColor();
-    QColor temp;
-    temp.setRgb(143, 153, 159, 255);
-    if (!vtkWidget->cloud->empty() && (color != temp)) {
-        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ>selected_color(vtkWidget->cloud, color.redF() * 255, color.greenF() * 255, color.blueF() * 255);
-        vtkWidget->viewer->updatePointCloud(vtkWidget->cloud, selected_color, "cloud");
-        vtkWidget->m_renderWindow->Render();
-    }
-    else {
-        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ>selected_color(vtkWidget->cloud, 255, 255, 255);
-        vtkWidget->viewer->updatePointCloud(vtkWidget->cloud, selected_color, "cloud");
-        vtkWidget->m_renderWindow->Render();
-    }
-    return;
+    delete dialog_colorselect;
+
+    vtkWidget->PointCloudColorSet(color);
 }
 
 void VTKToolBar::PointCloudPointSizeSettingsAction()
@@ -214,10 +145,7 @@ void VTKToolBar::PointCloudPointSizeSettingsAction()
     if (pointsize_set_dialog->exec() == QDialog::Accepted) {}
     delete pointsize_set_dialog;
 
-    for (int i = 0; i < 1; ++i) {
-        vtkWidget->viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size, "cloud");
-    }
-
+    vtkWidget->PointCloudPointSizeSet(point_size);
 }
 
 void VTKToolBar::GaussFilterAction()

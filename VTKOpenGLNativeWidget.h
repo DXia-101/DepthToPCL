@@ -22,6 +22,13 @@ public:
     void ComfirmPointPick();
     void projectInliers(void* viewer_void, QString mode);
     void PolygonConversionPolygonPointCloud(te::PolygonF* toConvertPolygon, pcl::PointCloud<pcl::PointXYZ>::Ptr polygonCloud);
+    bool LoadPointCloud(QString fileName);
+    bool SavePointCloud(QString fileName);
+    bool SetBackgroundColor(QColor color);
+    bool CoordinateAxisRendering(QString curaxis);
+    bool PointCloudColorSet(QColor color);
+    bool PointCloudPointSizeSet(int point_size);
+    bool PointCloudHeightTransform(int factor);
 public:
     void AiInstance2Cloud(te::AiInstance* instance,QColor color);
 

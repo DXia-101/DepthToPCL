@@ -19,10 +19,7 @@ _3DMenuInterface::~_3DMenuInterface()
 void _3DMenuInterface::on_ConfirmTransformationBtn_clicked()
 {
 	int factor = ui->HeightCoefficientSpinBox->value();
-	for (int i = 0; i < vtkWidget->cloud->size(); ++i) {
-		vtkWidget->cloud->at(i).z *= factor;
-	}
-	vtkWidget->reRendering(vtkWidget->cloud->makeShared());
+	vtkWidget->PointCloudHeightTransform(factor);
 }
 
 void _3DMenuInterface::on_ViewYBtn_clicked()

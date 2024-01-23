@@ -1,5 +1,7 @@
 #include "VTKOpenGLNativeWidget.h"
 #include <QMessageBox>
+#include <QDebug>
+#include "Transfer_Function.h"
 
 VTKOpenGLNativeWidget::VTKOpenGLNativeWidget(QWidget *parent)
 	: QVTKOpenGLNativeWidget(parent)
@@ -371,6 +373,127 @@ void VTKOpenGLNativeWidget::PolygonConversionPolygonPointCloud(te::PolygonF* toC
         lastP = curP;
         polygonCloud->push_back(curP);
     }
+}
+
+bool VTKOpenGLNativeWidget::LoadPointCloud(QString fileName)
+{
+    if (fileName.isEmpty())
+    {
+        return false;
+    }
+
+    cloud->points.clear();
+    Frame_clicked_cloud->points.clear();
+    Point_clicked_cloud->points.clear();
+
+    int currentDisplayImageWidth, currentDisplayImageHeight;
+
+    if (fileName.endsWith("pcd"))
+    {
+        if (pcl::io::loadPCDFile<pcl::PointXYZ>(fileName.toStdString(), *cloud) == -1)
+        {
+            qDebug() << "Couldn't read pcd file  \n";
+            return false;
+        }
+    }
+    else if (fileName.endsWith("tif") || fileName.endsWith("tiff")) {
+        cv::Mat image = cv::imread(fileName.toStdString(), cv::IMREAD_UNCHANGED);
+        if (image.empty()) {
+            QMessageBox::warning(this, "Warning", "无法读取图像文件");
+            return false;
+        }
+        Transfer_Function::cvMat2Cloud(image,cloud);
+    }
+    else {
+        QMessageBox::warning(this, "Warning", "点云读取格式错误！");
+    }
+
+    //移除窗口点云
+    //ClearAllMarkedContent();
+    
+    reRendering(cloud->makeShared());
+    viewer->resetCameraViewpoint("cloud");
+
+    return true;
+}
+
+bool VTKOpenGLNativeWidget::SavePointCloud(QString fileName)
+{
+    if (cloud->empty()) {
+        return false;
+    }
+    else {
+        if (fileName.isEmpty()) {
+            return false;
+        }
+        int return_status;
+        if (fileName.endsWith(".pcd", Qt::CaseInsensitive))
+            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(),*cloud);
+        else if (fileName.endsWith(".ply", Qt::CaseInsensitive))
+            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(),*cloud);
+        else {
+            fileName.append(".pcd");
+            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(),*cloud);
+        }
+        if (return_status != 0) {
+            QString errorinfo = QString::fromStdString("Error writing point cloud" + fileName.toStdString());
+            QMessageBox::warning(this, "Warning", errorinfo);
+            return false;
+        }
+    }
+    return true;
+}
+
+bool VTKOpenGLNativeWidget::SetBackgroundColor(QColor color)
+{
+    viewer->setBackgroundColor(color.redF(), color.greenF(), color.blueF());
+    m_renderWindow->Render();
+    return true;
+}
+
+bool VTKOpenGLNativeWidget::CoordinateAxisRendering(QString curaxis)
+{
+    if (!cloud->empty()) {
+        pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> render(cloud, curaxis.toStdString());
+        viewer->updatePointCloud(cloud, render, "cloud");
+        m_renderWindow->Render();
+    }
+    return true;
+}
+
+bool VTKOpenGLNativeWidget::PointCloudColorSet(QColor color)
+{
+    QColor temp;
+    temp.setRgb(143, 153, 159, 255);
+    if (!cloud->empty() && (color != temp)) {
+        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ>selected_color(cloud, color.redF() * 255, color.greenF() * 255, color.blueF() * 255);
+        viewer->updatePointCloud(cloud, selected_color, "cloud");
+        m_renderWindow->Render();
+    }
+    else {
+        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ>selected_color(cloud, 255, 255, 255);
+        viewer->updatePointCloud(cloud, selected_color, "cloud");
+        m_renderWindow->Render();
+    }
+    return true;
+}
+
+bool VTKOpenGLNativeWidget::PointCloudPointSizeSet(int point_size)
+{
+    for (int i = 0; i < 1; ++i) {
+        viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size, "cloud");
+    }
+    m_renderWindow->Render();
+    return true;
+}
+
+bool VTKOpenGLNativeWidget::PointCloudHeightTransform(int factor)
+{
+    for (int i = 0; i < cloud->size(); ++i) {
+        cloud->at(i).z *= factor;
+    }
+    reRendering(cloud->makeShared());
+    return true;
 }
 
 void VTKOpenGLNativeWidget::AiInstance2Cloud(te::AiInstance* instance, QColor color)
