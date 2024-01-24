@@ -82,15 +82,6 @@ private:
     void SaveMatContour2Label(cv::Mat& Matin, DynamicLabel* curlabel);
 
     /// <summary>
-    /// 对轮廓覆盖到的图片部分进行提取
-    /// </summary>
-    /// <param name="imageToBeExtracted">待提取的图片</param>
-    /// <param name="extractedContours">提取的轮廓</param>
-    /// <param name="extractedImages">提取出的图片</param>
-    void ExtractImages(QImage* imageToBeExtracted, GraphicsPolygonItem* extractedContours,cv::Mat* extractedImages);
-
-    
-    /// <summary>
     /// 清除所有标记内容
     /// </summary>
     void ClearAllMarkedContent();

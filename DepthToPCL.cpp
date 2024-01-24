@@ -148,14 +148,13 @@ void DepthToPCL::addAiInstance(DynamicLabel* curlabel,pcl::PointCloud<pcl::Point
 {
     cv::Mat image(0, 0, CV_8UC3);
     Transfer_Function::Cloud2cvMat(vtkWidget->cloud, markedCloud, image);
-
     SaveMatContour2Label(image,curlabel);
 }
 
 void DepthToPCL::AiInstSet2Cloud(DynamicLabel* curlabel)
 {
     for (te::AiInstance instance : curlabel->LabelAiInstSet) {
-        vtkWidget->AiInstance2Cloud(&instance, curlabel->GetColor());
+        vtkWidget->AiInstance2Cloud(&instance,m_image,curlabel->GetColor());
     }
 }
 
@@ -188,23 +187,6 @@ void DepthToPCL::SaveMatContour2Label(cv::Mat& Matin, DynamicLabel* curlabel)
         polygon.clear();
     }
     curlabel->LabelAiInstSet.push_back(instance);
-}
-
-void DepthToPCL::ExtractImages(QImage* imageToBeExtracted, GraphicsPolygonItem* extractedContours, cv::Mat* extractedImages)
-{
-    cv::Mat currentImg = cv::Mat(imageToBeExtracted->height(), imageToBeExtracted->width(), CV_8UC(3), (void*)imageToBeExtracted->constBits(), imageToBeExtracted->bytesPerLine());
-    
-    cv::Mat selectionRangeImg = cv::Mat::zeros(currentImg.size(), CV_8UC3);
-
-    std::vector<std::vector<cv::Point>> contours;
-    std::vector<cv::Point> contour;
-
-    for (const QPointF& pointF : extractedContours->polygon()) {
-        contour.push_back(cv::Point(pointF.x(), pointF.y()));
-    }
-    contours.push_back(contour);
-    cv::drawContours(selectionRangeImg, contours, 0, cv::Scalar(255), -1);
-    currentImg.copyTo(*extractedImages, selectionRangeImg);
 }
 
 void DepthToPCL::ClearAllMarkedContent()
@@ -464,7 +446,7 @@ void DepthToPCL::on_startTagBtn_clicked()
         }
         else {
             ui.startTagBtn->setText("开始标记");
-            vtkWidget->projectInliers(vtkWidget,currentLabelNAme);
+            vtkWidget->PolygonSelect(vtkWidget,currentLabelNAme);
         }
     }
     else if (TwoDState->active()) {

@@ -36,6 +36,7 @@ void VTKOpenGLNativeWidget::PCL_Initalization()
     cloud_polygon = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_cliped = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_Filter_out = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
+    cloud_marked = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
 
     m_renderer = vtkSmartPointer<vtkRenderer>::New();
     m_renderWindow = this->renderWindow();
@@ -155,7 +156,7 @@ void VTKOpenGLNativeWidget::keyboardEventOccurred(const pcl::visualization::Keyb
             flag = false;
         }
         else {
-            projectInliers(viewer_void, "Primary");
+            PolygonSelect(viewer_void, "Primary");
             viewer->removeAllShapes();
         }
     }
@@ -176,7 +177,7 @@ void VTKOpenGLNativeWidget::keyboardEventInvert(const pcl::visualization::Keyboa
             flag = false;
         }
         else {
-            projectInliers(viewer_void, "Invert");
+            PolygonSelect(viewer_void, "Invert");
             viewer->removeAllShapes();
         }
     }
@@ -246,7 +247,7 @@ void VTKOpenGLNativeWidget::getScreentPos(double* displayPos, double* world, voi
 /// </summary>
 /// <param name="viewer_void"></param>
 /// <param name="mode">模式选择:Primary,Invert,Label1,Label2,Label3</param>
-void VTKOpenGLNativeWidget::projectInliers(void* viewer_void, QString mode)
+void VTKOpenGLNativeWidget::PolygonSelect(void* viewer_void, QString mode)
 {
     double focal[3] = { 0 }; double pos[3] = { 0 };
     m_renderer->GetActiveCamera()->GetFocalPoint(focal);
@@ -496,87 +497,29 @@ bool VTKOpenGLNativeWidget::PointCloudHeightTransform(int factor)
     return true;
 }
 
-void VTKOpenGLNativeWidget::AiInstance2Cloud(te::AiInstance* instance, QColor color)
+void VTKOpenGLNativeWidget::AiInstance2Cloud(te::AiInstance* instance, cv::Mat& m_image,QColor color)
 {
-    cloud_polygon->clear();
-    PolygonConversionPolygonPointCloud(&instance->contour.polygons.at(0), cloud_polygon);
-
-    double focal[3] = { 0 }; double pos[3] = { 0 };
-    m_renderer->GetActiveCamera()->GetFocalPoint(focal);
-    m_renderer->GetActiveCamera()->GetPosition(pos);
-
-    pcl::PointXYZ eyeLine1 = pcl::PointXYZ(focal[0] - pos[0], focal[1] - pos[1], focal[2] - pos[2]);
-
-    float mochang = sqrt(pow(eyeLine1.x, 2) + pow(eyeLine1.y, 2) + pow(eyeLine1.z, 2));//模长
-    pcl::PointXYZ eyeLine = pcl::PointXYZ(eyeLine1.x / mochang, eyeLine1.y / mochang, eyeLine1.z / mochang);//单位向量 法向量
-
-    //创建一个平面
-    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());//ax+by+cz+d=0
-    coefficients->values.resize(4);
-    coefficients->values[0] = eyeLine.x;// 法向量 x 分量
-    coefficients->values[1] = eyeLine.y;// 法向量 y 分量
-    coefficients->values[2] = eyeLine.z;// 法向量 z 分量
-    coefficients->values[3] = 0;        // 平面偏移量
-
-    //创建保存结果投影的点云
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloudIn_Prj(new pcl::PointCloud<pcl::PointXYZ>);//输入的点云
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloudCiecle_result(new pcl::PointCloud<pcl::PointXYZ>);//绘制的线
-    // 创建滤波器对象
-    pcl::ProjectInliers<pcl::PointXYZ> proj;//建立投影对象
-    proj.setModelType(pcl::SACMODEL_PLANE);//设置投影类型
-    proj.setInputCloud(cloud_polygon);//设置输入点云
-    proj.setModelCoefficients(coefficients);//加载投影参数
-    proj.filter(*cloudCiecle_result);//执行程序，并将结果保存
-
-    // 创建滤波器对象
-    pcl::ProjectInliers<pcl::PointXYZ> projCloudIn;//建立投影对象
-    projCloudIn.setModelType(pcl::SACMODEL_PLANE);//设置投影类型
-    projCloudIn.setInputCloud(cloud);//设置输入点云
-    projCloudIn.setModelCoefficients(coefficients);//加载投影参数
-    projCloudIn.filter(*cloudIn_Prj);//执行程序，并将结果保存
-
-    int ret = -1;
-    double* PloyXarr = new double[cloudCiecle_result->points.size()];
-    double* PloyYarr = new double[cloudCiecle_result->points.size()];
-    for (int i = 0; i < cloudCiecle_result->points.size(); ++i)
-    {
-        PloyXarr[i] = cloudCiecle_result->points[i].x;
-        PloyYarr[i] = cloudCiecle_result->points[i].y;
+    std::vector<cv::Point> contour;
+    te::PolygonF maxpolygon = instance->contour.polygons.at(0);
+    for (te::PolygonF polygon : instance->contour.polygons) {
+        if (maxpolygon.size() < polygon.size()) {
+            maxpolygon = polygon;
+        }
     }
-    cloud_cliped->clear();
-    for (int i = 0; i < cloudIn_Prj->points.size(); i++)
-    {
-        int ret = inOrNot1(cloud_polygon->points.size(), PloyXarr, PloyYarr, cloudIn_Prj->points[i].x, cloudIn_Prj->points[i].y);
-        if (1 == ret)//表示在里面
-        {
-            cloud_cliped->points.push_back(cloud->points[i]);
-        }//表示在外面
+    for (const te::Point2f& point : maxpolygon) {
+        contour.push_back(cv::Point(point.x, point.y));
     }
+    //cv::Mat extractedImage;
+    //Transfer_Function::ExtractImage(m_image, &contour, &extractedImage);
 
-    //pcl::PointCloud<pcl::PointXYZ>::Ptr cloudIn_Prj(new pcl::PointCloud<pcl::PointXYZ>);//输入的点云
+    cv::Mat grayImage;
+    cv::cvtColor(m_image, grayImage, cv::COLOR_BGR2GRAY);
 
-    //pcl::ProjectInliers<pcl::PointXYZ> proj;
-    //proj.setModelType(pcl::SACMODEL_PLANE);
-    //proj.setInputCloud(cloud);  // 输入点云
-    //proj.setModelCoefficients(coefficients);  // XY平面的法向量系数
-    //proj.filter(*cloudIn_Prj);  // 投影结果
-    //// 在XY平面上进行多边形内部的点筛选
-    //pcl::PointIndices::Ptr indices(new pcl::PointIndices);
-    //pcl::ExtractPolygonalPrismData<pcl::PointXYZ> extract;
-    //extract.setInputCloud(cloudIn_Prj);
-    //extract.setInputPlanarHull(cloud_polygon);  // 多边形轮廓
-    //extract.setHeightLimits(-std::numeric_limits<float>::max(), 0.0);  // 限制高度在XY平面上
-    //extract.segment(*indices);
-    //cloud_cliped->clear();
-    //pcl::PointCloud<pcl::PointXYZ>::Ptr output_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-    //pcl::ExtractIndices<pcl::PointXYZ> extract_indices;
-    //extract_indices.setInputCloud(cloudIn_Prj);
-    //extract_indices.setIndices(indices);
-    //extract_indices.filter(*cloud_cliped);
+    Transfer_Function::ExtractImage2Cloud(grayImage, &contour,cloud_marked);
 
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_cliped, color.red(), color.green(), color.blue());
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_marked, color.red(), color.green(), color.blue());
     std::string CloudId = instance->name + rand_str(3);
-    viewer->addPointCloud(cloud_cliped, currentColor, CloudId);
+    viewer->addPointCloud(cloud_marked, currentColor, CloudId);
     m_renderWindow->Render();
 }
 

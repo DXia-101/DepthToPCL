@@ -20,7 +20,7 @@ public:
     void ViewZBtn();
     void ComfirmFramePick();
     void ComfirmPointPick();
-    void projectInliers(void* viewer_void, QString mode);
+    void PolygonSelect(void* viewer_void, QString mode);
     void PolygonConversionPolygonPointCloud(te::PolygonF* toConvertPolygon, pcl::PointCloud<pcl::PointXYZ>::Ptr polygonCloud);
     bool LoadPointCloud(QString fileName);
     bool SavePointCloud(QString fileName);
@@ -30,7 +30,7 @@ public:
     bool PointCloudPointSizeSet(int point_size);
     bool PointCloudHeightTransform(int factor);
 public:
-    void AiInstance2Cloud(te::AiInstance* instance,QColor color);
+    void AiInstance2Cloud(te::AiInstance* instance, cv::Mat& m_image, QColor color);
 
     /// <summary>
     /// 重新渲染3D界面
@@ -68,6 +68,7 @@ public:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_polygon;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cliped;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_Filter_out;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_marked;
     pcl::visualization::PCLVisualizer::Ptr viewer;
     vtkRenderWindow* m_renderWindow;
     bool isPickingMode = false;

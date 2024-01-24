@@ -57,3 +57,55 @@ void Transfer_Function::cvMat2Contour(cv::Mat& Matin, std::vector<std::vector<cv
     std::vector<cv::Vec4i> hierarchy;
     findContours(binImg, *contours, hierarchy, cv::RetrievalModes::RETR_TREE, cv::CHAIN_APPROX_NONE);//会将整个图像的最外层轮廓算进去
 }
+
+void Transfer_Function::ExtractImage(cv::Mat& Matin, std::vector<cv::Point>* contour, cv::Mat* extractedImages)
+{
+    cv::Mat mask = cv::Mat::zeros(Matin.size(), CV_8U);
+
+    // 将多边形的点集转换为OpenCV所需的格式
+    std::vector<std::vector<cv::Point>> contours;
+    contours.push_back(*contour);
+
+    // 在掩膜图像上绘制多边形
+    cv::fillPoly(mask, contours, cv::Scalar(255));
+
+    // 将掩膜应用于输入图像，提取感兴趣的区域
+    Matin.copyTo(*extractedImages, mask);
+}
+
+bool Transfer_Function::isPointInsideContour(int x, int y, std::vector<cv::Point>* contour)
+{
+    cv::Point point(x, y);
+
+    // 判断点是否在多边形内部
+    double distance = cv::pointPolygonTest(*contour, point, false);
+
+    // 如果距离为正值，点在多边形内部
+    if (distance >= 0)
+        return true;
+    else
+        return false;
+}
+
+void Transfer_Function::ExtractImage2Cloud(cv::Mat& imageIn, std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)
+{
+    int width = imageIn.cols;
+    int height = imageIn.rows;
+
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            int intensity = static_cast<int>(imageIn.at<uchar>(y, x));
+            if (isPointInsideContour(x, y, contour))
+            {
+                pcl::PointXYZ point;
+                point.x = static_cast<float>(x);
+                point.y = static_cast<float>(y);
+                point.z = static_cast<float>(intensity);
+
+                cloudOut->push_back(point);
+            }
+        }
+    }
+}

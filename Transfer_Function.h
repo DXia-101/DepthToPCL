@@ -29,5 +29,16 @@ public:
 	/// <param name="contours">找到的轮廓集</param>
 	static void cvMat2Contour(cv::Mat& Matin, std::vector<std::vector<cv::Point>>* contours);
 
+	/// <summary>
+	/// 提取轮廓覆盖的图像
+	/// </summary>
+	/// <param name="Matin">待提取图像</param>
+	/// <param name="contour">轮廓</param>
+	/// <param name="extractedImages">提取后的cv::Mat</param>
+	static void ExtractImage(cv::Mat& Matin, std::vector<cv::Point>* contour, cv::Mat* extractedImages);
+
+	static bool isPointInsideContour(int x, int y, std::vector<cv::Point>* contour);
+
+	static void ExtractImage2Cloud(cv::Mat& imageIn, std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut);
 };
 

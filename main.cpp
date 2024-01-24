@@ -3,9 +3,10 @@
 //#include <QSurfaceFormat>
 //#include "QVTKOpenGLNativeWidget.h"
 
+#include <opencv.hpp>
+
 int main(int argc, char *argv[])
 {
-    //QSurfaceFormat::setDefaultFormat(QVTKOpenGLNativeWidget::defaultFormat());
     QApplication a(argc, argv);
     DepthToPCL w;
     w.show();
