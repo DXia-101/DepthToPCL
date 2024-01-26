@@ -10,10 +10,11 @@ public:
 	/// <summary>
 	/// 点云转为cv::Mat
 	/// </summary>
-	/// <param name="datumPointCloud">基准点云</param>
+	/// <param name="width">转换后图像的宽度</param>
+	/// <param name="height">转换后图像的高度</param>
 	/// <param name="cloudin">待转换点云</param>
 	/// <param name="imageout">转换后的cv::Mat</param>
-	static void Cloud2cvMat(pcl::PointCloud<pcl::PointXYZ>::Ptr datumPointCloud,pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& imageout);
+	static void Cloud2cvMat(int width, int height, float originX, float originY, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& imageout);
 
 	/// <summary>
 	/// cv::Mat 转为 点云
@@ -37,8 +38,23 @@ public:
 	/// <param name="extractedImages">提取后的cv::Mat</param>
 	static void ExtractImage(cv::Mat& Matin, std::vector<cv::Point>* contour, cv::Mat* extractedImages);
 
+	/// <summary>
+	/// 判断一个点是否位于轮廓内部
+	/// </summary>
+	/// <param name="x">点的X坐标</param>
+	/// <param name="y">点的Y坐标</param>
+	/// <param name="contour">判断的轮廓</param>
+	/// <returns>在轮廓内返回true，不在返回false</returns>
 	static bool isPointInsideContour(int x, int y, std::vector<cv::Point>* contour);
 
-	static void ExtractImage2Cloud(cv::Mat& imageIn, std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut);
+	/// <summary>
+	/// 根据轮廓将轮廓内部图像转点云
+	/// </summary>
+	/// <param name="imageIn">需要提取的图像</param>
+	/// <param name="contour">提取的轮廓</param>
+	/// <param name="cloudOut">转换出的点云</param>
+	static void ExtractImage2Cloud(cv::Mat& imageIn, float originX, float originY, std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut);
+
+	static void AddPointsInsideContour(cv::Mat& Matin, std::vector<cv::Point>* contour);
 };
 

@@ -118,6 +118,7 @@ private:
     int point_size = 1; //µ„‘∆¥Û–°
 
     cv::Mat m_image;
+
     ImageLabel* cvImageWidget;
     VTKOpenGLNativeWidget* vtkWidget;
 

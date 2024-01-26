@@ -74,7 +74,6 @@ void VTKOpenGLNativeWidget::Frame_PickingCallBack(const pcl::visualization::Area
     if (event.getPointsIndices(indices) == -1)
         return;
 
-
     for (int i = 0; i < indices.size(); ++i)
     {
         Frame_clicked_cloud->points.push_back(cloud->points.at(indices[i]));
@@ -350,32 +349,6 @@ void VTKOpenGLNativeWidget::PolygonSelect(void* viewer_void, QString mode)
     }
 }
 
-void VTKOpenGLNativeWidget::PolygonConversionPolygonPointCloud(te::PolygonF* toConvertPolygon, pcl::PointCloud<pcl::PointXYZ>::Ptr polygonCloud)
-{
-    //将第一个点加入点云
-    double WorldPoint[3];
-    double DisPlayPos[2];
-    DisPlayPos[0] = double(toConvertPolygon->at(0).x), DisPlayPos[1] = double(toConvertPolygon->at(0).y);
-    getScreentPos(DisPlayPos, WorldPoint, &viewer);
-
-    lastP = pcl::PointXYZ(WorldPoint[0], WorldPoint[1], WorldPoint[2]);
-    polygonCloud->push_back(lastP);
-
-    for (int i = 1; i < toConvertPolygon->size(); ++i) {
-        double world_point[3];
-        double displayPos[2];
-        displayPos[0] = double(toConvertPolygon->at(i).x), displayPos[1] = double(toConvertPolygon->at(i).y);
-        getScreentPos(displayPos, world_point, &viewer);
-
-        curP = pcl::PointXYZ(world_point[0], world_point[1], world_point[2]);
-        char str1[512];
-        sprintf(str1, "line#03d", line_id++);
-        viewer->addLine(lastP, curP, str1);
-        lastP = curP;
-        polygonCloud->push_back(curP);
-    }
-}
-
 bool VTKOpenGLNativeWidget::LoadPointCloud(QString fileName)
 {
     if (fileName.isEmpty())
@@ -408,13 +381,10 @@ bool VTKOpenGLNativeWidget::LoadPointCloud(QString fileName)
     else {
         QMessageBox::warning(this, "Warning", "点云读取格式错误！");
     }
-
-    //移除窗口点云
-    //ClearAllMarkedContent();
-    
     reRendering(cloud->makeShared());
     viewer->resetCameraViewpoint("cloud");
-
+    pcl::copyPointCloud(*cloud, OriginalPointcloud);
+    GetCoordinateSet();
     return true;
 }
 
@@ -509,13 +479,9 @@ void VTKOpenGLNativeWidget::AiInstance2Cloud(te::AiInstance* instance, cv::Mat& 
     for (const te::Point2f& point : maxpolygon) {
         contour.push_back(cv::Point(point.x, point.y));
     }
-    //cv::Mat extractedImage;
-    //Transfer_Function::ExtractImage(m_image, &contour, &extractedImage);
-
-    cv::Mat grayImage;
-    cv::cvtColor(m_image, grayImage, cv::COLOR_BGR2GRAY);
-
-    Transfer_Function::ExtractImage2Cloud(grayImage, &contour,cloud_marked);
+    cv::Mat extractImage;
+    //Transfer_Function::ExtractImage(m_image, &contour,&extractImage);
+    Transfer_Function::ExtractImage2Cloud(m_image, axisset.OriginX, axisset.OriginY, &contour,cloud_marked);
 
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_marked, color.red(), color.green(), color.blue());
     std::string CloudId = instance->name + rand_str(3);
@@ -533,6 +499,21 @@ void VTKOpenGLNativeWidget::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr clou
     viewer->resetCamera();
     update();
     m_renderWindow->Render();//重新渲染
+}
+
+void VTKOpenGLNativeWidget::GetCoordinateSet()
+{
+    pcl::PointXYZ min;//用于存放三个轴的最小值
+    pcl::PointXYZ max;//用于存放三个轴的最大值
+    pcl::getMinMax3D(*cloud, min, max);
+    int currentDisplayImageLength = max.x - min.x;
+    int currentDisplayImageHeight = max.y - min.y;
+    axisset = {
+        currentDisplayImageLength,
+        currentDisplayImageHeight,
+        min.x,
+        min.y,
+    };
 }
 
 /**
@@ -688,7 +669,15 @@ void VTKOpenGLNativeWidget::subtractTargetPointcloud(pcl::PointCloud<pcl::PointX
 /// </summary>
 void VTKOpenGLNativeWidget::ViewYBtn()
 {
-
+    Eigen::Vector4f centroid;
+    pcl::compute3DCentroid(*cloud, centroid);
+    if (PositiveAndNegative_Y_axis)
+        viewer->setCameraPosition(centroid.x(), centroid.y(), centroid.z(), 0, 1, 0, 1, 0, 0);
+    else
+        viewer->setCameraPosition(centroid.x(), centroid.y(), centroid.z(), 0, 1, 0, -1, 0, 0);
+    PositiveAndNegative_Y_axis = !PositiveAndNegative_Y_axis;
+    viewer->updateCamera();
+    viewer->spinOnce();
 }
 
 /// <summary>

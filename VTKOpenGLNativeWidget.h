@@ -5,6 +5,13 @@
 #include "DynamicLabel.h"
 #include "teAiExTypes.h"
 
+struct AxisSet {
+    int curwidth;//当前显示的宽度
+    int curheight;//当前显示的高度
+    float OriginX;//坐标原点的X坐标
+    float OriginY;//坐标原点的Y坐标
+};
+
 class VTKOpenGLNativeWidget  : public QVTKOpenGLNativeWidget
 {
 	Q_OBJECT
@@ -21,7 +28,6 @@ public:
     void ComfirmFramePick();
     void ComfirmPointPick();
     void PolygonSelect(void* viewer_void, QString mode);
-    void PolygonConversionPolygonPointCloud(te::PolygonF* toConvertPolygon, pcl::PointCloud<pcl::PointXYZ>::Ptr polygonCloud);
     bool LoadPointCloud(QString fileName);
     bool SavePointCloud(QString fileName);
     bool SetBackgroundColor(QColor color);
@@ -29,6 +35,7 @@ public:
     bool PointCloudColorSet(QColor color);
     bool PointCloudPointSizeSet(int point_size);
     bool PointCloudHeightTransform(int factor);
+
 public:
     void AiInstance2Cloud(te::AiInstance* instance, cv::Mat& m_image, QColor color);
 
@@ -38,6 +45,7 @@ public:
     /// <param name="cloudin">需要显示的点云</param>
     void reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin);
 
+    void GetCoordinateSet();
 protected:
     void Frame_PickingCallBack(const pcl::visualization::AreaPickingEvent& event, void* viewer_void);
     void Point_PickingCallBack(const pcl::visualization::PointPickingEvent& event, void* viewer_void);
@@ -61,8 +69,10 @@ public slots:
     void DirectFilter(QString data1, QString data2, QString data3, QString data4);
 signals:
     void PointCloudMarkingCompleted(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+    void CloudChanged();
 public:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
+    pcl::PointCloud<pcl::PointXYZ> OriginalPointcloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr Point_clicked_cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr Frame_clicked_cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_polygon;
@@ -76,6 +86,7 @@ public:
     unsigned int line_id = 0;
 
     DynamicLabel* currentdynamicLabel;  //当前标签对象
+    struct AxisSet axisset;
 private:
     vtkSmartPointer<vtkRenderer> m_renderer;
     pcl::PointXYZ curP, lastP;
@@ -87,4 +98,6 @@ private:
     bool PositiveAndNegative_X_axis;
     bool PositiveAndNegative_Y_axis;
     bool PositiveAndNegative_Z_axis;
+
+    
 };

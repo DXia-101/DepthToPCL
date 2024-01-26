@@ -146,8 +146,9 @@ void DepthToPCL::addAiInstance(DynamicLabel* curlabel,GraphicsPolygonItem* marke
 
 void DepthToPCL::addAiInstance(DynamicLabel* curlabel,pcl::PointCloud<pcl::PointXYZ>::Ptr markedCloud)
 {
-    cv::Mat image(0, 0, CV_8UC3);
-    Transfer_Function::Cloud2cvMat(vtkWidget->cloud, markedCloud, image);
+    cv::Mat image(0, 0, CV_32F);
+
+    Transfer_Function::Cloud2cvMat(vtkWidget->axisset.curwidth, vtkWidget->axisset.curheight, vtkWidget->axisset.OriginX, vtkWidget->axisset.OriginY, markedCloud, image);
     SaveMatContour2Label(image,curlabel);
 }
 
@@ -397,8 +398,13 @@ void DepthToPCL::WarningForUnselectedTags()
 void DepthToPCL::UpdatePointCloud2DImage()
 {
     ClearAllMarkedContent();
-    Transfer_Function::Cloud2cvMat(vtkWidget->cloud, vtkWidget->cloud, m_image);
-    currentDisplayImage = QImage((unsigned char*)(m_image.data), m_image.cols, m_image.rows, m_image.cols * m_image.channels(), QImage::Format_RGB888);
+
+    Transfer_Function::Cloud2cvMat(vtkWidget->axisset.curwidth, vtkWidget->axisset.curheight, vtkWidget->axisset.OriginX, vtkWidget->axisset.OriginY, vtkWidget->cloud, m_image);
+    cv::Mat imgShow;
+    m_image.convertTo(imgShow, CV_8UC1);/*
+    currentDisplayImage = QImage(static_cast<uchar*>(imgShow.data), imgShow.cols, imgShow.rows, imgShow.cols * imgShow.channels(), QImage::Format_Grayscale8);*/
+    currentDisplayImage = QImage((const unsigned char*)imgShow.data, imgShow.cols, imgShow.rows, imgShow.step, QImage::Format_Grayscale8).copy();
+    
 }
 
 /// <summary>

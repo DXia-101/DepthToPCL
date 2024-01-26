@@ -1,29 +1,18 @@
 #include "Transfer_Function.h"
 
-void Transfer_Function::Cloud2cvMat(pcl::PointCloud<pcl::PointXYZ>::Ptr datumPointCloud, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& imageout)
+void Transfer_Function::Cloud2cvMat(int width,int height,float originX,float originY, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& imageout)
 {
-    pcl::PointXYZ min;//用于存放三个轴的最小值
-    pcl::PointXYZ max;//用于存放三个轴的最大值
-    pcl::getMinMax3D(*datumPointCloud, min, max);
-    int currentDisplayImageLength = max.x - min.x;
-    int currentDisplayImageHeight = max.y - min.y;
-
     if (!imageout.empty())
         imageout.release();
-    imageout.create(currentDisplayImageHeight, currentDisplayImageLength, CV_8UC3);
+    imageout.create(height, width, CV_32FC1);
 
-    for (int i = 0; i < cloudin->size(); i++)
-    {
-        //计算点对应的像素坐标
-        int x = (cloudin->points[i].x - min.x);
-        int y = (cloudin->points[i].y - min.y);
+    for (int i = 0; i < cloudin->size(); ++i) {
+        int x = static_cast<int>(cloudin->points[i].x-originX);
+        int y = static_cast<int>(cloudin->points[i].y-originY);
+        float z = cloudin->points[i].z;
 
-        //将颜色信息赋予像素
-        if (x > 0 && x < currentDisplayImageLength && y>0 && y < currentDisplayImageHeight)
-        {
-            imageout.at<cv::Vec3b>(y, x)[0] = cloudin->points[i].z;
-            imageout.at<cv::Vec3b>(y, x)[1] = cloudin->points[i].z;
-            imageout.at<cv::Vec3b>(y, x)[2] = cloudin->points[i].z;
+        if (x >= 0 && x < width && y >= 0 && y < height) {
+            imageout.at<float>(y, x) = z;
         }
     }
 }
@@ -34,18 +23,15 @@ void Transfer_Function::cvMat2Cloud(cv::Mat& imageIn, pcl::PointCloud<pcl::Point
     cloudOut->height = imageIn.rows;
     cloudOut->points.resize(cloudOut->width * cloudOut->height);
 
-    cv::MatIterator_<float> pixel_it, pixel_end;
-    pixel_it = imageIn.begin<float>();
-    pixel_end = imageIn.end<float>();
+    for (int x = 0; x < imageIn.cols; ++x) {
+        for (int y = 0; y < imageIn.rows; ++y) {
+            pcl::PointXYZ point;
+            point.x = static_cast<float>(x);
+            point.y = static_cast<float>(y);
+            point.z = imageIn.at<float>(y,x);
 
-    for (int i = 0; pixel_it != pixel_end; ++pixel_it, ++i) {
-        int y = i / imageIn.cols;
-        int x = i % imageIn.cols;
-        float depth = *pixel_it;
-
-        cloudOut->at(x, y).x = static_cast<float>(x);
-        cloudOut->at(x, y).y = static_cast<float>(y);
-        cloudOut->at(x, y).z = depth;
+            cloudOut->push_back(point);
+        }
     }
 }
 
@@ -60,7 +46,7 @@ void Transfer_Function::cvMat2Contour(cv::Mat& Matin, std::vector<std::vector<cv
 
 void Transfer_Function::ExtractImage(cv::Mat& Matin, std::vector<cv::Point>* contour, cv::Mat* extractedImages)
 {
-    cv::Mat mask = cv::Mat::zeros(Matin.size(), CV_8U);
+    cv::Mat mask = cv::Mat::zeros(Matin.size(), CV_32F);
 
     // 将多边形的点集转换为OpenCV所需的格式
     std::vector<std::vector<cv::Point>> contours;
@@ -87,24 +73,48 @@ bool Transfer_Function::isPointInsideContour(int x, int y, std::vector<cv::Point
         return false;
 }
 
-void Transfer_Function::ExtractImage2Cloud(cv::Mat& imageIn, std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)
+void Transfer_Function::ExtractImage2Cloud(cv::Mat& imageIn, float originX,float originY , std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)
 {
-    int width = imageIn.cols;
-    int height = imageIn.rows;
+    cv::Rect boundingRect = cv::boundingRect(*contour);
 
-    for (int y = 0; y < height; y++)
+    for (int y = boundingRect.y; y < boundingRect.y + boundingRect.height; y++)
     {
-        for (int x = 0; x < width; x++)
+        for (int x = boundingRect.x; x < boundingRect.x + boundingRect.width; x++)
         {
-            int intensity = static_cast<int>(imageIn.at<uchar>(y, x));
-            if (isPointInsideContour(x, y, contour))
+            cv::Point point(x, y);
+
+            //检查点是否在轮廓内部
+            double distance = cv::pointPolygonTest(*contour, point, false);
+
+            if (distance >= 0)
             {
                 pcl::PointXYZ point;
-                point.x = static_cast<float>(x);
-                point.y = static_cast<float>(y);
-                point.z = static_cast<float>(intensity);
+                point.x = static_cast<float>(x) + originX;
+                point.y = static_cast<float>(y) + originY;
+                point.z = imageIn.at<float>(y, x);
 
                 cloudOut->push_back(point);
+            }
+        }
+    }
+}
+
+void Transfer_Function::AddPointsInsideContour(cv::Mat& Matin, std::vector<cv::Point>* contour)
+{
+    cv::Rect boundingRect = cv::boundingRect(*contour);
+
+    for (int y = boundingRect.y; y < boundingRect.y + boundingRect.height; y++)
+    {
+        for (int x = boundingRect.x; x < boundingRect.x + boundingRect.width; x++)
+        {
+            cv::Point point(x, y);
+
+            //检查点是否在轮廓内部
+            double distance = cv::pointPolygonTest(*contour, point, false);
+
+            if (distance >= 0)
+            {
+                contour->push_back(point);
             }
         }
     }
