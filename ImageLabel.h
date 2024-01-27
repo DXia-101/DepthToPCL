@@ -6,8 +6,16 @@
 #include <QStateMachine>
 #include <QState>
 #include <QGraphicsScene>
-#include "GraphicsPolygonScene.h"
-class ImageLabel  : public QGraphicsView
+#include "teImage.h"
+#include "teGraphicsViewV2.h"
+#include "DynamicLabel.h"
+#include <QMap>
+#include "teGraphicsBrushV2.h"
+#include "teGraphicsItemMgrV2.h"
+#include "teAiExTypes.h"
+
+
+class ImageLabel  : public te::GraphicsView
 {
 	Q_OBJECT
 
@@ -15,18 +23,17 @@ public:
 	ImageLabel(QWidget *parent);
 	~ImageLabel();
 
-	void setImage(const QImage& image);
-
-protected:
-
-private:
-
+	void LabelChanged();
+	void AiInstance2GraphicsItem(te::AiInstance* instance,QString label, QColor color);
 signals:
-	void markedRegion(const QPolygonF& polygon);
-	void StateChange();
+	void PolygonMarkingCompleted(QList<QPolygonF>& Polygons);
+
 public:
-	GraphicsPolygonScene* scene;
-	QImage image;
+	te::Image image;
+	DynamicLabel* currentdynamicLabel;  //当前标签对象
+
+	te::PolygonGraphicsBrush curbrush;
+
 private:
-	
+	void DrawPolygonGraphics(const QPolygonF& polygon);
 };

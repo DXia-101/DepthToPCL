@@ -9,8 +9,12 @@ DynamicLabel::DynamicLabel(QString tag, QWidget *parent)
 	ui->setupUi(this);
 	ui->LabelNameEdit->setText(tag);
 	penColor = Qt::white;
-	
+	ui->label->setStyleSheet("background-color: " + penColor.name() + ";");
 	connect(ui->LabelNameEdit, &QLineEdit::textEdited, this, &DynamicLabel::setLabelName);
+	setAutoFillBackground(true);
+	setStyleSheet("background-color:  rgba(255, 255, 255, 0);");
+
+	installEventFilter(this);
 }
 
 DynamicLabel::~DynamicLabel()
@@ -34,10 +38,39 @@ void DynamicLabel::SetColor(QColor color)
 	ui->label->setStyleSheet("background-color: " + penColor.name() + ";");
 }
 
+void DynamicLabel::setSelected(bool selected)
+{
+	QPalette palette = this->palette();
+	palette.setColor(QPalette::Background, selected ? Qt::red : Qt::white);
+	setPalette(palette);
+}
+
 void DynamicLabel::setLabelName(QString tag)
 {
 	this->label = tag;
 }
+
+//bool DynamicLabel::eventFilter(QObject* obj, QEvent* event)
+//{
+//	if (event->type() == QEvent::MouseButtonPress)
+//	{
+//		// 恢复所有QWidget的背景颜色为蓝色
+//		QWidgetList widgets = findChildren<QWidget*>();
+//		for (QWidget* widget : widgets)
+//		{
+//			QPalette palette = widget->palette();
+//			palette.setColor(QPalette::Background, Qt::blue);
+//			widget->setPalette(palette);
+//		}
+//
+//		// 将当前选中的QWidget的背景颜色设置为红色
+//		QPalette palette = this->palette();
+//		palette.setColor(QPalette::Background, Qt::red);
+//		setPalette(palette);
+//	}
+//
+//	return QWidget::eventFilter(obj, event);
+//}
 
 void DynamicLabel::on_colorSelectBtn_clicked() 
 {

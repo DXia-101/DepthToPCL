@@ -6,9 +6,9 @@
 #include "pcl_function.h"
 #include "teAiExTypes.h"
 
-
 #include "VTKOpenGLNativeWidget.h"
 #include "ImageLabel.h"
+#include "teGraphicsViewV2.h"
 #include "_3DMenuInterface.h"
 #include "VTKToolBar.h"
 
@@ -46,8 +46,8 @@ protected:
     /// 添加标记到当前选择标签
     /// </summary>
     /// <param name="curlabel">当前选择标签</param>
-    /// <param name="markedPolygon">标记的多边形</param>
-    void addAiInstance(DynamicLabel* curlabel,GraphicsPolygonItem* markedPolygon);
+    /// <param name="Polygons">标记的多边形轮廓集</param>
+    void addAiInstance(DynamicLabel* curlabel, QList<QPolygonF>& Polygons);
 
     /// <summary>
     /// 添加标记到当前选择标签
@@ -70,7 +70,6 @@ protected:
     
 private:
     void mousePressEvent(QMouseEvent* event) override;
-    void paintEvent(QPaintEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
 
 private:
@@ -102,7 +101,7 @@ private slots:
     void LoadContour();
 
     void ReceiveMarkedPointClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
-    void ReceiveMarkedPolygonItem(GraphicsPolygonItem* polygonItem);
+    void ReceiveMarkedPolygonItem(QList<QPolygonF>& Polygons);
 
     void WarningForUnselectedTags();
 
@@ -119,7 +118,7 @@ private:
 
     cv::Mat m_image;
 
-    ImageLabel* cvImageWidget;
+    ImageLabel* teImageWidget;
     VTKOpenGLNativeWidget* vtkWidget;
 
     VTKToolBar* m_vtkToolBar;
@@ -132,5 +131,5 @@ private:
 
     QString currentLabelNAme;
 
-    QImage currentDisplayImage;
+    te::Image currentDisplayImage;
 };

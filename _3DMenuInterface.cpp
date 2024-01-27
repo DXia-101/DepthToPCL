@@ -1,4 +1,5 @@
 #include "_3DMenuInterface.h"
+#include "pcl_function.h"
 
 _3DMenuInterface::_3DMenuInterface(VTKOpenGLNativeWidget* vtkWidget, QWidget *parent)
 	: vtkWidget(vtkWidget), QWidget(parent)
@@ -63,4 +64,10 @@ void _3DMenuInterface::on_ComfirmFramePickBtn_clicked()
 void _3DMenuInterface::on_ComfirmPointPickBtn_clicked()
 {
 	vtkWidget->ComfirmPointPick();
+}
+
+void _3DMenuInterface::on_RestorationBtn_clicked()
+{
+	pcl::copyPointCloud(vtkWidget->OriginalPointcloud, *vtkWidget->cloud);
+	vtkWidget->reRendering(vtkWidget->cloud);
 }

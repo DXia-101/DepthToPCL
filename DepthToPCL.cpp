@@ -75,12 +75,10 @@ void DepthToPCL::Interface_Initialization()
     labelVLayout->addStretch(1);
 
     totalHeight = 0;
-
     point_size = 1;
 
     connect(vtkWidget, &VTKOpenGLNativeWidget::PointCloudMarkingCompleted, this, &DepthToPCL::ReceiveMarkedPointClouds);
-    connect(cvImageWidget->scene, &GraphicsPolygonScene::GraphicsPolygonItemMarkingCompleted, this, &DepthToPCL::ReceiveMarkedPolygonItem);
-    connect(cvImageWidget->scene, &GraphicsPolygonScene::UnselectedTags, this, &DepthToPCL::WarningForUnselectedTags);
+    connect(teImageWidget, &ImageLabel::PolygonMarkingCompleted, this, &DepthToPCL::ReceiveMarkedPolygonItem);
 
     m_thrDMenuInterface = new _3DMenuInterface(vtkWidget);
     m_vtkToolBar = new VTKToolBar(vtkWidget);
@@ -96,9 +94,9 @@ void DepthToPCL::PCL_Initalization()
     vtkWidget = new VTKOpenGLNativeWidget(this);
     ui.VTKWidgetLayout->addWidget(vtkWidget);
 
-    cvImageWidget = new ImageLabel(this);
-    ui.VTKWidgetLayout->addWidget(cvImageWidget);
-    cvImageWidget->hide();
+    teImageWidget = new ImageLabel(this);
+    ui.VTKWidgetLayout->addWidget(teImageWidget);
+    teImageWidget->hide();
 }
 
 void DepthToPCL::InitStateMachine()
@@ -108,13 +106,13 @@ void DepthToPCL::InitStateMachine()
     ThrDState = new QState(m_pStateMachine);
     
     //2D状态下显示
-    TwoDState->assignProperty(cvImageWidget,"visible",true);
+    TwoDState->assignProperty(teImageWidget,"visible",true);
     TwoDState->assignProperty(vtkWidget,"visible",false);
     TwoDState->assignProperty(m_vtkToolBar,"visible",false);
     TwoDState->assignProperty(m_thrDMenuInterface,"visible",false);
 
     //3D状态下显示
-    ThrDState->assignProperty(cvImageWidget, "visible", false);
+    ThrDState->assignProperty(teImageWidget, "visible", false);
     ThrDState->assignProperty(vtkWidget,"visible",true);
     ThrDState->assignProperty(m_vtkToolBar,"visible",true);
     ThrDState->assignProperty(m_thrDMenuInterface,"visible",true);
@@ -129,13 +127,13 @@ void DepthToPCL::InitStateMachine()
     m_pStateMachine->start();
 }
 
-void DepthToPCL::addAiInstance(DynamicLabel* curlabel,GraphicsPolygonItem* markedPolygon)
+void DepthToPCL::addAiInstance(DynamicLabel* curlabel, QList<QPolygonF>& Polygons)
 {
     te::AiInstance instance;
     instance.name = curlabel->GetLabel().toStdString();
     te::PolygonF polygon;
     te::PolygonF::PointType point;
-    for (const QPointF& polygonPoint : markedPolygon->polygon()) {
+    for (const QPointF& polygonPoint : Polygons.front()) {
         point.x = static_cast<float>(polygonPoint.x());
         point.y = static_cast<float>(polygonPoint.y());
         polygon.push_back(point);
@@ -162,7 +160,7 @@ void DepthToPCL::AiInstSet2Cloud(DynamicLabel* curlabel)
 void DepthToPCL::AiInstSet2PolygonItem(DynamicLabel* curlabel)
 {
     for (te::AiInstance instance : curlabel->LabelAiInstSet) {
-        cvImageWidget->scene->AiInstance2GraphicsPolygonItem(&instance, curlabel->GetColor());
+        teImageWidget->AiInstance2GraphicsItem(&instance, curlabel->GetLabel(), curlabel->GetColor());
     }
 }
 
@@ -210,29 +208,11 @@ void DepthToPCL::mousePressEvent(QMouseEvent* event)
         DynamicLabel* temp = qobject_cast<DynamicLabel*>(widget);
         if(nullptr != temp) {
             vtkWidget->currentdynamicLabel = temp;
-            cvImageWidget->scene->currentdynamicLabel = temp;
+            teImageWidget->currentdynamicLabel = temp;
             currentLabelNAme = vtkWidget->currentdynamicLabel->GetLabel();
-            cvImageWidget->scene->currentColor = temp->GetColor();
-            qDebug() << "当前标签：" << vtkWidget->currentdynamicLabel->GetLabel();
+            teImageWidget->LabelChanged();
         }
     }
-}
-
-void DepthToPCL::paintEvent(QPaintEvent* event)
-{
-    //QWidget::paintEvent(event);
-    //// 如果有选中的DynamicLabel对象
-    //if (nullptr != vtkWidget->currentdynamicLabel)
-    //{
-    //    // 获取选中对象的位置和大小
-    //    QPoint pos = vtkWidget->currentdynamicLabel->pos();
-    //    QSize size = vtkWidget->currentdynamicLabel->size();
-
-    //    // 创建一个QPainter对象，用于绘制虚线
-    //    QPainter painter(this);
-    //    painter.setPen(Qt::DashLine);
-    //    painter.drawRect(pos.x() - 5, pos.y() - 5, size.width() + 10, size.height() + 10);
-    //}
 }
 
 void DepthToPCL::keyPressEvent(QKeyEvent* event)
@@ -248,7 +228,7 @@ void DepthToPCL::keyPressEvent(QKeyEvent* event)
 void DepthToPCL::on_changeFormBtn_clicked()
 {
     if (ThrDState->active()) {
-        cvImageWidget->setImage(currentDisplayImage);
+        teImageWidget->setImage(currentDisplayImage);
         emit ConversionBetween2Dand3D();
     }
     else if(TwoDState->active()) {
@@ -267,18 +247,17 @@ void DepthToPCL::on_drawCounterBtn_clicked()
     contour_vec.erase(contour_vec.begin());
     //绘制单通道轮廓图像，背景为白色，轮廓线条用黑色
     cv::Mat blkImg(m_image.size(), CV_8UC1, cv::Scalar(255));
-    drawContours(blkImg, contour_vec, -1, cv::Scalar(0), 2);
-    QImage qImg = QImage((unsigned char*)(blkImg.data), blkImg.cols, blkImg.rows, blkImg.cols * blkImg.channels(), QImage::Format_Grayscale8);
-    //scene->addPixmap(QPixmap::fromImage(qImg.scaled(cvImageWidget->size(), Qt::KeepAspectRatio)));
-    cvImageWidget->setImage(qImg);
-}
+    //scene->addPixmap(QPixmap::fromImage(qImg.scaled(teImageWidget->size(), Qt::KeepAspectRatio)));
+    te::Image displayImg = te::Image(blkImg, te::Image::E_Gray8);
 
+    teImageWidget->setImage(displayImg);
+}
 
 /// <summary>
 /// 2D&3D状态下的标记完成
 /// </summary>
 void DepthToPCL::on_MarkCompleted_clicked()
-{ 
+{
     for (int i = 0; i < labelVLayout->count(); ++i) {
         QWidget* widget = labelVLayout->itemAt(i)->widget();
         DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
@@ -319,14 +298,11 @@ void DepthToPCL::on_clearMarkersBtn_clicked()
 {
     if (TwoDState->active()) {
         ClearAllMarkedContent();
-        cvImageWidget->scene->clear();
     }
     else if (ThrDState->active()) {
         ClearAllMarkedContent();
         vtkWidget->reRendering(vtkWidget->cloud->makeShared());
     }
-
-
 }
 
 void DepthToPCL::SaveContour()
@@ -384,10 +360,9 @@ void DepthToPCL::ReceiveMarkedPointClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cl
     addAiInstance(vtkWidget->currentdynamicLabel, cloud);
 }
 
-void DepthToPCL::ReceiveMarkedPolygonItem(GraphicsPolygonItem* polygonItem)
+void DepthToPCL::ReceiveMarkedPolygonItem(QList<QPolygonF>& Polygons)
 {
-    addAiInstance(cvImageWidget->scene->currentdynamicLabel, polygonItem);
-    AiInstSet2PolygonItem(cvImageWidget->scene->currentdynamicLabel);
+    addAiInstance(teImageWidget->currentdynamicLabel, Polygons);
 }
 
 void DepthToPCL::WarningForUnselectedTags()
@@ -401,10 +376,8 @@ void DepthToPCL::UpdatePointCloud2DImage()
 
     Transfer_Function::Cloud2cvMat(vtkWidget->axisset.curwidth, vtkWidget->axisset.curheight, vtkWidget->axisset.OriginX, vtkWidget->axisset.OriginY, vtkWidget->cloud, m_image);
     cv::Mat imgShow;
-    m_image.convertTo(imgShow, CV_8UC1);/*
-    currentDisplayImage = QImage(static_cast<uchar*>(imgShow.data), imgShow.cols, imgShow.rows, imgShow.cols * imgShow.channels(), QImage::Format_Grayscale8);*/
-    currentDisplayImage = QImage((const unsigned char*)imgShow.data, imgShow.cols, imgShow.rows, imgShow.step, QImage::Format_Grayscale8).copy();
-    
+    m_image.convertTo(imgShow, CV_8UC1);
+    currentDisplayImage = te::Image(imgShow, te::Image::E_Gray8);
 }
 
 /// <summary>
@@ -417,6 +390,11 @@ void DepthToPCL::on_addDynamicLabel_clicked()
     //labelVLayout->addWidget(label);
     totalHeight += label->height();
     ui.scrollAreaWidgetContents->setGeometry(0, 0, label->width(), totalHeight);
+
+    vtkWidget->currentdynamicLabel = label;
+    teImageWidget->currentdynamicLabel = label;
+    currentLabelNAme = label->GetLabel();
+    teImageWidget->LabelChanged();
 }
 
 /// <summary>
@@ -456,6 +434,5 @@ void DepthToPCL::on_startTagBtn_clicked()
         }
     }
     else if (TwoDState->active()) {
-
     }
 }
