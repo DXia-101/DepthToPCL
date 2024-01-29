@@ -25,6 +25,30 @@
 #include "teRapidjsonObjectTree.h"
 #include "Transfer_Function.h"
 
+#include <time.h>
+#include <thread>
+
+#ifdef _WINDOWS
+
+#include <direct.h>
+#include <io.h>
+#include <process.h>
+#include <windows.h>
+
+#undef min
+#undef max
+#else
+#include <dirent.h>
+#endif
+
+#include "teTraining.h"
+#include "tePrediction.h"
+#include "teAugmentation.h"
+
+#include"teImage.h"
+#include"teRapidjsonObjectTree.h"
+#include "teTimer.h"
+
 
 DepthToPCL::DepthToPCL(QWidget *parent)
     : QWidget(parent)
@@ -70,6 +94,25 @@ void DepthToPCL::Interface_Initialization()
     connect(Save_Contour, &QAction::triggered, this, &DepthToPCL::SaveContour);
     connect(Load_Contour, &QAction::triggered, this, &DepthToPCL::LoadContour);
 
+    QMenu* Train_menu = new QMenu("ÑµÁ·", menu_bar);
+
+    QAction* Load_Images = new QAction("¼ÓÔØÑµÁ·Í¼Æ¬");
+    QAction* Start_Train = new QAction("¿ªÊ¼ÑµÁ·");
+    QAction* Stop_Train = new QAction("Í£Ö¹ÑµÁ·");
+    QAction* Start_Test = new QAction("¿ªÊ¼²âÊÔ");
+
+    Train_menu->addAction(Load_Images);
+    Train_menu->addAction(Start_Train);
+    Train_menu->addAction(Stop_Train);
+    Train_menu->addAction(Start_Test);
+
+    menu_bar->addMenu(Train_menu);
+
+    connect(Load_Images, &QAction::triggered, this, &DepthToPCL::LoadTrainingImages);
+    connect(Start_Train, &QAction::triggered, this, &DepthToPCL::StartedTrainAction);
+    connect(Stop_Train, &QAction::triggered, this, &DepthToPCL::StopTrainAction);
+    connect(Start_Test, &QAction::triggered, this, &DepthToPCL::StartTestAction);
+
     labelVLayout = new QVBoxLayout(ui.scrollArea);
     ui.scrollAreaWidgetContents->setLayout(labelVLayout);
     labelVLayout->addStretch(1);
@@ -87,6 +130,8 @@ void DepthToPCL::Interface_Initialization()
 
     connect(m_vtkToolBar, &VTKToolBar::LoadingCompleted, this, &DepthToPCL::UpdatePointCloud2DImage);
     connect(m_thrDMenuInterface, &_3DMenuInterface::SizeChange, this, &DepthToPCL::UpdatePointCloud2DImage);
+
+    workAiModel = new AiModelInterface;
 }
 
 void DepthToPCL::PCL_Initalization()
@@ -220,6 +265,16 @@ void DepthToPCL::keyPressEvent(QKeyEvent* event)
     if (event->key() == Qt::Key_Q) {
         on_startTagBtn_clicked();
     }
+}
+
+void DepthToPCL::StartingTrain()
+{
+    workAiModel->trainModel(vTrainSamples, "2.te");
+}
+
+void DepthToPCL::StartingTest()
+{
+    workAiModel->testModel(vTrainSamples, "2.te", 0, te::E_CPU);
 }
 
 /// <summary>
@@ -378,6 +433,57 @@ void DepthToPCL::UpdatePointCloud2DImage()
     cv::Mat imgShow;
     m_image.convertTo(imgShow, CV_8UC1);
     currentDisplayImage = te::Image(imgShow, te::Image::E_Gray8);
+}
+
+void DepthToPCL::LoadTrainingImages()
+{
+    QStringList fileNames = QFileDialog::getOpenFileNames(nullptr, "Select Training Files", QDir::homePath(), "TIFF Files (*.tif *.tiff)");
+
+    TiffData.clear();
+    GTData.clear();
+
+    foreach(const QString & fileName, fileNames) {
+        TiffData.push_back(fileName);
+        QFileInfo fileInfo(fileName);
+        QString baseName = fileInfo.baseName();
+
+        QDir dir = fileInfo.absoluteDir();
+        QStringList gtFileNames = dir.entryList(QStringList(baseName + ".gt"), QDir::Files);
+        if (!gtFileNames.isEmpty()) {
+            GTData.push_back(dir.absoluteFilePath(gtFileNames.first()));
+        }
+    }
+    vTrainSamples.resize(TiffData.size());
+    for (int i = 0; i < TiffData.size(); ++i) {
+        std::string imagePath = TiffData.at(i).toStdString();
+        std::string marksPath = GTData.at(i).toStdString();
+
+        te::Image ss = te::Image::load(imagePath);
+
+        vTrainSamples[i].sampleData.imageMatrix.push_back(ss);
+        vTrainSamples[i].sampleData.roi = { 0,0,ss.width(), ss.height() };
+        te::deserializeJsonFromIFStream(marksPath, &vTrainSamples[i].sampleMark);
+    }
+}
+
+void DepthToPCL::StartedTrainAction()
+{
+    std::string fileName = "2.te";
+    workAiModel->ParameterSettings(0, vTrainSamples, fileName.c_str());
+    workAiModel->start();
+}
+
+void DepthToPCL::StopTrainAction()
+{
+}
+
+void DepthToPCL::StartTestAction()
+{
+    std::string fileName = "2.te";
+    int halfPrecise = 0;
+    DeviceType deviceType = te::E_GPU;
+    workAiModel->ParameterSettings(1, vTrainSamples, fileName.c_str(), halfPrecise, deviceType);
+    workAiModel->start();
 }
 
 /// <summary>

@@ -32,7 +32,6 @@ TE_BEGIN_NAMESPACE
     elem(E_PixelDetect_Tool)\
     elem(E_Classify_Tool)\
     elem(E_UnSupervised_Tool)\
-    elem(E_Detection_Tool)\
     elem(E_AngleRegress_Tool)\
     elem(E_Total_Tool)
 
@@ -77,6 +76,13 @@ enum AiStatus
 	E_Total_Status,
 };
 
+enum LocateType {
+	E_LocateCenter,   //regress: x+y, probit
+	E_LocateCircle,   //regress: x+y, probit, one side length; like a circle or square.
+	E_LocateRectangle,//regress: x+y, probit, width and height; like a rectangle.
+	E_LocateRotateBox,//regress: x+y, probit, one side length, and arrow; rotatebox.
+};
+
 /**indicate a smple, has multilayers and roi. using to train and infer**/
 struct SampleData
 {
@@ -95,11 +101,12 @@ struct AiInstance
 	te::ConnectedRegionF contour;
 };
 
-/**descriptor about sample.**/
-struct SampleDesc
+/**descriptor about image, one layer of sample.**/
+struct ImageDesc
 {
-	int    layerCount;///< layerCount indicates the layer count of a sample.
-	int    channels[32];///< Image on each layer has different channel, gray=1 or color=3?
+	te::BaseType dtype;///<only E_UInt8 and E_Float32 are supported.
+	int heapId;///<defferent images with same channel and datatype can be put into a heap together.
+	int channel;///<gray=1 or color=3?...default is bgr.
 };
 
 /**descriptor about result contour.**/

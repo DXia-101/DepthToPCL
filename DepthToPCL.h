@@ -11,8 +11,8 @@
 #include "teGraphicsViewV2.h"
 #include "_3DMenuInterface.h"
 #include "VTKToolBar.h"
+#include "AiModelInterface.h"
 
-#include <QThread>
 #include <QVBoxLayout>
 #include <QStateMachine>
 #include <QPaintEvent>
@@ -72,6 +72,9 @@ private:
     void mousePressEvent(QMouseEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
 
+    void StartingTrain();
+    void StartingTest();
+
 private:
     /// <summary>
     /// 保存图像轮廓到标签当中
@@ -106,9 +109,14 @@ private slots:
     void WarningForUnselectedTags();
 
     void UpdatePointCloud2DImage();
+
+    void LoadTrainingImages();
+    void StartedTrainAction();
+    void StopTrainAction();
+    void StartTestAction();
 signals:
     void ConversionBetween2Dand3D();
-
+    
 private:
     Ui::DepthToPCLClass ui;
 
@@ -132,4 +140,9 @@ private:
     QString currentLabelNAme;
 
     te::Image currentDisplayImage;
+
+    std::vector<te::SampleInfo> vTrainSamples;
+    std::vector<QString> TiffData;
+    std::vector<QString> GTData;
+    AiModelInterface* workAiModel;
 };
