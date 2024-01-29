@@ -51,14 +51,14 @@ public:
 	static void teTrainStateCallBack(AiStatus status, TrainState& stateinfo, void* param);
 	static void teAiInferResult(AiResult& inferResult, te::DynamicMatrix& hotmap, void* pCallbackParam);
 
-	void ParameterSettings(int mode, std::vector<te::SampleInfo>& trainSamples, const char* modelPath, bool halfPrecise = false, DeviceType deviceType = E_GPU);
+	void ParameterSettings(int mode, std::vector<te::SampleInfo>& trainSamples, const char* modelpath, bool halfPrecise = false, DeviceType deviceType = E_GPU);
 
 protected:
 	void run();
 
 public slots:
-	void trainModel(std::vector<te::SampleInfo>& trainSamples, const char* modelPath);
-	void testModel(std::vector<te::SampleInfo>& trainSamples, const char* modelPath, bool halfPrecise, DeviceType deviceType);
+	void trainModel(std::vector<te::SampleInfo>& trainSamples);
+	void testModel(std::vector<te::SampleInfo>& trainSamples);
 
 private:
 	int mode = 0; //0 «—µ¡∑£¨1 «≤‚ ‘

@@ -267,16 +267,6 @@ void DepthToPCL::keyPressEvent(QKeyEvent* event)
     }
 }
 
-void DepthToPCL::StartingTrain()
-{
-    workAiModel->trainModel(vTrainSamples, "2.te");
-}
-
-void DepthToPCL::StartingTest()
-{
-    workAiModel->testModel(vTrainSamples, "2.te", 0, te::E_CPU);
-}
-
 /// <summary>
 /// 转换界面按钮
 /// </summary>
@@ -483,6 +473,7 @@ void DepthToPCL::StartTestAction()
     int halfPrecise = 0;
     DeviceType deviceType = te::E_GPU;
     workAiModel->ParameterSettings(1, vTrainSamples, fileName.c_str(), halfPrecise, deviceType);
+
     workAiModel->start();
 }
 

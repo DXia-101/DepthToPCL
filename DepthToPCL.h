@@ -72,9 +72,6 @@ private:
     void mousePressEvent(QMouseEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
 
-    void StartingTrain();
-    void StartingTest();
-
 private:
     /// <summary>
     /// 保存图像轮廓到标签当中

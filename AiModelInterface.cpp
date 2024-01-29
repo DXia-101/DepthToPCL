@@ -49,28 +49,32 @@ void AiModelInterface::teAiInferResult(AiResult& inferResult, te::DynamicMatrix&
 	}
 }
 
-void AiModelInterface::ParameterSettings(int mode, std::vector<te::SampleInfo>& trainSamples, const char* modelPath, bool halfPrecise, DeviceType deviceType)
+void AiModelInterface::ParameterSettings(int mode, std::vector<te::SampleInfo>& trainSamples, const char* modelpath, bool halfPrecise, DeviceType deviceType)
 {
 	this->mode = mode;
 	this->trainSamples = trainSamples;
-	this->modelPath = modelPath;
+	size_t length = strlen(modelpath);
+	this->modelPath = new char[length+1];
+	memcpy(const_cast<char*>(modelPath), modelpath, strlen(modelpath)+1);
+	//this->modelPath = modelpath;
 	this->halfPrecise = halfPrecise;
 	this->deviceType = deviceType;
+	
 }
 
 void AiModelInterface::run()
 {
 	if (!mode) {
-		trainModel(trainSamples, modelPath);
+		trainModel(trainSamples);
 	}
 	else {
-		testModel(trainSamples, modelPath, halfPrecise, deviceType);
+		testModel(trainSamples);
 	}
 }
 
-void AiModelInterface::trainModel(std::vector<te::SampleInfo>& trainSamples, const char* modelPath)
+void AiModelInterface::trainModel(std::vector<te::SampleInfo>& trainSamples)
 {
-	qDebug() << "Starting Train";
+	std::cout << modelPath << std::endl;
 	std::condition_variable cv;
 	AiStatus status;
 
@@ -170,7 +174,7 @@ void AiModelInterface::trainModel(std::vector<te::SampleInfo>& trainSamples, con
 	flip->flipmode = te::TeFlipMode::E_BOTH_FLIP;
 	config.augmentHandle->algorithmProcess.push_back(flip);*/
 
-	//config.augmentHandle = nullptr;
+	config.augmentHandle = nullptr;
 
 	std::string initInfo;
 
@@ -197,7 +201,7 @@ void AiModelInterface::trainModel(std::vector<te::SampleInfo>& trainSamples, con
 	train_.stop();
 }
 
-void AiModelInterface::testModel(std::vector<te::SampleInfo>& trainSamples, const char* modelPath, bool halfPrecise, DeviceType deviceType)
+void AiModelInterface::testModel(std::vector<te::SampleInfo>& trainSamples)
 {
 	std::condition_variable cv;
 	AiStatus status;
