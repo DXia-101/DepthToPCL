@@ -25,6 +25,8 @@
 #include "teRapidjsonObjectTree.h"
 #include "Transfer_Function.h"
 
+#include "DataTransmission.h"
+
 #include <time.h>
 #include <thread>
 
@@ -63,7 +65,9 @@ DepthToPCL::DepthToPCL(QWidget *parent)
 }
 
 DepthToPCL::~DepthToPCL()
-{}
+{
+    delete workAiModel;
+}
 
 void DepthToPCL::Interface_Initialization()
 {
@@ -100,11 +104,13 @@ void DepthToPCL::Interface_Initialization()
     QAction* Start_Train = new QAction("¿ªÊ¼ÑµÁ·");
     QAction* Stop_Train = new QAction("Í£Ö¹ÑµÁ·");
     QAction* Start_Test = new QAction("¿ªÊ¼²âÊÔ");
+    QAction* Train_Chart = new QAction("¿ªÊ¼²âÊÔ");
 
     Train_menu->addAction(Load_Images);
     Train_menu->addAction(Start_Train);
     Train_menu->addAction(Stop_Train);
     Train_menu->addAction(Start_Test);
+    Train_menu->addAction(Train_Chart);
 
     menu_bar->addMenu(Train_menu);
 
@@ -112,6 +118,7 @@ void DepthToPCL::Interface_Initialization()
     connect(Start_Train, &QAction::triggered, this, &DepthToPCL::StartedTrainAction);
     connect(Stop_Train, &QAction::triggered, this, &DepthToPCL::StopTrainAction);
     connect(Start_Test, &QAction::triggered, this, &DepthToPCL::StartTestAction);
+    connect(Train_Chart, &QAction::triggered, this, &DepthToPCL::ShowTrainChartAction);
 
     labelVLayout = new QVBoxLayout(ui.scrollArea);
     ui.scrollAreaWidgetContents->setLayout(labelVLayout);
@@ -132,6 +139,10 @@ void DepthToPCL::Interface_Initialization()
     connect(m_thrDMenuInterface, &_3DMenuInterface::SizeChange, this, &DepthToPCL::UpdatePointCloud2DImage);
 
     workAiModel = new AiModelInterface;
+    trainChart = new TrainingStatisticsChart(this);
+    trainChart->hide();
+
+    DataTransmission::GetInstance()->connect(DataTransmission::GetInstance(), &DataTransmission::DataChanged, trainChart, &TrainingStatisticsChart::ReceiveData);
 }
 
 void DepthToPCL::PCL_Initalization()
@@ -475,6 +486,11 @@ void DepthToPCL::StartTestAction()
     workAiModel->ParameterSettings(1, vTrainSamples, fileName.c_str(), halfPrecise, deviceType);
 
     workAiModel->start();
+}
+
+void DepthToPCL::ShowTrainChartAction()
+{
+    trainChart->show();
 }
 
 /// <summary>

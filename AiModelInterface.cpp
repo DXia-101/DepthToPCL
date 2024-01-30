@@ -1,14 +1,16 @@
 #include "AiModelInterface.h"
 #include <QDebug>
+#include "DataTransmission.h"
 
 AiModelInterface::AiModelInterface(QThread *parent)
 	: QThread(parent)
-{}
+{
+}
 
 AiModelInterface::~AiModelInterface()
-{}
+{
+}
 
-#include "AiModelInterface.h"
 static AiResult m_InferResult;
 int AiModelInterface::teException(void* pParam, AiStatus eStatus)
 {
@@ -21,6 +23,7 @@ int AiModelInterface::teException(void* pParam, AiStatus eStatus)
 
 void AiModelInterface::teTrainStateCallBack(AiStatus status, TrainState& stateinfo, void* param)
 {
+	printf("**teTrainStateCallBack**\n");
 	if (status != E_Success)
 	{
 		printf("train_.error %d\n", status);
@@ -29,6 +32,8 @@ void AiModelInterface::teTrainStateCallBack(AiStatus status, TrainState& statein
 	}
 
 	printf("iter: %d  loss: %f  pacc: %f\n", stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
+	//emit DataUpdate(stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
+	DataTransmission::GetInstance()->setData(stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
 
 	if (stateinfo.fProgress > 0.999999f)
 	{
@@ -74,7 +79,6 @@ void AiModelInterface::run()
 
 void AiModelInterface::trainModel(std::vector<te::SampleInfo>& trainSamples)
 {
-	std::cout << modelPath << std::endl;
 	std::condition_variable cv;
 	AiStatus status;
 
@@ -88,7 +92,7 @@ void AiModelInterface::trainModel(std::vector<te::SampleInfo>& trainSamples)
 	config.receptiveField_A = 64;
 	config.receptiveField_B = 2;
 	config.trainIterCnt = 128;
-	config.saveFrequency = 2;
+	config.saveFrequency = 3;
 	config.eToolType = toolType;
 	config.eTrainMode = TrainMode::E_TE_RESET;//E_TE_INHERITANCE
 	config.locateType = LocateType::E_LocateRectangle;
@@ -191,7 +195,7 @@ void AiModelInterface::trainModel(std::vector<te::SampleInfo>& trainSamples)
 	}
 
 	train_.start(teTrainStateCallBack, &cv);
-
+	//
 	{
 		std::mutex lock;
 		std::unique_lock locker(lock);
