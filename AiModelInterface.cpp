@@ -230,7 +230,7 @@ void AiModelInterface::testModel(std::vector<te::SampleInfo>& trainSamples)
 			maxImageH = trainSamples[i].sampleData.roi.height;
 	}
 
-	cv::Mat image = cv::imread("1.bmp", 1);
+	/*cv::Mat image = cv::imread("1.bmp", 1);
 
 	if (maxImageW < image.cols)
 		maxImageW = image.cols;
@@ -241,7 +241,7 @@ void AiModelInterface::testModel(std::vector<te::SampleInfo>& trainSamples)
 	si.sampleData.imageMatrix.push_back(te::Image(image.cols, image.rows, te::Image::Format::E_BGR, image.data, image.step));
 	si.sampleData.roi = te::Rect(0, 0, image.cols, image.rows);
 	trainSamples.clear();
-	trainSamples.push_back(si);
+	trainSamples.push_back(si);*/
 
 	status = infer_.init(maxImageW, maxImageH);
 	if (status != E_Success)
@@ -306,6 +306,7 @@ void AiModelInterface::testModel(std::vector<te::SampleInfo>& trainSamples)
 			cv::polylines(image, polygons, 1, { 0,255,0 });
 		}
 		cv::imwrite("result.bmp", image);
+		cv::resize(image, image, cv::Size(), 0.3, 0.3);
 		cv::imshow("result", image);
 		cv::waitKey(0);
 	}
