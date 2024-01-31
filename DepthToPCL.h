@@ -13,6 +13,7 @@
 #include "VTKToolBar.h"
 #include "AiModelInterface.h"
 #include "TrainingStatisticsChart.h"
+#include "AssetBrowser.h"
 
 #include <QVBoxLayout>
 #include <QStateMachine>
@@ -132,6 +133,8 @@ private:
 
     VTKToolBar* m_vtkToolBar;
     _3DMenuInterface* m_thrDMenuInterface;
+
+    AssetBrowser* m_AssetBrowser;
 
     QVBoxLayout* labelVLayout;
     QStateMachine* m_pStateMachine;

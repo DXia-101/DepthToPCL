@@ -143,6 +143,13 @@ void DepthToPCL::Interface_Initialization()
     trainChart->hide();
 
     DataTransmission::GetInstance()->connect(DataTransmission::GetInstance(), &DataTransmission::DataChanged, trainChart, &TrainingStatisticsChart::ReceiveData);
+
+    m_AssetBrowser = new AssetBrowser();
+    m_AssetBrowser->setMinimumWidth(360);
+    m_AssetBrowser->setMaximumWidth(360);
+    ui.AssetBrowserLayout->addWidget(m_AssetBrowser);
+
+    this->showMaximized();
 }
 
 void DepthToPCL::PCL_Initalization()
@@ -179,7 +186,7 @@ void DepthToPCL::InitStateMachine()
     m_pStateMachine->addState(TwoDState);
     m_pStateMachine->addState(ThrDState);
 
-    m_pStateMachine->setInitialState(ThrDState);
+    m_pStateMachine->setInitialState(TwoDState);
     m_pStateMachine->start();
 }
 

@@ -18,7 +18,7 @@
     <layout class="QHBoxLayout" name="ToolBarHorizontalLayout"/>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,8">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,8,0">
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
@@ -116,6 +116,9 @@
         <layout class="QHBoxLayout" name="VTKWidgetLayout"/>
        </item>
       </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="AssetBrowserLayout"/>
      </item>
     </layout>
    </item>
