@@ -47,8 +47,12 @@
 #include "tePrediction.h"
 #include "teAugmentation.h"
 
-#include"teImage.h"
-#include"teRapidjsonObjectTree.h"
+#include "teImage.h"
+#include "teObjectTreeWidget.h"
+#include "teRapidjsonObjectTree.h"
+
+#include "teEventLoopInvoke.h"
+#include "teGeometricType.h"
 #include "teTimer.h"
 
 
@@ -144,12 +148,44 @@ void DepthToPCL::Interface_Initialization()
 
     DataTransmission::GetInstance()->connect(DataTransmission::GetInstance(), &DataTransmission::DataChanged, trainChart, &TrainingStatisticsChart::ReceiveData);
 
-    m_AssetBrowser = new AssetBrowser();
-    m_AssetBrowser->setMinimumWidth(360);
-    m_AssetBrowser->setMaximumWidth(360);
-    ui.AssetBrowserLayout->addWidget(m_AssetBrowser);
-
     this->showMaximized();
+
+    connect(ui.AssertBrower, &TeSampWidget::sig_UpDateItem, this, [this](int* pIndex, int len)
+        {
+            for (int i = 0; i < len; i++) {
+                ui.AssertBrower->teUpDateImg(pIndex[i], { QString::number(pIndex[i]) + "_thumb.bmp" }, QSize(256, 256), "Image");
+            }
+        });
+
+    connect(ui.AssertBrower, &TeSampWidget::sig_ItemActive, this, [this](int* pIndex, int len)
+        {
+            for (int i = 0; i < len; i++) {
+                if (QFile::exists(QString::number(pIndex[i]) + "_thumb.bmp")) {
+                    continue;
+                }
+
+                te::Image img = te::Image::load(m_lstImgs[pIndex[i]].toStdString()).resize(te::Size(80, 80));
+                img.save(std::to_string(pIndex[i]) + "_thumb.bmp");
+                ui.AssertBrower->teUpdateThumb(pIndex[i], 0, QImage(QString::number(pIndex[i])+"_thumb.bmp"), E_FORMAT_RGB);
+                
+            }
+        });
+
+    connect(ui.AssertBrower, &TeSampWidget::sig_SwitchImg, this, [this](int index, int layer)
+        {
+            QFileInfo fileInfo(m_lstImgs[index]);
+            QString suffix = fileInfo.suffix().toLower();  // 获取并转换为小写
+
+            if ((suffix == "tif" || suffix == "tiff")) {
+                te::Image curdisplay;
+                curdisplay.load(m_lstImgs[index].toStdString());
+                curdisplay.convertFormat(te::Image::E_Gray8);
+                teImageWidget->setImage(curdisplay);
+            }
+            else {
+                teImageWidget->setImage(te::Image::load(m_lstImgs[index].toStdString()));
+            }
+        });
 }
 
 void DepthToPCL::PCL_Initalization()
@@ -445,7 +481,10 @@ void DepthToPCL::UpdatePointCloud2DImage()
 
 void DepthToPCL::LoadTrainingImages()
 {
-    QStringList fileNames = QFileDialog::getOpenFileNames(nullptr, "Select Training Files", QDir::homePath(), "TIFF Files (*.tif *.tiff)");
+    m_lstImgs = QFileDialog::getOpenFileNames(nullptr);
+
+    ui.AssertBrower->teUpDateSet(m_lstImgs.size(), 1);
+    /*QStringList fileNames = QFileDialog::getOpenFileNames(nullptr, "Select Training Files", QDir::homePath(), "TIFF Files (*.tif *.tiff)");
 
     TiffData.clear();
     GTData.clear();
@@ -471,7 +510,7 @@ void DepthToPCL::LoadTrainingImages()
         vTrainSamples[i].sampleData.imageMatrix.push_back(ss);
         vTrainSamples[i].sampleData.roi = { 0,0,ss.width(), ss.height() };
         te::deserializeJsonFromIFStream(marksPath, &vTrainSamples[i].sampleMark);
-    }
+    }*/
 }
 
 void DepthToPCL::StartedTrainAction()
