@@ -1,6 +1,4 @@
 #include "DisplayTableModel.h"
-#include <QLabel>
-
 
 
 DisplayTableModel::DisplayTableModel(QAbstractTableModel *parent)
@@ -15,7 +13,7 @@ DisplayTableModel::~DisplayTableModel()
 
 int DisplayTableModel::rowCount(const QModelIndex & parent) const
 {
-	return m_ImgLable.size();
+	return this->m_ImgInfoVector.size();
 }
 
 int DisplayTableModel::columnCount(const QModelIndex& parent) const
@@ -27,8 +25,6 @@ QVariant DisplayTableModel::headerData(int section, Qt::Orientation orientation,
 {
 	if (role != Qt::DisplayRole)
 		return QAbstractTableModel::headerData(section, orientation, role);
-
-
 	if (orientation == Qt::Orientation::Horizontal) {
 		return this->m_HorizontalHead[section];
 	}
@@ -43,13 +39,11 @@ QVariant DisplayTableModel::data(const QModelIndex& index, int role) const
 	if (role == Qt::DisplayRole || role == Qt::EditRole) {
 		switch (index.column()) {
 		case COLUMN_HEAD_INDEX::ImgLable: {
-			QVariant variant;
-			variant.setValue(this->m_ImgLable[index.row()]);
-			return variant;
+			return this->m_ImgInfoVector[index.row()].ImgPath;
 			break;
 		}
 		case COLUMN_HEAD_INDEX::InfoLable:
-			return this->m_InfoLable[index.row()];
+			return QVariant::fromValue(this->m_ImgInfoVector[index.row()]);
 			break;
 
 		default:
@@ -64,7 +58,7 @@ QVariant DisplayTableModel::data(const QModelIndex& index, int role) const
 QModelIndex DisplayTableModel::index(int row, int column, const QModelIndex& parent) const
 {
 	// 行和列的合法性检查
-	if (row < 0 || row >= this->m_ImgLable.size() || column < 0 || column >= COLUMN_HEAD_INDEX::COLUMN) {
+	if (row < 0 || row >= this->m_ImgInfoVector.size() || column < 0 || column >= COLUMN_HEAD_INDEX::COLUMN) {
 		return QModelIndex();
 	}
 
@@ -109,15 +103,18 @@ Qt::ItemFlags DisplayTableModel::flags(const QModelIndex& index) const
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-bool DisplayTableModel::setData(const QModelIndex& index, const QVariant& value, int role)
+bool DisplayTableModel::setData(const QModelIndex& index, const QVariant& Invalue, int role)
 {
 	if (index.isValid() && role == Qt::EditRole) {
 		switch (index.column()) {
 		case COLUMN_HEAD_INDEX::ImgLable:
-			this->m_ImgLable[index.row()] = value.toString();
+			this->m_ImgInfoVector[index.row()].ImgPath = Invalue.toString();
 			break;
-		case COLUMN_HEAD_INDEX::InfoLable:
-			this->m_InfoLable[index.row()] = value.toString();
+		case COLUMN_HEAD_INDEX::InfoLable: {
+			ImageInfo info = Invalue.value<ImageInfo>();
+			this->m_ImgInfoVector[index.row()].ImgName = info.ImgName;
+			this->m_ImgInfoVector[index.row()].ImgResolution = info.ImgResolution; 
+		}
 			break;
 		default:
 			break;
@@ -142,8 +139,7 @@ bool DisplayTableModel::insertRows(int row, int count, const QModelIndex& parent
 
 	// 按照位置在链表对应位置进行插入数据
 	for (int addCount = 0; addCount < count; addCount++) {
-		this->m_ImgLable.insert(row + addCount, QPixmap());
-		this->m_InfoLable.insert(row + addCount, "");
+		this->m_ImgInfoVector.insert(row + addCount, {});
 	}
 	// 结束插入行
 	endInsertRows();
@@ -164,8 +160,7 @@ bool DisplayTableModel::removeRows(int row, int count, const QModelIndex& parent
 
 	// 按照位置在链表对应位置进行移除数据
 	for (int removeCount = 0; removeCount < count; removeCount++) {
-		this->m_ImgLable.removeAt(row);
-		this->m_InfoLable.removeAt(row);
+		this->m_ImgInfoVector.removeAt(row);
 	}
 
 	endRemoveRows();

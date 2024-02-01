@@ -1,8 +1,19 @@
 #pragma once
 #include "pcl_function.h"
 #include "teAiExTypes.h"
+#include <QPixmap>
+#include <QString>
+#include <QMetaType>
 
 class DynamicLabel;
+
+struct ImageInfo {
+	QString ImgPath;
+	QString ImgResolution;
+	QString ImgName;
+};
+
+Q_DECLARE_METATYPE(ImageInfo)
 
 class Transfer_Function
 {
@@ -65,5 +76,7 @@ public:
 	/// <param name="Matin">²Î¿¼Í¼Æ¬</param>
 	/// <param name="contour">ÂÖÀª·¶Î§</param>
 	static void AddPointsInsideContour(cv::Mat& Matin, std::vector<cv::Point>* contour);
+
+	static QPixmap loadPixmap(const QString& filePath);
 };
 

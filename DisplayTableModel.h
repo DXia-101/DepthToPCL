@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QAbstractTableModel>
-#include "ImageInfoDisplay.h"
+#include "Transfer_Function.h"
 #include <QPixmap>
 
 #pragma execution_character_set("utf-8")
@@ -40,8 +40,7 @@ public:
 	virtual bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
 
 private:
-	QList<QPixmap> m_ImgLable;
-	QStringList m_InfoLable;
+	QVector<ImageInfo> m_ImgInfoVector;
 
 	QStringList m_HorizontalHead;
 };

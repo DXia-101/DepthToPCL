@@ -4,7 +4,6 @@
 #include "ui_AssetBrowser.h"
 #include "pcl_function.h"
 #include "DisplayTableModel.h"
-#include "NameDelegate.h"
 #include "ImageDelegate.h"
 
 QT_BEGIN_NAMESPACE
@@ -35,6 +34,5 @@ private:
 	int m_no; //No.ап
 	QModelIndexList m_showList;
 
-	NameDelegate* m_NameDelegate;
 	ImageDelegate* m_ImageDelegate;
 };

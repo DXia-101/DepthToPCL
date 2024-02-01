@@ -1,6 +1,7 @@
 #include "AssetBrowser.h"
 #include <QMessageBox>
 
+
 AssetBrowser::AssetBrowser(QWidget *parent)
 	: QWidget(parent)
 	, ui(new Ui::AssetBrowserClass())
@@ -24,12 +25,10 @@ void AssetBrowser::InitTable()
 	this->m_DisplayTableModel = new DisplayTableModel();
 	ui->DisplayLableView->setModel(this->m_DisplayTableModel);
 
-	m_NameDelegate = new NameDelegate();
 	m_ImageDelegate = new ImageDelegate();
 
 	// 添加委托
-	ui->DisplayLableView->setItemDelegateForColumn(COLUMN_HEAD_INDEX::ImgLable, m_ImageDelegate);
-	ui->DisplayLableView->setItemDelegateForColumn(COLUMN_HEAD_INDEX::InfoLable, m_NameDelegate);
+	ui->DisplayLableView->setItemDelegate(m_ImageDelegate);
 
 	// 设置水平头文本居中
 	ui->DisplayLableView->horizontalHeader()->setDefaultAlignment(Qt::AlignHCenter);
@@ -99,11 +98,12 @@ void AssetBrowser::setInsertRowData(int _row)
 	QString value = "";
 
 	QModelIndex index0 = m_DisplayTableModel->index(_row, COLUMN_HEAD_INDEX::ImgLable);
-	m_DisplayTableModel->setData(index0, QString("%1").arg(m_no++));
+	m_DisplayTableModel->setData(index0, QString("C:/Users/Administrator/Desktop/LenaRGB.bmp"));
 
 	static int ref = 1;
 	QModelIndex index1 = m_DisplayTableModel->index(_row, COLUMN_HEAD_INDEX::InfoLable);
-	m_DisplayTableModel->setData(index1, QString("%1").arg(ref++));
+	ImageInfo info{"","Test","Test"};
+	m_DisplayTableModel->setData(index1, QVariant::fromValue(info));
 
 }
 

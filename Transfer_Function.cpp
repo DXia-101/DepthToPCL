@@ -119,3 +119,17 @@ void Transfer_Function::AddPointsInsideContour(cv::Mat& Matin, std::vector<cv::P
         }
     }
 }
+
+QPixmap Transfer_Function::loadPixmap(const QString& filePath)
+{
+    QPixmap pixmap;
+
+    if (pixmap.load(filePath))
+    {
+        return pixmap;
+    }
+    else
+    {
+        return QPixmap();
+    }
+}
