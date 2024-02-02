@@ -55,6 +55,8 @@
 #include "teGeometricType.h"
 #include "teTimer.h"
 
+#include "Depth2RGB.h"
+
 
 DepthToPCL::DepthToPCL(QWidget *parent)
     : QWidget(parent)
@@ -154,6 +156,7 @@ void DepthToPCL::Interface_Initialization()
         {
             for (int i = 0; i < len; i++) {
                 ui.AssertBrower->teUpDateImg(pIndex[i], { QString::number(pIndex[i]) + "_thumb.bmp" }, QSize(256, 256), "Image");
+
             }
         });
 
@@ -161,12 +164,37 @@ void DepthToPCL::Interface_Initialization()
         {
             for (int i = 0; i < len; i++) {
                 if (QFile::exists(QString::number(pIndex[i]) + "_thumb.bmp")) {
+                    //添加一个点云文件的判断
                     continue;
                 }
+                QFileInfo fileInfo(m_lstImgs[pIndex[i]]);
+                QString suffix = fileInfo.suffix().toLower();  // 获取并转换为小写
+                //生成点云并保存起来
+                if ((suffix == "tif" || suffix == "tiff")) {
+                    std::string imgPath = m_lstImgs[pIndex[i]].toStdString();
+                    cv::Mat image = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
+                    
+                    if (image.empty()) {
+                        qDebug() << "Failed to load the TIF image.";
+                        return;
+                    }
+                    cv::Mat median;
+                    median.create(image.size(), CV_8UC3);
+                    TeJetColorCode trans;
+                    if (trans.cvt32F2BGR(image, median)) {
+                        cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
+                        cv::Mat heatmap;
+                        cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
+                        cv::resize(heatmap, heatmap, cv::Size(80, 80));
+                        cv::imwrite(std::to_string(pIndex[i]) + "_thumb.bmp", heatmap);
+                    }
+                }
+                else {
+                    te::Image img = te::Image::load(m_lstImgs[pIndex[i]].toStdString()).resize(te::Size(80, 80));
+                    img.save(std::to_string(pIndex[i]) + "_thumb.bmp");
+                    ui.AssertBrower->teUpdateThumb(pIndex[i], 0, QImage(QString::number(pIndex[i]) + "_thumb.bmp"), E_FORMAT_RGB);
+                }
 
-                te::Image img = te::Image::load(m_lstImgs[pIndex[i]].toStdString()).resize(te::Size(80, 80));
-                img.save(std::to_string(pIndex[i]) + "_thumb.bmp");
-                ui.AssertBrower->teUpdateThumb(pIndex[i], 0, QImage(QString::number(pIndex[i])+"_thumb.bmp"), E_FORMAT_RGB);
                 
             }
         });
@@ -175,7 +203,7 @@ void DepthToPCL::Interface_Initialization()
         {
             QFileInfo fileInfo(m_lstImgs[index]);
             QString suffix = fileInfo.suffix().toLower();  // 获取并转换为小写
-
+            //添加2D&3D的转换
             if ((suffix == "tif" || suffix == "tiff")) {
                 te::Image curdisplay;
                 curdisplay.load(m_lstImgs[index].toStdString());
