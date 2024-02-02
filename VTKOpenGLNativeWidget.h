@@ -29,7 +29,7 @@ public:
     void ComfirmPointPick();
     void PolygonSelect(void* viewer_void, QString mode);
     bool LoadPointCloud(QString fileName);
-    bool SavePointCloud(QString fileName);
+    bool SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>::Ptr saveCloud);
     bool SetBackgroundColor(QColor color);
     bool CoordinateAxisRendering(QString curaxis);
     bool PointCloudColorSet(QColor color);
@@ -79,6 +79,7 @@ public:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cliped;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_Filter_out;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_marked;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr mediancloud;
     pcl::visualization::PCLVisualizer::Ptr viewer;
     vtkRenderWindow* m_renderWindow;
     bool isPickingMode = false;

@@ -37,6 +37,7 @@ void VTKOpenGLNativeWidget::PCL_Initalization()
     cloud_cliped = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_Filter_out = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_marked = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
+    mediancloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
 
     m_renderer = vtkSmartPointer<vtkRenderer>::New();
     m_renderWindow = this->renderWindow();
@@ -388,9 +389,9 @@ bool VTKOpenGLNativeWidget::LoadPointCloud(QString fileName)
     return true;
 }
 
-bool VTKOpenGLNativeWidget::SavePointCloud(QString fileName)
+bool VTKOpenGLNativeWidget::SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>::Ptr saveCloud)
 {
-    if (cloud->empty()) {
+    if (saveCloud->empty()) {
         return false;
     }
     else {
@@ -399,12 +400,12 @@ bool VTKOpenGLNativeWidget::SavePointCloud(QString fileName)
         }
         int return_status;
         if (fileName.endsWith(".pcd", Qt::CaseInsensitive))
-            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(),*cloud);
+            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(),*saveCloud);
         else if (fileName.endsWith(".ply", Qt::CaseInsensitive))
-            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(),*cloud);
+            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(),*saveCloud);
         else {
             fileName.append(".pcd");
-            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(),*cloud);
+            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(),*saveCloud);
         }
         if (return_status != 0) {
             QString errorinfo = QString::fromStdString("Error writing point cloud" + fileName.toStdString());

@@ -103,7 +103,7 @@ void VTKToolBar::LoadPointCloud()
 void VTKToolBar::SavePointCloud()
 {
     QString filename = QFileDialog::getSaveFileName(this, tr("Open point cloud"), "", tr("Point cloud data (*.pcd *.ply)"));
-    if(!vtkWidget->SavePointCloud(filename))
+    if(!vtkWidget->SavePointCloud(filename,vtkWidget->cloud))
         QMessageBox::warning(this, "Warning", "±£¥Ê ß∞‹");
 }
 

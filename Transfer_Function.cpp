@@ -19,9 +19,9 @@ void Transfer_Function::Cloud2cvMat(int width,int height,float originX,float ori
 
 void Transfer_Function::cvMat2Cloud(cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)
 {
-    cloudOut->width = imageIn.cols;
-    cloudOut->height = imageIn.rows;
-    cloudOut->points.resize(cloudOut->width * cloudOut->height);
+    //cloudOut->width = imageIn.cols;
+    //cloudOut->height = imageIn.rows;
+    //cloudOut->points.resize(cloudOut->width * cloudOut->height);
 
     for (int x = 0; x < imageIn.cols; ++x) {
         for (int y = 0; y < imageIn.rows; ++y) {

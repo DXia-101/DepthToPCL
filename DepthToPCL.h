@@ -149,4 +149,5 @@ private:
     TrainingStatisticsChart* trainChart;
 
     QStringList m_lstImgs;
+    int currentIndex;
 };
