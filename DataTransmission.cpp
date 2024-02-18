@@ -21,6 +21,21 @@ void DataTransmission::setData(int iteration, float fAvgLoss, float fPosAcc)
     emit DataChanged(iteration,fAvgLoss,fPosAcc);
 }
 
+void DataTransmission::Filtered()
+{
+    IsFilter = true;
+}
+
+bool DataTransmission::GetIsFilter()
+{
+    return IsFilter;
+}
+
+void DataTransmission::InitTrainSamples(int size)
+{
+    trainSamples = std::vector<te::SampleInfo>(size);
+}
+
 DataTransmission::DataTransmission(QObject *parent)
 	: QObject(parent)
 {}

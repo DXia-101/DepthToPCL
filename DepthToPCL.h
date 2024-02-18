@@ -94,7 +94,6 @@ private slots:
     void on_changeFormBtn_clicked(); //转换界面按钮
     void on_drawCounterBtn_clicked(); //绘制原图轮廓按钮
 
-    void on_MarkCompleted_clicked(); //完成标记
     void on_drawMarkersBtn_clicked(); //绘制标记
     void on_clearMarkersBtn_clicked(); //清空所有标记
 
@@ -114,6 +113,7 @@ private slots:
     void StartTestAction();
     void ShowTrainChartAction();
 
+    void SwitchDisplayItem(int iIndex, int iLayerIndex = 0);
 
 signals:
     void ConversionBetween2Dand3D();
@@ -150,4 +150,6 @@ private:
 
     QStringList m_lstImgs;
     int currentIndex;
+
+    int SumPixNum;
 };

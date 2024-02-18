@@ -2,6 +2,7 @@
 #include <QDebug>
 #include "DataTransmission.h"
 
+
 AiModelInterface::AiModelInterface(QThread *parent)
 	: QThread(parent)
 {
@@ -57,7 +58,7 @@ void AiModelInterface::teAiInferResult(AiResult& inferResult, te::DynamicMatrix&
 void AiModelInterface::ParameterSettings(int mode, std::vector<te::SampleInfo>& trainSamples, const char* modelpath, bool halfPrecise, DeviceType deviceType)
 {
 	this->mode = mode;
-	this->trainSamples = trainSamples;
+	DataTransmission::GetInstance()->trainSamples = trainSamples;
 	size_t length = strlen(modelpath);
 	this->modelPath = new char[length+1];
 	memcpy(const_cast<char*>(modelPath), modelpath, strlen(modelpath)+1);
@@ -70,10 +71,10 @@ void AiModelInterface::ParameterSettings(int mode, std::vector<te::SampleInfo>& 
 void AiModelInterface::run()
 {
 	if (!mode) {
-		trainModel(trainSamples);
+		trainModel(DataTransmission::GetInstance()->trainSamples);
 	}
 	else {
-		testModel(trainSamples);
+		testModel(DataTransmission::GetInstance()->trainSamples);
 	}
 }
 

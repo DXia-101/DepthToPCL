@@ -65,9 +65,3 @@ void _3DMenuInterface::on_ComfirmPointPickBtn_clicked()
 {
 	vtkWidget->ComfirmPointPick();
 }
-
-void _3DMenuInterface::on_RestorationBtn_clicked()
-{
-	pcl::copyPointCloud(vtkWidget->OriginalPointcloud, *vtkWidget->cloud);
-	vtkWidget->reRendering(vtkWidget->cloud);
-}

@@ -28,9 +28,6 @@ public slots:
 
     void on_ComfirmFramePickBtn_clicked();
     void on_ComfirmPointPickBtn_clicked();
-    void on_RestorationBtn_clicked();
-signals:
-    void SizeChange();
 
 private:
 	Ui::_3DMenuInterfaceClass *ui;

@@ -36,6 +36,9 @@ public:
     bool PointCloudPointSizeSet(int point_size);
     bool PointCloudHeightTransform(int factor);
 
+    void pcl_filter_guass(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float paraA, float paraB, float paraC, float paraD);
+    void pcl_filter_direct(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float min, float max, QString axis, float is_save);
+
 public:
     void AiInstance2Cloud(te::AiInstance* instance, cv::Mat& m_image, QColor color);
 
@@ -59,8 +62,7 @@ protected:
     
     void subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2);
     
-    void pcl_filter_guass(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float paraA, float paraB, float paraC, float paraD);
-    void pcl_filter_direct(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float min, float max, QString axis, float is_save);
+
 public slots:
     void AxisAlignedBoundingBox();
     void OrientedBoundingBox();
@@ -72,7 +74,6 @@ signals:
     void CloudChanged();
 public:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
-    pcl::PointCloud<pcl::PointXYZ> OriginalPointcloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr Point_clicked_cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr Frame_clicked_cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_polygon;

@@ -15,6 +15,7 @@
 #include <QStatusBar>
 #include <QKeyEvent>
 #include <QRandomGenerator>
+#include <QSettings>
 
 #include <vector>
 #include <Windows.h>
@@ -56,6 +57,8 @@
 #include "teTimer.h"
 
 #include "Depth2RGB.h"
+
+#include"teTableWidget.h"
 
 
 DepthToPCL::DepthToPCL(QWidget *parent)
@@ -142,7 +145,6 @@ void DepthToPCL::Interface_Initialization()
     ui.menuInterfaceLayout->addWidget(m_thrDMenuInterface);
 
     connect(m_vtkToolBar, &VTKToolBar::LoadingCompleted, this, &DepthToPCL::UpdatePointCloud2DImage);
-    connect(m_thrDMenuInterface, &_3DMenuInterface::SizeChange, this, &DepthToPCL::UpdatePointCloud2DImage);
 
     workAiModel = new AiModelInterface;
     trainChart = new TrainingStatisticsChart(this);
@@ -154,9 +156,12 @@ void DepthToPCL::Interface_Initialization()
 
     connect(ui.AssertBrower, &TeSampWidget::sig_UpDateItem, this, [this](int* pIndex, int len)
         {
+            SumPixNum = ui.AssertBrower->teBrowserTable()->teGetArrayNum();
+            if (SumPixNum != 0) {
+                DataTransmission::GetInstance()->InitTrainSamples(SumPixNum);
+            }
             for (int i = 0; i < len; i++) {
                 ui.AssertBrower->teUpDateImg(pIndex[i], { QString::number(pIndex[i]) + "_thumb.bmp" }, QSize(256, 256), "Image");
-
             }
         });
 
@@ -166,7 +171,6 @@ void DepthToPCL::Interface_Initialization()
                 if (!QFile::exists(QString::number(pIndex[i]) + "_thumb.bmp")) {
                     QFileInfo fileInfo(m_lstImgs[pIndex[i]]);
                     QString suffix = fileInfo.suffix().toLower();  // 获取并转换为小写
-                    //生成点云并保存起来
                     if ((suffix == "tif" || suffix == "tiff")){
                         std::string imgPath = m_lstImgs[pIndex[i]].toStdString();
                         cv::Mat image = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
@@ -206,40 +210,7 @@ void DepthToPCL::Interface_Initialization()
             }
         });
 
-    connect(ui.AssertBrower, &TeSampWidget::sig_SwitchImg, this, [this](int index, int layer)
-        {
-            currentIndex = index;
-            QFileInfo fileInfo(m_lstImgs[index]);
-            QString suffix = fileInfo.suffix().toLower();  // 获取并转换为小写
-            //添加2D&3D的转换
-            if (ThrDState->active()) {
-                vtkWidget->LoadPointCloud(QString::fromStdString(std::to_string(index) + "_thumb.pcd"));
-            }
-            else if (TwoDState->active()) {
-                if ((suffix == "tif" || suffix == "tiff")) {
-                    cv::Mat image = cv::imread(m_lstImgs[index].toStdString(), cv::IMREAD_UNCHANGED);
-                    if (image.empty()) {
-                        qDebug() << "Failed to load the TIF image.";
-                        return;
-                    }
-                    cv::Mat median;
-                    median.create(image.size(), CV_8UC3);
-                    TeJetColorCode trans;
-                    if (trans.cvt32F2BGR(image, median)) {
-                        cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
-                        cv::Mat heatmap;
-                        cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
-                        currentDisplayImage = te::Image(heatmap).clone();
-                        teImageWidget->setImage(currentDisplayImage);
-                    }
-
-                }
-                else {
-                    currentDisplayImage.load(m_lstImgs[index].toStdString());
-                    teImageWidget->setImage(currentDisplayImage);
-                }
-            }
-        });
+    connect(ui.AssertBrower, &TeSampWidget::sig_SwitchImg, this, &DepthToPCL::SwitchDisplayItem);
 }
 
 void DepthToPCL::PCL_Initalization()
@@ -250,6 +221,8 @@ void DepthToPCL::PCL_Initalization()
     teImageWidget = new ImageLabel(this);
     ui.VTKWidgetLayout->addWidget(teImageWidget);
     teImageWidget->hide();
+
+    SumPixNum = 0;
 }
 
 void DepthToPCL::InitStateMachine()
@@ -292,7 +265,8 @@ void DepthToPCL::addAiInstance(DynamicLabel* curlabel, QList<QPolygonF>& Polygon
         polygon.push_back(point);
     }
     instance.contour.polygons.push_back(polygon);
-    curlabel->LabelAiInstSet.push_back(instance);
+    DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark.gtDataSet.push_back(instance);
+    //curlabel->LabelAiInstSet.push_back(instance);
 }
 
 void DepthToPCL::addAiInstance(DynamicLabel* curlabel,pcl::PointCloud<pcl::PointXYZ>::Ptr markedCloud)
@@ -305,14 +279,14 @@ void DepthToPCL::addAiInstance(DynamicLabel* curlabel,pcl::PointCloud<pcl::Point
 
 void DepthToPCL::AiInstSet2Cloud(DynamicLabel* curlabel)
 {
-    for (te::AiInstance instance : curlabel->LabelAiInstSet) {
+    for (te::AiInstance instance : DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark.gtDataSet) {
         vtkWidget->AiInstance2Cloud(&instance,m_image,curlabel->GetColor());
     }
 }
 
 void DepthToPCL::AiInstSet2PolygonItem(DynamicLabel* curlabel)
 {
-    for (te::AiInstance instance : curlabel->LabelAiInstSet) {
+    for (te::AiInstance instance : DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark.gtDataSet) {
         teImageWidget->AiInstance2GraphicsItem(&instance, curlabel->GetLabel(), curlabel->GetColor());
     }
 }
@@ -323,7 +297,7 @@ void DepthToPCL::SaveMatContour2Label(cv::Mat& Matin, DynamicLabel* curlabel)
     instance.name = curlabel->GetLabel().toStdString();
     std::vector<std::vector<cv::Point>> contours;
     Transfer_Function::cvMat2Contour(Matin, &contours);
-    contours.erase(contours.begin());
+    //contours.erase(contours.begin());
     te::PolygonF polygon;
     for (const std::vector<cv::Point>& contourPoints : contours) {
 
@@ -338,7 +312,8 @@ void DepthToPCL::SaveMatContour2Label(cv::Mat& Matin, DynamicLabel* curlabel)
         instance.contour.polygons.push_back(polygon);
         polygon.clear();
     }
-    curlabel->LabelAiInstSet.push_back(instance);
+    DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark.gtDataSet.push_back(instance);
+    //curlabel->LabelAiInstSet.push_back(instance);
 }
 
 void DepthToPCL::ClearAllMarkedContent()
@@ -380,14 +355,42 @@ void DepthToPCL::keyPressEvent(QKeyEvent* event)
 /// </summary>
 void DepthToPCL::on_changeFormBtn_clicked()
 {
+    QFileInfo fileInfo(m_lstImgs[currentIndex]);
+    QString suffix = fileInfo.suffix().toLower();  // 获取并转换为小写
+    if (TwoDState->active()) {
+        vtkWidget->LoadPointCloud(QString::fromStdString(std::to_string(currentIndex) + "_thumb.pcd"));
+        if (DataTransmission::GetInstance()->GetIsFilter()) {
+            QSettings settings(QDir::currentPath() + "/config.ini");
+            vtkWidget->DirectFilter(settings.value("StartLineEdit").toString(), settings.value("EndLineEdit").toString(), settings.value("Axis").toString(), settings.value("IsSave").toString());
+        }
+        vtkWidget->reRendering(vtkWidget->cloud->makeShared());
+        
+    }
     if (ThrDState->active()) {
-        teImageWidget->setImage(currentDisplayImage);
-        emit ConversionBetween2Dand3D();
+        if ((suffix == "tif" || suffix == "tiff")) {
+            cv::Mat image = cv::imread(m_lstImgs[currentIndex].toStdString(), cv::IMREAD_UNCHANGED);
+            m_image = image.clone();
+            if (image.empty()) {
+                qDebug() << "Failed to load the TIF image.";
+                return;
+            }
+            cv::Mat median;
+            median.create(image.size(), CV_8UC3);
+            TeJetColorCode trans;
+            if (trans.cvt32F2BGR(image, median)) {
+                cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
+                cv::Mat heatmap;
+                cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
+                currentDisplayImage = te::Image(heatmap).clone();
+                teImageWidget->setImage(currentDisplayImage);
+            }
+        }
+        else {
+            currentDisplayImage.load(m_lstImgs[currentIndex].toStdString());
+            teImageWidget->setImage(currentDisplayImage);
+        }
     }
-    else if(TwoDState->active()) {
-        vtkWidget->reRendering(vtkWidget->cloud);
-        emit ConversionBetween2Dand3D();
-    }
+    emit ConversionBetween2Dand3D();
 }
 
 /// <summary>
@@ -408,25 +411,6 @@ void DepthToPCL::on_drawCounterBtn_clicked()
 }
 
 /// <summary>
-/// 2D&3D状态下的标记完成
-/// </summary>
-void DepthToPCL::on_MarkCompleted_clicked()
-{
-    for (int i = 0; i < labelVLayout->count(); ++i) {
-        QWidget* widget = labelVLayout->itemAt(i)->widget();
-        DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
-        if (nullptr != curlabel) {
-            for (int j = 0; j < curlabel->LabelAiInstSet.size(); ++j) {
-                if (ThrDState->active()) {
-                }
-                else if (TwoDState->active()) {
-                }
-            }
-        }
-    }
-}
-
-/// <summary>
 /// 绘制标记轮廓
 /// </summary>
 void DepthToPCL::on_drawMarkersBtn_clicked()
@@ -435,15 +419,13 @@ void DepthToPCL::on_drawMarkersBtn_clicked()
         QWidget* widget = labelVLayout->itemAt(i)->widget();
         DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
         if (nullptr != curlabel) {
-            for (te::AiInstance aiContour : curlabel->LabelAiInstSet)
-            {
+
                 if (ThrDState->active()) {
                     AiInstSet2Cloud(curlabel);
                 }
                 else if (TwoDState->active()) {
                     AiInstSet2PolygonItem(curlabel);
                 }
-            }
         }
     }
 }
@@ -464,19 +446,20 @@ void DepthToPCL::SaveContour()
     te::Image obj;
     QString filePath = QFileDialog::getSaveFileName(nullptr, "选择保存路径和文件名", "", "(*.gt)");
     std::cout << labelVLayout->count() << std::endl;
-    for (int i = 0; i < labelVLayout->count()-1; ++i) {   //从1开始是因为Layout里面添加了一个Stretch，需要跳过他
-        QWidget* widget = labelVLayout->itemAt(i)->widget();
-        DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
-        te::SampleMark gt_write;
-        //gt_write.gtDataSet = curlabel->LabelAiInstSet;
-        gt_write.gtDataSet.assign(curlabel->LabelAiInstSet.begin(), curlabel->LabelAiInstSet.end());
+    //for (int i = 0; i < labelVLayout->count()-1; ++i) {   //从1开始是因为Layout里面添加了一个Stretch，需要跳过他
+    //    QWidget* widget = labelVLayout->itemAt(i)->widget();
+    //    DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
+    //    te::SampleMark gt_write;
+    //    //gt_write.gtDataSet = curlabel->LabelAiInstSet;
+    //    gt_write.gtDataSet.assign(curlabel->LabelAiInstSet.begin(), curlabel->LabelAiInstSet.end());
 
-        if (filePath.isEmpty())
-        {
-            return;
-        }
-        te::serializeJsonToOFStream(filePath.toStdString(), gt_write);
-    }
+    //    if (filePath.isEmpty())
+    //    {
+    //        return;
+    //    }
+    //    
+    //}
+    te::serializeJsonToOFStream(filePath.toStdString(), DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark);
 }
 
 void DepthToPCL::LoadContour()
@@ -499,8 +482,8 @@ void DepthToPCL::LoadContour()
         }
     }
 
-    if (te::deserializeJsonFromIFStream(filePath.toStdString(), &gt_read)) {
-        DynamicLabel* label = new DynamicLabel(QString::fromStdString(gt_read.gtDataSet.front().name));
+    if (te::deserializeJsonFromIFStream(filePath.toStdString(), &DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark)) {
+        DynamicLabel* label = new DynamicLabel(QString::fromStdString(DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark.gtDataSet.front().name));
         label->LabelAiInstSet = gt_read.gtDataSet;
         label->SetColor(QColor(QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256)));
         labelVLayout->insertWidget(0,label);
@@ -592,6 +575,45 @@ void DepthToPCL::StartTestAction()
 void DepthToPCL::ShowTrainChartAction()
 {
     trainChart->show();
+}
+
+void DepthToPCL::SwitchDisplayItem(int iIndex, int iLayerIndex)
+{
+    currentIndex = iIndex;
+    QFileInfo fileInfo(m_lstImgs[iIndex]);
+    QString suffix = fileInfo.suffix().toLower();  // 获取并转换为小写
+    if (ThrDState->active()) {
+        vtkWidget->LoadPointCloud(QString::fromStdString(std::to_string(iIndex) + "_thumb.pcd"));
+        if (DataTransmission::GetInstance()->GetIsFilter()) {
+            QSettings settings(QDir::currentPath() + "/config.ini");
+            vtkWidget->DirectFilter(settings.value("StartLineEdit").toString(), settings.value("EndLineEdit").toString(), settings.value("Axis").toString(), settings.value("IsSave").toString());
+        }
+        vtkWidget->reRendering(vtkWidget->cloud->makeShared());
+    }
+    if (TwoDState->active()) {
+        if ((suffix == "tif" || suffix == "tiff")) {
+            cv::Mat image = cv::imread(m_lstImgs[iIndex].toStdString(), cv::IMREAD_UNCHANGED);
+            m_image = image.clone();
+            if (image.empty()) {
+                qDebug() << "Failed to load the TIF image.";
+                return;
+            }
+            cv::Mat median;
+            median.create(image.size(), CV_8UC3);
+            TeJetColorCode trans;
+            if (trans.cvt32F2BGR(image, median)) {
+                cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
+                cv::Mat heatmap;
+                cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
+                currentDisplayImage = te::Image(heatmap).clone();
+                teImageWidget->setImage(currentDisplayImage);
+            }
+        }
+        else {
+            currentDisplayImage.load(m_lstImgs[iIndex].toStdString());
+            teImageWidget->setImage(currentDisplayImage);
+        }
+    }
 }
 
 /// <summary>

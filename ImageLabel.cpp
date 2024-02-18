@@ -38,7 +38,7 @@ void ImageLabel::AiInstance2GraphicsItem(te::AiInstance* instance,QString label,
     polygonItem->setPolygonList(contours);
     polygonItem->setPen(QColor(Qt::black));
     polygonItem->setBrush(QBrush(color));
-
+    
     //Ìí¼Ó¸Ãitem
     this->itemMgr(0)->clipItem(polygonItem);
 }

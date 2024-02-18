@@ -2,10 +2,10 @@
 #define TESAMPWIDGET_H
 
 #include <QWidget>
-#include<QTimer>
-#include"tewidget_global.h"
-#include<functional>
-#include<algorithm>
+#include <QTimer>
+#include "tewidget_global.h"
+#include <functional>
+#include <algorithm>
 
 namespace Ui {
 class TeSampWidget;

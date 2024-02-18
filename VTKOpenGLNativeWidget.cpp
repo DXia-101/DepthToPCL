@@ -382,9 +382,7 @@ bool VTKOpenGLNativeWidget::LoadPointCloud(QString fileName)
     else {
         QMessageBox::warning(this, "Warning", "点云读取格式错误！");
     }
-    reRendering(cloud->makeShared());
-    viewer->resetCameraViewpoint("cloud");
-    pcl::copyPointCloud(*cloud, OriginalPointcloud);
+
     GetCoordinateSet();
     return true;
 }
@@ -498,8 +496,9 @@ void VTKOpenGLNativeWidget::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr clou
     viewer->addPointCloud<pcl::PointXYZ>(cloudin, "cloud");
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
     viewer->resetCamera();
-    update();
+    //update();
     m_renderWindow->Render();//重新渲染
+    viewer->resetCameraViewpoint("cloud");
 }
 
 void VTKOpenGLNativeWidget::GetCoordinateSet()

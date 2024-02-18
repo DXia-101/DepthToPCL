@@ -33,8 +33,8 @@
 
 //#include"teSqlite3ORM.h"
 
-#include"teImage.h"
-#include"teRapidjsonObjectTree.h"
+#include "teImage.h"
+#include "teRapidjsonObjectTree.h"
 #include "teTimer.h"
 
 using namespace te;
@@ -61,7 +61,7 @@ public slots:
 
 private:
 	int mode = 0; //0 «—µ¡∑£¨1 «≤‚ ‘
-	std::vector<te::SampleInfo> trainSamples;
+	
 	const char* modelPath;
 	bool halfPrecise;
 	DeviceType deviceType;

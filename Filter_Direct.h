@@ -27,4 +27,5 @@ private:
 	Ui::Filter_DirectClass ui;
 
 	QString axis, isSave;
+	QString configFilePath;
 };

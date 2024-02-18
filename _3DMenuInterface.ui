@@ -85,13 +85,6 @@
     </layout>
    </item>
    <item>
-    <widget class="QPushButton" name="RestorationBtn">
-     <property name="text">
-      <string>复原点云</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
       <widget class="QPushButton" name="ViewYBtn">

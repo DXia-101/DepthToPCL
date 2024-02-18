@@ -1,4 +1,5 @@
 #include "Transfer_Function.h"
+#include "Depth2RGB.h"
 
 void Transfer_Function::Cloud2cvMat(int width,int height,float originX,float originY, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& imageout)
 {
@@ -15,6 +16,8 @@ void Transfer_Function::Cloud2cvMat(int width,int height,float originX,float ori
             imageout.at<float>(y, x) = z;
         }
     }
+    cv::imshow("imageout", imageout);
+    cv::waitKey(0);
 }
 
 void Transfer_Function::cvMat2Cloud(cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)
@@ -22,6 +25,7 @@ void Transfer_Function::cvMat2Cloud(cv::Mat& imageIn, pcl::PointCloud<pcl::Point
     //cloudOut->width = imageIn.cols;
     //cloudOut->height = imageIn.rows;
     //cloudOut->points.resize(cloudOut->width * cloudOut->height);
+    cloudOut->points.clear();
 
     for (int x = 0; x < imageIn.cols; ++x) {
         for (int y = 0; y < imageIn.rows; ++y) {
@@ -38,10 +42,15 @@ void Transfer_Function::cvMat2Cloud(cv::Mat& imageIn, pcl::PointCloud<pcl::Point
 void Transfer_Function::cvMat2Contour(cv::Mat& Matin, std::vector<std::vector<cv::Point>>* contours)
 {
     cv::Mat grayImg, binImg;
-    cv::cvtColor(Matin, grayImg, cv::COLOR_BGR2GRAY);
-    threshold(grayImg, binImg, 0, 255, cv::ThresholdTypes::THRESH_OTSU);
-    std::vector<cv::Vec4i> hierarchy;
-    findContours(binImg, *contours, hierarchy, cv::RetrievalModes::RETR_TREE, cv::CHAIN_APPROX_NONE);//会将整个图像的最外层轮廓算进去
+    TeJetColorCode trans;
+    cv::Mat median;
+    median.create(Matin.size(), CV_8UC3);
+    if (trans.cvt32F2BGR(Matin, median)) {
+        cv::cvtColor(median, grayImg, cv::COLOR_BGR2GRAY);
+        threshold(grayImg, binImg, 0, 255, cv::ThresholdTypes::THRESH_OTSU);
+        std::vector<cv::Vec4i> hierarchy;
+        findContours(binImg, *contours, hierarchy, cv::RetrievalModes::RETR_TREE, cv::CHAIN_APPROX_NONE);//会将整个图像的最外层轮廓算进去
+    }
 }
 
 void Transfer_Function::ExtractImage(cv::Mat& Matin, std::vector<cv::Point>* contour, cv::Mat* extractedImages)
