@@ -156,10 +156,6 @@ void DepthToPCL::Interface_Initialization()
 
     connect(ui.AssertBrower, &TeSampWidget::sig_UpDateItem, this, [this](int* pIndex, int len)
         {
-            SumPixNum = ui.AssertBrower->teBrowserTable()->teGetArrayNum();
-            if (SumPixNum != 0) {
-                DataTransmission::GetInstance()->InitTrainSamples(SumPixNum);
-            }
             for (int i = 0; i < len; i++) {
                 ui.AssertBrower->teUpDateImg(pIndex[i], { QString::number(pIndex[i]) + "_thumb.bmp" }, QSize(256, 256), "Image");
             }
@@ -318,12 +314,8 @@ void DepthToPCL::SaveMatContour2Label(cv::Mat& Matin, DynamicLabel* curlabel)
 
 void DepthToPCL::ClearAllMarkedContent()
 {
-    for (int i = 0; i < labelVLayout->count(); ++i) {
-        QWidget* widget = labelVLayout->itemAt(i)->widget();
-        DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
-        if (nullptr != curlabel) {
-            curlabel->LabelAiInstSet.clear();
-        }
+    for (auto sampleInfo : DataTransmission::GetInstance()->trainSamples) {
+        sampleInfo.sampleMark.gtDataSet.clear();
     }
 }
 
@@ -443,52 +435,44 @@ void DepthToPCL::on_clearMarkersBtn_clicked()
 
 void DepthToPCL::SaveContour()
 {
+    QString currentDir = QCoreApplication::applicationDirPath();
     te::Image obj;
-    QString filePath = QFileDialog::getSaveFileName(nullptr, "选择保存路径和文件名", "", "(*.gt)");
-    std::cout << labelVLayout->count() << std::endl;
-    //for (int i = 0; i < labelVLayout->count()-1; ++i) {   //从1开始是因为Layout里面添加了一个Stretch，需要跳过他
-    //    QWidget* widget = labelVLayout->itemAt(i)->widget();
-    //    DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
-    //    te::SampleMark gt_write;
-    //    //gt_write.gtDataSet = curlabel->LabelAiInstSet;
-    //    gt_write.gtDataSet.assign(curlabel->LabelAiInstSet.begin(), curlabel->LabelAiInstSet.end());
-
-    //    if (filePath.isEmpty())
-    //    {
-    //        return;
-    //    }
-    //    
-    //}
+    QFileInfo fileInfo(m_lstImgs[currentIndex]);
+    QString fileName = fileInfo.baseName() + ".gt"; // 使用currentindex生成文件名
+    QString filePath = currentDir + "/" + fileName; // 构建完整的文件路径
     te::serializeJsonToOFStream(filePath.toStdString(), DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark);
 }
 
 void DepthToPCL::LoadContour()
 {
     te::Image obj;
-    te::SampleMark gt_read;
-
-    QString filePath = QFileDialog::getOpenFileName(nullptr, "选择文件", "", "(*.gt)");
-    if (filePath.isEmpty())
-    {
-        return ;
-    }
+    QString currentDir = QCoreApplication::applicationDirPath();
 
     for (int i = 0; i < labelVLayout->count(); ++i) {
         QWidget* widget = labelVLayout->itemAt(i)->widget();
         DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
         if (nullptr != curlabel) {
-            curlabel->LabelAiInstSet.clear();
             curlabel->deleteLater();
         }
     }
 
-    if (te::deserializeJsonFromIFStream(filePath.toStdString(), &DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark)) {
-        DynamicLabel* label = new DynamicLabel(QString::fromStdString(DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark.gtDataSet.front().name));
-        label->LabelAiInstSet = gt_read.gtDataSet;
-        label->SetColor(QColor(QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256)));
-        labelVLayout->insertWidget(0,label);
-        totalHeight += label->height();
-        ui.scrollAreaWidgetContents->setGeometry(0, 0, label->width(), totalHeight);
+    for (auto sampleInfo : DataTransmission::GetInstance()->trainSamples) {
+        sampleInfo.sampleMark.gtDataSet.clear();
+    }
+
+    for (int i = 0; i < SumPixNum; ++i) {
+        QFileInfo fileInfo(m_lstImgs[i]);
+
+        QString fileName = fileInfo.baseName() + ".gt";
+        QString filePath = currentDir + "/" + fileName;
+
+        if (te::deserializeJsonFromIFStream(filePath.toStdString(), &DataTransmission::GetInstance()->trainSamples[i].sampleMark)) {
+            DynamicLabel* label = new DynamicLabel(QString::fromStdString(DataTransmission::GetInstance()->trainSamples[i].sampleMark.gtDataSet.front().name));
+            label->SetColor(QColor(QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256)));
+            labelVLayout->insertWidget(0, label);
+            totalHeight += label->height();
+            ui.scrollAreaWidgetContents->setGeometry(0, 0, label->width(), totalHeight);
+        }
     }
 }
 
@@ -522,6 +506,9 @@ void DepthToPCL::LoadTrainingImages()
     m_lstImgs = QFileDialog::getOpenFileNames(nullptr);
 
     ui.AssertBrower->teUpDateSet(m_lstImgs.size(), 1);
+
+    SumPixNum = ui.AssertBrower->teBrowserTable()->teGetArrayNum();
+    DataTransmission::GetInstance()->InitTrainSamples(SumPixNum);
     /*QStringList fileNames = QFileDialog::getOpenFileNames(nullptr, "Select Training Files", QDir::homePath(), "TIFF Files (*.tif *.tiff)");
 
     TiffData.clear();
@@ -606,6 +593,7 @@ void DepthToPCL::SwitchDisplayItem(int iIndex, int iLayerIndex)
                 cv::Mat heatmap;
                 cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
                 currentDisplayImage = te::Image(heatmap).clone();
+                teImageWidget->ClearMarks();
                 teImageWidget->setImage(currentDisplayImage);
             }
         }

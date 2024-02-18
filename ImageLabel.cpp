@@ -43,6 +43,11 @@ void ImageLabel::AiInstance2GraphicsItem(te::AiInstance* instance,QString label,
     this->itemMgr(0)->clipItem(polygonItem);
 }
 
+void ImageLabel::ClearMarks()
+{
+    this->itemMgr(0)->clearItems();
+}
+
 void ImageLabel::DrawPolygonGraphics(const QPolygonF& polygon)
 {
     te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({ polygon }, currentdynamicLabel->GetLabel());

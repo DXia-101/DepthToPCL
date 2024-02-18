@@ -25,6 +25,8 @@ public:
 
 	void LabelChanged();
 	void AiInstance2GraphicsItem(te::AiInstance* instance,QString label, QColor color);
+	void ClearMarks();
+
 signals:
 	void PolygonMarkingCompleted(QList<QPolygonF>& Polygons);
 
@@ -33,7 +35,6 @@ public:
 	DynamicLabel* currentdynamicLabel;  //当前标签对象
 
 	te::PolygonGraphicsBrush curbrush;
-
 private:
 	void DrawPolygonGraphics(const QPolygonF& polygon);
 };

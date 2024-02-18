@@ -28,7 +28,6 @@ private slots:
 	void setLabelName(QString tag);
 protected:
 public:
-	te::AiInstSet LabelAiInstSet;
 
 private:
 	Ui::DynamicLabelClass *ui;
