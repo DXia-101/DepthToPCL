@@ -16,8 +16,6 @@ void Transfer_Function::Cloud2cvMat(int width,int height,float originX,float ori
             imageout.at<float>(y, x) = z;
         }
     }
-    cv::imshow("imageout", imageout);
-    cv::waitKey(0);
 }
 
 void Transfer_Function::cvMat2Cloud(cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)

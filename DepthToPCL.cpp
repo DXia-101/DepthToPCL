@@ -319,6 +319,20 @@ void DepthToPCL::ClearAllMarkedContent()
     }
 }
 
+bool DepthToPCL::isLabelExist(QString curlabel)
+{
+    for (int i = 0; i < labelVLayout->count()-1; ++i) {
+        QWidget* widget = labelVLayout->itemAt(i)->widget();
+        DynamicLabel* m_curlabel = qobject_cast<DynamicLabel*>(widget);
+        if (curlabel == m_curlabel->GetLabel()) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+}
+
 void DepthToPCL::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton)
@@ -455,7 +469,6 @@ void DepthToPCL::LoadContour()
             curlabel->deleteLater();
         }
     }
-
     for (auto sampleInfo : DataTransmission::GetInstance()->trainSamples) {
         sampleInfo.sampleMark.gtDataSet.clear();
     }
@@ -467,11 +480,13 @@ void DepthToPCL::LoadContour()
         QString filePath = currentDir + "/" + fileName;
 
         if (te::deserializeJsonFromIFStream(filePath.toStdString(), &DataTransmission::GetInstance()->trainSamples[i].sampleMark)) {
-            DynamicLabel* label = new DynamicLabel(QString::fromStdString(DataTransmission::GetInstance()->trainSamples[i].sampleMark.gtDataSet.front().name));
-            label->SetColor(QColor(QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256)));
-            labelVLayout->insertWidget(0, label);
-            totalHeight += label->height();
-            ui.scrollAreaWidgetContents->setGeometry(0, 0, label->width(), totalHeight);
+            if (!isLabelExist(QString::fromStdString(DataTransmission::GetInstance()->trainSamples[i].sampleMark.gtDataSet.front().name))) {
+                DynamicLabel* label = new DynamicLabel(QString::fromStdString(DataTransmission::GetInstance()->trainSamples[i].sampleMark.gtDataSet.front().name));
+                label->SetColor(QColor(QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256)));
+                labelVLayout->insertWidget(0, label);
+                totalHeight += label->height();
+                ui.scrollAreaWidgetContents->setGeometry(0, 0, label->width(), totalHeight);
+            }
         }
     }
 }

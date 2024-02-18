@@ -86,6 +86,8 @@ private:
     /// </summary>
     void ClearAllMarkedContent();
 
+    bool isLabelExist(QString curlabel);
+
 private slots:
     void on_addDynamicLabel_clicked(); //添加标记
     void on_delDynamicLabel_clicked(); //删除标记
