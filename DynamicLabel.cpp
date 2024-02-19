@@ -1,6 +1,7 @@
 #include "DynamicLabel.h"
 
 #include <QColorDialog>
+#include <QPainter>
 
 DynamicLabel::DynamicLabel(QString tag, QWidget *parent)
 	: label(tag),QWidget(parent)
@@ -12,7 +13,7 @@ DynamicLabel::DynamicLabel(QString tag, QWidget *parent)
 	ui->label->setStyleSheet("background-color: " + penColor.name() + ";");
 	connect(ui->LabelNameEdit, &QLineEdit::textEdited, this, &DynamicLabel::setLabelName);
 	setAutoFillBackground(true);
-	/*setStyleSheet("background-color:  rgba(255, 255, 255, 0);");*/
+	
 
 	installEventFilter(this);
 }
@@ -48,6 +49,14 @@ void DynamicLabel::setSelected(bool selected)
 void DynamicLabel::setLabelName(QString tag)
 {
 	this->label = tag;
+}
+
+void DynamicLabel::paintEvent(QPaintEvent* event)
+{
+	QPainter painter(this);
+	painter.setPen(Qt::DashLine);
+	painter.drawRect(rect().adjusted(0, 0, -1, -1));  // »æÖÆÐéÏß¿ò
+	QWidget::paintEvent(event);
 }
 
 void DynamicLabel::on_colorSelectBtn_clicked() 

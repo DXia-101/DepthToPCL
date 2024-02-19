@@ -345,6 +345,7 @@ void DepthToPCL::mousePressEvent(QMouseEvent* event)
         QWidget* widget = childAt(pos);
         DynamicLabel* temp = qobject_cast<DynamicLabel*>(widget);
         if(nullptr != temp) {
+            qDebug() << "The current label is "<<temp->GetLabel();
             vtkWidget->currentdynamicLabel = temp;
             teImageWidget->currentdynamicLabel = temp;
             currentLabelNAme = vtkWidget->currentdynamicLabel->GetLabel();
@@ -632,6 +633,7 @@ void DepthToPCL::SwitchDisplayItem(int iIndex, int iLayerIndex)
 void DepthToPCL::on_addDynamicLabel_clicked()
 {
     DynamicLabel* label = new DynamicLabel(tr(""));
+
     labelVLayout->insertWidget(0, label);
     //labelVLayout->addWidget(label);
     totalHeight += label->height();

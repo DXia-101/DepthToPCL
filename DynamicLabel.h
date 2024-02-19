@@ -26,6 +26,10 @@ public:
 private slots:
 	void on_colorSelectBtn_clicked();
 	void setLabelName(QString tag);
+
+protected:
+	void paintEvent(QPaintEvent* event) override;
+
 private:
 	Ui::DynamicLabelClass *ui;
 	
