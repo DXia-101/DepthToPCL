@@ -141,7 +141,9 @@ void DepthToPCL::Interface_Initialization()
 
     m_thrDMenuInterface = new _3DMenuInterface(vtkWidget);
     m_vtkToolBar = new VTKToolBar(vtkWidget);
+    m_imageDisplayToolBar = new ImageDisplayToolBar(teImageWidget);
     ui.vtkToolBarLayout->addWidget(m_vtkToolBar);
+    ui.vtkToolBarLayout->addWidget(m_imageDisplayToolBar);
     ui.menuInterfaceLayout->addWidget(m_thrDMenuInterface);
 
     connect(m_vtkToolBar, &VTKToolBar::LoadingCompleted, this, &DepthToPCL::UpdatePointCloud2DImage);
@@ -229,12 +231,14 @@ void DepthToPCL::InitStateMachine()
     
     //2D状态下显示
     TwoDState->assignProperty(teImageWidget,"visible",true);
+    TwoDState->assignProperty(m_imageDisplayToolBar,"visible",true);
     TwoDState->assignProperty(vtkWidget,"visible",false);
     TwoDState->assignProperty(m_vtkToolBar,"visible",false);
     TwoDState->assignProperty(m_thrDMenuInterface,"visible",false);
 
     //3D状态下显示
     ThrDState->assignProperty(teImageWidget, "visible", false);
+    ThrDState->assignProperty(m_imageDisplayToolBar, "visible", false);
     ThrDState->assignProperty(vtkWidget,"visible",true);
     ThrDState->assignProperty(m_vtkToolBar,"visible",true);
     ThrDState->assignProperty(m_thrDMenuInterface,"visible",true);
@@ -364,6 +368,9 @@ void DepthToPCL::on_changeFormBtn_clicked()
     QFileInfo fileInfo(m_lstImgs[currentIndex]);
     QString suffix = fileInfo.suffix().toLower();  // 获取并转换为小写
     if (TwoDState->active()) {
+        if (m_lstImgs.isEmpty()) {
+            QMessageBox::warning(this, "Warning", "请先加载训练图片");
+        }
         vtkWidget->LoadPointCloud(QString::fromStdString(std::to_string(currentIndex) + "_thumb.pcd"));
         if (DataTransmission::GetInstance()->GetIsFilter()) {
             QSettings settings(QDir::currentPath() + "/config.ini");

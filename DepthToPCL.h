@@ -13,6 +13,7 @@
 #include "VTKToolBar.h"
 #include "AiModelInterface.h"
 #include "TrainingStatisticsChart.h"
+#include "ImageDisplayToolBar.h"
 
 #include <QVBoxLayout>
 #include <QStateMachine>
@@ -43,19 +44,8 @@ public:
     /// </summary>
     void InitStateMachine();
 protected:
-    /// <summary>
-    /// 添加标记到当前选择标签
-    /// </summary>
-    /// <param name="curlabel">当前选择标签</param>
-    /// <param name="Polygons">标记的多边形轮廓集</param>
     void addAiInstance(DynamicLabel* curlabel, QList<QPolygonF>& Polygons);
-
-    /// <summary>
-    /// 添加标记到当前选择标签
-    /// </summary>
-    /// <param name="curlabel">当前选择标签</param>
-    /// <param name="markedCloud">标记的点云</param>
-    void addAiInstance(DynamicLabel* curlabel,pcl::PointCloud<pcl::PointXYZ>::Ptr markedCloud);
+    void addAiInstance(DynamicLabel* curlabel, pcl::PointCloud<pcl::PointXYZ>::Ptr markedCloud);
 
     /// <summary>
     /// 将当前标记的所有AiInstance转换为点云
@@ -134,6 +124,7 @@ private:
 
     VTKToolBar* m_vtkToolBar;
     _3DMenuInterface* m_thrDMenuInterface;
+    ImageDisplayToolBar* m_imageDisplayToolBar;
 
     QVBoxLayout* labelVLayout;
     QStateMachine* m_pStateMachine;
