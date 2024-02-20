@@ -274,20 +274,6 @@ void DepthToPCL::addAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr markedCloud)
     SaveMatContour2Label(image, ui.LabelInterfaceWidget->getSelectedRowCategory());
 }
 
-void DepthToPCL::AiInstSet2Cloud(QColor color)
-{
-    for (te::AiInstance instance : DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark.gtDataSet) {
-        vtkWidget->AiInstance2Cloud(&instance,m_image, color);
-    }
-}
-
-void DepthToPCL::AiInstSet2PolygonItem(QString category,QColor color)
-{
-    for (te::AiInstance instance : DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark.gtDataSet) {
-        teImageWidget->AiInstance2GraphicsItem(&instance, category, color);
-    }
-}
-
 void DepthToPCL::SaveMatContour2Label(cv::Mat& Matin, QString LabelName)
 {
     te::AiInstance instance;
@@ -394,16 +380,13 @@ void DepthToPCL::on_drawCounterBtn_clicked()
 /// </summary>
 void DepthToPCL::on_drawMarkersBtn_clicked()
 {
-    for (int row = 0; row < ui.LabelInterfaceWidget->LabelWidget->rowCount(); ++row) {
-        QTableWidgetItem* item = ui.LabelInterfaceWidget->LabelWidget->item(row, 0); // 第一列的索引为0
-
-        if (item) {
-            if (ThrDState->active()) {
-                AiInstSet2Cloud(item->foreground().color());
-            }
-            else if (TwoDState->active()) {
-                AiInstSet2PolygonItem(item->text(), item->foreground().color());
-            }
+    for (te::AiInstance instance : DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark.gtDataSet) {
+        QColor color = ui.LabelInterfaceWidget->getFontColorByFirstColumnValue(QString::fromStdString(instance.name));
+        if (ThrDState->active()) {
+            vtkWidget->AiInstance2Cloud(&instance, m_image, color);
+        }
+        else if (TwoDState->active()) {
+            teImageWidget->AiInstance2GraphicsItem(&instance, QString::fromStdString(instance.name), color);
         }
     }
 }

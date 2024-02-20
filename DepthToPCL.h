@@ -29,52 +29,20 @@ public:
     DepthToPCL(QWidget *parent = nullptr);
     ~DepthToPCL();
 
-    /// <summary>
-    /// 初始化界面
-    /// </summary>
     void Interface_Initialization();
-
-    /// <summary>
-    /// 初始化PCL
-    /// </summary>
     void PCL_Initalization();
-
-    /// <summary>
-    /// 初始化状态机
-    /// </summary>
     void InitStateMachine();
 protected:
     void addAiInstance(QList<QPolygonF>& Polygons);
     void addAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr markedCloud);
-
-    /// <summary>
-    /// 将当前标记的所有AiInstance转换为点云
-    /// </summary>
-    void AiInstSet2Cloud(QColor color);
-
-    /// <summary>
-    /// 将当前标记的所有AiInstance转换为多边形
-    /// </summary>
-    void AiInstSet2PolygonItem(QString category, QColor color);
     
 private:
     void keyPressEvent(QKeyEvent* event) override;
 
 private:
-    /// <summary>
-    /// 保存图像轮廓到标签当中
-    /// </summary>
-    /// <param name="Matin">待查找轮廓的图像</param>
-    /// <param name="LabelName">保存轮廓的标签</param>
-    void SaveMatContour2Label(cv::Mat& Matin, QString LabelName);
+    void SaveMatContour2Label(cv::Mat& Matin, QString LabelName);// 保存图像轮廓到标签当中
 
-    /// <summary>
-    /// 清除所有标记内容
-    /// </summary>
     void ClearAllMarkedContent();
-
-    bool isLabelExist(QString curlabel);
-
 private slots:
     void on_startTagBtn_clicked(); //开始标记
 

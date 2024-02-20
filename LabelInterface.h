@@ -26,6 +26,8 @@ public:
 
 	bool checkFirstColumn(const QString& searchString);
 
+	QColor getFontColorByFirstColumnValue(const QString& searchString);
+
 signals:
 	void currentRowSelected(const QString& content, const QColor& fontColor);
 

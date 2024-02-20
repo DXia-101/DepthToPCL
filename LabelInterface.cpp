@@ -22,37 +22,35 @@ LabelInterface::~LabelInterface()
 
 QColor LabelInterface::getSelectedRowFontColor() {
 	if (LabelWidget->selectedItems().isEmpty()) {
-		return QColor(); // 返回空颜色对象表示没有选中行
+		return QColor();
 	}
 
 	int row = LabelWidget->selectedItems().first()->row();
-	QTableWidgetItem* item = LabelWidget->item(row, 0); // 假设颜色在第一列
-
+	QTableWidgetItem* item = LabelWidget->item(row, 0);
 	if (item) {
 		QColor fontColor = item->foreground().color();
 		return fontColor;
 	}
 
-	return QColor(); // 返回空颜色对象表示没有选中行
+	return QColor();
 }
 
 QString LabelInterface::getSelectedRowCategory()
 {
 	if (LabelWidget->selectedItems().isEmpty()) {
-		return QString(); // 返回空字符串表示没有选中行
+		return QString();
 	}
 
 	int row = LabelWidget->selectedItems().first()->row();
-	QString content = LabelWidget->item(row, 0)->text(); // 第一列的索引为0
+	QString content = LabelWidget->item(row, 0)->text();
 
 	return content;
 }
 
 void LabelInterface::clearTableWidget()
 {
-	int rowCount = LabelWidget->rowCount(); // 获取当前行数
+	int rowCount = LabelWidget->rowCount(); 
 
-	// 清除除前三行外的所有行
 	for (int row = rowCount - 1; row >= 3; --row) {
 		LabelWidget->removeRow(row);
 	}
@@ -70,7 +68,7 @@ void LabelInterface::addRowToTable(const QString& content, const QColor& fontCol
 
 bool LabelInterface::checkFirstColumn(const QString& searchString) {
 	for (int row = 0; row < LabelWidget->rowCount(); ++row) {
-		QTableWidgetItem* item = LabelWidget->item(row, 0); // 第一列的索引为0
+		QTableWidgetItem* item = LabelWidget->item(row, 0);
 
 		if (item && item->text() == searchString) {
 			return true;
@@ -78,6 +76,17 @@ bool LabelInterface::checkFirstColumn(const QString& searchString) {
 	}
 
 	return false;
+}
+
+QColor LabelInterface::getFontColorByFirstColumnValue(const QString& searchString) {
+	for (int row = 0; row < LabelWidget->rowCount(); ++row) {
+		QTableWidgetItem* item = LabelWidget->item(row, 0);
+
+		if (item && item->text() == searchString) {
+			return item->foreground().color();
+		}
+	}
+	return QColor(Qt::black);
 }
 
 void LabelInterface::on_addLabelButton_clicked()
