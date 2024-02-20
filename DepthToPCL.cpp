@@ -407,8 +407,14 @@ void DepthToPCL::SaveContour()
     QString currentDir = QCoreApplication::applicationDirPath();
     te::Image obj;
     QFileInfo fileInfo(m_lstImgs[currentIndex]);
-    QString fileName = fileInfo.baseName() + ".gt"; // 使用currentindex生成文件名
-    QString filePath = currentDir + "/" + fileName; // 构建完整的文件路径
+    QString fileName = fileInfo.baseName() + ".gt"; 
+    QString filePath = currentDir + "/" + fileName; 
+
+    if (QFile::exists(filePath))
+    {
+        QFile::remove(filePath);
+    }
+
     te::serializeJsonToOFStream(filePath.toStdString(), DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark);
 }
 
