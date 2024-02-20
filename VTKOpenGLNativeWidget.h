@@ -2,7 +2,7 @@
 #include "pcl_function.h"
 #include "Filter_Guass.h"
 #include "Filter_Direct.h"
-#include "DynamicLabel.h"
+
 #include "teAiExTypes.h"
 
 struct AxisSet {
@@ -69,6 +69,7 @@ public slots:
 
     void GuassFilter(QString data1, QString data2, QString data3, QString data4);
     void DirectFilter(QString data1, QString data2, QString data3, QString data4);
+    void LabelChanged(const QString& content, const QColor& fontColor);
 signals:
     void PointCloudMarkingCompleted(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
     void CloudChanged();
@@ -87,7 +88,6 @@ public:
     bool flag = false;//判断是不是第一次点击
     unsigned int line_id = 0;
 
-    DynamicLabel* currentdynamicLabel;  //当前标签对象
     struct AxisSet axisset;
 private:
     vtkSmartPointer<vtkRenderer> m_renderer;
@@ -101,5 +101,7 @@ private:
     bool PositiveAndNegative_Y_axis;
     bool PositiveAndNegative_Z_axis;
 
-    
+public:
+    QString currentCategory;
+    QColor currentColor;
 };

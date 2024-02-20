@@ -17,17 +17,6 @@ ImageLabel::~ImageLabel()
 
 }
 
-void ImageLabel::LabelChanged()
-{
-    RectBrush.setPen(QPen(Qt::green, 2));
-    RectBrush.setBrush(QBrush(currentdynamicLabel->GetColor()));
-    this->addBrush(&RectBrush);
-    PolygonBrush.setPen(QPen(Qt::green, 2));
-    PolygonBrush.setBrush(QBrush(currentdynamicLabel->GetColor()));
-    this->addBrush(&PolygonBrush);
-    
-}
-
 void ImageLabel::AiInstance2GraphicsItem(te::AiInstance* instance,QString label,QColor color)
 {
     QList<QPolygonF> contours;
@@ -53,6 +42,18 @@ void ImageLabel::ClearMarks()
     this->itemMgr(0)->clearItems();
 }
 
+void ImageLabel::LabelChanged(const QString& content, const QColor& fontColor)
+{
+    RectBrush.setPen(QPen(Qt::green, 2));
+    RectBrush.setBrush(QBrush(fontColor));
+    this->addBrush(&RectBrush);
+    PolygonBrush.setPen(QPen(Qt::green, 2));
+    PolygonBrush.setBrush(QBrush(fontColor));
+    this->addBrush(&PolygonBrush);
+    currentCategory = content;
+    currentColor = fontColor;
+}
+
 void ImageLabel::ShapeSelect(QString shape)
 {
     if (shape.compare(QString::fromLocal8Bit("¶à±ßÐÎ")) == 0) {
@@ -61,14 +62,13 @@ void ImageLabel::ShapeSelect(QString shape)
     else if (shape.compare(QString::fromLocal8Bit("¾ØÐÎ")) == 0) {
         this->setCurrentBrush(0);
     }
-    
 }
 
 void ImageLabel::DrawPolygonGraphics(const QPolygonF& polygon)
 {
-    te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({ polygon }, currentdynamicLabel->GetLabel());
+    te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({ polygon }, currentCategory);
     polygonItem->setPen(QColor(Qt::black));
-    polygonItem->setBrush(QBrush(currentdynamicLabel->GetColor()));
+    polygonItem->setBrush(QBrush(currentColor));
 
     QList<QPolygonF> contours = polygonItem->polygonList();
 
@@ -86,9 +86,9 @@ void ImageLabel::DrawRectGraphics(const QRectF& rect)
         << rect.bottomRight()
         << rect.bottomLeft();
 
-    te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({ polygon }, currentdynamicLabel->GetLabel());
+    te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({ polygon }, currentCategory);
     polygonItem->setPen(QColor(Qt::black));
-    polygonItem->setBrush(QBrush(currentdynamicLabel->GetColor()));
+    polygonItem->setBrush(QBrush(currentColor));
 
     QList<QPolygonF> contours = polygonItem->polygonList();
 

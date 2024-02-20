@@ -22,7 +22,7 @@
 #include <string>
 #include <stdexcept>
 
-#include "DynamicLabel.h"
+
 #include "teRapidjsonObjectTree.h"
 #include "Transfer_Function.h"
 
@@ -129,11 +129,6 @@ void DepthToPCL::Interface_Initialization()
     connect(Start_Test, &QAction::triggered, this, &DepthToPCL::StartTestAction);
     connect(Train_Chart, &QAction::triggered, this, &DepthToPCL::ShowTrainChartAction);
 
-    labelVLayout = new QVBoxLayout(ui.scrollArea);
-    ui.scrollAreaWidgetContents->setLayout(labelVLayout);
-    labelVLayout->addStretch(1);
-
-    totalHeight = 0;
     point_size = 1;
 
     connect(vtkWidget, &VTKOpenGLNativeWidget::PointCloudMarkingCompleted, this, &DepthToPCL::ReceiveMarkedPointClouds);
@@ -155,6 +150,9 @@ void DepthToPCL::Interface_Initialization()
     DataTransmission::GetInstance()->connect(DataTransmission::GetInstance(), &DataTransmission::DataChanged, trainChart, &TrainingStatisticsChart::ReceiveData);
 
     this->showMaximized();
+
+    connect(ui.LabelInterfaceWidget, &LabelInterface::currentRowSelected, teImageWidget, &ImageLabel::LabelChanged);
+    connect(ui.LabelInterfaceWidget, &LabelInterface::currentRowSelected, vtkWidget, &VTKOpenGLNativeWidget::LabelChanged);
 
     connect(ui.AssertBrower, &TeSampWidget::sig_UpDateItem, this, [this](int* pIndex, int len)
         {
@@ -253,10 +251,10 @@ void DepthToPCL::InitStateMachine()
     m_pStateMachine->start();
 }
 
-void DepthToPCL::addAiInstance(DynamicLabel* curlabel, QList<QPolygonF>& Polygons)
+void DepthToPCL::addAiInstance(QList<QPolygonF>& Polygons)
 {
     te::AiInstance instance;
-    instance.name = curlabel->GetLabel().toStdString();
+    instance.name = ui.LabelInterfaceWidget->getSelectedRowCategory().toStdString();
     te::PolygonF polygon;
     te::PolygonF::PointType point;
     for (const QPointF& polygonPoint : Polygons.front()) {
@@ -266,35 +264,34 @@ void DepthToPCL::addAiInstance(DynamicLabel* curlabel, QList<QPolygonF>& Polygon
     }
     instance.contour.polygons.push_back(polygon);
     DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark.gtDataSet.push_back(instance);
-    //curlabel->LabelAiInstSet.push_back(instance);
 }
 
-void DepthToPCL::addAiInstance(DynamicLabel* curlabel,pcl::PointCloud<pcl::PointXYZ>::Ptr markedCloud)
+void DepthToPCL::addAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr markedCloud)
 {
     cv::Mat image(0, 0, CV_32F);
 
     Transfer_Function::Cloud2cvMat(vtkWidget->axisset.curwidth, vtkWidget->axisset.curheight, vtkWidget->axisset.OriginX, vtkWidget->axisset.OriginY, markedCloud, image);
-    SaveMatContour2Label(image,curlabel);
+    SaveMatContour2Label(image, ui.LabelInterfaceWidget->getSelectedRowCategory());
 }
 
-void DepthToPCL::AiInstSet2Cloud(DynamicLabel* curlabel)
+void DepthToPCL::AiInstSet2Cloud(QColor color)
 {
     for (te::AiInstance instance : DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark.gtDataSet) {
-        vtkWidget->AiInstance2Cloud(&instance,m_image,curlabel->GetColor());
+        vtkWidget->AiInstance2Cloud(&instance,m_image, color);
     }
 }
 
-void DepthToPCL::AiInstSet2PolygonItem(DynamicLabel* curlabel)
+void DepthToPCL::AiInstSet2PolygonItem(QString category,QColor color)
 {
     for (te::AiInstance instance : DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark.gtDataSet) {
-        teImageWidget->AiInstance2GraphicsItem(&instance, curlabel->GetLabel(), curlabel->GetColor());
+        teImageWidget->AiInstance2GraphicsItem(&instance, category, color);
     }
 }
 
-void DepthToPCL::SaveMatContour2Label(cv::Mat& Matin, DynamicLabel* curlabel)
+void DepthToPCL::SaveMatContour2Label(cv::Mat& Matin, QString LabelName)
 {
     te::AiInstance instance;
-    instance.name = curlabel->GetLabel().toStdString();
+    instance.name = LabelName.toStdString();
     std::vector<std::vector<cv::Point>> contours;
     Transfer_Function::cvMat2Contour(Matin, &contours);
     //contours.erase(contours.begin());
@@ -313,44 +310,12 @@ void DepthToPCL::SaveMatContour2Label(cv::Mat& Matin, DynamicLabel* curlabel)
         polygon.clear();
     }
     DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark.gtDataSet.push_back(instance);
-    //curlabel->LabelAiInstSet.push_back(instance);
 }
 
 void DepthToPCL::ClearAllMarkedContent()
 {
     for (auto sampleInfo : DataTransmission::GetInstance()->trainSamples) {
         sampleInfo.sampleMark.gtDataSet.clear();
-    }
-}
-
-bool DepthToPCL::isLabelExist(QString curlabel)
-{
-    for (int i = 0; i < labelVLayout->count()-1; ++i) {
-        QWidget* widget = labelVLayout->itemAt(i)->widget();
-        DynamicLabel* m_curlabel = qobject_cast<DynamicLabel*>(widget);
-        if (curlabel == m_curlabel->GetLabel()) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-}
-
-void DepthToPCL::mousePressEvent(QMouseEvent* event)
-{
-    if (event->button() == Qt::LeftButton)
-    {
-        QPoint pos = event->pos();
-        QWidget* widget = childAt(pos);
-        DynamicLabel* temp = qobject_cast<DynamicLabel*>(widget);
-        if(nullptr != temp) {
-            qDebug() << "The current label is "<<temp->GetLabel();
-            vtkWidget->currentdynamicLabel = temp;
-            teImageWidget->currentdynamicLabel = temp;
-            currentLabelNAme = vtkWidget->currentdynamicLabel->GetLabel();
-            teImageWidget->LabelChanged();
-        }
     }
 }
 
@@ -429,17 +394,16 @@ void DepthToPCL::on_drawCounterBtn_clicked()
 /// </summary>
 void DepthToPCL::on_drawMarkersBtn_clicked()
 {
-    for (int i = 0; i < labelVLayout->count(); ++i) {
-        QWidget* widget = labelVLayout->itemAt(i)->widget();
-        DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
-        if (nullptr != curlabel) {
+    for (int row = 0; row < ui.LabelInterfaceWidget->LabelWidget->rowCount(); ++row) {
+        QTableWidgetItem* item = ui.LabelInterfaceWidget->LabelWidget->item(row, 0); // 第一列的索引为0
 
-                if (ThrDState->active()) {
-                    AiInstSet2Cloud(curlabel);
-                }
-                else if (TwoDState->active()) {
-                    AiInstSet2PolygonItem(curlabel);
-                }
+        if (item) {
+            if (ThrDState->active()) {
+                AiInstSet2Cloud(item->foreground().color());
+            }
+            else if (TwoDState->active()) {
+                AiInstSet2PolygonItem(item->text(), item->foreground().color());
+            }
         }
     }
 }
@@ -470,13 +434,8 @@ void DepthToPCL::LoadContour()
     te::Image obj;
     QString currentDir = QCoreApplication::applicationDirPath();
 
-    for (int i = 0; i < labelVLayout->count(); ++i) {
-        QWidget* widget = labelVLayout->itemAt(i)->widget();
-        DynamicLabel* curlabel = qobject_cast<DynamicLabel*>(widget);
-        if (nullptr != curlabel) {
-            curlabel->deleteLater();
-        }
-    }
+    ui.LabelInterfaceWidget->clearTableWidget();
+
     for (auto sampleInfo : DataTransmission::GetInstance()->trainSamples) {
         sampleInfo.sampleMark.gtDataSet.clear();
     }
@@ -488,12 +447,9 @@ void DepthToPCL::LoadContour()
         QString filePath = currentDir + "/" + fileName;
 
         if (te::deserializeJsonFromIFStream(filePath.toStdString(), &DataTransmission::GetInstance()->trainSamples[i].sampleMark)) {
-            if (!isLabelExist(QString::fromStdString(DataTransmission::GetInstance()->trainSamples[i].sampleMark.gtDataSet.front().name))) {
-                DynamicLabel* label = new DynamicLabel(QString::fromStdString(DataTransmission::GetInstance()->trainSamples[i].sampleMark.gtDataSet.front().name));
-                label->SetColor(QColor(QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256)));
-                labelVLayout->insertWidget(0, label);
-                totalHeight += label->height();
-                ui.scrollAreaWidgetContents->setGeometry(0, 0, label->width(), totalHeight);
+            if (!ui.LabelInterfaceWidget->checkFirstColumn(QString::fromStdString(DataTransmission::GetInstance()->trainSamples[i].sampleMark.gtDataSet.front().name))) {
+                ui.LabelInterfaceWidget->addRowToTable(QString::fromStdString(DataTransmission::GetInstance()->trainSamples[i].sampleMark.gtDataSet.front().name), 
+                    QColor(QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256)));
             }
         }
     }
@@ -501,17 +457,12 @@ void DepthToPCL::LoadContour()
 
 void DepthToPCL::ReceiveMarkedPointClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
 {
-    addAiInstance(vtkWidget->currentdynamicLabel, cloud);
+    addAiInstance(cloud);
 }
 
 void DepthToPCL::ReceiveMarkedPolygonItem(QList<QPolygonF>& Polygons)
 {
-    addAiInstance(teImageWidget->currentdynamicLabel, Polygons);
-}
-
-void DepthToPCL::WarningForUnselectedTags()
-{
-    QMessageBox::warning(this, tr("错误"), tr("没有选择标签"));
+    addAiInstance(Polygons);
 }
 
 void DepthToPCL::UpdatePointCloud2DImage()
@@ -628,44 +579,12 @@ void DepthToPCL::SwitchDisplayItem(int iIndex, int iLayerIndex)
 }
 
 /// <summary>
-/// 添加标签按钮
-/// </summary>
-void DepthToPCL::on_addDynamicLabel_clicked()
-{
-    DynamicLabel* label = new DynamicLabel(tr(""));
-
-    labelVLayout->insertWidget(0, label);
-    //labelVLayout->addWidget(label);
-    totalHeight += label->height();
-    ui.scrollAreaWidgetContents->setGeometry(0, 0, label->width(), totalHeight);
-
-    vtkWidget->currentdynamicLabel = label;
-    teImageWidget->currentdynamicLabel = label;
-    currentLabelNAme = label->GetLabel();
-    teImageWidget->LabelChanged();
-}
-
-/// <summary>
-/// 删除标签按钮
-/// </summary>
-void DepthToPCL::on_delDynamicLabel_clicked()
-{
-    if (nullptr == vtkWidget->currentdynamicLabel)
-        return;
-    labelVLayout->removeWidget(vtkWidget->currentdynamicLabel);
-    totalHeight -= vtkWidget->currentdynamicLabel->height();
-    ui.scrollAreaWidgetContents->setGeometry(0, 0, vtkWidget->currentdynamicLabel->width(), totalHeight);
-    vtkWidget->currentdynamicLabel->deleteLater();
-    vtkWidget->currentdynamicLabel = nullptr;
-}
-
-/// <summary>
 /// 开始标记按钮
 /// </summary>
 void DepthToPCL::on_startTagBtn_clicked()
 {
-    if (nullptr == vtkWidget->currentdynamicLabel) {
-        WarningForUnselectedTags();
+    if ("" == vtkWidget->currentCategory) {
+        QMessageBox::warning(this, tr("错误"), tr("没有选择标签"));
         return;
     }
     if (ThrDState->active()) {
@@ -678,7 +597,7 @@ void DepthToPCL::on_startTagBtn_clicked()
         }
         else {
             ui.startTagBtn->setText("开始标记");
-            vtkWidget->PolygonSelect(vtkWidget,currentLabelNAme);
+            vtkWidget->PolygonSelect(vtkWidget,ui.LabelInterfaceWidget->getSelectedRowCategory());
         }
     }
     else if (TwoDState->active()) {

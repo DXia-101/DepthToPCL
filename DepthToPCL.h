@@ -44,23 +44,20 @@ public:
     /// </summary>
     void InitStateMachine();
 protected:
-    void addAiInstance(DynamicLabel* curlabel, QList<QPolygonF>& Polygons);
-    void addAiInstance(DynamicLabel* curlabel, pcl::PointCloud<pcl::PointXYZ>::Ptr markedCloud);
+    void addAiInstance(QList<QPolygonF>& Polygons);
+    void addAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr markedCloud);
 
     /// <summary>
     /// 将当前标记的所有AiInstance转换为点云
     /// </summary>
-    /// <param name="curlabel">当前标记</param>
-    void AiInstSet2Cloud(DynamicLabel* curlabel);
+    void AiInstSet2Cloud(QColor color);
 
     /// <summary>
     /// 将当前标记的所有AiInstance转换为多边形
     /// </summary>
-    /// <param name="curlabel">当前标记</param>
-    void AiInstSet2PolygonItem(DynamicLabel* curlabel);
+    void AiInstSet2PolygonItem(QString category, QColor color);
     
 private:
-    void mousePressEvent(QMouseEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
 
 private:
@@ -68,8 +65,8 @@ private:
     /// 保存图像轮廓到标签当中
     /// </summary>
     /// <param name="Matin">待查找轮廓的图像</param>
-    /// <param name="curlabel">保存轮廓的标签</param>
-    void SaveMatContour2Label(cv::Mat& Matin, DynamicLabel* curlabel);
+    /// <param name="LabelName">保存轮廓的标签</param>
+    void SaveMatContour2Label(cv::Mat& Matin, QString LabelName);
 
     /// <summary>
     /// 清除所有标记内容
@@ -79,8 +76,6 @@ private:
     bool isLabelExist(QString curlabel);
 
 private slots:
-    void on_addDynamicLabel_clicked(); //添加标记
-    void on_delDynamicLabel_clicked(); //删除标记
     void on_startTagBtn_clicked(); //开始标记
 
     void on_changeFormBtn_clicked(); //转换界面按钮
@@ -94,8 +89,6 @@ private slots:
 
     void ReceiveMarkedPointClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
     void ReceiveMarkedPolygonItem(QList<QPolygonF>& Polygons);
-
-    void WarningForUnselectedTags();
 
     void UpdatePointCloud2DImage();
 
@@ -113,8 +106,6 @@ signals:
 private:
     Ui::DepthToPCLClass ui;
 
-    int totalHeight; //滚动页面的总体高度
-
     int point_size = 1; //点云大小
 
     cv::Mat m_image;
@@ -126,12 +117,9 @@ private:
     _3DMenuInterface* m_thrDMenuInterface;
     ImageDisplayToolBar* m_imageDisplayToolBar;
 
-    QVBoxLayout* labelVLayout;
     QStateMachine* m_pStateMachine;
     QState* TwoDState;
     QState* ThrDState;
-
-    QString currentLabelNAme;
 
     te::Image currentDisplayImage;
 
@@ -139,7 +127,7 @@ private:
     std::vector<QString> TiffData;
     std::vector<QString> GTData;
     AiModelInterface* workAiModel;
-    TrainingStatisticsChart* trainChart;
+    TrainingStatisticsChart* trainChart; 
 
     QStringList m_lstImgs;
     int currentIndex;

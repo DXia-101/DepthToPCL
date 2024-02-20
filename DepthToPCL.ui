@@ -46,20 +46,6 @@
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
-            <widget class="QPushButton" name="addDynamicLabel">
-             <property name="text">
-              <string>添加标签</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="delDynamicLabel">
-             <property name="text">
-              <string>删除标签</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QPushButton" name="startTagBtn">
              <property name="text">
               <string>开始标记</string>
@@ -69,21 +55,7 @@
           </layout>
          </item>
          <item>
-          <widget class="QScrollArea" name="scrollArea">
-           <property name="widgetResizable">
-            <bool>true</bool>
-           </property>
-           <widget class="QWidget" name="scrollAreaWidgetContents">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>0</y>
-              <width>237</width>
-              <height>428</height>
-             </rect>
-            </property>
-           </widget>
-          </widget>
+          <widget class="LabelInterface" name="LabelInterfaceWidget" native="true"/>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -147,6 +119,12 @@
    <class>TeSampWidget</class>
    <extends>QWidget</extends>
    <header>tesampwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LabelInterface</class>
+   <extends>QWidget</extends>
+   <header>LabelInterface.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

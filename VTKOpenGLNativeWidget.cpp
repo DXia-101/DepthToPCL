@@ -57,11 +57,11 @@ void VTKOpenGLNativeWidget::PCL_Initalization()
     viewer->registerKeyboardCallback(&VTKOpenGLNativeWidget::keyboardEventInvert, *this);
     viewer->registerMouseCallback(&VTKOpenGLNativeWidget::mouseEventOccurred, *this);
 
-    currentdynamicLabel = nullptr;
-
     PositiveAndNegative_X_axis = true;
     PositiveAndNegative_Y_axis = true;
     PositiveAndNegative_Z_axis = true;
+
+    currentCategory = "";
 }
 
 /// <summary>
@@ -342,7 +342,7 @@ void VTKOpenGLNativeWidget::PolygonSelect(void* viewer_void, QString mode)
             }//表示在外面
         }
         
-        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_cliped, currentdynamicLabel->GetColor().red(), currentdynamicLabel->GetColor().green(), currentdynamicLabel->GetColor().blue());
+        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_cliped,currentColor.red(), currentColor.green(), currentColor.blue());
         std::string CloudId = mode.toStdString() + rand_str(3);
         viewer->addPointCloud(cloud_cliped, currentColor, CloudId);
         emit PointCloudMarkingCompleted(cloud_cliped);
@@ -479,7 +479,6 @@ void VTKOpenGLNativeWidget::AiInstance2Cloud(te::AiInstance* instance, cv::Mat& 
         contour.push_back(cv::Point(point.x, point.y));
     }
     cv::Mat extractImage;
-    //Transfer_Function::ExtractImage(m_image, &contour,&extractImage);
     Transfer_Function::ExtractImage2Cloud(m_image, axisset.OriginX, axisset.OriginY, &contour,cloud_marked);
 
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_marked, color.red(), color.green(), color.blue());
@@ -799,6 +798,11 @@ void VTKOpenGLNativeWidget::DirectFilter(QString data1, QString data2, QString d
         viewer->resetCamera();
         m_renderWindow->Render();
     }
+}
+void VTKOpenGLNativeWidget::LabelChanged(const QString& content, const QColor& fontColor)
+{
+    currentCategory = content;
+    currentColor = fontColor;
 }
 /// <summary>
 /// 设置滤波器对象
