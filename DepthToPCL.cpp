@@ -157,7 +157,15 @@ void DepthToPCL::Interface_Initialization()
     connect(ui.AssertBrower, &TeSampWidget::sig_UpDateItem, this, [this](int* pIndex, int len)
         {
             for (int i = 0; i < len; i++) {
-                ui.AssertBrower->teUpDateImg(pIndex[i], { QString::number(pIndex[i]) + "_thumb.bmp" }, QSize(256, 256), "Image");
+                cv::Mat image = cv::imread(m_lstImgs[pIndex[i]].toStdString(), cv::IMREAD_UNCHANGED);
+                if (!image.empty()) {
+                    QSize imageSize(image.cols, image.rows);
+
+                    QFileInfo fileInfo((m_lstImgs[i]));
+                    QString fileName = fileInfo.fileName();
+
+                    ui.AssertBrower->teUpDateImg(pIndex[i], { QString::number(pIndex[i]) + "_thumb.bmp" }, imageSize, fileName);
+                }
             }
         });
 

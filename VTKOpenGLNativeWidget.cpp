@@ -546,13 +546,8 @@ int VTKOpenGLNativeWidget::inOrNot1(int poly_sides, double* poly_X, double* poly
 /// </summary>
 void VTKOpenGLNativeWidget::AxisAlignedBoundingBox()
 {
-    //pcl::MomentOfInertiaEstimation <pcl::PointXYZ> feature_extractor;
     feature_extractor.setInputCloud(cloud); //提供指向输入数据集的指针。
     feature_extractor.compute();//启动所有特征的计算
-    //if (!computed) {
-    //    QMessageBox::warning(this, "Warning", "程序计算中！");
-    //    return;
-    //}
 
     std::vector <float> moment_of_inertia;
     std::vector <float> eccentricity;
@@ -587,13 +582,8 @@ void VTKOpenGLNativeWidget::AxisAlignedBoundingBox()
 /// </summary>
 void VTKOpenGLNativeWidget::OrientedBoundingBox()
 {
-    //pcl::MomentOfInertiaEstimation <pcl::PointXYZ> feature_extractor;
     feature_extractor.setInputCloud(cloud);
     feature_extractor.compute();
-    //if (!computed) {
-    //    QMessageBox::warning(this, "Warning", "程序计算中！");
-    //    return;
-    //}
 
     std::vector <float> moment_of_inertia;
     std::vector <float> eccentricity;

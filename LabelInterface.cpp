@@ -40,7 +40,6 @@ QString LabelInterface::getSelectedRowCategory()
 	if (LabelWidget->selectedItems().isEmpty()) {
 		return QString();
 	}
-
 	int row = LabelWidget->selectedItems().first()->row();
 	QString content = LabelWidget->item(row, 0)->text();
 
@@ -148,6 +147,18 @@ void LabelInterface::InitInterface()
 	LabelWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 	LabelWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	LabelWidget->verticalHeader()->setVisible(false);
+	LabelWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+	QWidget* parentWidget = LabelWidget->parentWidget();
+	int parentWidth = parentWidget->width(); // 获取父窗口的宽度
+
+	int columnCount = LabelWidget->columnCount();
+	int columnWidth = parentWidth / (columnCount+1);
+
+	for (int column = 0; column < columnCount; ++column) {
+		LabelWidget->setColumnWidth(column, columnWidth);
+		LabelWidget->horizontalHeader()->setSectionResizeMode(column, QHeaderView::Fixed);
+	}
 
 	LabelWidget->insertRow(0);
 	LabelWidget->setItem(0, 0, new QTableWidgetItem("LMask"));

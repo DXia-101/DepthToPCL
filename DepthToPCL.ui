@@ -18,7 +18,7 @@
     <layout class="QHBoxLayout" name="ToolBarHorizontalLayout"/>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,8,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,8,0">
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
