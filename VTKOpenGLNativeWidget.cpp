@@ -479,6 +479,7 @@ void VTKOpenGLNativeWidget::AiInstance2Cloud(te::AiInstance* instance, cv::Mat& 
         contour.push_back(cv::Point(point.x, point.y));
     }
     cv::Mat extractImage;
+    cloud_marked->points.clear();
     Transfer_Function::ExtractImage2Cloud(m_image, axisset.OriginX, axisset.OriginY, &contour,cloud_marked);
 
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_marked, color.red(), color.green(), color.blue());
