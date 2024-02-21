@@ -379,9 +379,10 @@ void DepthToPCL::on_drawCounterBtn_clicked()
     //提取二值化图像中的轮廓数据
     std::vector<std::vector<cv::Point> > contour_vec;
     Transfer_Function::cvMat2Contour(m_image, &contour_vec);
-    contour_vec.erase(contour_vec.begin());
+    //contour_vec.erase(contour_vec.begin());
     //绘制单通道轮廓图像，背景为白色，轮廓线条用黑色
     cv::Mat blkImg(m_image.size(), CV_8UC1, cv::Scalar(255));
+    drawContours(blkImg, contour_vec, -1, cv::Scalar(0), 2);
     //scene->addPixmap(QPixmap::fromImage(qImg.scaled(teImageWidget->size(), Qt::KeepAspectRatio)));
     te::Image displayImg = te::Image(blkImg, te::Image::E_Gray8);
 
