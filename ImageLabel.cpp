@@ -7,19 +7,22 @@ ImageLabel::ImageLabel(QWidget* parent)
 {
     this->addItemMgr(8);
 
-    RectBrush.setPen(QPen(Qt::green, 2));
-    this->addBrush(&RectBrush);
-    PolygonBrush.setPen(QPen(Qt::green, 2));
-    this->addBrush(&PolygonBrush);
+    te::RectGraphicsBrush* RectBrush = new te::RectGraphicsBrush;
+    RectBrush->setPen(QPen(Qt::green, 2));
+    this->addBrush(RectBrush);
 
-    connect(&PolygonBrush, &te::PolygonGraphicsBrush::sig_DrawPolygon, this, &ImageLabel::DrawPolygonGraphics);
-    connect(&RectBrush, &te::RectGraphicsBrush::sig_DrawRect, this, &ImageLabel::DrawRectGraphics);
+    te::PolygonGraphicsBrush* PolygonBrush = new te::PolygonGraphicsBrush;
+    PolygonBrush->setPen(QPen(Qt::green, 2));
+    this->addBrush(PolygonBrush);
+
+    connect(PolygonBrush, &te::PolygonGraphicsBrush::sig_DrawPolygon, this, &ImageLabel::DrawPolygonGraphics);
+    connect(RectBrush, &te::RectGraphicsBrush::sig_DrawRect, this, &ImageLabel::DrawRectGraphics);
     setAlignment(Qt::AlignJustify);
 }
 
 ImageLabel::~ImageLabel()
 {
-
+    
 }
 
 void ImageLabel::AiInstance2GraphicsItem(te::AiInstance* instance,QString label,QColor color)
@@ -49,8 +52,8 @@ void ImageLabel::ClearMarks()
 
 void ImageLabel::LabelChanged(const QString& content, const QColor& fontColor)
 {
-    RectBrush.setBrush(QBrush(fontColor));
-    PolygonBrush.setBrush(QBrush(fontColor));
+    graphicsBrush()[0]->setBrush(QBrush(fontColor));
+    graphicsBrush()[1]->setBrush(QBrush(fontColor));
     currentCategory = content;
     currentColor = fontColor;
 }

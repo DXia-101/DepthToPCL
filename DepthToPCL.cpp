@@ -113,7 +113,7 @@ void DepthToPCL::Interface_Initialization()
     QAction* Start_Train = new QAction("开始训练");
     QAction* Stop_Train = new QAction("停止训练");
     QAction* Start_Test = new QAction("开始测试");
-    QAction* Train_Chart = new QAction("开始测试");
+    QAction* Train_Chart = new QAction("显示训练过程");
 
     Train_menu->addAction(Load_Images);
     Train_menu->addAction(Start_Train);

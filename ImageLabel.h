@@ -33,11 +33,6 @@ public slots:
 signals:
 	void PolygonMarkingCompleted(QList<QPolygonF>& Polygons);
 
-public:
-	te::Image image;
-
-	te::PolygonGraphicsBrush PolygonBrush;
-	te::RectGraphicsBrush RectBrush;
 private:
 	void DrawPolygonGraphics(const QPolygonF& polygon);
 	void DrawRectGraphics(const QRectF& rect);
