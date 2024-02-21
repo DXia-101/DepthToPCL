@@ -7,6 +7,11 @@ ImageLabel::ImageLabel(QWidget* parent)
 {
     this->addItemMgr(8);
 
+    RectBrush.setPen(QPen(Qt::green, 2));
+    this->addBrush(&RectBrush);
+    PolygonBrush.setPen(QPen(Qt::green, 2));
+    this->addBrush(&PolygonBrush);
+
     connect(&PolygonBrush, &te::PolygonGraphicsBrush::sig_DrawPolygon, this, &ImageLabel::DrawPolygonGraphics);
     connect(&RectBrush, &te::RectGraphicsBrush::sig_DrawRect, this, &ImageLabel::DrawRectGraphics);
     setAlignment(Qt::AlignJustify);
@@ -44,12 +49,8 @@ void ImageLabel::ClearMarks()
 
 void ImageLabel::LabelChanged(const QString& content, const QColor& fontColor)
 {
-    RectBrush.setPen(QPen(Qt::green, 2));
     RectBrush.setBrush(QBrush(fontColor));
-    this->addBrush(&RectBrush);
-    PolygonBrush.setPen(QPen(Qt::green, 2));
     PolygonBrush.setBrush(QBrush(fontColor));
-    this->addBrush(&PolygonBrush);
     currentCategory = content;
     currentColor = fontColor;
 }
