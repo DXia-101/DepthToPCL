@@ -12,8 +12,9 @@
 #include "_3DMenuInterface.h"
 #include "VTKToolBar.h"
 #include "AiModelInterface.h"
-#include "TrainingStatisticsChart.h"
+
 #include "ImageDisplayToolBar.h"
+#include "ParameterDesignWidget.h"
 
 #include <QVBoxLayout>
 #include <QStateMachine>
@@ -64,12 +65,12 @@ private slots:
     void StartedTrainAction();
     void StopTrainAction();
     void StartTestAction();
-    void ShowTrainChartAction();
 
     void SwitchDisplayItem(int iIndex, int iLayerIndex = 0);
 
 signals:
     void ConversionBetween2Dand3D();
+    void LoadingImagesCompleted();
     
 private:
     Ui::DepthToPCLClass ui;
@@ -85,6 +86,8 @@ private:
     _3DMenuInterface* m_thrDMenuInterface;
     ImageDisplayToolBar* m_imageDisplayToolBar;
 
+    ParameterDesignWidget* m_parameterDesignWidget;
+
     QStateMachine* m_pStateMachine;
     QState* TwoDState;
     QState* ThrDState;
@@ -95,7 +98,7 @@ private:
     std::vector<QString> TiffData;
     std::vector<QString> GTData;
     AiModelInterface* workAiModel;
-    TrainingStatisticsChart* trainChart; 
+    
 
     QStringList m_lstImgs;
     int currentIndex;

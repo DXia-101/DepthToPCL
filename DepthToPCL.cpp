@@ -113,13 +113,11 @@ void DepthToPCL::Interface_Initialization()
     QAction* Start_Train = new QAction("¿ªÊ¼ÑµÁ·");
     QAction* Stop_Train = new QAction("Í£Ö¹ÑµÁ·");
     QAction* Start_Test = new QAction("¿ªÊ¼²âÊÔ");
-    QAction* Train_Chart = new QAction("ÏÔÊ¾ÑµÁ·¹ý³Ì");
 
     Train_menu->addAction(Load_Images);
     Train_menu->addAction(Start_Train);
     Train_menu->addAction(Stop_Train);
     Train_menu->addAction(Start_Test);
-    Train_menu->addAction(Train_Chart);
 
     menu_bar->addMenu(Train_menu);
 
@@ -127,7 +125,6 @@ void DepthToPCL::Interface_Initialization()
     connect(Start_Train, &QAction::triggered, this, &DepthToPCL::StartedTrainAction);
     connect(Stop_Train, &QAction::triggered, this, &DepthToPCL::StopTrainAction);
     connect(Start_Test, &QAction::triggered, this, &DepthToPCL::StartTestAction);
-    connect(Train_Chart, &QAction::triggered, this, &DepthToPCL::ShowTrainChartAction);
 
     point_size = 1;
 
@@ -144,15 +141,15 @@ void DepthToPCL::Interface_Initialization()
     connect(m_vtkToolBar, &VTKToolBar::LoadingCompleted, this, &DepthToPCL::UpdatePointCloud2DImage);
 
     workAiModel = new AiModelInterface;
-    trainChart = new TrainingStatisticsChart(this);
-    trainChart->hide();
 
-    DataTransmission::GetInstance()->connect(DataTransmission::GetInstance(), &DataTransmission::DataChanged, trainChart, &TrainingStatisticsChart::ReceiveData);
+    m_parameterDesignWidget = new ParameterDesignWidget(workAiModel);
+    ui.ParameterDesignLayout->addWidget(m_parameterDesignWidget);
 
     this->showMaximized();
 
     connect(ui.LabelInterfaceWidget, &LabelInterface::currentRowSelected, teImageWidget, &ImageLabel::LabelChanged);
     connect(ui.LabelInterfaceWidget, &LabelInterface::currentRowSelected, vtkWidget, &VTKOpenGLNativeWidget::LabelChanged);
+    connect(this, &DepthToPCL::LoadingImagesCompleted,teImageWidget, &ImageLabel::StartMarked);
 
     connect(ui.AssertBrower, &TeSampWidget::sig_UpDateItem, this, [this](int* pIndex, int len)
         {
@@ -291,14 +288,11 @@ void DepthToPCL::SaveMatContour2Label(cv::Mat& Matin, QString LabelName)
     //contours.erase(contours.begin());
     te::PolygonF polygon;
     for (const std::vector<cv::Point>& contourPoints : contours) {
-
         te::PolygonF::PointType point;
         for (const cv::Point& contourPoint : contourPoints) {
-
             point.x = static_cast<float>(contourPoint.x);
             point.y = static_cast<float>(contourPoint.y);
             polygon.push_back(point);
-
         }
         instance.contour.polygons.push_back(polygon);
         polygon.clear();
@@ -486,6 +480,8 @@ void DepthToPCL::LoadTrainingImages()
 
     SumPixNum = ui.AssertBrower->teBrowserTable()->teGetArrayNum();
     DataTransmission::GetInstance()->InitTrainSamples(SumPixNum);
+
+    emit LoadingImagesCompleted();
     /*QStringList fileNames = QFileDialog::getOpenFileNames(nullptr, "Select Training Files", QDir::homePath(), "TIFF Files (*.tif *.tiff)");
 
     TiffData.clear();
@@ -534,11 +530,6 @@ void DepthToPCL::StartTestAction()
     workAiModel->ParameterSettings(1, vTrainSamples, fileName.c_str(), halfPrecise, deviceType);
 
     workAiModel->start();
-}
-
-void DepthToPCL::ShowTrainChartAction()
-{
-    trainChart->show();
 }
 
 void DepthToPCL::SwitchDisplayItem(int iIndex, int iLayerIndex)

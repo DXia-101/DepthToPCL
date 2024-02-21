@@ -6,6 +6,7 @@
 AiModelInterface::AiModelInterface(QThread *parent)
 	: QThread(parent)
 {
+	config.sampleDesc.resize(1);
 }
 
 AiModelInterface::~AiModelInterface()
@@ -68,9 +69,43 @@ void AiModelInterface::ParameterSettings(int mode, std::vector<te::SampleInfo>& 
 	
 }
 
+void AiModelInterface::InitTrainConfig(
+	int batchsize,int patchwidth,int patchheight,int receptiveField_A,
+	int trainintercnt,int savefrequency, ToolType tooltype,
+	TrainMode etrainmode,LocateType locatetype,
+	int locatesize,std::string netname,te::BaseType DType,
+	int Channel,int HeapID
+)
+{
+	ToolType toolType = tooltype;
+
+	config.batchSize = batchsize;
+	config.patchWidth = patchwidth;
+	config.patchHeight = patchheight;
+	config.receptiveField_A = receptiveField_A;
+	config.receptiveField_B = 2;///
+	config.trainIterCnt = trainintercnt;
+	config.saveFrequency = savefrequency;
+	config.eToolType = toolType;
+	config.eTrainMode = etrainmode;
+	config.locateType = locatetype;
+	config.locateSide = locatesize;
+	config.netName = netname;
+	config.augmentHandle = nullptr;
+	config.modelPath = modelPath;///
+	
+	config.sampleDesc[0].dtype = DType;
+	config.sampleDesc[0].channel = Channel;
+	config.sampleDesc[0].heapId = HeapID;
+	config.augmentHandle = new AugmentProcess();
+
+	config.augmentHandle = nullptr;
+}
+
 void AiModelInterface::run()
 {
 	if (!mode) {
+		StartInitTrainConfigSignal();
 		trainModel(DataTransmission::GetInstance()->trainSamples);
 	}
 	else {
@@ -82,33 +117,6 @@ void AiModelInterface::trainModel(std::vector<te::SampleInfo>& trainSamples)
 {
 	std::condition_variable cv;
 	AiStatus status;
-
-	ToolType toolType = ToolType::E_PixelDetect_Tool;
-	std::vector<std::string> netNames = Training::getNetworkList(toolType);
-
-	TrainConfig config;
-	config.batchSize = 6;
-	config.patchWidth = 0;
-	config.patchHeight = 0;
-	config.receptiveField_A = 64;
-	config.receptiveField_B = 2;
-	config.trainIterCnt = 128;
-	config.saveFrequency = 3;
-	config.eToolType = toolType;
-	config.eTrainMode = TrainMode::E_TE_RESET;//E_TE_INHERITANCE
-	config.locateType = LocateType::E_LocateRectangle;
-	config.locateSide = 0;
-	config.netName = netNames[1];//"default";//
-	config.augmentHandle = nullptr;
-	config.modelPath = modelPath;
-	config.sampleDesc.resize(1);
-	config.sampleDesc[0].dtype = te::BaseType::E_Float32;
-	config.sampleDesc[0].channel = 1;
-	config.sampleDesc[0].heapId = 0;
-
-
-	config.augmentHandle = new AugmentProcess();
-
 	/*auto gauss = std::make_shared<GaussianTransform>();
 	gauss->mean.resize(1);
 	gauss->mean[0].start = 0.00f;
@@ -178,13 +186,10 @@ void AiModelInterface::trainModel(std::vector<te::SampleInfo>& trainSamples)
 	auto flip = std::make_shared<RandomFlipTransform>();
 	flip->flipmode = te::TeFlipMode::E_BOTH_FLIP;
 	config.augmentHandle->algorithmProcess.push_back(flip);*/
-
-	config.augmentHandle = nullptr;
-
 	std::string initInfo;
 
 	Training train_;
-	train_.setDeviceInfo({ E_GPU, 0 });
+	train_.setDeviceInfo({ E_GPU, DeviceID });
 	train_.setTrainConfig(config);
 	status = train_.init(trainSamples, initInfo);
 

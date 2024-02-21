@@ -29,6 +29,7 @@ public:
 public slots:
 	void ShapeSelect(QString shape);
 	void LabelChanged(const QString& content, const QColor& fontColor);
+	void StartMarked();
 
 signals:
 	void PolygonMarkingCompleted(QList<QPolygonF>& Polygons);

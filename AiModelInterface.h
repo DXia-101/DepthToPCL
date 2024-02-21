@@ -52,6 +52,14 @@ public:
 	static void teAiInferResult(AiResult& inferResult, te::DynamicMatrix& hotmap, void* pCallbackParam);
 
 	void ParameterSettings(int mode, std::vector<te::SampleInfo>& trainSamples, const char* modelpath, bool halfPrecise = false, DeviceType deviceType = E_GPU);
+
+	void InitTrainConfig(
+		int batchsize, int patchwidth, int patchheight, int receptiveField_A,
+		int trainintercnt, int savefrequency, ToolType tooltype,
+		TrainMode etrainmode, LocateType locatetype,
+		int locatesize, std::string netname, te::BaseType DType,
+		int Channel, int HeapID
+	);
 protected:
 	void run();
 
@@ -59,10 +67,18 @@ public slots:
 	void trainModel(std::vector<te::SampleInfo>& trainSamples);
 	void testModel(std::vector<te::SampleInfo>& trainSamples);
 
+signals:
+	void StartInitTrainConfigSignal();
+
 private:
 	int mode = 0; //0 «—µ¡∑£¨1 «≤‚ ‘
 	
 	const char* modelPath;
 	bool halfPrecise;
 	DeviceType deviceType;
+
+public:
+	TrainConfig config;
+	std::vector<std::string> netNames;
+	int DeviceID;
 };

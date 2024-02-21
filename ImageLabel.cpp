@@ -7,16 +7,6 @@ ImageLabel::ImageLabel(QWidget* parent)
 {
     this->addItemMgr(8);
 
-    te::RectGraphicsBrush* RectBrush = new te::RectGraphicsBrush;
-    RectBrush->setPen(QPen(Qt::green, 2));
-    this->addBrush(RectBrush);
-
-    te::PolygonGraphicsBrush* PolygonBrush = new te::PolygonGraphicsBrush;
-    PolygonBrush->setPen(QPen(Qt::green, 2));
-    this->addBrush(PolygonBrush);
-
-    connect(PolygonBrush, &te::PolygonGraphicsBrush::sig_DrawPolygon, this, &ImageLabel::DrawPolygonGraphics);
-    connect(RectBrush, &te::RectGraphicsBrush::sig_DrawRect, this, &ImageLabel::DrawRectGraphics);
     setAlignment(Qt::AlignJustify);
 }
 
@@ -56,6 +46,19 @@ void ImageLabel::LabelChanged(const QString& content, const QColor& fontColor)
     graphicsBrush()[1]->setBrush(QBrush(fontColor));
     currentCategory = content;
     currentColor = fontColor;
+}
+
+void ImageLabel::StartMarked()
+{
+    te::RectGraphicsBrush* RectBrush = new te::RectGraphicsBrush;
+    RectBrush->setPen(QPen(Qt::green, 2));
+    this->addBrush(RectBrush);
+
+    te::PolygonGraphicsBrush* PolygonBrush = new te::PolygonGraphicsBrush;
+    PolygonBrush->setPen(QPen(Qt::green, 2));
+    this->addBrush(PolygonBrush);
+    connect(PolygonBrush, &te::PolygonGraphicsBrush::sig_DrawPolygon, this, &ImageLabel::DrawPolygonGraphics);
+    connect(RectBrush, &te::RectGraphicsBrush::sig_DrawRect, this, &ImageLabel::DrawRectGraphics);
 }
 
 void ImageLabel::ShapeSelect(QString shape)

@@ -110,6 +110,8 @@ void LabelInterface::addLabel(QString category)
 		int row = LabelWidget->rowCount();
 		LabelWidget->insertRow(row);
 		LabelWidget->setItem(row, 0, new QTableWidgetItem(category));
+		QTableWidgetItem* currentItem = LabelWidget->item(row, 0);
+		LabelWidget->setCurrentItem(currentItem);
 	}
 }
 
@@ -179,6 +181,9 @@ void LabelInterface::InitInterface()
 	LabelWidget->setItem(2, 1, new QTableWidgetItem("0"));
 	LabelWidget->setItem(2, 2, new QTableWidgetItem("0"));
 	LabelWidget->setItem(2, 3, new QTableWidgetItem("0"));
+
+	QTableWidgetItem* currentItem = LabelWidget->item(0, 0);
+	LabelWidget->setCurrentItem(currentItem);
 
 	connect(LabelWidget, &QTableWidget::cellDoubleClicked, this, &LabelInterface::ColorSelect);
 	connect(LabelWidget, &QTableWidget::itemSelectionChanged, this, &LabelInterface::handleSelectionChanged);

@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ParameterDesignWidgetClass</class>
+ <widget class="QWidget" name="ParameterDesignWidgetClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>326</width>
+    <height>254</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>ParameterDesignWidget</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QCheckBox" name="TrainingCurveCBox">
+     <property name="text">
+      <string>训练曲线</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="NetworkParaPage">
+      <attribute name="title">
+       <string>网络参数</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,7">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>感受野</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="receptiveFieldEdit">
+             <property name="frame">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_18" stretch="3,7">
+           <item>
+            <widget class="QLabel" name="label_13">
+             <property name="text">
+              <string>eToolType</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="eToolTypeCBox">
+             <item>
+              <property name="text">
+               <string>E_Location_Tool</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_PixelDetect_Tool</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_Classify_Tool</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_UnSupervised_Tool</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_AngleRegress_Tool</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_Total_Tool</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="3,7">
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>网络列表</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="NetworkListCBox"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="3,7">
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>通道数</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="ChannelsCBox">
+             <item>
+              <property name="text">
+               <string>1</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>3</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_16" stretch="3,7">
+           <item>
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>dtype</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="dtypeCBox">
+             <item>
+              <property name="text">
+               <string>E_Invalid</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_Bool</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_UInt8</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_Int8</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_UInt16</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_Int16</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_UInt32</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_Int32</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_UInt64</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_Int64</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_Float32</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_Float64</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_U8String</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_17" stretch="3,7">
+           <item>
+            <widget class="QLabel" name="label_12">
+             <property name="text">
+              <string>heapID</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="heapIDEdit"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="AugmentParaPage">
+      <attribute name="title">
+       <string>训练参数</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_15">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,1,3">
+           <item>
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>训练轮数</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="trainIterCntEdit">
+             <property name="frame">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="1">
+           <item>
+            <widget class="QCheckBox" name="AutomaticCBox">
+             <property name="text">
+              <string>自动停止</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="1,1,3">
+           <item>
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>BatchSize</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="BatchSizeEdit">
+             <property name="frame">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="1,1">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="12,10">
+             <item>
+              <widget class="QLabel" name="label_7">
+               <property name="text">
+                <string>PatchWidth</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="PatchWidthEdit">
+               <property name="text">
+                <string>Default</string>
+               </property>
+               <property name="frame">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_10">
+             <item>
+              <widget class="QLabel" name="label_9">
+               <property name="text">
+                <string>设备ID</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="DeviceIDEdit">
+               <property name="frame">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_14" stretch="1,1">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_12" stretch="12,10">
+             <item>
+              <widget class="QLabel" name="label_8">
+               <property name="text">
+                <string>PatchHeight</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="PatchHeightEdit">
+               <property name="text">
+                <string>Default</string>
+               </property>
+               <property name="frame">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_13">
+             <item>
+              <widget class="QLabel" name="label_10">
+               <property name="text">
+                <string>保存频率</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="saveFrequencyEdit">
+               <property name="frame">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="TrainingParaPage">
+      <attribute name="title">
+       <string>参数</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_20">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_19" stretch="3,7">
+           <item>
+            <widget class="QLabel" name="label_14">
+             <property name="text">
+              <string>eTrainMode</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="eTrainModeCBox">
+             <item>
+              <property name="text">
+               <string>E_TE_RESET</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_TE_INHERITANCE</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_21" stretch="3,7">
+           <item>
+            <widget class="QLabel" name="label_15">
+             <property name="text">
+              <string>locateType</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="locateTypeBox">
+             <item>
+              <property name="text">
+               <string>E_LocateCenter</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_LocateCircle</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_LocateRectangle</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>E_LocateRotateBox</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_22" stretch="3,7">
+           <item>
+            <widget class="QLabel" name="label_16">
+             <property name="text">
+              <string>locateSide</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="locateSideEdit">
+             <property name="frame">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>
