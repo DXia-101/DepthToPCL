@@ -106,9 +106,11 @@ void LabelInterface::on_deleteLabelButton_clicked()
 
 void LabelInterface::addLabel(QString category)
 {
-	int row = LabelWidget->rowCount();
-	LabelWidget->insertRow(row);
-	LabelWidget->setItem(row, 0, new QTableWidgetItem(category));
+	if (!checkFirstColumn(category)) {
+		int row = LabelWidget->rowCount();
+		LabelWidget->insertRow(row);
+		LabelWidget->setItem(row, 0, new QTableWidgetItem(category));
+	}
 }
 
 void LabelInterface::handleSelectionChanged()
