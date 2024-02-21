@@ -325,12 +325,13 @@ void DepthToPCL::keyPressEvent(QKeyEvent* event)
 /// </summary>
 void DepthToPCL::on_changeFormBtn_clicked()
 {
+    if (m_lstImgs.isEmpty()) {
+        QMessageBox::warning(this, "Warning", "请先加载训练图片");
+        return;
+    }
     QFileInfo fileInfo(m_lstImgs[currentIndex]);
     QString suffix = fileInfo.suffix().toLower();  // 获取并转换为小写
     if (TwoDState->active()) {
-        if (m_lstImgs.isEmpty()) {
-            QMessageBox::warning(this, "Warning", "请先加载训练图片");
-        }
         vtkWidget->LoadPointCloud(QString::fromStdString(std::to_string(currentIndex) + "_thumb.pcd"));
         if (DataTransmission::GetInstance()->GetIsFilter()) {
             QSettings settings(QDir::currentPath() + "/config.ini");
@@ -371,6 +372,10 @@ void DepthToPCL::on_changeFormBtn_clicked()
 /// </summary>
 void DepthToPCL::on_drawCounterBtn_clicked()
 {
+    if (m_image.empty()) {
+        QMessageBox::warning(this, "Warning", "请先加载训练图片");
+        return;
+    }
     //提取二值化图像中的轮廓数据
     std::vector<std::vector<cv::Point> > contour_vec;
     Transfer_Function::cvMat2Contour(m_image, &contour_vec);
