@@ -102,13 +102,30 @@ void AiModelInterface::InitTrainConfig(
 	config.augmentHandle = nullptr;
 }
 
+void AiModelInterface::InitTestConfig(
+	int maxbatchsize, int batchsize, 
+	int maxcontourcount, int maxcontourpointcount, int maxinnercontourcount, 
+	int deviceid, te::DeviceType devicetype, te::ComputePrecision precision)
+{
+	status = infer_.setMaxBatchSize(maxbatchsize);
+	status = infer_.setBatchSize(batchsize);
+	contrDesc = { maxcontourcount, maxcontourpointcount, maxinnercontourcount };
+	status = infer_.setCoutourDesc(contrDesc);
+	devInfo = { devicetype, deviceid };
+	status = infer_.setComputeDesc(devInfo);
+	status = infer_.setModelPath(modelPath);
+	status = infer_.setPrecisionType(precision);
+	status = infer_.setExceptionFunc(teException, nullptr);
+}
+
 void AiModelInterface::run()
 {
 	if (!mode) {
-		StartInitTrainConfigSignal();
+		emit StartInitTrainConfigSignal();
 		trainModel(DataTransmission::GetInstance()->trainSamples);
 	}
 	else {
+		emit StartInitTestConfigSignal();
 		testModel(DataTransmission::GetInstance()->trainSamples);
 	}
 }
@@ -214,18 +231,6 @@ void AiModelInterface::trainModel(std::vector<te::SampleInfo>& trainSamples)
 void AiModelInterface::testModel(std::vector<te::SampleInfo>& trainSamples)
 {
 	std::condition_variable cv;
-	AiStatus status;
-
-	te::ModelInfer infer_;
-	status = infer_.setMaxBatchSize(1);
-	status = infer_.setBatchSize(1);
-	ContourDesc contrDesc = { 12, 5, 256 };// { 1, 0, 4 };
-	status = infer_.setCoutourDesc(contrDesc);
-	DeviceInfo devInfo = { deviceType, 0 };
-	status = infer_.setComputeDesc(devInfo);
-	status = infer_.setModelPath(modelPath);
-	status = infer_.setPrecisionType(halfPrecise ? ComputePrecision::E_FP16 : ComputePrecision::E_FP32);
-	status = infer_.setExceptionFunc(teException, nullptr);
 
 	int maxImageW = 0, maxImageH = 0;
 	for (size_t i = 0; i < trainSamples.size(); i++)

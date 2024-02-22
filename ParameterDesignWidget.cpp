@@ -230,7 +230,6 @@ void ParameterDesignWidget::StartInitTrainConfigSlots()
 		workAiModel->DeviceID = ui->DeviceIDEdit->text().toInt();
 	}
 	
-
 	workAiModel->InitTrainConfig(
 		batchsize, patchWidth, patchHeight, receptiveField_A, trainIterCnt,
 		saveFrequency, eToolType, eTrainMode, locateType, locateSide,

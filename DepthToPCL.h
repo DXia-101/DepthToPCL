@@ -15,6 +15,7 @@
 
 #include "ImageDisplayToolBar.h"
 #include "ParameterDesignWidget.h"
+#include "TestParameterSetting.h"
 
 #include <QVBoxLayout>
 #include <QStateMachine>
@@ -87,6 +88,7 @@ private:
     ImageDisplayToolBar* m_imageDisplayToolBar;
 
     ParameterDesignWidget* m_parameterDesignWidget;
+    TestParameterSetting* m_TestParameterSetting;
 
     QStateMachine* m_pStateMachine;
     QState* TwoDState;

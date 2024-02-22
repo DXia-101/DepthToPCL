@@ -144,6 +144,8 @@ void DepthToPCL::Interface_Initialization()
 
     m_parameterDesignWidget = new ParameterDesignWidget(workAiModel);
     ui.ParameterDesignLayout->addWidget(m_parameterDesignWidget);
+    m_TestParameterSetting = new TestParameterSetting(workAiModel);
+    ui.ParameterDesignLayout->addWidget(m_TestParameterSetting);
 
     this->showMaximized();
 
@@ -481,18 +483,17 @@ void DepthToPCL::LoadTrainingImages()
     SumPixNum = ui.AssertBrower->teBrowserTable()->teGetArrayNum();
     DataTransmission::GetInstance()->InitTrainSamples(SumPixNum);
 
-    emit LoadingImagesCompleted();
-    /*QStringList fileNames = QFileDialog::getOpenFileNames(nullptr, "Select Training Files", QDir::homePath(), "TIFF Files (*.tif *.tiff)");
+    
 
     TiffData.clear();
     GTData.clear();
 
-    foreach(const QString & fileName, fileNames) {
+    foreach(const QString & fileName, m_lstImgs) {
         TiffData.push_back(fileName);
         QFileInfo fileInfo(fileName);
         QString baseName = fileInfo.baseName();
 
-        QDir dir = fileInfo.absoluteDir();
+        QDir dir = QCoreApplication::applicationDirPath();
         QStringList gtFileNames = dir.entryList(QStringList(baseName + ".gt"), QDir::Files);
         if (!gtFileNames.isEmpty()) {
             GTData.push_back(dir.absoluteFilePath(gtFileNames.first()));
@@ -508,7 +509,9 @@ void DepthToPCL::LoadTrainingImages()
         vTrainSamples[i].sampleData.imageMatrix.push_back(ss);
         vTrainSamples[i].sampleData.roi = { 0,0,ss.width(), ss.height() };
         te::deserializeJsonFromIFStream(marksPath, &vTrainSamples[i].sampleMark);
-    }*/
+    }
+
+    emit LoadingImagesCompleted();
 }
 
 void DepthToPCL::StartedTrainAction()

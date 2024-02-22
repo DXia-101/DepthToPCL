@@ -60,6 +60,12 @@ public:
 		int locatesize, std::string netname, te::BaseType DType,
 		int Channel, int HeapID
 	);
+
+	void InitTestConfig(
+		int maxbatchsize,int batchsize,int maxcontourcount,
+		int maxcontourpointcount,int maxinnercontourcount,
+		int deviceid,te::DeviceType devicetype,te::ComputePrecision precision
+	);
 protected:
 	void run();
 
@@ -69,6 +75,7 @@ public slots:
 
 signals:
 	void StartInitTrainConfigSignal();
+	void StartInitTestConfigSignal();
 
 private:
 	int mode = 0; //0 «—µ¡∑£¨1 «≤‚ ‘
@@ -81,4 +88,9 @@ public:
 	TrainConfig config;
 	std::vector<std::string> netNames;
 	int DeviceID;
+
+	AiStatus status;
+	te::ModelInfer infer_;
+	ContourDesc contrDesc;
+	DeviceInfo devInfo;
 };

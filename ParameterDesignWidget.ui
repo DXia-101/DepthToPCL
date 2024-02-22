@@ -62,6 +62,9 @@
            </item>
            <item>
             <widget class="QComboBox" name="eToolTypeCBox">
+             <property name="currentText">
+              <string>E_PixelDetect_Tool</string>
+             </property>
              <item>
               <property name="text">
                <string>E_Location_Tool</string>
@@ -146,6 +149,9 @@
            </item>
            <item>
             <widget class="QComboBox" name="dtypeCBox">
+             <property name="currentText">
+              <string>E_UInt8</string>
+             </property>
              <item>
               <property name="text">
                <string>E_Invalid</string>
@@ -498,6 +504,9 @@
            </item>
            <item>
             <widget class="QComboBox" name="locateTypeBox">
+             <property name="currentText">
+              <string>E_LocateRectangle</string>
+             </property>
              <item>
               <property name="text">
                <string>E_LocateCenter</string>
