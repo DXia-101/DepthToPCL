@@ -68,7 +68,8 @@ private slots:
     void StartTestAction();
 
     void SwitchDisplayItem(int iIndex, int iLayerIndex = 0);
-
+    void EndTest();
+    void DrawTestMarkers();
 signals:
     void ConversionBetween2Dand3D();
     void LoadingImagesCompleted();
@@ -106,4 +107,8 @@ private:
     int currentIndex;
 
     int SumPixNum;
+
+    QPushButton* DrawTestContour;
+    ContoursSet* TestContoursSet;
+    QColor TestMarkColor;
 };

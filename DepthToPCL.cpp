@@ -16,12 +16,12 @@
 #include <QKeyEvent>
 #include <QRandomGenerator>
 #include <QSettings>
+#include <QColorDialog>
 
 #include <vector>
 #include <Windows.h>
 #include <string>
 #include <stdexcept>
-
 
 #include "teRapidjsonObjectTree.h"
 #include "Transfer_Function.h"
@@ -47,19 +47,14 @@
 #include "teTraining.h"
 #include "tePrediction.h"
 #include "teAugmentation.h"
-
 #include "teImage.h"
 #include "teObjectTreeWidget.h"
 #include "teRapidjsonObjectTree.h"
-
 #include "teEventLoopInvoke.h"
 #include "teGeometricType.h"
 #include "teTimer.h"
-
 #include "Depth2RGB.h"
-
-#include"teTableWidget.h"
-
+#include "teTableWidget.h"
 
 DepthToPCL::DepthToPCL(QWidget *parent)
     : QWidget(parent)
@@ -152,6 +147,13 @@ void DepthToPCL::Interface_Initialization()
     connect(ui.LabelInterfaceWidget, &LabelInterface::currentRowSelected, teImageWidget, &ImageLabel::LabelChanged);
     connect(ui.LabelInterfaceWidget, &LabelInterface::currentRowSelected, vtkWidget, &VTKOpenGLNativeWidget::LabelChanged);
     connect(this, &DepthToPCL::LoadingImagesCompleted,teImageWidget, &ImageLabel::StartMarked);
+
+    DrawTestContour = new QPushButton();
+    ui.horizontalLayout_5->addWidget(DrawTestContour);
+    DrawTestContour->setText(tr("显示测试结果"));
+    DrawTestContour->setVisible(false);
+
+    connect(workAiModel, &AiModelInterface::TestingCompleted, this, &DepthToPCL::EndTest);
 
     connect(ui.AssertBrower, &TeSampWidget::sig_UpDateItem, this, [this](int* pIndex, int len)
         {
@@ -483,8 +485,6 @@ void DepthToPCL::LoadTrainingImages()
     SumPixNum = ui.AssertBrower->teBrowserTable()->teGetArrayNum();
     DataTransmission::GetInstance()->InitTrainSamples(SumPixNum);
 
-    
-
     TiffData.clear();
     GTData.clear();
 
@@ -492,23 +492,15 @@ void DepthToPCL::LoadTrainingImages()
         TiffData.push_back(fileName);
         QFileInfo fileInfo(fileName);
         QString baseName = fileInfo.baseName();
-
-        QDir dir = QCoreApplication::applicationDirPath();
-        QStringList gtFileNames = dir.entryList(QStringList(baseName + ".gt"), QDir::Files);
-        if (!gtFileNames.isEmpty()) {
-            GTData.push_back(dir.absoluteFilePath(gtFileNames.first()));
-        }
     }
     vTrainSamples.resize(TiffData.size());
     for (int i = 0; i < TiffData.size(); ++i) {
         std::string imagePath = TiffData.at(i).toStdString();
-        std::string marksPath = GTData.at(i).toStdString();
 
         te::Image ss = te::Image::load(imagePath);
 
         vTrainSamples[i].sampleData.imageMatrix.push_back(ss);
         vTrainSamples[i].sampleData.roi = { 0,0,ss.width(), ss.height() };
-        te::deserializeJsonFromIFStream(marksPath, &vTrainSamples[i].sampleMark);
     }
 
     emit LoadingImagesCompleted();
@@ -527,6 +519,7 @@ void DepthToPCL::StopTrainAction()
 
 void DepthToPCL::StartTestAction()
 {
+    DrawTestContour->setVisible(false);
     std::string fileName = "2.te";
     int halfPrecise = 0;
     DeviceType deviceType = te::E_GPU;
@@ -571,6 +564,34 @@ void DepthToPCL::SwitchDisplayItem(int iIndex, int iLayerIndex)
         else {
             currentDisplayImage.load(m_lstImgs[iIndex].toStdString());
             teImageWidget->setImage(currentDisplayImage);
+        }
+    }
+}
+
+/// <summary>
+/// 测试结束的槽函数
+/// </summary>
+void DepthToPCL::EndTest()
+{
+    DrawTestContour->setVisible(true);
+    connect(DrawTestContour, &QPushButton::clicked, this, &DepthToPCL::DrawTestMarkers);
+    TestContoursSet = workAiModel->getTrainContoursSet();
+}
+
+void DepthToPCL::DrawTestMarkers()
+{
+    if (!TestMarkColor.isValid()) {
+        TestMarkColor = QColorDialog::getColor(Qt::white, this);
+    }
+    for (auto contours : TestContoursSet->at(currentIndex)) {
+        te::AiInstance instance = Transfer_Function::VectorToAiInstance(&contours);
+        instance.name = "训练标记轮廓";
+        
+        if (ThrDState->active()) {
+            vtkWidget->AiInstance2Cloud(&instance, m_image, TestMarkColor);
+        }
+        else if (TwoDState->active()) {
+            teImageWidget->AiInstance2GraphicsItem(&instance, QString::fromStdString(instance.name), TestMarkColor);
         }
     }
 }

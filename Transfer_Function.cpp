@@ -137,3 +137,21 @@ QPixmap Transfer_Function::loadPixmap(const QString& filePath)
         return QPixmap();
     }
 }
+
+te::AiInstance Transfer_Function::VectorToAiInstance(std::vector<std::vector<cv::Point>>* Contours)
+{
+    te::AiInstance instance;
+
+    for (auto polygon : *Contours) {
+        te::PolygonF polygonF;
+        te::Point2f tePoint;
+        for (auto point : polygon) {
+            tePoint.x = static_cast<float>(point.x);
+            tePoint.y = static_cast<float>(point.y);
+            polygonF.push_back(tePoint);
+        }
+        instance.contour.polygons.push_back(polygonF);
+    }
+    
+    return instance;
+}

@@ -39,6 +39,9 @@
 
 using namespace te;
 
+typedef std::vector<std::vector<std::vector<cv::Point>>> Contours;
+typedef std::vector<std::vector<std::vector<std::vector<cv::Point>>>> ContoursSet;
+
 class AiModelInterface  : public QThread
 {
 	Q_OBJECT
@@ -66,6 +69,8 @@ public:
 		int maxcontourpointcount,int maxinnercontourcount,
 		int deviceid,te::DeviceType devicetype,te::ComputePrecision precision
 	);
+
+	ContoursSet* getTrainContoursSet();
 protected:
 	void run();
 
@@ -76,6 +81,7 @@ public slots:
 signals:
 	void StartInitTrainConfigSignal();
 	void StartInitTestConfigSignal();
+	void TestingCompleted();
 
 private:
 	int mode = 0; //0 «—µ¡∑£¨1 «≤‚ ‘
@@ -83,6 +89,9 @@ private:
 	const char* modelPath;
 	bool halfPrecise;
 	DeviceType deviceType;
+
+	Contours m_contours;
+	ContoursSet m_contoursSet;
 
 public:
 	TrainConfig config;

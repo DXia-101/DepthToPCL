@@ -4,6 +4,7 @@
 #include <QPixmap>
 #include <QString>
 #include <QMetaType>
+#include <vector>
 
 class DynamicLabel;
 
@@ -77,6 +78,18 @@ public:
 	/// <param name="contour">轮廓范围</param>
 	static void AddPointsInsideContour(cv::Mat& Matin, std::vector<cv::Point>* contour);
 
+	/// <summary>
+	/// 加载图片为QPixmap格式
+	/// </summary>
+	/// <param name="filePath">图像路径</param>
+	/// <returns>加载图片的QPixmap对象</returns>
 	static QPixmap loadPixmap(const QString& filePath);
+
+	/// <summary>
+	/// 将三维Vector转为AiInstance
+	/// </summary>
+	/// <param name="Contours">需要转换的三维Vector</param>
+	/// <returns>转换后的AiInstance</returns>
+	static te::AiInstance VectorToAiInstance(std::vector<std::vector<cv::Point>>* Contours);
 };
 

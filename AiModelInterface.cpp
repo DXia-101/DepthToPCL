@@ -118,6 +118,11 @@ void AiModelInterface::InitTestConfig(
 	status = infer_.setExceptionFunc(teException, nullptr);
 }
 
+ContoursSet* AiModelInterface::getTrainContoursSet()
+{
+	return &m_contoursSet;
+}
+
 void AiModelInterface::run()
 {
 	if (!mode) {
@@ -241,19 +246,6 @@ void AiModelInterface::testModel(std::vector<te::SampleInfo>& trainSamples)
 			maxImageH = trainSamples[i].sampleData.roi.height;
 	}
 
-	/*cv::Mat image = cv::imread("1.bmp", 1);
-
-	if (maxImageW < image.cols)
-		maxImageW = image.cols;
-	if (maxImageH < image.rows)
-		maxImageH = image.rows;
-
-	SampleInfo si;
-	si.sampleData.imageMatrix.push_back(te::Image(image.cols, image.rows, te::Image::Format::E_BGR, image.data, image.step));
-	si.sampleData.roi = te::Rect(0, 0, image.cols, image.rows);
-	trainSamples.clear();
-	trainSamples.push_back(si);*/
-
 	status = infer_.init(maxImageW, maxImageH);
 	if (status != E_Success)
 	{
@@ -293,12 +285,9 @@ void AiModelInterface::testModel(std::vector<te::SampleInfo>& trainSamples)
 
 		std::cout << "time:" << calculateTimeDiff<Milliseconds>(startTimePoint, endTimePoint) << std::endl;
 
-		cv::Mat image = trainSamples[i].sampleData.imageMatrix[0].getCvMat();
-
 		for (int j = 0; j < m_InferResult.size(); j++)
 		{
 			auto& srcpoly = m_InferResult[j].contour.polygons;
-
 			std::vector<std::vector<cv::Point>> polygons;
 
 			for (int k = 0; k < srcpoly.size(); k++)
@@ -312,13 +301,10 @@ void AiModelInterface::testModel(std::vector<te::SampleInfo>& trainSamples)
 				}
 				polygons.push_back(intPoly);
 			}
-
-			//cv::fillPoly(image, polygons, { 0,255,0 });
-			cv::polylines(image, polygons, 1, { 0,255,0 });
+			m_contours.push_back(polygons);
 		}
-		cv::imwrite("result.bmp", image);
-		cv::resize(image, image, cv::Size(), 0.3, 0.3);
-		cv::imshow("result", image);
-		cv::waitKey(0);
+		m_contoursSet.push_back(m_contours);
+		m_contours.clear();
 	}
+	emit TestingCompleted();
 }
