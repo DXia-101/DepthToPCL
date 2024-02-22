@@ -283,8 +283,9 @@ void AiModelInterface::testModel(std::vector<te::SampleInfo>& trainSamples)
 		cv.wait(locker);
 		auto endTimePoint = currentSteadyTimePoint();
 
+#ifdef DEBUG
 		std::cout << "time:" << calculateTimeDiff<Milliseconds>(startTimePoint, endTimePoint) << std::endl;
-
+#endif
 		for (int j = 0; j < m_InferResult.size(); j++)
 		{
 			auto& srcpoly = m_InferResult[j].contour.polygons;

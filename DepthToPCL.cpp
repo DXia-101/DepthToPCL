@@ -108,11 +108,13 @@ void DepthToPCL::Interface_Initialization()
     QAction* Start_Train = new QAction("¿ªÊ¼ÑµÁ·");
     QAction* Stop_Train = new QAction("Í£Ö¹ÑµÁ·");
     QAction* Start_Test = new QAction("¿ªÊ¼²âÊÔ");
+    QAction* Test_Color = new QAction("²âÊÔ±ê¼ÇÑÕÉ«");
 
     Train_menu->addAction(Load_Images);
     Train_menu->addAction(Start_Train);
     Train_menu->addAction(Stop_Train);
     Train_menu->addAction(Start_Test);
+    Train_menu->addAction(Test_Color);
 
     menu_bar->addMenu(Train_menu);
 
@@ -120,6 +122,7 @@ void DepthToPCL::Interface_Initialization()
     connect(Start_Train, &QAction::triggered, this, &DepthToPCL::StartedTrainAction);
     connect(Stop_Train, &QAction::triggered, this, &DepthToPCL::StopTrainAction);
     connect(Start_Test, &QAction::triggered, this, &DepthToPCL::StartTestAction);
+    connect(Test_Color, &QAction::triggered, this, &DepthToPCL::SelectTestMarkColor);
 
     point_size = 1;
 
@@ -508,6 +511,7 @@ void DepthToPCL::LoadTrainingImages()
 
 void DepthToPCL::StartedTrainAction()
 {
+    LoadContour();
     std::string fileName = "2.te";
     workAiModel->ParameterSettings(0, vTrainSamples, fileName.c_str());
     workAiModel->start();
@@ -581,7 +585,7 @@ void DepthToPCL::EndTest()
 void DepthToPCL::DrawTestMarkers()
 {
     if (!TestMarkColor.isValid()) {
-        TestMarkColor = QColorDialog::getColor(Qt::white, this);
+        TestMarkColor = QColor(Qt::black);
     }
     for (auto contours : TestContoursSet->at(currentIndex)) {
         te::AiInstance instance = Transfer_Function::VectorToAiInstance(&contours);
@@ -594,6 +598,11 @@ void DepthToPCL::DrawTestMarkers()
             teImageWidget->AiInstance2GraphicsItem(&instance, QString::fromStdString(instance.name), TestMarkColor);
         }
     }
+}
+
+void DepthToPCL::SelectTestMarkColor()
+{
+    TestMarkColor = QColorDialog::getColor(Qt::white, this);
 }
 
 /// <summary>

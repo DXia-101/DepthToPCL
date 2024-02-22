@@ -70,6 +70,7 @@ private slots:
     void SwitchDisplayItem(int iIndex, int iLayerIndex = 0);
     void EndTest();
     void DrawTestMarkers();
+    void SelectTestMarkColor();
 signals:
     void ConversionBetween2Dand3D();
     void LoadingImagesCompleted();
