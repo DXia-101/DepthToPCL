@@ -70,7 +70,6 @@ public:
 		int deviceid,te::DeviceType devicetype,te::ComputePrecision precision
 	);
 
-	ContoursSet* getTrainContoursSet();
 protected:
 	void run();
 
@@ -90,9 +89,6 @@ private:
 	bool halfPrecise;
 	DeviceType deviceType;
 
-	Contours m_contours;
-	ContoursSet m_contoursSet;
-
 public:
 	TrainConfig config;
 	std::vector<std::string> netNames;
@@ -102,4 +98,6 @@ public:
 	te::ModelInfer infer_;
 	ContourDesc contrDesc;
 	DeviceInfo devInfo;
+
+	std::vector<te::AiResult> m_SampleMark;
 };

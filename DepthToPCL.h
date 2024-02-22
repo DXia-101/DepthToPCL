@@ -22,6 +22,7 @@
 #include <QPaintEvent>
 #include <QKeyEvent>
 #include <QState>
+#include <QTimer>
 
 class DepthToPCL : public QWidget
 {
@@ -70,7 +71,6 @@ private slots:
     void SwitchDisplayItem(int iIndex, int iLayerIndex = 0);
     void EndTest();
     void DrawTestMarkers();
-    void SelectTestMarkColor();
 signals:
     void ConversionBetween2Dand3D();
     void LoadingImagesCompleted();
@@ -109,7 +109,7 @@ private:
 
     int SumPixNum;
 
-    QPushButton* DrawTestContour;
-    ContoursSet* TestContoursSet;
-    QColor TestMarkColor;
+    QCheckBox* DrawTestContour;
+
+    QTimer timer;
 };

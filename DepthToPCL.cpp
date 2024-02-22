@@ -18,6 +18,7 @@
 #include <QSettings>
 #include <QColorDialog>
 
+
 #include <vector>
 #include <Windows.h>
 #include <string>
@@ -108,13 +109,11 @@ void DepthToPCL::Interface_Initialization()
     QAction* Start_Train = new QAction("开始训练");
     QAction* Stop_Train = new QAction("停止训练");
     QAction* Start_Test = new QAction("开始测试");
-    QAction* Test_Color = new QAction("测试标记颜色");
 
     Train_menu->addAction(Load_Images);
     Train_menu->addAction(Start_Train);
     Train_menu->addAction(Stop_Train);
     Train_menu->addAction(Start_Test);
-    Train_menu->addAction(Test_Color);
 
     menu_bar->addMenu(Train_menu);
 
@@ -122,7 +121,6 @@ void DepthToPCL::Interface_Initialization()
     connect(Start_Train, &QAction::triggered, this, &DepthToPCL::StartedTrainAction);
     connect(Stop_Train, &QAction::triggered, this, &DepthToPCL::StopTrainAction);
     connect(Start_Test, &QAction::triggered, this, &DepthToPCL::StartTestAction);
-    connect(Test_Color, &QAction::triggered, this, &DepthToPCL::SelectTestMarkColor);
 
     point_size = 1;
 
@@ -151,7 +149,7 @@ void DepthToPCL::Interface_Initialization()
     connect(ui.LabelInterfaceWidget, &LabelInterface::currentRowSelected, vtkWidget, &VTKOpenGLNativeWidget::LabelChanged);
     connect(this, &DepthToPCL::LoadingImagesCompleted,teImageWidget, &ImageLabel::StartMarked);
 
-    DrawTestContour = new QPushButton();
+    DrawTestContour = new QCheckBox();
     ui.horizontalLayout_5->addWidget(DrawTestContour);
     DrawTestContour->setText(tr("显示测试结果"));
     DrawTestContour->setVisible(false);
@@ -219,6 +217,9 @@ void DepthToPCL::Interface_Initialization()
         });
 
     connect(ui.AssertBrower, &TeSampWidget::sig_SwitchImg, this, &DepthToPCL::SwitchDisplayItem);
+
+    QObject::connect(&timer, &QTimer::timeout, this, &DepthToPCL::DrawTestMarkers);
+    timer.start(500);
 }
 
 void DepthToPCL::PCL_Initalization()
@@ -578,31 +579,23 @@ void DepthToPCL::SwitchDisplayItem(int iIndex, int iLayerIndex)
 void DepthToPCL::EndTest()
 {
     DrawTestContour->setVisible(true);
-    connect(DrawTestContour, &QPushButton::clicked, this, &DepthToPCL::DrawTestMarkers);
-    TestContoursSet = workAiModel->getTrainContoursSet();
 }
 
 void DepthToPCL::DrawTestMarkers()
 {
-    if (!TestMarkColor.isValid()) {
-        TestMarkColor = QColor(Qt::black);
-    }
-    for (auto contours : TestContoursSet->at(currentIndex)) {
-        te::AiInstance instance = Transfer_Function::VectorToAiInstance(&contours);
-        instance.name = "训练标记轮廓";
-        
-        if (ThrDState->active()) {
-            vtkWidget->AiInstance2Cloud(&instance, m_image, TestMarkColor);
+    if (DrawTestContour->isVisible() && DrawTestContour->isChecked()) {
+        for (te::AiInstance instance : workAiModel->m_SampleMark[currentIndex]) {
+            ui.LabelInterfaceWidget->addRowToTable(QString::fromStdString(instance.name),
+                QColor(QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256)));
+            QColor color = ui.LabelInterfaceWidget->getFontColorByFirstColumnValue(QString::fromStdString(instance.name));
+            if (ThrDState->active()) {
+                vtkWidget->AiInstance2Cloud(&instance, m_image, color);
+            }
+            else if (TwoDState->active()) {
+                teImageWidget->AiInstance2GraphicsItem(&instance, QString::fromStdString(instance.name), color);
+            }
         }
-        else if (TwoDState->active()) {
-            teImageWidget->AiInstance2GraphicsItem(&instance, QString::fromStdString(instance.name), TestMarkColor);
-        }
     }
-}
-
-void DepthToPCL::SelectTestMarkColor()
-{
-    TestMarkColor = QColorDialog::getColor(Qt::white, this);
 }
 
 /// <summary>

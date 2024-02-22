@@ -56,6 +56,9 @@ void LabelInterface::clearTableWidget()
 }
 
 void LabelInterface::addRowToTable(const QString& content, const QColor& fontColor) {
+	if (checkFirstColumn(content)) {
+		return;
+	}
 	int row = LabelWidget->rowCount();
 	LabelWidget->insertRow(row);
 
@@ -73,7 +76,6 @@ bool LabelInterface::checkFirstColumn(const QString& searchString) {
 			return true;
 		}
 	}
-
 	return false;
 }
 

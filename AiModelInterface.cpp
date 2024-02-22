@@ -1,6 +1,7 @@
 #include "AiModelInterface.h"
 #include <QDebug>
 #include "DataTransmission.h"
+#include "Transfer_Function.h"
 
 
 AiModelInterface::AiModelInterface(QThread *parent)
@@ -14,6 +15,7 @@ AiModelInterface::~AiModelInterface()
 }
 
 static AiResult m_InferResult;
+
 int AiModelInterface::teException(void* pParam, AiStatus eStatus)
 {
 	if (eStatus != E_Success)
@@ -116,11 +118,6 @@ void AiModelInterface::InitTestConfig(
 	status = infer_.setModelPath(modelPath);
 	status = infer_.setPrecisionType(precision);
 	status = infer_.setExceptionFunc(teException, nullptr);
-}
-
-ContoursSet* AiModelInterface::getTrainContoursSet()
-{
-	return &m_contoursSet;
 }
 
 void AiModelInterface::run()
@@ -283,29 +280,8 @@ void AiModelInterface::testModel(std::vector<te::SampleInfo>& trainSamples)
 		cv.wait(locker);
 		auto endTimePoint = currentSteadyTimePoint();
 
-#ifdef DEBUG
-		std::cout << "time:" << calculateTimeDiff<Milliseconds>(startTimePoint, endTimePoint) << std::endl;
-#endif
-		for (int j = 0; j < m_InferResult.size(); j++)
-		{
-			auto& srcpoly = m_InferResult[j].contour.polygons;
-			std::vector<std::vector<cv::Point>> polygons;
-
-			for (int k = 0; k < srcpoly.size(); k++)
-			{
-				std::vector<cv::Point> intPoly;
-				for (int m = 0; m < srcpoly[k].size(); m++)
-				{
-					auto pt2f = srcpoly[k][m];
-					cv::Point pt2i((int)pt2f.x, (int)pt2f.y);
-					intPoly.push_back(pt2i);
-				}
-				polygons.push_back(intPoly);
-			}
-			m_contours.push_back(polygons);
-		}
-		m_contoursSet.push_back(m_contours);
-		m_contours.clear();
+		m_SampleMark.push_back(m_InferResult);
 	}
+
 	emit TestingCompleted();
 }
