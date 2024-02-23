@@ -34,9 +34,27 @@
        </item>
        <item>
         <property name="text">
+         <string>折线</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>矩形</string>
         </property>
        </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="eraserButton">
+       <property name="text">
+        <string>橡皮擦</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item>

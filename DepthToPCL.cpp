@@ -217,6 +217,8 @@ void DepthToPCL::Interface_Initialization()
         });
 
     connect(ui.AssertBrower, &TeSampWidget::sig_SwitchImg, this, &DepthToPCL::SwitchDisplayItem,Qt::DirectConnection);
+    connect(DrawTestContour, &QCheckBox::stateChanged, this, &DepthToPCL::DrawTestMarkers);
+    connect(teImageWidget, &ImageLabel::ClearCurrentImageMarkers, this, &DepthToPCL::ClearCurrentImageMarkersSlots);
 }
 
 void DepthToPCL::PCL_Initalization()
@@ -261,13 +263,14 @@ void DepthToPCL::InitStateMachine()
     m_pStateMachine->start();
 }
 
-void DepthToPCL::addAiInstance(QList<QPolygonF>& Polygons)
+void DepthToPCL::addAiInstance(te::ConnectedRegionGraphicsItem* polygonItem)
 {
+    QList<QPolygonF> contours = polygonItem->polygonList();
     te::AiInstance instance;
-    instance.name = ui.LabelInterfaceWidget->getSelectedRowCategory().toStdString();
+    instance.name = polygonItem->label().toStdString();
     te::PolygonF polygon;
     te::PolygonF::PointType point;
-    for (const QPointF& polygonPoint : Polygons.front()) {
+    for (const QPointF& polygonPoint : contours.front()) {
         point.x = static_cast<float>(polygonPoint.x());
         point.y = static_cast<float>(polygonPoint.y());
         polygon.push_back(point);
@@ -462,9 +465,9 @@ void DepthToPCL::ReceiveMarkedPointClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cl
     addAiInstance(cloud);
 }
 
-void DepthToPCL::ReceiveMarkedPolygonItem(QList<QPolygonF>& Polygons)
+void DepthToPCL::ReceiveMarkedPolygonItem(te::ConnectedRegionGraphicsItem* polygonItem)
 {
-    addAiInstance(Polygons);
+    addAiInstance(polygonItem);
 }
 
 void DepthToPCL::UpdatePointCloud2DImage()
@@ -597,6 +600,11 @@ void DepthToPCL::DrawTestMarkers()
             }
         }
     }
+}
+
+void DepthToPCL::ClearCurrentImageMarkersSlots()
+{
+    DataTransmission::GetInstance()->trainSamples[currentIndex].sampleMark.gtDataSet.clear();
 }
 
 /// <summary>

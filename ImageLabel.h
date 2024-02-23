@@ -14,6 +14,9 @@
 #include "teGraphicsItemMgrV2.h"
 #include "teAiExTypes.h"
 
+#include <QStateMachine>
+#include <QState>
+
 
 class ImageLabel  : public te::GraphicsView
 {
@@ -32,11 +35,23 @@ public slots:
 	void StartMarked();
 
 signals:
-	void PolygonMarkingCompleted(QList<QPolygonF>& Polygons);
+	void PolygonMarkingCompleted(te::ConnectedRegionGraphicsItem* polygonItem);
+	void ReplaceToEraseState();
+	void ReplaceToDrawState();
+	void ClearCurrentImageMarkers();
 
 private:
+	void InitStateMachine();
+
 	void DrawPolygonGraphics(const QPolygonF& polygon);
 	void DrawRectGraphics(const QRectF& rect);
+	void DrawLineGraphics(const QList<QPolygonF>& polyline);
+
+	void DrawGraphics(const QList<QPolygonF>& region);
+private:
+	QStateMachine* m_pStateMachine;
+	QState* DrawState;
+	QState* EraseState;
 
 public:
 	QString currentCategory;

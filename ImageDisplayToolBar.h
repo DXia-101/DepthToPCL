@@ -21,9 +21,12 @@ public:
 
 protected slots:
 	void on_ShapeCBox_currentTextChanged(const QString& arg1);
+	void on_eraserButton_clicked();
 
 signals:
 	void ShapeSelected(QString shape);
+	void DrawStatus();
+	void EraseStatus();
 
 private:
 	Ui::ImageDisplayToolBarClass *ui;

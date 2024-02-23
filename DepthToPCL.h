@@ -35,7 +35,7 @@ public:
     void PCL_Initalization();
     void InitStateMachine();
 protected:
-    void addAiInstance(QList<QPolygonF>& Polygons);
+    void addAiInstance(te::ConnectedRegionGraphicsItem* polygonItem);
     void addAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr markedCloud);
     
 private:
@@ -58,7 +58,7 @@ private slots:
     void LoadContour();
 
     void ReceiveMarkedPointClouds(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
-    void ReceiveMarkedPolygonItem(QList<QPolygonF>& Polygons);
+    void ReceiveMarkedPolygonItem(te::ConnectedRegionGraphicsItem* polygonItem);
 
     void UpdatePointCloud2DImage();
 
@@ -70,10 +70,12 @@ private slots:
     void SwitchDisplayItem(int iIndex, int iLayerIndex = 0);
     void EndTest();
     void DrawTestMarkers();
+
+    void ClearCurrentImageMarkersSlots();
 signals:
     void ConversionBetween2Dand3D();
     void LoadingImagesCompleted();
-    
+
 private:
     Ui::DepthToPCLClass ui;
 
