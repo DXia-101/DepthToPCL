@@ -40,6 +40,20 @@ void ImageDisplayToolBar::on_eraserButton_clicked()
 	}
 }
 
+void ImageDisplayToolBar::on_redoButton_clicked()
+{
+	m_imageLabel->itemMgr(0)->redoItems();
+	emit m_imageLabel->ClearCurrentImageMarkers();
+	m_imageLabel->MarkingCompleted();
+}
+
+void ImageDisplayToolBar::on_undoButton_clicked()
+{
+	m_imageLabel->itemMgr(0)->undoItems();
+	emit m_imageLabel->ClearCurrentImageMarkers();
+	m_imageLabel->MarkingCompleted();
+}
+
 void ImageDisplayToolBar::on_ShapeCBox_currentTextChanged(const QString& arg1) 
 {
 	emit ShapeSelected(arg1);

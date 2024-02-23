@@ -17,7 +17,8 @@
 #include <QRandomGenerator>
 #include <QSettings>
 #include <QColorDialog>
-
+#include <QShortcut>
+#include <QKeySequence>
 
 #include <vector>
 #include <Windows.h>
@@ -219,6 +220,12 @@ void DepthToPCL::Interface_Initialization()
     connect(ui.AssertBrower, &TeSampWidget::sig_SwitchImg, this, &DepthToPCL::SwitchDisplayItem,Qt::DirectConnection);
     connect(DrawTestContour, &QCheckBox::stateChanged, this, &DepthToPCL::DrawTestMarkers);
     connect(teImageWidget, &ImageLabel::ClearCurrentImageMarkers, this, &DepthToPCL::ClearCurrentImageMarkersSlots);
+
+    QShortcut* undoShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Z), this);
+    connect(undoShortcut, &QShortcut::activated, m_imageDisplayToolBar, &ImageDisplayToolBar::on_undoButton_clicked);
+
+    QShortcut* redoShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Y), this);
+    connect(redoShortcut, &QShortcut::activated, m_imageDisplayToolBar, &ImageDisplayToolBar::on_redoButton_clicked);
 }
 
 void DepthToPCL::PCL_Initalization()

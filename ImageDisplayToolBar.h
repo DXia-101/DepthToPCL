@@ -19,6 +19,10 @@ public:
 public:
 	void InterfaceInit();
 
+public slots:
+	void on_redoButton_clicked();
+	void on_undoButton_clicked();
+
 protected slots:
 	void on_ShapeCBox_currentTextChanged(const QString& arg1);
 	void on_eraserButton_clicked();

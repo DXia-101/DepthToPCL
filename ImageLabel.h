@@ -28,6 +28,7 @@ public:
 
 	void AiInstance2GraphicsItem(te::AiInstance* instance,QString label, QColor color);
 	void ClearMarks();
+	void MarkingCompleted();
 
 public slots:
 	void ShapeSelect(QString shape);
@@ -48,6 +49,8 @@ private:
 	void DrawLineGraphics(const QList<QPolygonF>& polyline);
 
 	void DrawGraphics(const QList<QPolygonF>& region);
+
+	
 private:
 	QStateMachine* m_pStateMachine;
 	QState* DrawState;
