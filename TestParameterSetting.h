@@ -31,4 +31,5 @@ protected slots:
 private:
 	Ui::TestParameterSettingClass *ui;
 	AiModelInterface* workAiModel;
+	QString configFilePath;
 };

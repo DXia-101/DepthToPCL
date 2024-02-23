@@ -46,4 +46,5 @@ private:
 
 	AiModelInterface* workAiModel;
 	TrainingStatisticsChart* trainChart;
+	QString configFilePath;
 };

@@ -5,11 +5,33 @@
 
 #include "DataTransmission.h"
 
+#include <QSettings>
+#include <QDir>
+
 ParameterDesignWidget::ParameterDesignWidget(AiModelInterface* workaimodel,QWidget *parent)
 	: workAiModel(workaimodel),QWidget(parent)
 	, ui(new Ui::ParameterDesignWidgetClass())
 {
 	ui->setupUi(this);
+
+	configFilePath = QDir::currentPath() + "/config.ini";
+	QSettings settings(configFilePath, QSettings::IniFormat);
+	ui->BatchSizeEdit->setText(settings.value("TrainBatchSizeEdit").toString());
+	ui->PatchWidthEdit->setText(settings.value("PatchWidthEdit").toString());
+	ui->PatchHeightEdit->setText(settings.value("PatchHeightEdit").toString());
+	ui->receptiveFieldEdit->setText(settings.value("receptiveFieldEdit").toString());
+	ui->trainIterCntEdit->setText(settings.value("trainIterCntEdit").toString());
+	ui->saveFrequencyEdit->setText(settings.value("saveFrequencyEdit").toString());
+	ui->eToolTypeCBox->setCurrentIndex(settings.value("eToolTypeCBox").toInt());
+	ui->eTrainModeCBox->setCurrentIndex(settings.value("eTrainModeCBox").toInt());
+	ui->locateTypeBox->setCurrentIndex(settings.value("locateTypeBox").toInt());
+	ui->locateSideEdit->setText(settings.value("locateSideEdit").toString());
+	ui->NetworkListCBox->setCurrentIndex(settings.value("NetworkListCBox").toInt());
+	ui->dtypeCBox->setCurrentIndex(settings.value("dtypeCBox").toInt());
+	ui->ChannelsCBox->setCurrentIndex(settings.value("ChannelsCBox").toInt());
+	ui->heapIDEdit->setText(settings.value("heapIDEdit").toString());
+	ui->DeviceIDEdit->setText(settings.value("DeviceIDEdit").toString());
+
 	connect(workAiModel, &AiModelInterface::StartInitTrainConfigSignal, this, &ParameterDesignWidget::StartInitTrainConfigSlots, Qt::DirectConnection);
 
 	trainChart = new TrainingStatisticsChart(this);
@@ -134,6 +156,8 @@ void ParameterDesignWidget::on_AutomaticCBox_stateChanged(int arg1)
 
 void ParameterDesignWidget::StartInitTrainConfigSlots()
 {
+	QSettings settings(configFilePath, QSettings::IniFormat);
+	
 	int batchsize;
 	if (ui->BatchSizeEdit->text().isEmpty()) {
 		batchsize = 6;
@@ -141,6 +165,7 @@ void ParameterDesignWidget::StartInitTrainConfigSlots()
 	else {
 		batchsize = ui->BatchSizeEdit->text().toInt();
 	}
+	settings.setValue("TrainBatchSizeEdit", ui->BatchSizeEdit->text());
 
 	int patchWidth;
 	if (ui->PatchWidthEdit->text() == "Default") {
@@ -149,6 +174,7 @@ void ParameterDesignWidget::StartInitTrainConfigSlots()
 	else {
 		patchWidth = ui->PatchWidthEdit->text().toInt();
 	}
+	settings.setValue("PatchWidthEdit", ui->PatchWidthEdit->text());
 
 	int patchHeight;
 	if (ui->PatchHeightEdit->text() == "Default") {
@@ -157,6 +183,7 @@ void ParameterDesignWidget::StartInitTrainConfigSlots()
 	else {
 		patchHeight = ui->PatchHeightEdit->text().toInt();
 	}
+	settings.setValue("PatchHeightEdit", ui->PatchHeightEdit->text());
 
 	int receptiveField_A;
 	if (ui->receptiveFieldEdit->text().isEmpty()) {
@@ -165,6 +192,7 @@ void ParameterDesignWidget::StartInitTrainConfigSlots()
 	else {
 		receptiveField_A = ui->receptiveFieldEdit->text().toInt();
 	}
+	settings.setValue("receptiveFieldEdit", ui->receptiveFieldEdit->text());
 
 	int trainIterCnt;
 	if (ui->trainIterCntEdit->text().isEmpty()) {
@@ -173,6 +201,7 @@ void ParameterDesignWidget::StartInitTrainConfigSlots()
 	else {
 		trainIterCnt = ui->trainIterCntEdit->text().toInt();
 	}
+	settings.setValue("trainIterCntEdit", ui->trainIterCntEdit->text());
 
 	int saveFrequency;
 	if (ui->saveFrequencyEdit->text().isEmpty()) {
@@ -181,16 +210,19 @@ void ParameterDesignWidget::StartInitTrainConfigSlots()
 	else {
 		saveFrequency = ui->saveFrequencyEdit->text().toInt();
 	}
+	settings.setValue("saveFrequencyEdit", ui->saveFrequencyEdit->text());
 
 	te::ToolType eToolType;
 	eToolType = static_cast<te::ToolType>(ui->eToolTypeCBox->currentIndex());
-
+	settings.setValue("eToolTypeCBox", ui->eToolTypeCBox->currentIndex());
 
 	te::TrainMode eTrainMode;
 	eTrainMode = static_cast<te::TrainMode>(ui->eTrainModeCBox->currentIndex());
+	settings.setValue("eTrainModeCBox", ui->eTrainModeCBox->currentIndex());
 
 	te::LocateType locateType;
 	locateType = static_cast<te::LocateType>(ui->locateTypeBox->currentIndex());
+	settings.setValue("locateTypeBox", ui->locateTypeBox->currentIndex());
 
 	int locateSide;
 	if (ui->locateSideEdit->text().isEmpty()) {
@@ -199,6 +231,7 @@ void ParameterDesignWidget::StartInitTrainConfigSlots()
 	else {
 		locateSide = ui->locateSideEdit->text().toInt();
 	}
+	settings.setValue("locateSideEdit", ui->locateSideEdit->text());
 
 	std::string netname;
 	if (ui->NetworkListCBox->count() == 0) {
@@ -208,12 +241,14 @@ void ParameterDesignWidget::StartInitTrainConfigSlots()
 	else {
 		netname = ui->NetworkListCBox->currentText().toStdString();
 	}
+	settings.setValue("NetworkListCBox", ui->NetworkListCBox->currentText());
 
 	te::BaseType dtype;
 	dtype = static_cast<te::BaseType>(ui->dtypeCBox->currentIndex());
-	
+	settings.setValue("dtypeCBox", ui->dtypeCBox->currentIndex());
 
 	int channel = ui->ChannelsCBox->currentText().toInt();
+	settings.setValue("ChannelsCBox", ui->ChannelsCBox->currentText());
 
 	int heapId;
 	if (ui->heapIDEdit->text().isEmpty()) {
@@ -222,6 +257,7 @@ void ParameterDesignWidget::StartInitTrainConfigSlots()
 	else {
 		heapId = ui->heapIDEdit->text().toInt();
 	}
+	settings.setValue("heapIDEdit", ui->heapIDEdit->text());
 
 	if (ui->DeviceIDEdit->text().isEmpty()) {
 		workAiModel->DeviceID = 0;
@@ -229,6 +265,7 @@ void ParameterDesignWidget::StartInitTrainConfigSlots()
 	else {
 		workAiModel->DeviceID = ui->DeviceIDEdit->text().toInt();
 	}
+	settings.setValue("DeviceIDEdit", ui->DeviceIDEdit->text());
 	
 	workAiModel->InitTrainConfig(
 		batchsize, patchWidth, patchHeight, receptiveField_A, trainIterCnt,

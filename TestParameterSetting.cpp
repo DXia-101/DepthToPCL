@@ -2,11 +2,25 @@
 #include "tePrediction.h"
 #include "teAiExTypes.h"
 
+#include <QSettings>
+#include <QDir>
+
 TestParameterSetting::TestParameterSetting(AiModelInterface* workaimodel, QWidget *parent)
 	: workAiModel(workaimodel), QWidget(parent)
 	, ui(new Ui::TestParameterSettingClass())
 {
 	ui->setupUi(this);
+
+	configFilePath = QDir::currentPath() + "/config.ini";
+	QSettings settings(configFilePath, QSettings::IniFormat);
+	ui->MaxBatchSizeEdit->setText(settings.value("MaxBatchSizeEdit").toString());
+	ui->BatchSizeEdit->setText(settings.value("BatchSizeEdit").toString());
+	ui->maxContourCountEdit->setText(settings.value("maxContourCountEdit").toString());
+	ui->maxContourPointCountEdit->setText(settings.value("maxContourPointCountEdit").toString());
+	ui->maxInnerContourCountEdit->setText(settings.value("maxInnerContourCountEdit").toString());
+	ui->DeviceIDEdit->setText(settings.value("DeviceIDEdit").toString());
+	ui->DeviceTypeComboBox->setCurrentIndex(settings.value("DeviceTypeComboBox").toInt());
+	ui->ComputePrecisionComboBox->setCurrentIndex(settings.value("ComputePrecisionComboBox").toInt());
 
 	connect(workAiModel, &AiModelInterface::StartInitTestConfigSignal, this, &TestParameterSetting::StartInitTestConfigSlots, Qt::DirectConnection);
 }
@@ -60,6 +74,8 @@ void TestParameterSetting::on_ComputePrecisionComboBox_currentIndexChanged(int i
 
 void TestParameterSetting::StartInitTestConfigSlots()
 {
+	QSettings settings(configFilePath, QSettings::IniFormat);
+
 	int MaxBatchSize;
 	if (ui->MaxBatchSizeEdit->text().isEmpty()) {
 		MaxBatchSize = 1;
@@ -67,6 +83,7 @@ void TestParameterSetting::StartInitTestConfigSlots()
 	else {
 		MaxBatchSize = ui->MaxBatchSizeEdit->text().toInt();
 	}
+	settings.setValue("MaxBatchSizeEdit", ui->MaxBatchSizeEdit->text());
 
 	int BatchSize;
 	if (ui->BatchSizeEdit->text().isEmpty()) {
@@ -75,6 +92,7 @@ void TestParameterSetting::StartInitTestConfigSlots()
 	else {
 		BatchSize = ui->BatchSizeEdit->text().toInt();
 	}
+	settings.setValue("BatchSizeEdit", ui->BatchSizeEdit->text());
 
 	int maxContourCount;
 	if (ui->maxContourCountEdit->text().isEmpty()) {
@@ -83,6 +101,7 @@ void TestParameterSetting::StartInitTestConfigSlots()
 	else {
 		maxContourCount = ui->maxContourCountEdit->text().toInt();
 	}
+	settings.setValue("maxContourCountEdit", ui->maxContourCountEdit->text());
 
 	int maxContourPointCount;
 	if (ui->maxContourPointCountEdit->text().isEmpty()) {
@@ -91,6 +110,7 @@ void TestParameterSetting::StartInitTestConfigSlots()
 	else {
 		maxContourPointCount = ui->maxContourPointCountEdit->text().toInt();
 	}
+	settings.setValue("maxContourPointCountEdit", ui->maxContourPointCountEdit->text());
 
 	int maxInnerContourCount;
 	if (ui->maxInnerContourCountEdit->text().isEmpty()) {
@@ -99,6 +119,7 @@ void TestParameterSetting::StartInitTestConfigSlots()
 	else {
 		maxInnerContourCount = ui->maxInnerContourCountEdit->text().toInt();
 	}
+	settings.setValue("maxInnerContourCountEdit", ui->maxInnerContourCountEdit->text());
 
 	int deviceID;
 	if (ui->DeviceIDEdit->text().isEmpty()) {
@@ -107,12 +128,15 @@ void TestParameterSetting::StartInitTestConfigSlots()
 	else {
 		deviceID = ui->DeviceIDEdit->text().toInt();
 	}
+	settings.setValue("DeviceIDEdit", ui->DeviceIDEdit->text());
 
 	te::DeviceType devicetype;
 	devicetype = static_cast<te::DeviceType>(ui->DeviceTypeComboBox->currentIndex());
+	settings.setValue("DeviceTypeComboBox", ui->DeviceTypeComboBox->currentIndex());
 
 	te::ComputePrecision precision;
 	precision = static_cast<te::ComputePrecision>(ui->ComputePrecisionComboBox->currentIndex());
+	settings.setValue("ComputePrecisionComboBox", ui->ComputePrecisionComboBox->currentIndex());
 
 	workAiModel->InitTestConfig(
 		MaxBatchSize, BatchSize,
