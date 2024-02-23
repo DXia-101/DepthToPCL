@@ -216,10 +216,7 @@ void DepthToPCL::Interface_Initialization()
             }
         });
 
-    connect(ui.AssertBrower, &TeSampWidget::sig_SwitchImg, this, &DepthToPCL::SwitchDisplayItem);
-
-    QObject::connect(&timer, &QTimer::timeout, this, &DepthToPCL::DrawTestMarkers);
-    timer.start(500);
+    connect(ui.AssertBrower, &TeSampWidget::sig_SwitchImg, this, &DepthToPCL::SwitchDisplayItem,Qt::DirectConnection);
 }
 
 void DepthToPCL::PCL_Initalization()
@@ -562,8 +559,11 @@ void DepthToPCL::SwitchDisplayItem(int iIndex, int iLayerIndex)
                 cv::Mat heatmap;
                 cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
                 currentDisplayImage = te::Image(heatmap).clone();
+
                 teImageWidget->ClearMarks();
                 teImageWidget->setImage(currentDisplayImage);
+
+                cv::waitKey(0);//如果不添加这一句会出现显示的图片没有切换的问题
             }
         }
         else {
@@ -571,6 +571,7 @@ void DepthToPCL::SwitchDisplayItem(int iIndex, int iLayerIndex)
             teImageWidget->setImage(currentDisplayImage);
         }
     }
+    DrawTestMarkers();
 }
 
 /// <summary>
@@ -583,7 +584,7 @@ void DepthToPCL::EndTest()
 
 void DepthToPCL::DrawTestMarkers()
 {
-    if (DrawTestContour->isVisible() && DrawTestContour->isChecked()) {
+    if (DrawTestContour->isChecked() && DrawTestContour->isVisible()) {
         for (te::AiInstance instance : workAiModel->m_SampleMark[currentIndex]) {
             ui.LabelInterfaceWidget->addRowToTable(QString::fromStdString(instance.name),
                 QColor(QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256), QRandomGenerator::global()->bounded(256)));

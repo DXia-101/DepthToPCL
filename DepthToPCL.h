@@ -22,7 +22,6 @@
 #include <QPaintEvent>
 #include <QKeyEvent>
 #include <QState>
-#include <QTimer>
 
 class DepthToPCL : public QWidget
 {
@@ -110,6 +109,4 @@ private:
     int SumPixNum;
 
     QCheckBox* DrawTestContour;
-
-    QTimer timer;
 };
