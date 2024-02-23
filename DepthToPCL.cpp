@@ -73,6 +73,7 @@ DepthToPCL::DepthToPCL(QWidget *parent)
 DepthToPCL::~DepthToPCL()
 {
     delete workAiModel;
+    //DeleteCachedData();
 }
 
 void DepthToPCL::Interface_Initialization()
@@ -319,6 +320,39 @@ void DepthToPCL::ClearAllMarkedContent()
 {
     for (auto sampleInfo : DataTransmission::GetInstance()->trainSamples) {
         sampleInfo.sampleMark.gtDataSet.clear();
+    }
+}
+
+void DepthToPCL::DeleteCachedData()
+{
+    for (int i = 0; i < SumPixNum; ++i) {
+        if (QFile::exists(QString::number(i) + "_thumb.bmp")) {
+            QFile file(QString::number(i) + "_thumb.bmp");
+            if (file.remove()) {
+                qDebug() << "File removed successfully.";
+            }
+            else {
+                qDebug() << "Failed to remove file.";
+            }
+        }
+        if (QFile::exists(QString::number(i) + "_thumb.pcd")) {
+            QFile file(QString::number(i) + "_thumb.pcd");
+            if (file.remove()) {
+                qDebug() << "File removed successfully.";
+            }
+            else {
+                qDebug() << "Failed to remove file.";
+            }
+        }
+        if (QFile::exists(QString::number(i) + ".gt")) {
+            QFile file(QString::number(i) + ".gt");
+            if (file.remove()) {
+                qDebug() << "File removed successfully.";
+            }
+            else {
+                qDebug() << "Failed to remove file.";
+            }
+        }
     }
 }
 

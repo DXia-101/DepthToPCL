@@ -45,6 +45,7 @@ private:
     void SaveMatContour2Label(cv::Mat& Matin, QString LabelName);// 保存图像轮廓到标签当中
 
     void ClearAllMarkedContent();
+    void DeleteCachedData();
 private slots:
     void on_startTagBtn_clicked(); //开始标记
 

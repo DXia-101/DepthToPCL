@@ -7,6 +7,8 @@ ImageLabel::ImageLabel(QWidget* parent)
 {
     this->addItemMgr(8);
 
+    setBrushPriority(false);
+
     setAlignment(Qt::AlignJustify);
     InitStateMachine();
 }
