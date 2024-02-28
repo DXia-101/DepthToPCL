@@ -42,7 +42,7 @@ QString LabelInterface::getSelectedRowCategory()
 	}
 	int row = LabelWidget->selectedItems().first()->row();
 	QString content = LabelWidget->item(row, 0)->text();
-
+	
 	return content;
 }
 

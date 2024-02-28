@@ -42,6 +42,11 @@ using namespace te;
 typedef std::vector<std::vector<std::vector<cv::Point>>> Contours;
 typedef std::vector<std::vector<std::vector<std::vector<cv::Point>>>> ContoursSet;
 
+enum RunMode {
+	trainMode,
+	testMode,
+};
+
 class AiModelInterface  : public QThread
 {
 	Q_OBJECT
@@ -54,7 +59,8 @@ public:
 	static void teTrainStateCallBack(AiStatus status, TrainState& stateinfo, void* param);
 	static void teAiInferResult(AiResult& inferResult, te::DynamicMatrix& hotmap, void* pCallbackParam);
 
-	void ParameterSettings(int mode, std::vector<te::SampleInfo>& trainSamples, const char* modelpath, bool halfPrecise = false, DeviceType deviceType = E_GPU);
+	void TrainParameterSettings(std::vector<te::SampleInfo>& trainSamples, const char* modelpath);
+	void TestParameterSettings(std::vector<te::SampleInfo>& trainSamples, const char* modelpath, bool halfPrecise = false, DeviceType deviceType = E_GPU);
 
 	void InitTrainConfig(
 		int batchsize, int patchwidth, int patchheight, int receptiveField_A,
@@ -83,7 +89,8 @@ signals:
 	void TestingCompleted();
 
 private:
-	int mode = 0; //0 «—µ¡∑£¨1 «≤‚ ‘
+	
+	RunMode mode = trainMode;
 	
 	const char* modelPath;
 	bool halfPrecise;

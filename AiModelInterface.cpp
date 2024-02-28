@@ -58,17 +58,24 @@ void AiModelInterface::teAiInferResult(AiResult& inferResult, te::DynamicMatrix&
 	}
 }
 
-void AiModelInterface::ParameterSettings(int mode, std::vector<te::SampleInfo>& trainSamples, const char* modelpath, bool halfPrecise, DeviceType deviceType)
+void AiModelInterface::TrainParameterSettings(std::vector<te::SampleInfo>& trainSamples, const char* modelpath)
 {
-	this->mode = mode;
+	this->mode = trainMode;
 	DataTransmission::GetInstance()->trainSamples = trainSamples;
 	size_t length = strlen(modelpath);
 	this->modelPath = new char[length+1];
 	memcpy(const_cast<char*>(modelPath), modelpath, strlen(modelpath)+1);
-	//this->modelPath = modelpath;
+}
+
+void AiModelInterface::TestParameterSettings(std::vector<te::SampleInfo>& trainSamples, const char* modelpath, bool halfPrecise, DeviceType deviceType)
+{
+	this->mode = testMode;
+	DataTransmission::GetInstance()->trainSamples = trainSamples;
+	size_t length = strlen(modelpath);
+	this->modelPath = new char[length + 1];
+	memcpy(const_cast<char*>(modelPath), modelpath, strlen(modelpath) + 1);
 	this->halfPrecise = halfPrecise;
 	this->deviceType = deviceType;
-	
 }
 
 void AiModelInterface::InitTrainConfig(
@@ -122,11 +129,11 @@ void AiModelInterface::InitTestConfig(
 
 void AiModelInterface::run()
 {
-	if (!mode) {
+	if (mode = trainMode) {
 		emit StartInitTrainConfigSignal();
 		trainModel(DataTransmission::GetInstance()->trainSamples);
 	}
-	else {
+	else if(mode = testMode){
 		emit StartInitTestConfigSignal();
 		testModel(DataTransmission::GetInstance()->trainSamples);
 	}
@@ -220,7 +227,6 @@ void AiModelInterface::trainModel(std::vector<te::SampleInfo>& trainSamples)
 	}
 
 	train_.start(teTrainStateCallBack, &cv);
-	//
 	{
 		std::mutex lock;
 		std::unique_lock locker(lock);

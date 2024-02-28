@@ -23,6 +23,7 @@ ParameterDesignWidget::ParameterDesignWidget(AiModelInterface* workaimodel,QWidg
 	ui->trainIterCntEdit->setText(settings.value("trainIterCntEdit").toString());
 	ui->saveFrequencyEdit->setText(settings.value("saveFrequencyEdit").toString());
 	ui->eToolTypeCBox->setCurrentIndex(settings.value("eToolTypeCBox").toInt());
+	on_eToolTypeCBox_currentIndexChanged(settings.value("eToolTypeCBox").toInt());
 	ui->eTrainModeCBox->setCurrentIndex(settings.value("eTrainModeCBox").toInt());
 	ui->locateTypeBox->setCurrentIndex(settings.value("locateTypeBox").toInt());
 	ui->locateSideEdit->setText(settings.value("locateSideEdit").toString());
@@ -66,6 +67,7 @@ void ParameterDesignWidget::on_eToolTypeCBox_currentIndexChanged(int index)
 	workAiModel->config.eToolType = selectedTool;
 	workAiModel->netNames = Training::getNetworkList(selectedTool);
 
+	ui->NetworkListCBox->clear();
 	QStringList list;
 	for (std::string str : workAiModel->netNames) {
 		list.push_back(QString::fromStdString(str));

@@ -78,7 +78,7 @@ DepthToPCL::~DepthToPCL()
 
 void DepthToPCL::Interface_Initialization()
 {
-    QMenuBar* menu_bar = new QMenuBar(this);         
+    QMenuBar* menu_bar = new QMenuBar(this);
     ui.ToolBarHorizontalLayout->addWidget(menu_bar);
     menu_bar->setStyleSheet("font-size : 18px");
 
@@ -523,7 +523,7 @@ void DepthToPCL::UpdatePointCloud2DImage()
 
 void DepthToPCL::LoadTrainingImages()
 {
-    m_lstImgs = QFileDialog::getOpenFileNames(nullptr);
+    m_lstImgs = QFileDialog::getOpenFileNames(nullptr, "Ñ¡ÔñÎÄ¼ş", "", "TIFF Files (*.tif *.tiff)");
 
     ui.AssertBrower->teUpDateSet(m_lstImgs.size(), 1);
 
@@ -555,7 +555,7 @@ void DepthToPCL::StartedTrainAction()
 {
     LoadContour();
     std::string fileName = "2.te";
-    workAiModel->ParameterSettings(0, vTrainSamples, fileName.c_str());
+    workAiModel->TrainParameterSettings(vTrainSamples, fileName.c_str());
     workAiModel->start();
 }
 
@@ -569,7 +569,7 @@ void DepthToPCL::StartTestAction()
     std::string fileName = "2.te";
     int halfPrecise = 0;
     DeviceType deviceType = te::E_GPU;
-    workAiModel->ParameterSettings(1, vTrainSamples, fileName.c_str(), halfPrecise, deviceType);
+    workAiModel->TestParameterSettings(vTrainSamples, fileName.c_str(), halfPrecise, deviceType);
 
     workAiModel->start();
 }
