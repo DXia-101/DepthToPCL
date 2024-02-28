@@ -60,7 +60,8 @@ public:
 	static void teAiInferResult(AiResult& inferResult, te::DynamicMatrix& hotmap, void* pCallbackParam);
 
 	void TrainParameterSettings(std::vector<te::SampleInfo>& trainSamples, const char* modelpath);
-	void TestParameterSettings(std::vector<te::SampleInfo>& trainSamples, const char* modelpath, bool halfPrecise = false, DeviceType deviceType = E_GPU);
+	void TestParameterSettings(std::vector<te::SampleInfo>& trainSamples, const char* modelpath);
+	void ParameterSettings(std::vector<te::SampleInfo>& trainSamples, const char* modelpath);
 
 	void InitTrainConfig(
 		int batchsize, int patchwidth, int patchheight, int receptiveField_A,
@@ -93,8 +94,6 @@ private:
 	RunMode mode = trainMode;
 	
 	const char* modelPath;
-	bool halfPrecise;
-	DeviceType deviceType;
 
 public:
 	TrainConfig config;

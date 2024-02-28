@@ -567,10 +567,7 @@ void DepthToPCL::StartTestAction()
 {
     DrawTestContour->setVisible(false);
     std::string fileName = "2.te";
-    int halfPrecise = 0;
-    DeviceType deviceType = te::E_GPU;
-    workAiModel->TestParameterSettings(vTrainSamples, fileName.c_str(), halfPrecise, deviceType);
-
+    workAiModel->TestParameterSettings(vTrainSamples, fileName.c_str());
     workAiModel->start();
 }
 

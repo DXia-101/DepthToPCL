@@ -35,7 +35,7 @@ void AiModelInterface::teTrainStateCallBack(AiStatus status, TrainState& statein
 		cv->notify_all();
 	}
 
-	printf("iter: %d  loss: %f  pacc: %f\n", stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
+	//printf("iter: %d  loss: %f  pacc: %f\n", stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
 	//emit DataUpdate(stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
 	DataTransmission::GetInstance()->setData(stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
 
@@ -61,21 +61,20 @@ void AiModelInterface::teAiInferResult(AiResult& inferResult, te::DynamicMatrix&
 void AiModelInterface::TrainParameterSettings(std::vector<te::SampleInfo>& trainSamples, const char* modelpath)
 {
 	this->mode = trainMode;
-	DataTransmission::GetInstance()->trainSamples = trainSamples;
-	size_t length = strlen(modelpath);
-	this->modelPath = new char[length+1];
-	memcpy(const_cast<char*>(modelPath), modelpath, strlen(modelpath)+1);
+	ParameterSettings(trainSamples, modelpath);
 }
 
-void AiModelInterface::TestParameterSettings(std::vector<te::SampleInfo>& trainSamples, const char* modelpath, bool halfPrecise, DeviceType deviceType)
+void AiModelInterface::TestParameterSettings(std::vector<te::SampleInfo>& trainSamples, const char* modelpath)
 {
 	this->mode = testMode;
+	ParameterSettings(trainSamples, modelpath);
+}
+
+void AiModelInterface::ParameterSettings(std::vector<te::SampleInfo>& trainSamples, const char* modelpath) {
 	DataTransmission::GetInstance()->trainSamples = trainSamples;
 	size_t length = strlen(modelpath);
 	this->modelPath = new char[length + 1];
 	memcpy(const_cast<char*>(modelPath), modelpath, strlen(modelpath) + 1);
-	this->halfPrecise = halfPrecise;
-	this->deviceType = deviceType;
 }
 
 void AiModelInterface::InitTrainConfig(
