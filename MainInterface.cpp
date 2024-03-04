@@ -6,10 +6,12 @@ MainInterface::MainInterface(QWidget *parent)
 {
 	ui->setupUi(this);
 	m_te3DCanvasController = new te3DCanvasController();
-	m_te3DCanvasController->displayUIInWidget(ui->verticalLayout);	
+	m_te3DCanvasController->displayUIInWidget(ui->canvasLayout);
 	m_te2DCanvasController = new te2DCanvasController();
-	m_te2DCanvasController->displayUIInWidget(ui->verticalLayout);
+	m_te2DCanvasController->displayUIInWidget(ui->canvasLayout);
 	m_te3DCanvasController->hideAllUI();
+	m_teLabelBrowser = new teLabelBrowser();
+	ui->labelLayout->addWidget(m_teLabelBrowser);
 
 	InitStateMachine();
 }

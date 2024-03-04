@@ -13,6 +13,7 @@ te3DCanvasToolBar::te3DCanvasToolBar(QWidget *parent)
 	, ui(new Ui::te3DCanvasToolBarClass())
 {
 	ui->setupUi(this);
+    InitInterface();
 }
 
 te3DCanvasToolBar::~te3DCanvasToolBar()

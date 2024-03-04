@@ -13,9 +13,9 @@
   <property name="windowTitle">
    <string>MainInterface</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,8,0">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="labelLayout">
      <item>
       <widget class="QPushButton" name="convertBtn">
        <property name="text">
@@ -26,10 +26,10 @@
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout"/>
+    <layout class="QVBoxLayout" name="canvasLayout"/>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_3"/>
+    <layout class="QVBoxLayout" name="browserLayout"/>
    </item>
   </layout>
  </widget>

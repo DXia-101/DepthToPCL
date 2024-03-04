@@ -11,6 +11,7 @@ te2DCanvasToolBar::te2DCanvasToolBar(QWidget *parent)
 	, ui(new Ui::te2DCanvasToolBarClass())
 {
 	ui->setupUi(this);
+	InitInterface();
 }
 
 te2DCanvasToolBar::~te2DCanvasToolBar()
