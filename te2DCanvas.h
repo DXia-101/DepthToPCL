@@ -18,28 +18,30 @@
 #include <QState>
 
 
-class ImageLabel  : public te::GraphicsView
+class te2DCanvas  : public te::GraphicsView
 {
 	Q_OBJECT
 
 public:
-	ImageLabel(QWidget *parent);
-	~ImageLabel();
+	te2DCanvas(QWidget *parent = nullptr);
+	~te2DCanvas();
 
 	void AiInstance2GraphicsItem(te::AiInstance* instance,QString label, QColor color);
-	void ClearMarks();
-	void MarkingCompleted();
+	void ClearAll2DCanvasMarks();
+	void te2DCanvasMarkingCompleted();
 
 public slots:
 	void ShapeSelect(QString shape);
 	void LabelChanged(const QString& content, const QColor& fontColor);
 	void StartMarked();
+	void Redo();
+	void Undo();
 
 signals:
 	void PolygonMarkingCompleted(te::ConnectedRegionGraphicsItem* polygonItem);
 	void ReplaceToEraseState();
 	void ReplaceToDrawState();
-	void ClearCurrentImageMarkers();
+	void ClearCurrent2DCanvasMarkers();
 
 private:
 	void InitStateMachine();

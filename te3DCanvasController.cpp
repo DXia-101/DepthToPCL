@@ -1,0 +1,116 @@
+#include "te3DCanvasController.h"
+#include <QVBoxLayout>
+
+te3DCanvasController::te3DCanvasController(QObject *parent)
+	: QObject(parent)
+{
+	m_te3DCanvas = new te3DCanvas();
+	m_te3DCanvasMenu = new te3DCanvasMenu();
+	m_te3DCanvasToolBar = new te3DCanvasToolBar();
+
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, m_te3DCanvas, &te3DCanvas::PointCloudHeightTransform);
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToXaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToXaxis);
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToYaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToYaxis);
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToZaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToZaxis);
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_StartMarking, m_te3DCanvas, &te3DCanvas::te3DCanvasStartMarking);
+	
+	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_BackgroundColorSetting, this, &te3DCanvasController::BackgroundColorSelect);
+	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_CoordinateAxisRendering, this, &te3DCanvasController::CoordinateAxisSelect);
+	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_PointCloudColorSetting, this, &te3DCanvasController::PointCloudColorSelect);
+	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_PointCloudPointSizeSetting, this, &te3DCanvasController::PointCloudPointSizeSelect);
+	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_GaussFilter, this, &te3DCanvasController::GaussFilterAction);
+	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_DirectFilter, this, &te3DCanvasController::DirectFilterAction);
+	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_AABBSurrounding, m_te3DCanvas, &te3DCanvas::AxisAlignedBoundingBox);
+	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_OBBSurrounding, m_te3DCanvas, &te3DCanvas::OrientedBoundingBox);
+	connect(this, &te3DCanvasController::sig_CoordinateAxis, m_te3DCanvas, &te3DCanvas::CoordinateAxisRendering);
+	
+	connect(m_te3DCanvas, &te3DCanvas::sig_3DCanvasMarkingCompleted, this, &te3DCanvasController::sig_PointCloudMarkingCompleted);
+	connect(this, &te3DCanvasController::sig_LabelChanged, m_te3DCanvas, &te3DCanvas::LabelChanged);
+}
+
+te3DCanvasController::~te3DCanvasController()
+{
+
+}
+
+void te3DCanvasController::displayUIInWidget(QVBoxLayout* layout)
+{	
+	layout->addWidget(m_te3DCanvasToolBar);
+	layout->addWidget(m_te3DCanvasMenu);
+	layout->addWidget(m_te3DCanvas);
+	m_te3DCanvasToolBar->show();
+	m_te3DCanvasMenu->show();
+	m_te3DCanvas->show();
+	layout->setStretchFactor(m_te3DCanvasToolBar, 1);
+	layout->setStretchFactor(m_te3DCanvasMenu, 1);
+	layout->setStretchFactor(m_te3DCanvas, 10);
+}
+
+void te3DCanvasController::hideAllUI()
+{
+	m_te3DCanvasToolBar->hide();
+	m_te3DCanvasMenu->hide();
+	m_te3DCanvas->hide();
+}
+
+void te3DCanvasController::showAllUI()
+{
+	m_te3DCanvasToolBar->show();
+	m_te3DCanvasMenu->show();
+	m_te3DCanvas->show();
+}
+
+void te3DCanvasController::BackgroundColorSelect()
+{
+	dialog_colorselect = new te3DCanvasPointCloudColorSelectDialog();
+	QColor color = dialog_colorselect->getColor();
+
+	connect(this, &te3DCanvasController::sig_BackgroundColor, m_te3DCanvas, &te3DCanvas::SetBackgroundColor);
+	emit sig_BackgroundColor(color);
+}
+
+void te3DCanvasController::CoordinateAxisSelect()
+{
+	
+	dialog_render = new te3DCanvasCoordinateAxisRenderDialog();
+	connect(dialog_render, &te3DCanvasCoordinateAxisRenderDialog::sig_CoordinateAxisRender, this, &te3DCanvasController::sig_CoordinateAxis);
+
+	delete dialog_render;
+}
+
+void te3DCanvasController::PointCloudColorSelect()
+{
+	dialog_colorselect = new te3DCanvasPointCloudColorSelectDialog();
+	QColor color = dialog_colorselect->getColor();
+	delete dialog_colorselect;
+
+	connect(this, &te3DCanvasController::sig_PointCloudColor, m_te3DCanvas, &te3DCanvas::PointCloudColorSet);
+	emit sig_PointCloudColor(color);
+}
+
+void te3DCanvasController::PointCloudPointSizeSelect()
+{
+	pointsize_set_dialog = new PointCloud_PointSize_Set_Dialog();
+	int point_size = pointsize_set_dialog->GetSize();
+	if (pointsize_set_dialog->exec() == QDialog::Accepted) {}
+	delete pointsize_set_dialog;
+
+	connect(this, &te3DCanvasController::sig_PointCloudPointSize, m_te3DCanvas, &te3DCanvas::PointCloudPointSizeSet);
+	emit sig_PointCloudPointSize(point_size);
+}
+
+void te3DCanvasController::GaussFilterAction()
+{
+	dialog_Guass_filter = new Filter_Guass();
+	connect(dialog_Guass_filter, &Filter_Guass::sendData, m_te3DCanvas, &te3DCanvas::GuassFilter);
+	if (dialog_Guass_filter->exec() == QDialog::Accepted) {}
+	delete dialog_Guass_filter;
+}
+
+void te3DCanvasController::DirectFilterAction()
+{
+	dialog_Direct_filter = new Filter_Direct();
+	connect(dialog_Direct_filter, &Filter_Direct::sendData, m_te3DCanvas, &te3DCanvas::DirectFilter);
+	if (dialog_Direct_filter->exec() == QDialog::Accepted) {}
+	delete dialog_Direct_filter;
+}

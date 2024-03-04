@@ -1,7 +1,6 @@
 #include "Filter_Direct.h"
 #include <QSettings>
 #include <QDir>
-#include "DataTransmission.h"
 
 Filter_Direct::Filter_Direct(QWidget *parent)
 	: QDialog(parent)

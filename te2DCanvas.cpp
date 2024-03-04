@@ -1,8 +1,8 @@
-#include "ImageLabel.h"
+#include "te2DCanvas.h"
 #include <QMouseEvent>
 #include <QGraphicsPolygonItem>
 
-ImageLabel::ImageLabel(QWidget* parent)
+te2DCanvas::te2DCanvas(QWidget* parent)
     : te::GraphicsView(parent)
 {
     this->addItemMgr(8);
@@ -13,12 +13,12 @@ ImageLabel::ImageLabel(QWidget* parent)
     InitStateMachine();
 }
 
-ImageLabel::~ImageLabel()
+te2DCanvas::~te2DCanvas()
 {
     
 }
 
-void ImageLabel::AiInstance2GraphicsItem(te::AiInstance* instance,QString label,QColor color)
+void te2DCanvas::AiInstance2GraphicsItem(te::AiInstance* instance,QString label,QColor color)
 {
     QList<QPolygonF> contours;
     QPolygonF polygonF;
@@ -38,12 +38,12 @@ void ImageLabel::AiInstance2GraphicsItem(te::AiInstance* instance,QString label,
     this->itemMgr(0)->clipItem(polygonItem);
 }
 
-void ImageLabel::ClearMarks()
+void te2DCanvas::ClearAll2DCanvasMarks()
 {
     this->itemMgr(0)->clearItems();
 }
 
-void ImageLabel::LabelChanged(const QString& content, const QColor& fontColor)
+void te2DCanvas::LabelChanged(const QString& content, const QColor& fontColor)
 {
     graphicsBrush()[0]->setBrush(QBrush(fontColor));
     graphicsBrush()[1]->setBrush(QBrush(fontColor));
@@ -52,7 +52,7 @@ void ImageLabel::LabelChanged(const QString& content, const QColor& fontColor)
     currentColor = fontColor;
 }
 
-void ImageLabel::StartMarked()
+void te2DCanvas::StartMarked()
 {
     te::RectGraphicsBrush* RectBrush = new te::RectGraphicsBrush;
     RectBrush->setPen(QPen(Qt::green, 2));
@@ -66,14 +66,28 @@ void ImageLabel::StartMarked()
     LineBrush->setPen(QPen(Qt::green, 2));
     LineBrush->setWidth(50);
     this->addBrush(LineBrush);
-    connect(PolygonBrush, &te::PolygonGraphicsBrush::sig_DrawPolygon, this, &ImageLabel::DrawPolygonGraphics);
-    connect(RectBrush, &te::RectGraphicsBrush::sig_DrawRect, this, &ImageLabel::DrawRectGraphics);
-    connect(LineBrush, &te::PolyLineGraphicsBrush::sig_DrawPolyLine, this, &ImageLabel::DrawLineGraphics);
+    connect(PolygonBrush, &te::PolygonGraphicsBrush::sig_DrawPolygon, this, &te2DCanvas::DrawPolygonGraphics);
+    connect(RectBrush, &te::RectGraphicsBrush::sig_DrawRect, this, &te2DCanvas::DrawRectGraphics);
+    connect(LineBrush, &te::PolyLineGraphicsBrush::sig_DrawPolyLine, this, &te2DCanvas::DrawLineGraphics);
     
     this->setCurrentBrush(1);
 }
 
-void ImageLabel::ShapeSelect(QString shape)
+void te2DCanvas::Redo()
+{
+    itemMgr(0)->redoItems();
+    emit ClearCurrent2DCanvasMarkers();
+    te2DCanvasMarkingCompleted();
+}
+
+void te2DCanvas::Undo()
+{
+    itemMgr(0)->undoItems();
+    emit ClearCurrent2DCanvasMarkers();
+    te2DCanvasMarkingCompleted();
+}
+
+void te2DCanvas::ShapeSelect(QString shape)
 {
     if (shape.compare(QString::fromLocal8Bit("¶à±ßÐÎ")) == 0) {
         this->setCurrentBrush(1);    
@@ -85,7 +99,7 @@ void ImageLabel::ShapeSelect(QString shape)
     }
 }
 
-void ImageLabel::InitStateMachine()
+void te2DCanvas::InitStateMachine()
 {
     m_pStateMachine = new QStateMachine();
     DrawState = new QState(m_pStateMachine);
@@ -101,24 +115,24 @@ void ImageLabel::InitStateMachine()
     m_pStateMachine->start();
 }
 
-void ImageLabel::DrawPolygonGraphics(const QPolygonF& polygon)
+void te2DCanvas::DrawPolygonGraphics(const QPolygonF& polygon)
 {
     DrawGraphics({ polygon });
 }
 
-void ImageLabel::DrawRectGraphics(const QRectF& rect)
+void te2DCanvas::DrawRectGraphics(const QRectF& rect)
 {
     QPolygonF polygon;
     polygon << rect.topLeft()<< rect.topRight()<< rect.bottomRight()<< rect.bottomLeft();
     DrawGraphics({ polygon });
 }
 
-void ImageLabel::DrawLineGraphics(const QList<QPolygonF>& polyline)
+void te2DCanvas::DrawLineGraphics(const QList<QPolygonF>& polyline)
 {
     DrawGraphics(polyline);
 }
 
-void ImageLabel::DrawGraphics(const QList<QPolygonF>& region)
+void te2DCanvas::DrawGraphics(const QList<QPolygonF>& region)
 {
     te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem(region, currentCategory);
     polygonItem->setPen(QColor(currentColor));
@@ -131,12 +145,12 @@ void ImageLabel::DrawGraphics(const QList<QPolygonF>& region)
     else if (EraseState->active()) {
         QList<QPolygonF> contours = polygonItem->polygonList();
         this->itemMgr(0)->eraseItems(contours);
-        emit ClearCurrentImageMarkers();
+        emit ClearCurrent2DCanvasMarkers();
     }
-    MarkingCompleted();
+    te2DCanvasMarkingCompleted();
 }
 
-void ImageLabel::MarkingCompleted()
+void te2DCanvas::te2DCanvasMarkingCompleted()
 {
     for (te::GraphicsItem* item : this->itemMgr(0)->items()) {
         te::ConnectedRegionGraphicsItem* polygonItem = dynamic_cast<te::ConnectedRegionGraphicsItem*>(item);

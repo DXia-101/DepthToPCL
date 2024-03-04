@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ImageDisplayToolBarClass</class>
- <widget class="QWidget" name="ImageDisplayToolBarClass">
+ <class>te2DCanvasToolBarClass</class>
+ <widget class="QWidget" name="te2DCanvasToolBarClass">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>706</width>
-    <height>147</height>
+    <width>600</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ImageDisplayToolBar</string>
+   <string>te2DCanvasToolBar</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

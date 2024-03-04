@@ -1,34 +1,31 @@
-#include "VTKOpenGLNativeWidget.h"
+#include "te3DCanvas.h"
 #include <QMessageBox>
 #include <QDebug>
 #include "Transfer_Function.h"
 
-VTKOpenGLNativeWidget::VTKOpenGLNativeWidget(QWidget *parent)
+te3DCanvas::te3DCanvas(QWidget *parent)
 	: QVTKOpenGLNativeWidget(parent)
 {
 	PCL_Initalization();
 }
 
-VTKOpenGLNativeWidget::~VTKOpenGLNativeWidget()
+te3DCanvas::~te3DCanvas()
 {}
 
-std::string rand_str(const int len)  /*参数为字符串的长度*/
+std::string rand_str(const int len)
 {
-    /*初始化*/
-    std::string str;                 /*声明用来保存随机字符串的str*/
-    char c;                     /*声明字符c，用来保存随机生成的字符*/
-    int idx;                    /*用来循环的变量*/
-    /*循环向字符串中添加随机生成的字符*/
+    std::string str;
+    char c;
+    int idx;
     for (idx = 0; idx < len; idx++)
     {
-        /*rand()%26是取余，余数为0~25加上'a',就是字母a~z,详见asc码表*/
         c = 'a' + rand() % 26;
-        str.push_back(c);       /*push_back()是string类尾插函数。这里插入随机字符c*/
+        str.push_back(c);
     }
-    return str;                 /*返回生成的随机字符串*/
+    return str;
 }
 
-void VTKOpenGLNativeWidget::PCL_Initalization()
+void te3DCanvas::PCL_Initalization()
 {
     cloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     Point_clicked_cloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
@@ -51,11 +48,7 @@ void VTKOpenGLNativeWidget::PCL_Initalization()
     this->update();
     viewer->addPointCloud<pcl::PointXYZ>(cloud, "cloud");
 
-    viewer->registerAreaPickingCallback(&VTKOpenGLNativeWidget::Frame_PickingCallBack, *this);
-    viewer->registerPointPickingCallback(&VTKOpenGLNativeWidget::Point_PickingCallBack, *this);
-    viewer->registerKeyboardCallback(&VTKOpenGLNativeWidget::keyboardEventOccurred, *this);
-    viewer->registerKeyboardCallback(&VTKOpenGLNativeWidget::keyboardEventInvert, *this);
-    viewer->registerMouseCallback(&VTKOpenGLNativeWidget::mouseEventOccurred, *this);
+    viewer->registerMouseCallback(&te3DCanvas::mouseEventOccurred, *this);
 
     PositiveAndNegative_X_axis = true;
     PositiveAndNegative_Y_axis = true;
@@ -65,134 +58,17 @@ void VTKOpenGLNativeWidget::PCL_Initalization()
 }
 
 /// <summary>
-/// 处理框选的回调函数
-/// </summary>
-/// <param name="event"></param>
-/// <param name="viewer_void"></param>
-void VTKOpenGLNativeWidget::Frame_PickingCallBack(const pcl::visualization::AreaPickingEvent& event, void* viewer_void)
-{
-    std::vector< int > indices;
-    if (event.getPointsIndices(indices) == -1)
-        return;
-
-    for (int i = 0; i < indices.size(); ++i)
-    {
-        Frame_clicked_cloud->points.push_back(cloud->points.at(indices[i]));
-    }
-
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red(Frame_clicked_cloud, 255, 0, 0);
-
-    viewer->removeShape("Frame_clicked_cloud");
-    viewer->addPointCloud(Frame_clicked_cloud, red, "Frame_clicked_cloud");
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "Frame_clicked_cloud");
-    m_renderWindow->Render();
-}
-
-/// <summary>
-/// 确认框选区域
-/// </summary>
-void VTKOpenGLNativeWidget::ComfirmFramePick()
-{
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> white(cloud, 255, 255, 255);
-
-    pcl::copyPointCloud(*Frame_clicked_cloud, *cloud); //将框选的点云赋值给要显示的点云
-    Frame_clicked_cloud->points.clear();
-    viewer->removeAllPointClouds();
-    viewer->removeAllShapes();
-    viewer->addPointCloud(cloud, white, "cloud");
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
-    m_renderWindow->Render();
-}
-
-/// <summary>
-/// 处理点选的回调函数
-/// </summary>
-/// <param name="event"></param>
-/// <param name="viewer_void"></param>
-void VTKOpenGLNativeWidget::Point_PickingCallBack(const pcl::visualization::PointPickingEvent& event, void* viewer_void)
-{
-    if (event.getPointIndex() == -1)
-        return;
-    pcl::PointXYZ current_point;
-    event.getPoint(current_point.x, current_point.y, current_point.z);
-    Point_clicked_cloud->points.push_back(current_point);
-
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red(Point_clicked_cloud, 255, 0, 0);
-    viewer->removePointCloud("Point_clicked_cloud");
-    viewer->addPointCloud(Point_clicked_cloud, red, "Point_clicked_cloud");
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "Point_clicked_cloud");
-
-    QString ptext = QString("X:%1 Y:%2 Z:%3").arg(current_point.x).arg(current_point.y).arg(current_point.z);
-}
-
-/// <summary>
-/// 确认点选区域
-/// </summary>
-void VTKOpenGLNativeWidget::ComfirmPointPick()
-{
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> white(cloud, 255, 255, 255);
-
-    pcl::copyPointCloud(*Point_clicked_cloud, *cloud);
-    Point_clicked_cloud->points.clear();
-    viewer->removeAllPointClouds();
-    viewer->removeAllShapes();
-    viewer->addPointCloud(cloud, white, "cloud");
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
-    m_renderWindow->Render();
-}
-
-/// <summary>
-/// 不规则框选，按C来启用，再按C确认框选区域
-/// </summary>
-/// <param name="event"></param>
-/// <param name="viewer_void"></param>
-void VTKOpenGLNativeWidget::keyboardEventOccurred(const pcl::visualization::KeyboardEvent& event, void* viewer_void)
-{
-    if (event.getKeySym() == "c" && event.keyDown()) {
-        isPickingMode = !isPickingMode;
-        if (isPickingMode) {
-            line_id = 0;
-            cloud_polygon->clear();
-            flag = false;
-        }
-        else {
-            PolygonSelect(viewer_void, "Primary");
-            viewer->removeAllShapes();
-        }
-    }
-}
-
-/// <summary>
-/// 不规则反框选，按v来启用，再按v确认反框选区域
-/// </summary>
-/// <param name="event"></param>
-/// <param name="viewer_void"></param>
-void VTKOpenGLNativeWidget::keyboardEventInvert(const pcl::visualization::KeyboardEvent& event, void* viewer_void)
-{
-    if (event.getKeySym() == "v" && event.keyDown()) {
-        isPickingMode = !isPickingMode;
-        if (isPickingMode) {
-            line_id = 0;
-            cloud_polygon->clear();
-            flag = false;
-        }
-        else {
-            PolygonSelect(viewer_void, "Invert");
-            viewer->removeAllShapes();
-        }
-    }
-}
-
-/// <summary>
 /// 不规则框选的鼠标画线
 /// </summary>
 /// <param name="event"></param>
 /// <param name="viewer_void"></param>
-void VTKOpenGLNativeWidget::mouseEventOccurred(const pcl::visualization::MouseEvent& event, void* viewer_void)
+/// 
+void te3DCanvas::mouseEventOccurred(const pcl::visualization::MouseEvent& event, void* viewer_void)
 {
     if (event.getButton() == pcl::visualization::MouseEvent::LeftButton &&
         event.getType() == pcl::visualization::MouseEvent::MouseButtonRelease)
     {
+        pcl::PointXYZ curP, lastP;
         if (isPickingMode) {
             double world_point[3];
             double displayPos[2];
@@ -218,7 +94,7 @@ void VTKOpenGLNativeWidget::mouseEventOccurred(const pcl::visualization::MouseEv
  * @param world             输出：世界坐标
  * @param viewer_void       输入：pclViewer
  */
-void VTKOpenGLNativeWidget::getScreentPos(double* displayPos, double* world, void* viewer_void)
+void te3DCanvas::getScreentPos(double* displayPos, double* world, void* viewer_void)
 {
     double fp[4], tmp1[4], eventFPpos[4];
     m_renderer->GetActiveCamera()->GetFocalPoint(fp);
@@ -247,7 +123,7 @@ void VTKOpenGLNativeWidget::getScreentPos(double* displayPos, double* world, voi
 /// </summary>
 /// <param name="viewer_void"></param>
 /// <param name="mode">模式选择:Primary,Invert,Label1,Label2,Label3</param>
-void VTKOpenGLNativeWidget::PolygonSelect(void* viewer_void, QString mode)
+void te3DCanvas::PolygonSelect(void* viewer_void)
 {
     double focal[3] = { 0 }; double pos[3] = { 0 };
     m_renderer->GetActiveCamera()->GetFocalPoint(focal);
@@ -292,65 +168,24 @@ void VTKOpenGLNativeWidget::PolygonSelect(void* viewer_void, QString mode)
         PloyYarr[i] = cloudCiecle_result->points[i].y;
     }
 
-
-    if(mode == "Primary") 
+    cloud_cliped->clear();
+    for (int i = 0; i < cloudIn_Prj->points.size(); i++)
     {
-        cloud_cliped->clear();
-        for (int i = 0; i < cloudIn_Prj->points.size(); i++)
+        ret = inOrNot1(cloud_polygon->points.size(), PloyXarr, PloyYarr, cloudIn_Prj->points[i].x, cloudIn_Prj->points[i].y);
+        if (1 == ret)//表示在里面
         {
-            ret = inOrNot1(cloud_polygon->points.size(), PloyXarr, PloyYarr, cloudIn_Prj->points[i].x, cloudIn_Prj->points[i].y);
-            if (1 == ret)//表示在里面
-            {
-                cloud_cliped->points.push_back(cloud->points[i]);
-            }//表示在外面
-        }
-        viewer->removeAllPointClouds();
-        viewer->removeAllShapes();
-        cloud->clear();
-        pcl::copyPointCloud(*cloud_cliped, *cloud);
-        viewer->addPointCloud(cloud, "aftercut");
-        m_renderWindow->Render();
-        //Display_Properites();
+            cloud_cliped->points.push_back(cloud->points[i]);
+        }//表示在外面
     }
-    else if(mode == "Invert") {
-        cloud_cliped->clear();
-        for (int i = 0; i < cloudIn_Prj->points.size(); i++)
-        {
-            ret = inOrNot1(cloud_polygon->points.size(), PloyXarr, PloyYarr, cloudIn_Prj->points[i].x, cloudIn_Prj->points[i].y);
-            if (1 != ret)//表示在外面
-            {
-                cloud_cliped->points.push_back(cloud->points[i]);
-            }
-        }
-
-        viewer->removeAllPointClouds();
-        viewer->removeAllShapes();
-
-        cloud->clear();
-        pcl::copyPointCloud(*cloud_cliped, *cloud);
-        viewer->addPointCloud(cloud, "aftercut");
-        m_renderWindow->Render();
-    }
-    else{
-        cloud_cliped->clear();
-        for (int i = 0; i < cloudIn_Prj->points.size(); i++)
-        {
-            ret = inOrNot1(cloud_polygon->points.size(), PloyXarr, PloyYarr, cloudIn_Prj->points[i].x, cloudIn_Prj->points[i].y);
-            if (1 == ret)//表示在里面
-            {
-                cloud_cliped->points.push_back(cloud->points[i]);
-            }//表示在外面
-        }
         
-        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_cliped,currentColor.red(), currentColor.green(), currentColor.blue());
-        std::string CloudId = mode.toStdString() + rand_str(3);
-        viewer->addPointCloud(cloud_cliped, currentColor, CloudId);
-        emit PointCloudMarkingCompleted(cloud_cliped);
-        m_renderWindow->Render();
-    }
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_cliped,currentColor.red(), currentColor.green(), currentColor.blue());
+    std::string CloudId = rand_str(5);
+    viewer->addPointCloud(cloud_cliped, currentColor, CloudId);
+    emit sig_3DCanvasMarkingCompleted(cloud_cliped);
+    m_renderWindow->Render();
 }
 
-bool VTKOpenGLNativeWidget::LoadPointCloud(QString fileName)
+bool te3DCanvas::LoadPointCloud(QString fileName)
 {
     if (fileName.isEmpty())
     {
@@ -387,7 +222,7 @@ bool VTKOpenGLNativeWidget::LoadPointCloud(QString fileName)
     return true;
 }
 
-bool VTKOpenGLNativeWidget::SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>::Ptr saveCloud)
+bool te3DCanvas::SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>::Ptr saveCloud)
 {
     if (saveCloud->empty()) {
         return false;
@@ -414,14 +249,14 @@ bool VTKOpenGLNativeWidget::SavePointCloud(QString fileName, pcl::PointCloud<pcl
     return true;
 }
 
-bool VTKOpenGLNativeWidget::SetBackgroundColor(QColor color)
+bool te3DCanvas::SetBackgroundColor(QColor color)
 {
     viewer->setBackgroundColor(color.redF(), color.greenF(), color.blueF());
     m_renderWindow->Render();
     return true;
 }
 
-bool VTKOpenGLNativeWidget::CoordinateAxisRendering(QString curaxis)
+bool te3DCanvas::CoordinateAxisRendering(QString curaxis)
 {
     if (!cloud->empty()) {
         pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> render(cloud, curaxis.toStdString());
@@ -431,7 +266,7 @@ bool VTKOpenGLNativeWidget::CoordinateAxisRendering(QString curaxis)
     return true;
 }
 
-bool VTKOpenGLNativeWidget::PointCloudColorSet(QColor color)
+bool te3DCanvas::PointCloudColorSet(QColor color)
 {
     QColor temp;
     temp.setRgb(143, 153, 159, 255);
@@ -448,7 +283,7 @@ bool VTKOpenGLNativeWidget::PointCloudColorSet(QColor color)
     return true;
 }
 
-bool VTKOpenGLNativeWidget::PointCloudPointSizeSet(int point_size)
+bool te3DCanvas::PointCloudPointSizeSet(int point_size)
 {
     for (int i = 0; i < 1; ++i) {
         viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size, "cloud");
@@ -457,16 +292,7 @@ bool VTKOpenGLNativeWidget::PointCloudPointSizeSet(int point_size)
     return true;
 }
 
-bool VTKOpenGLNativeWidget::PointCloudHeightTransform(int factor)
-{
-    for (int i = 0; i < cloud->size(); ++i) {
-        cloud->at(i).z *= factor;
-    }
-    reRendering(cloud->makeShared());
-    return true;
-}
-
-void VTKOpenGLNativeWidget::AiInstance2Cloud(te::AiInstance* instance, cv::Mat& m_image,QColor color)
+void te3DCanvas::AiInstance2Cloud(te::AiInstance* instance, cv::Mat& m_image,QColor color)
 {
     std::vector<cv::Point> contour;
     te::PolygonF maxpolygon = instance->contour.polygons.at(0);
@@ -488,7 +314,7 @@ void VTKOpenGLNativeWidget::AiInstance2Cloud(te::AiInstance* instance, cv::Mat& 
     m_renderWindow->Render();
 }
 
-void VTKOpenGLNativeWidget::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
+void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
 {
     viewer->removeAllPointClouds();
     viewer->removeAllShapes();
@@ -497,14 +323,14 @@ void VTKOpenGLNativeWidget::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr clou
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
     viewer->resetCamera();
     //update();
-    m_renderWindow->Render();//重新渲染
+    m_renderWindow->Render();
     viewer->resetCameraViewpoint("cloud");
 }
 
-void VTKOpenGLNativeWidget::GetCoordinateSet()
+void te3DCanvas::GetCoordinateSet()
 {
-    pcl::PointXYZ min;//用于存放三个轴的最小值
-    pcl::PointXYZ max;//用于存放三个轴的最大值
+    pcl::PointXYZ min;
+    pcl::PointXYZ max;
     pcl::getMinMax3D(*cloud, min, max);
     int currentDisplayImageLength = max.x - min.x;
     int currentDisplayImageHeight = max.y - min.y;
@@ -525,7 +351,7 @@ void VTKOpenGLNativeWidget::GetCoordinateSet()
  * @param y             目标点云的y坐标
  * @return
  */
-int VTKOpenGLNativeWidget::inOrNot1(int poly_sides, double* poly_X, double* poly_Y, double x, double y)
+int te3DCanvas::inOrNot1(int poly_sides, double* poly_X, double* poly_Y, double x, double y)
 {
     int i, j;
     j = poly_sides - 1;
@@ -541,10 +367,7 @@ int VTKOpenGLNativeWidget::inOrNot1(int poly_sides, double* poly_X, double* poly
     return res;
 }
 
-/// <summary>
-/// AABB框
-/// </summary>
-void VTKOpenGLNativeWidget::AxisAlignedBoundingBox()
+void te3DCanvas::AxisAlignedBoundingBox()
 {
     feature_extractor.setInputCloud(cloud); //提供指向输入数据集的指针。
     feature_extractor.compute();//启动所有特征的计算
@@ -564,7 +387,6 @@ void VTKOpenGLNativeWidget::AxisAlignedBoundingBox()
     feature_extractor.getEigenVectors(major_vector, middle_vector, minor_vector);
     feature_extractor.getMassCenter(mass_center);
 
-    //绘制AABB包围盒
     viewer->addPointCloud<pcl::PointXYZ>(cloud, "points");
     viewer->addCube(min_point_AABB.x, max_point_AABB.x, min_point_AABB.y, max_point_AABB.y, min_point_AABB.z, max_point_AABB.z, 1.0, 1.0, 0.0, "AABB");
     viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, "AABB");
@@ -577,10 +399,7 @@ void VTKOpenGLNativeWidget::AxisAlignedBoundingBox()
     }
 }
 
-/// <summary>
-/// 绘制OBB框
-/// </summary>
-void VTKOpenGLNativeWidget::OrientedBoundingBox()
+void te3DCanvas::OrientedBoundingBox()
 {
     feature_extractor.setInputCloud(cloud);
     feature_extractor.compute();
@@ -621,9 +440,9 @@ void VTKOpenGLNativeWidget::OrientedBoundingBox()
 /// </summary>
 /// <param name="cloud1"></param>
 /// <param name="cloud2"></param>
-void VTKOpenGLNativeWidget::subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2)
+void te3DCanvas::subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2)
 {
-    // 下采样第一个点云
+    //采样第一个点云
     pcl::VoxelGrid<pcl::PointXYZ> voxelGrid;
     voxelGrid.setInputCloud(cloud1);
     voxelGrid.setLeafSize(0.01f, 0.01f, 0.01f);
@@ -650,14 +469,10 @@ void VTKOpenGLNativeWidget::subtractTargetPointcloud(pcl::PointCloud<pcl::PointX
     extract.setNegative(true);
     extract.filter(*cloud1_filtered);
 
-    // 将滤波后的点云赋值给原始的第一个点云对象
     cloud1->swap(*cloud1_filtered);
 }
 
-/// <summary>
-/// 从Y轴看过去
-/// </summary>
-void VTKOpenGLNativeWidget::ViewYBtn()
+void te3DCanvas::PerspectiveToYaxis()
 {
     Eigen::Vector4f centroid;
     pcl::compute3DCentroid(*cloud, centroid);
@@ -670,10 +485,7 @@ void VTKOpenGLNativeWidget::ViewYBtn()
     viewer->spinOnce();
 }
 
-/// <summary>
-/// 从X轴看过去
-/// </summary>
-void VTKOpenGLNativeWidget::ViewXBtn()
+void te3DCanvas::PerspectiveToXaxis()
 {
     Eigen::Vector4f centroid;
     pcl::compute3DCentroid(*cloud, centroid);
@@ -686,10 +498,7 @@ void VTKOpenGLNativeWidget::ViewXBtn()
     viewer->spinOnce();
 }
 
-/// <summary>
-/// 从Z轴看过去
-/// </summary>
-void VTKOpenGLNativeWidget::ViewZBtn()
+void te3DCanvas::PerspectiveToZaxis()
 {
     Eigen::Vector4f centroid;
     pcl::compute3DCentroid(*cloud, centroid);
@@ -702,14 +511,7 @@ void VTKOpenGLNativeWidget::ViewZBtn()
     viewer->spinOnce();
 }
 
-/// <summary>
-/// 高斯滤波
-/// </summary>
-/// <param name="data1">标准差</param>
-/// <param name="data2">阈值</param>
-/// <param name="data3">搜索半径</param>
-/// <param name="data4">openMP</param>
-void VTKOpenGLNativeWidget::GuassFilter(QString data1, QString data2, QString data3, QString data4)
+void te3DCanvas::GuassFilter(QString data1, QString data2, QString data3, QString data4)
 {
     if (cloud->empty()) {
         QMessageBox::warning(this, "Warning", "无点云输入");
@@ -732,17 +534,8 @@ void VTKOpenGLNativeWidget::GuassFilter(QString data1, QString data2, QString da
     }
 }
 
-/// <summary>
-/// 设置滤波器对象
-/// </summary>
-/// <param name="cloud_in">输入点云</param>
-/// <param name="paraA">标准差</param>
-/// <param name="paraB">阈值</param>
-/// <param name="paraC">搜索半径</param>
-/// <param name="paraD">openMP</param>
-void VTKOpenGLNativeWidget::pcl_filter_guass(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float paraA, float paraB, float paraC, float paraD)
+void te3DCanvas::pcl_filter_guass(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float paraA, float paraB, float paraC, float paraD)
 {
-    //设置卷积核
     pcl::filters::GaussianKernel<pcl::PointXYZ, pcl::PointXYZ>::Ptr kernel(new pcl::filters::GaussianKernel<pcl::PointXYZ, pcl::PointXYZ>);
     (*kernel).setSigma(paraA);
     (*kernel).setThresholdRelativeToSigma(paraB);
@@ -753,20 +546,13 @@ void VTKOpenGLNativeWidget::pcl_filter_guass(pcl::PointCloud<pcl::PointXYZ>::Ptr
     convolution.setKernel(*kernel);
     convolution.setInputCloud(cloud_in);
     convolution.setSearchMethod(kdtree);
-    convolution.setRadiusSearch(paraC);//radius代表点云扫面的半径，这里需要用户计算获得
-    convolution.setNumberOfThreads(paraD);//important! Set Thread number for openMP
+    convolution.setRadiusSearch(paraC);
+    convolution.setNumberOfThreads(paraD);
 
     convolution.convolve(*cloud_Filter_out);
 }
 
-/// <summary>
-/// 绘制直通滤波
-/// </summary>
-/// <param name="data1">最小范围</param>
-/// <param name="data2">最大范围</param>
-/// <param name="data3">坐标轴</param>
-/// <param name="data4">保留or去除</param>
-void VTKOpenGLNativeWidget::DirectFilter(QString data1, QString data2, QString data3, QString data4)
+void te3DCanvas::DirectFilter(QString data1, QString data2, QString data3, QString data4)
 {
     if (cloud->empty()) {
         QMessageBox::warning(this, "Warning", "无点云输入");
@@ -779,9 +565,6 @@ void VTKOpenGLNativeWidget::DirectFilter(QString data1, QString data2, QString d
         }
         pcl_filter_direct(cloud, data1.toFloat(), data2.toFloat(), data3, data4.toFloat());
         *cloud = *cloud_Filter_out;
-
-        //Display_Properites();
-
         viewer->removeAllPointClouds();
         viewer->removeAllShapes();
         viewer->addPointCloud(cloud, "cloud");
@@ -790,27 +573,40 @@ void VTKOpenGLNativeWidget::DirectFilter(QString data1, QString data2, QString d
         m_renderWindow->Render();
     }
 }
-void VTKOpenGLNativeWidget::LabelChanged(const QString& content, const QColor& fontColor)
+void te3DCanvas::LabelChanged(const QString& content, const QColor& fontColor)
 {
     currentCategory = content;
     currentColor = fontColor;
 }
-/// <summary>
-/// 设置滤波器对象
-/// </summary>
-/// <param name="cloud_in">输入点云</param>
-/// <param name="min"></param>
-/// <param name="max"></param>
-/// <param name="axis">坐标轴</param>
-/// <param name="is_save">保留or去除</param>
-void VTKOpenGLNativeWidget::pcl_filter_direct(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float min, float max, QString axis, float is_save)
+void te3DCanvas::PointCloudHeightTransform(int factor)
+{
+    for (int i = 0; i < cloud->size(); ++i) {
+        cloud->at(i).z *= factor;
+    }
+    reRendering(cloud->makeShared());
+}
+
+void te3DCanvas::te3DCanvasStartMarking()
+{
+    isPickingMode = !isPickingMode;
+    if (isPickingMode) {
+        line_id++;
+        cloud_polygon->clear();
+        flag = false;
+    }
+    else {
+        PolygonSelect(this);
+    }
+}
+
+void te3DCanvas::pcl_filter_direct(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float min, float max, QString axis, float is_save)
 {
     pcl::PassThrough<pcl::PointXYZ> pass;//设置滤波器对象
-    //参数设置
+
     pass.setInputCloud(cloud_in);
-    pass.setFilterFieldName(axis.toStdString());//滤波的字段，即滤波的方向。可以是XYZ
-    pass.setFilterLimits(min, max);//区间设置
-    pass.setNegative(is_save);//设置为保留还是去除（true是去除上述坐标范围内的点）
+    pass.setFilterFieldName(axis.toStdString());
+    pass.setFilterLimits(min, max);
+    pass.setNegative(is_save);
 
     pass.filter(*cloud_Filter_out);
 }

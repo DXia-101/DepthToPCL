@@ -30,9 +30,9 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 
-#include <pcl/sample_consensus/method_types.h> //随机参数估计方法头文件
-#include <pcl/sample_consensus/model_types.h> //模型定义头文件
-#include <pcl/segmentation/sac_segmentation.h> //基于采样一致性分割的类的头文件
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
+#include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/segmentation/extract_polygonal_prism_data.h>
 
 #include <pcl/visualization/pcl_visualizer.h>

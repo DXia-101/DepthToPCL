@@ -52,14 +52,11 @@ void Transfer_Function::ExtractImage(cv::Mat& Matin, std::vector<cv::Point>* con
 {
     cv::Mat mask = cv::Mat::zeros(Matin.size(), CV_32F);
 
-    // 将多边形的点集转换为OpenCV所需的格式
     std::vector<std::vector<cv::Point>> contours;
     contours.push_back(*contour);
 
-    // 在掩膜图像上绘制多边形
     cv::fillPoly(mask, contours, cv::Scalar(255));
 
-    // 将掩膜应用于输入图像，提取感兴趣的区域
     Matin.copyTo(*extractedImages, mask);
 }
 
@@ -67,10 +64,8 @@ bool Transfer_Function::isPointInsideContour(int x, int y, std::vector<cv::Point
 {
     cv::Point point(x, y);
 
-    // 判断点是否在多边形内部
     double distance = cv::pointPolygonTest(*contour, point, false);
 
-    // 如果距离为正值，点在多边形内部
     if (distance >= 0)
         return true;
     else
@@ -87,7 +82,6 @@ void Transfer_Function::ExtractImage2Cloud(cv::Mat& imageIn, float originX,float
         {
             cv::Point point(x, y);
 
-            //检查点是否在轮廓内部
             double distance = cv::pointPolygonTest(*contour, point, false);
 
             if (distance >= 0)
@@ -113,7 +107,6 @@ void Transfer_Function::AddPointsInsideContour(cv::Mat& Matin, std::vector<cv::P
         {
             cv::Point point(x, y);
 
-            //检查点是否在轮廓内部
             double distance = cv::pointPolygonTest(*contour, point, false);
 
             if (distance >= 0)
