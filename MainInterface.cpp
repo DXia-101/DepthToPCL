@@ -12,6 +12,8 @@ MainInterface::MainInterface(QWidget *parent)
 	m_te3DCanvasController->hideAllUI();
 	m_teLabelBrowser = new teLabelBrowser();
 	ui->labelLayout->addWidget(m_teLabelBrowser);
+	m_teImageBrowserController = new teImageBrowserController();
+	m_teImageBrowserController->displayUIInWidget(ui->browserLayout);
 
 	InitStateMachine();
 }

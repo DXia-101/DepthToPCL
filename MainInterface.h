@@ -5,6 +5,7 @@
 #include "te3DCanvasController.h"
 #include "te2DCanvasController.h"
 #include "teLabelBrowser.h"
+#include "teImageBrowserController.h"
 
 #include <QStateMachine>
 #include <QState>
@@ -28,6 +29,7 @@ private:
 	te3DCanvasController* m_te3DCanvasController;
 	te2DCanvasController* m_te2DCanvasController;
 	teLabelBrowser* m_teLabelBrowser;
+	teImageBrowserController* m_teImageBrowserController;
 
 signals:
 	void ConversionBetween2Dand3D();
