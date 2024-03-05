@@ -3,6 +3,7 @@
 #include <QObject>
 #include "tesampwidget.h"
 
+
 class QVBoxLayout;
 
 class teImageBrowserController  : public QObject
@@ -20,6 +21,14 @@ private slots:
 	void ItemActive(int* pIndex, int len);
 	void SwitchImg(int pIndex, int len);
 
+public slots:
+	void ChangeGTShowFlag(int index);
+	void ChangeRSTShowFlag(int index);
+	void ChangeCurrentState();
+
 private:
 	TeSampWidget* ImageBrowser;
+	bool GTShowFlag;
+	bool RSTShowFlag;
+	bool CurrentState;
 };

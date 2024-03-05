@@ -29,12 +29,9 @@ public:
     void PerspectiveToZaxis();
 
     void PolygonSelect(void* viewer_void);
-    bool LoadPointCloud(QString fileName);
-    bool SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>::Ptr saveCloud);
 
     void pcl_filter_guass(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float paraA, float paraB, float paraC, float paraD);
     void pcl_filter_direct(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float min, float max, QString axis, float is_save);
-
 public:
     void AiInstance2Cloud(te::AiInstance* instance, cv::Mat& m_image, QColor color);
     void reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin);
@@ -61,6 +58,11 @@ public slots:
 
     void PointCloudHeightTransform(int factor);
     void te3DCanvasStartMarking();
+
+    bool LoadPointCloud(QString fileName);
+    bool SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>::Ptr saveCloud);
+
+    void reRenderOriginCloud();
 signals:
     void sig_3DCanvasMarkingCompleted(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
     void CloudChanged();
@@ -72,7 +74,7 @@ private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cliped;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_Filter_out;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_marked;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr mediancloud;
+    
     pcl::MomentOfInertiaEstimation<pcl::PointXYZ> feature_extractor;
     pcl::visualization::PCLVisualizer::Ptr viewer;
     vtkRenderWindow* m_renderWindow;

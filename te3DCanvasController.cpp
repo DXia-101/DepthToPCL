@@ -1,6 +1,10 @@
 #include "te3DCanvasController.h"
 #include <QVBoxLayout>
 
+te3DCanvasController::Garbo te3DCanvasController::tmp;
+
+te3DCanvasController* te3DCanvasController::instance = nullptr;
+
 te3DCanvasController::te3DCanvasController(QObject *parent)
 	: QObject(parent)
 {
@@ -13,6 +17,8 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToYaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToYaxis);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToZaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToZaxis);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_StartMarking, m_te3DCanvas, &te3DCanvas::te3DCanvasStartMarking);
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_GtCheckStateChanged, this, &te3DCanvasController::sig_GTShowSignalChange);
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_RSTCheckStateChanged, this, &te3DCanvasController::sig_RSTShowSignalChange);
 	
 	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_BackgroundColorSetting, this, &te3DCanvasController::BackgroundColorSelect);
 	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_CoordinateAxisRendering, this, &te3DCanvasController::CoordinateAxisSelect);
@@ -26,11 +32,44 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	
 	connect(m_te3DCanvas, &te3DCanvas::sig_3DCanvasMarkingCompleted, this, &te3DCanvasController::sig_PointCloudMarkingCompleted);
 	connect(this, &te3DCanvasController::sig_LabelChanged, m_te3DCanvas, &te3DCanvas::LabelChanged);
+
+	connect(this, &te3DCanvasController::sig_SavePointCloud, m_te3DCanvas, &te3DCanvas::SavePointCloud);
+	connect(this, &te3DCanvasController::sig_LoadPointCloud, m_te3DCanvas, &te3DCanvas::LoadPointCloud);
+	connect(this, &te3DCanvasController::sig_ReRenderOriginCloud, m_te3DCanvas, &te3DCanvas::reRenderOriginCloud);
+
 }
 
 te3DCanvasController::~te3DCanvasController()
 {
 
+}
+
+te3DCanvasController::te3DCanvasController(const te3DCanvasController&)
+{
+
+}
+
+te3DCanvasController& te3DCanvasController::operator=(const te3DCanvasController&)
+{
+	return *this;
+}
+
+te3DCanvasController* te3DCanvasController::getInstance()
+{
+	if (!instance)
+	{
+		te3DCanvasController* pInstance = new te3DCanvasController();
+		instance = pInstance;
+	}
+	return instance;
+}
+
+void te3DCanvasController::destroy()
+{
+	if (NULL != te3DCanvasController::instance) {
+		delete te3DCanvasController::instance;
+		te3DCanvasController::instance = NULL;
+	}
 }
 
 void te3DCanvasController::displayUIInWidget(QVBoxLayout* layout)

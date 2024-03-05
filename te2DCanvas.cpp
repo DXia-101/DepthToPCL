@@ -43,6 +43,11 @@ void te2DCanvas::ClearAll2DCanvasMarks()
     this->itemMgr(0)->clearItems();
 }
 
+void te2DCanvas::setImg(te::Image* img)
+{
+    setImage(*img);
+}
+
 void te2DCanvas::LabelChanged(const QString& content, const QColor& fontColor)
 {
     graphicsBrush()[0]->setBrush(QBrush(fontColor));

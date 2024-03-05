@@ -24,12 +24,16 @@ public slots:
 
 	void on_startMarkBtn_clicked();
 
+	void on_showGTCheckBox_stateChanged(int arg);
+	void on_showRSTcheckBox_stateChanged(int arg);
 signals:
 	void sig_HeightTransform(int facetor);
 	void sig_PerspectiveToXaxis();
 	void sig_PerspectiveToYaxis();
 	void sig_PerspectiveToZaxis();
 	void sig_StartMarking();
+	void sig_GtCheckStateChanged(int arg);
+	void sig_RSTCheckStateChanged(int arg);
 private:
 	Ui::te3DCanvasMenuClass *ui;
 };

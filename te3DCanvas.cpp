@@ -34,7 +34,6 @@ void te3DCanvas::PCL_Initalization()
     cloud_cliped = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_Filter_out = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_marked = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
-    mediancloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
 
     m_renderer = vtkSmartPointer<vtkRenderer>::New();
     m_renderWindow = this->renderWindow();
@@ -233,20 +232,25 @@ bool te3DCanvas::SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>
         }
         int return_status;
         if (fileName.endsWith(".pcd", Qt::CaseInsensitive))
-            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(),*saveCloud);
+            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(), *saveCloud);
         else if (fileName.endsWith(".ply", Qt::CaseInsensitive))
-            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(),*saveCloud);
+            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(), *saveCloud);
         else {
             fileName.append(".pcd");
-            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(),*saveCloud);
+            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(), *saveCloud);
         }
         if (return_status != 0) {
             QString errorinfo = QString::fromStdString("Error writing point cloud" + fileName.toStdString());
-            QMessageBox::warning(this, "Warning", errorinfo);
+            qDebug() << errorinfo;
             return false;
         }
     }
     return true;
+}
+
+void te3DCanvas::reRenderOriginCloud()
+{
+    reRendering(cloud);
 }
 
 bool te3DCanvas::SetBackgroundColor(QColor color)

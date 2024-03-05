@@ -61,30 +61,34 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="0,0,0,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="0,0,0">
      <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>高度系数：</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSpinBox" name="HeightCoefficientSpinBox">
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>10000</number>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="ConfirmTransformationBtn">
-       <property name="text">
-        <string>确定变换</string>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>高度系数：</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="HeightCoefficientSpinBox">
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>10000</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="ConfirmTransformationBtn">
+         <property name="text">
+          <string>确定变换</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_6">

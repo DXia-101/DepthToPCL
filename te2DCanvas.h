@@ -27,7 +27,6 @@ public:
 	~te2DCanvas();
 
 	void AiInstance2GraphicsItem(te::AiInstance* instance,QString label, QColor color);
-	void ClearAll2DCanvasMarks();
 	void te2DCanvasMarkingCompleted();
 
 public slots:
@@ -36,6 +35,8 @@ public slots:
 	void StartMarked();
 	void Redo();
 	void Undo();
+	void ClearAll2DCanvasMarks();
+	void setImg(te::Image* img);
 
 signals:
 	void PolygonMarkingCompleted(te::ConnectedRegionGraphicsItem* polygonItem);
@@ -49,7 +50,6 @@ private:
 	void DrawPolygonGraphics(const QPolygonF& polygon);
 	void DrawRectGraphics(const QRectF& rect);
 	void DrawLineGraphics(const QList<QPolygonF>& polyline);
-
 	void DrawGraphics(const QList<QPolygonF>& region);
 
 	

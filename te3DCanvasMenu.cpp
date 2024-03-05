@@ -37,3 +37,13 @@ void te3DCanvasMenu::on_startMarkBtn_clicked()
 {
 	emit sig_StartMarking();
 }
+
+void te3DCanvasMenu::on_showGTCheckBox_stateChanged(int arg)
+{
+	emit sig_GtCheckStateChanged(arg);
+}
+
+void te3DCanvasMenu::on_showRSTcheckBox_stateChanged(int arg)
+{
+	emit sig_RSTCheckStateChanged(arg);
+}

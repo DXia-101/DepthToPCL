@@ -15,8 +15,8 @@ class te3DCanvasController  : public QObject
 	Q_OBJECT
 
 public:
-	te3DCanvasController(QObject *parent = nullptr);
-	~te3DCanvasController();
+	static te3DCanvasController* getInstance();
+	static void destroy();
 
 	void displayUIInWidget(QVBoxLayout* layout);
 
@@ -43,8 +43,31 @@ signals:
 	void sig_DirectFilter(QString data1, QString data2, QString data3, QString data4);
 	void sig_PointCloudMarkingCompleted(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 	void sig_LabelChanged(const QString& content, const QColor& fontColor);
+	void sig_LoadPointCloud(QString fileName);
+	void sig_SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>::Ptr saveCloud);
+	void sig_GTShowSignalChange(int arg);
+	void sig_RSTShowSignalChange(int arg);
+	void sig_ReRenderOriginCloud();
 
 private:
+	static te3DCanvasController* instance;
+
+	te3DCanvasController(QObject* parent = nullptr);
+	~te3DCanvasController();
+	te3DCanvasController(const te3DCanvasController&);
+	te3DCanvasController& operator=(const te3DCanvasController&);
+
+	class Garbo
+	{
+	public:
+		~Garbo()
+		{
+			te3DCanvasController::destroy();
+		}
+	};
+
+	static Garbo tmp;
+
 	te3DCanvas* m_te3DCanvas;
 	te3DCanvasMenu* m_te3DCanvasMenu;
 	te3DCanvasToolBar* m_te3DCanvasToolBar;
