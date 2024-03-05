@@ -78,6 +78,20 @@ private:
 public slots:
 	void setCurrentIndex(int index);
 	void setCurrentLoadImageNum(int num);
+	void LoadTrainingImages(const QStringList& filePaths);
+
+signals:
+	void sig_teUpDataSet(int iNum, int iLayerNum, bool bReset);
+	void sig_LoadTrainImagesComplete();
+
+private:
+
+	int currentIndex;
+	int currentLoadImageNum;
+	
+	std::unique_ptr<te::Sqlite3DB> db;
+	std::unique_ptr<te::Sqlite3DataModel> ResourceTable;
+	std::unique_ptr<te::Sqlite3DataModel> GtTable;
 
 private:
 	static teDataStorage* instance;
@@ -97,11 +111,4 @@ private:
 	};
 
 	static Garbo tmp;
-
-	int currentIndex;
-	int currentLoadImageNum;
-	
-	std::unique_ptr<te::Sqlite3DB> db;
-	std::unique_ptr<te::Sqlite3DataModel> ResourceTable;
-	std::unique_ptr<te::Sqlite3DataModel> GtTable;
 };

@@ -1,6 +1,14 @@
 #include "MainInterface.h"
 #include "te3DCanvasController.h"
 #include "te2DCanvasController.h"
+#include "teImageBrowserController.h"
+#include "teDataStorage.h"
+
+#include <QMenuBar>
+#include <QMenu>
+#include <QToolBar>
+#include <QAction>
+#include <QFileDialog>
 
 MainInterface::MainInterface(QWidget *parent)
 	: QWidget(parent)
@@ -14,14 +22,17 @@ MainInterface::MainInterface(QWidget *parent)
 	te2DCanvasController::getInstance()->showAllUI();
 	m_teLabelBrowser = new teLabelBrowser();
 	ui->labelLayout->addWidget(m_teLabelBrowser);
-	m_teImageBrowserController = new teImageBrowserController();
-	m_teImageBrowserController->displayUIInWidget(ui->browserLayout);
+	teImageBrowserController::getInstance()->displayUIInWidget(ui->browserLayout);
 
 	InitStateMachine();
+	InitToolBar();
 
-	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_GTShowSignalChange, m_teImageBrowserController, &teImageBrowserController::ChangeGTShowFlag);
-	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_RSTShowSignalChange, m_teImageBrowserController, &teImageBrowserController::ChangeRSTShowFlag);
-	connect(ui->convertBtn, &QPushButton::clicked, m_teImageBrowserController, &teImageBrowserController::ChangeCurrentState);
+	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_GTShowSignalChange, teImageBrowserController::getInstance(), &teImageBrowserController::ChangeGTShowFlag);
+	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_RSTShowSignalChange, teImageBrowserController::getInstance(), &teImageBrowserController::ChangeRSTShowFlag);
+	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::ChangeCurrentState);
+
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, teImageBrowserController::getInstance(), &teImageBrowserController::teUpDataSet);
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, teImageBrowserController::getInstance(), &teImageBrowserController::InitSourceVector);
 }
 
 MainInterface::~MainInterface()
@@ -48,4 +59,38 @@ void MainInterface::InitStateMachine()
 
     m_pStateMachine->setInitialState(TwoDState);
     m_pStateMachine->start();
+}
+
+void MainInterface::InitToolBar()
+{
+	QMenuBar* menu_bar = new QMenuBar(this);
+	ui->ToolBarLayout->addWidget(menu_bar);
+	menu_bar->setStyleSheet("font-size : 18px");
+
+	QMenu* Train_menu = new QMenu(u8"ÑµÁ·", menu_bar);
+
+	QAction* Load_Images = new QAction(u8"¼ÓÔØÑµÁ·Í¼Æ¬");
+	QAction* Start_Train = new QAction(u8"¿ªÊ¼ÑµÁ·");
+	QAction* Stop_Train = new QAction(u8"Í£Ö¹ÑµÁ·");
+	QAction* Start_Test = new QAction(u8"¿ªÊ¼²âÊÔ");
+
+	Train_menu->addAction(Load_Images);
+	Train_menu->addAction(Start_Train);
+	Train_menu->addAction(Stop_Train);
+	Train_menu->addAction(Start_Test);
+
+	menu_bar->addMenu(Train_menu);
+
+	connect(Load_Images, &QAction::triggered, this, &MainInterface::LoadTrainingImages);
+	connect(this, &MainInterface::sig_LoadTrainingImages, teDataStorage::getInstance(), &teDataStorage::LoadTrainingImages);
+	//connect(Start_Train, &QAction::triggered, this, &DepthToPCL::StartedTrainAction);
+	//connect(Stop_Train, &QAction::triggered, this, &DepthToPCL::StopTrainAction);
+	//connect(Start_Test, &QAction::triggered, this, &DepthToPCL::StartTestAction);
+
+}
+
+void MainInterface::LoadTrainingImages()
+{
+	QStringList filepaths = QFileDialog::getOpenFileNames(nullptr, u8"Ñ¡ÔñÎÄ¼þ", "", "TIFF Files (*.tif *.tiff)");
+	emit sig_LoadTrainingImages(filepaths);
 }

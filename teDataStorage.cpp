@@ -231,6 +231,16 @@ void teDataStorage::setCurrentLoadImageNum(int num)
 	currentLoadImageNum = num;
 }
 
+void teDataStorage::LoadTrainingImages(const QStringList& filePaths)
+{
+	for (QString filePath : filePaths) {
+		insertOriginImage(filePath.toStdString());
+	}
+
+	emit sig_teUpDataSet(filePaths.size(), 1,true);
+	emit sig_LoadTrainImagesComplete();
+}
+
 void teDataStorage::setCurrentIndex(int index)
 {
 	currentIndex = index;

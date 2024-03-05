@@ -208,13 +208,13 @@ bool te3DCanvas::LoadPointCloud(QString fileName)
     else if (fileName.endsWith("tif") || fileName.endsWith("tiff")) {
         cv::Mat image = cv::imread(fileName.toStdString(), cv::IMREAD_UNCHANGED);
         if (image.empty()) {
-            QMessageBox::warning(this, "Warning", "无法读取图像文件");
+            QMessageBox::warning(this, "Warning", u8"无法读取图像文件");
             return false;
         }
         Transfer_Function::cvMat2Cloud(image,cloud);
     }
     else {
-        QMessageBox::warning(this, "Warning", "点云读取格式错误！");
+        QMessageBox::warning(this, "Warning", u8"点云读取格式错误！");
     }
 
     GetCoordinateSet();

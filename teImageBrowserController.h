@@ -11,8 +11,8 @@ class teImageBrowserController  : public QObject
 	Q_OBJECT
 
 public:
-	teImageBrowserController(QObject *parent = nullptr);
-	~teImageBrowserController();
+	static teImageBrowserController* getInstance();
+	static void destroy();
 
 	void displayUIInWidget(QVBoxLayout* layout);
 
@@ -22,13 +22,39 @@ private slots:
 	void SwitchImg(int pIndex, int len);
 
 public slots:
+	void InitSourceVector();
 	void ChangeGTShowFlag(int index);
 	void ChangeRSTShowFlag(int index);
 	void ChangeCurrentState();
+	void teUpDataSet(int iNum, int iLayerNum, bool bReset);
 
 private:
+
 	TeSampWidget* ImageBrowser;
 	bool GTShowFlag;
 	bool RSTShowFlag;
 	bool CurrentState;
+
+	std::vector<std::string> m_SkcImgs;
+	std::vector<std::string> m_OriImgs;
+	std::vector<std::string> m_Pcds;
+
+private:
+	static teImageBrowserController* instance;
+
+	teImageBrowserController(QObject* parent = nullptr);
+	~teImageBrowserController();
+	teImageBrowserController(const teImageBrowserController&);
+	teImageBrowserController& operator=(const teImageBrowserController&);
+
+	class Garbo
+	{
+	public:
+		~Garbo()
+		{
+			teImageBrowserController::destroy();
+		}
+	};
+
+	static Garbo tmp;
 };

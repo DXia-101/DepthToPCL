@@ -4,7 +4,7 @@
 #include "ui_MainInterface.h"
 
 #include "teLabelBrowser.h"
-#include "teImageBrowserController.h"
+
 
 #include <QStateMachine>
 #include <QState>
@@ -22,14 +22,18 @@ public:
 	~MainInterface();
 
 	void InitStateMachine();
+	void InitToolBar();
+
+private slots:
+	void LoadTrainingImages();
 
 private:
 	Ui::MainInterfaceClass *ui;
 	teLabelBrowser* m_teLabelBrowser;
-	teImageBrowserController* m_teImageBrowserController;
 
 signals:
 	void ConversionBetween2Dand3D();
+	void sig_LoadTrainingImages(const QStringList& filePaths);
 
 private:
 	QStateMachine* m_pStateMachine;
