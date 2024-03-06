@@ -39,7 +39,7 @@ public slots:
 	void setImg(te::Image* img);
 
 signals:
-	void PolygonMarkingCompleted(te::ConnectedRegionGraphicsItem* polygonItem);
+	void sig_PolygonMarkingCompleted(te::ConnectedRegionGraphicsItem* polygonItem);
 	void ReplaceToEraseState();
 	void ReplaceToDrawState();
 	void ClearCurrent2DCanvasMarkers();

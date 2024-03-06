@@ -184,6 +184,9 @@ void teLabelBrowser::ColorSelect()
 		if (colorDialog.exec() == QDialog::Accepted) {
 			QColor selectedColor = colorDialog.selectedColor();
 			item->setForeground(QBrush(selectedColor));
+			QString content = item->text();
+			QColor fontColor = item->foreground().color();
+			emit sig_currentRowSelected(content, fontColor);
 		}
 	}
 }

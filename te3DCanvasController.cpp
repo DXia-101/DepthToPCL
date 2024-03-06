@@ -38,7 +38,7 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	connect(this, &te3DCanvasController::sig_SavePointCloud, m_te3DCanvas, &te3DCanvas::SavePointCloud);
 	connect(this, &te3DCanvasController::sig_LoadPointCloud, m_te3DCanvas, &te3DCanvas::LoadPointCloud);
 	connect(this, &te3DCanvasController::sig_ReRenderOriginCloud, m_te3DCanvas, &te3DCanvas::reRenderOriginCloud);
-
+	connect(this, &te3DCanvasController::sig_currentLabelChange, m_te3DCanvas, &te3DCanvas::LabelChanged);
 }
 
 te3DCanvasController::~te3DCanvasController()

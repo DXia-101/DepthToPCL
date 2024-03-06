@@ -48,6 +48,7 @@ signals:
 	void sig_GTShowSignalChange(int arg);
 	void sig_RSTShowSignalChange(int arg);
 	void sig_ReRenderOriginCloud();
+	void sig_currentLabelChange(const QString& category, const QColor& color);
 
 private:
 	static te3DCanvasController* instance;

@@ -18,10 +18,12 @@ public:
 
 signals:
 	void sig_ClearAll2DCanvasMarks();
-
+	void sig_StartMarking();
+	void sig_currentLabelChange(const QString& category, const QColor& color);
 public slots:
 	void hideAllUI();
 	void showAllUI();
+	void add2DAiInstance(te::ConnectedRegionGraphicsItem* polygonItem);
 
 private:
 	static te2DCanvasController* instance;

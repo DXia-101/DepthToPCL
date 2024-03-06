@@ -1,5 +1,6 @@
 #include "te2DCanvasController.h"
 #include <QVBoxLayout>
+#include "teDataStorage.h"
 
 te2DCanvasController::Garbo te2DCanvasController::tmp;
 
@@ -17,6 +18,10 @@ te2DCanvasController::te2DCanvasController(QObject *parent)
 	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_te2DCanvasUndo, m_te2DCanvas, &te2DCanvas::Undo);
 	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_te2DCanvasShapeSelected, m_te2DCanvas, &te2DCanvas::ShapeSelect);
 	connect(this, &te2DCanvasController::sig_ClearAll2DCanvasMarks, m_te2DCanvas, &te2DCanvas::ClearAll2DCanvasMarks);
+	connect(this, &te2DCanvasController::sig_StartMarking, m_te2DCanvas, &te2DCanvas::StartMarked);
+	connect(m_te2DCanvas, &te2DCanvas::sig_PolygonMarkingCompleted, this, &te2DCanvasController::add2DAiInstance);
+	connect(this, &te2DCanvasController::sig_currentLabelChange, m_te2DCanvas, &te2DCanvas::LabelChanged);
+	
 }
 
 te2DCanvasController::~te2DCanvasController()
@@ -69,6 +74,24 @@ void te2DCanvasController::showAllUI()
 {
 	m_te2DCanvasToolBar->show();
 	m_te2DCanvas->show();
+}
+
+void te2DCanvasController::add2DAiInstance(te::ConnectedRegionGraphicsItem* polygonItem)
+{
+	QList<QPolygonF> contours = polygonItem->polygonList();
+	te::AiInstance instance;
+	instance.name = polygonItem->label().toStdString();
+	te::PolygonF polygon;
+	te::PolygonF::PointType point;
+	for (const QPointF& polygonPoint : contours.front()) {
+		point.x = static_cast<float>(polygonPoint.x());
+		point.y = static_cast<float>(polygonPoint.y());
+		polygon.push_back(point);
+	}
+	instance.contour.polygons.push_back(polygon);
+	te::SampleMark sampleMark = teDataStorage::getInstance()->getCurrentTrainSampleInfo();
+	sampleMark.gtDataSet.push_back(instance);
+	teDataStorage::getInstance()->updateCurrentTrainSampleMark(sampleMark);
 }
 
 void te2DCanvasController::hideAllUI()

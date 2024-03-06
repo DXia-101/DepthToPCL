@@ -159,6 +159,6 @@ void te2DCanvas::te2DCanvasMarkingCompleted()
 {
     for (te::GraphicsItem* item : this->itemMgr(0)->items()) {
         te::ConnectedRegionGraphicsItem* polygonItem = dynamic_cast<te::ConnectedRegionGraphicsItem*>(item);
-        emit PolygonMarkingCompleted(polygonItem);
+        emit sig_PolygonMarkingCompleted(polygonItem);
     }
 }

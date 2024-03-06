@@ -297,6 +297,7 @@ void teDataStorage::currentRowChange(const QString& content, const QColor& fontC
 {
 	currentCategory = content;
 	currentColor = fontColor;
+	emit sig_currentLabelChange(content, fontColor);
 }
 
 void teDataStorage::setCurrentIndex(int index)

@@ -37,7 +37,7 @@ void te2DCanvasToolBar::on_undoButton_clicked()
 
 void te2DCanvasToolBar::on_eraserButton_clicked()
 {
-	if (ui->eraserButton->isChecked()) {
+	if (!ui->eraserButton->isChecked()) {
 		emit sig_te2DCanvasDrawStatus();
 	}
 	else {

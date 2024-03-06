@@ -33,8 +33,11 @@ MainInterface::MainInterface(QWidget *parent)
 
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, teImageBrowserController::getInstance(), &teImageBrowserController::teUpDataSet);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, teImageBrowserController::getInstance(), &teImageBrowserController::InitSourceVector);
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, te2DCanvasController::getInstance(),&te2DCanvasController::sig_StartMarking);
+	
 
 	connect(m_teLabelBrowser, &teLabelBrowser::sig_currentRowSelected, teDataStorage::getInstance(), &teDataStorage::currentRowChange);
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, te2DCanvasController::getInstance(), &te2DCanvasController::sig_currentLabelChange);
 }
 
 MainInterface::~MainInterface()

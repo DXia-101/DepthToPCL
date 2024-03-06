@@ -94,6 +94,7 @@ public slots:
 signals:
 	void sig_teUpDataSet(int iNum, int iLayerNum, bool bReset);
 	void sig_LoadTrainImagesComplete();
+	void sig_currentLabelChange(const QString& content, const QColor& fontColor);
 
 private:
 
