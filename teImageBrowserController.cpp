@@ -117,7 +117,6 @@ void teImageBrowserController::ItemActive(int* pIndex, int len)
             }
         }
         if (!QFile::exists(QString::fromStdString(m_Pcds[pIndex[i]]))) {
-            
             std::string imgPath = m_OriImgs[pIndex[i]];
             cv::Mat image = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
             pcl::PointCloud<pcl::PointXYZ>::Ptr mediancloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
@@ -140,29 +139,23 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
         emit te3DCanvasController::getInstance()->sig_LoadPointCloud(QString::fromStdString(m_Pcds[pIndex]));
         emit te3DCanvasController::getInstance()->sig_ReRenderOriginCloud();
     }
-    if (CurrentState == TwoD) {
-        QFileInfo fileInfo(QString::fromStdString(m_OriImgs[pIndex]));
-        QString suffix = fileInfo.suffix().toLower();
-        if ((suffix == "tif" || suffix == "tiff")) {
-            cv::Mat image = cv::imread(m_OriImgs[pIndex], cv::IMREAD_UNCHANGED);
-            if (image.empty()) {
-                qDebug() << "Failed to load the TIF image.";
-                return;
-            }
-            cv::Mat median;
-            median.create(image.size(), CV_8UC3);
-            TeJetColorCode trans;
-            if (trans.cvt32F2BGR(image, median)) {
-                cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
-                cv::Mat heatmap;
-                cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
-                emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
-                te2DCanvasController::getInstance()->setImage(te::Image(heatmap).clone());
-
-                cv::waitKey(0);
-            }
+    else if (CurrentState == TwoD) {
+        cv::Mat image = cv::imread(m_OriImgs[pIndex], cv::IMREAD_UNCHANGED);
+        if (image.empty()) {
+            qDebug() << "Failed to load the TIF image.";
+            return;
         }
-        else {
+        cv::Mat median;
+        median.create(image.size(), CV_8UC3);
+        TeJetColorCode trans;
+        if (trans.cvt32F2BGR(image, median)) {
+            cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
+            cv::Mat heatmap;
+            cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
+            emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
+            te2DCanvasController::getInstance()->setImage(te::Image(heatmap).clone());
+            // ожеп╤он╙
+            cv::waitKey(0);
         }
     }
 }

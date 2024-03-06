@@ -198,32 +198,52 @@ bool teDataStorage::insertGtFilePath(std::string filepath)
 
 bool teDataStorage::updateTrainSampleMark(int index, te::SampleMark samplemark)
 {
-	return ResourceTable->updateRecord(index, { std::pair<te::StdU8String,te::SampleMark>("TrainSampleMark",samplemark) });
+	return ResourceTable->updateRecord(index+1, { std::pair<te::StdU8String,te::SampleMark>("TrainSampleMark",samplemark) });
 }
 
 bool teDataStorage::updateResultSampleMark(int index, te::SampleMark samplemark)
 {
-	return ResourceTable->updateRecord(index, { std::pair<te::StdU8String,te::SampleMark>("ResultSampleMark",samplemark) });
+	return ResourceTable->updateRecord(index+1, { std::pair<te::StdU8String,te::SampleMark>("ResultSampleMark",samplemark) });
 }
 
 bool teDataStorage::updateShrinkageChart(int index, std::string filepath)
 {
-	return ResourceTable->updateRecord(index, { std::pair<te::StdU8String,te::StdU8String>("ShrinkageChartPath",static_cast<te::StdU8String>(filepath)) });
+	return ResourceTable->updateRecord(index+1, { std::pair<te::StdU8String,te::StdU8String>("ShrinkageChartPath",static_cast<te::StdU8String>(filepath)) });
 }
 
 bool teDataStorage::updatePointCloud(int index, std::string filepath)
 {
-	return ResourceTable->updateRecord(index, { std::pair<te::StdU8String,te::StdU8String>("PointCloudPath",static_cast<te::StdU8String>(filepath)) });
+	return ResourceTable->updateRecord(index+1, { std::pair<te::StdU8String,te::StdU8String>("PointCloudPath",static_cast<te::StdU8String>(filepath)) });
 }
 
 bool teDataStorage::updateTrainGtFilePath(int index, std::string filepath)
 {
-	return GtTable->updateRecord(index, { std::pair<te::StdU8String,te::StdU8String>("TrainGtFilePath",static_cast<te::StdU8String>(filepath)) });
+	return GtTable->updateRecord(index+1, { std::pair<te::StdU8String,te::StdU8String>("TrainGtFilePath",static_cast<te::StdU8String>(filepath)) });
 }
 
 bool teDataStorage::updateResultGtFilePath(int index, std::string filepath)
 {
-	return GtTable->updateRecord(index, { std::pair<te::StdU8String,te::StdU8String>("ResultGtFilePath",static_cast<te::StdU8String>(filepath)) });
+	return GtTable->updateRecord(index+1, { std::pair<te::StdU8String,te::StdU8String>("ResultGtFilePath",static_cast<te::StdU8String>(filepath)) });
+}
+
+bool teDataStorage::isOriginImage(std::string filepath)
+{
+	auto dataQuery = db->createDataQuery();
+	std::string sqlquery = "select COUNT(*) from Resource where OriginImagePath = '" + filepath + "'";
+	int count;
+	if (dataQuery->query(const_cast<char*>(sqlquery.c_str()))) {
+		while (dataQuery->next()) {
+			dataQuery->getRecord_t(count);
+			if (count > 0) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		return false;
+	}
+	return false;
 }
 
 void teDataStorage::setCurrentLoadImageNum(int num)
@@ -234,7 +254,9 @@ void teDataStorage::setCurrentLoadImageNum(int num)
 void teDataStorage::LoadTrainingImages(const QStringList& filePaths)
 {
 	for (QString filePath : filePaths) {
-		insertOriginImage(filePath.toStdString());
+		if (!isOriginImage(filePath.toStdString())) {
+			insertOriginImage(filePath.toStdString());
+		}
 	}
 
 	emit sig_teUpDataSet(filePaths.size(), 1,true);

@@ -69,6 +69,8 @@ public:
 	bool updateTrainGtFilePath(int index,std::string filepath);
 	bool updateResultGtFilePath(int index,std::string filepath);
 
+	bool isOriginImage(std::string filepath);
+
 private:
 	std::string getSelectResultFormResourceTable(int index, std::string keyword);
 	std::vector<std::string> getResultFromResourceTable(std::string keyword);
