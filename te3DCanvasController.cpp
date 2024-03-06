@@ -1,5 +1,7 @@
 #include "te3DCanvasController.h"
 #include <QVBoxLayout>
+#include "Transfer_Function.h"
+#include "teDataStorage.h"
 
 te3DCanvasController::Garbo te3DCanvasController::tmp;
 
@@ -30,7 +32,7 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_OBBSurrounding, m_te3DCanvas, &te3DCanvas::OrientedBoundingBox);
 	connect(this, &te3DCanvasController::sig_CoordinateAxis, m_te3DCanvas, &te3DCanvas::CoordinateAxisRendering);
 	
-	connect(m_te3DCanvas, &te3DCanvas::sig_3DCanvasMarkingCompleted, this, &te3DCanvasController::sig_PointCloudMarkingCompleted);
+	connect(m_te3DCanvas, &te3DCanvas::sig_3DCanvasMarkingCompleted, this, &te3DCanvasController::add3DAiInstance);
 	connect(this, &te3DCanvasController::sig_LabelChanged, m_te3DCanvas, &te3DCanvas::LabelChanged);
 
 	connect(this, &te3DCanvasController::sig_SavePointCloud, m_te3DCanvas, &te3DCanvas::SavePointCloud);
@@ -97,6 +99,33 @@ void te3DCanvasController::showAllUI()
 	m_te3DCanvasToolBar->show();
 	m_te3DCanvasMenu->show();
 	m_te3DCanvas->show();
+}
+
+void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
+{
+	cv::Mat image(0, 0, CV_32F);
+
+	Transfer_Function::Cloud2cvMat(m_te3DCanvas->getAxisSet().curwidth, m_te3DCanvas->getAxisSet().curheight, m_te3DCanvas->getAxisSet().OriginX, m_te3DCanvas->getAxisSet().OriginY, cloud, image);
+
+	te::AiInstance instance;
+	instance.name = teDataStorage::getInstance()->getCurrentLabelCategory().toStdString();
+	std::vector<std::vector<cv::Point>> contours;
+	Transfer_Function::cvMat2Contour(image, &contours);
+	//contours.erase(contours.begin());
+	te::PolygonF polygon;
+	for (const std::vector<cv::Point>& contourPoints : contours) {
+		te::PolygonF::PointType point;
+		for (const cv::Point& contourPoint : contourPoints) {
+			point.x = static_cast<float>(contourPoint.x);
+			point.y = static_cast<float>(contourPoint.y);
+			polygon.push_back(point);
+		}
+		instance.contour.polygons.push_back(polygon);
+		polygon.clear();
+	}
+	te::SampleMark sampleMark = teDataStorage::getInstance()->getCurrentTrainSampleInfo();
+	sampleMark.gtDataSet.push_back(instance);
+	teDataStorage::getInstance()->updateCurrentTrainSampleMark(sampleMark);
 }
 
 void te3DCanvasController::BackgroundColorSelect()

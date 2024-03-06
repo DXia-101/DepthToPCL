@@ -31,6 +31,7 @@ private slots:
 public slots:
 	void hideAllUI();
 	void showAllUI();
+	void add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
 signals:
 	void sig_BackgroundColor(QColor color);
@@ -41,7 +42,6 @@ signals:
 	void sig_OBBSurrounding();
 	void sig_GuassFilter(QString data1, QString data2, QString data3, QString data4);
 	void sig_DirectFilter(QString data1, QString data2, QString data3, QString data4);
-	void sig_PointCloudMarkingCompleted(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 	void sig_LabelChanged(const QString& content, const QColor& fontColor);
 	void sig_LoadPointCloud(QString fileName);
 	void sig_SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>::Ptr saveCloud);

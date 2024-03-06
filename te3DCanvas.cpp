@@ -216,7 +216,7 @@ bool te3DCanvas::LoadPointCloud(QString fileName)
         QMessageBox::warning(this, "Warning", u8"点云读取格式错误！");
     }
 
-    GetCoordinateSet();
+    SetCoordinateSet();
     return true;
 }
 
@@ -330,7 +330,12 @@ void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
     viewer->resetCameraViewpoint("cloud");
 }
 
-void te3DCanvas::GetCoordinateSet()
+AxisSet te3DCanvas::getAxisSet()
+{
+    return axisset;
+}
+
+void te3DCanvas::SetCoordinateSet()
 {
     pcl::PointXYZ min;
     pcl::PointXYZ max;

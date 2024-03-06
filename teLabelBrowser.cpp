@@ -171,7 +171,7 @@ void teLabelBrowser::handleSelectionChanged()
 		if (item) {
 			QString content = item->text();
 			QColor fontColor = item->foreground().color();
-			emit currentRowSelected(content, fontColor);
+			emit sig_currentRowSelected(content, fontColor);
 		}
 	}
 }

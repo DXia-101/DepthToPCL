@@ -35,7 +35,7 @@ public:
 public:
     void AiInstance2Cloud(te::AiInstance* instance, cv::Mat& m_image, QColor color);
     void reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin);
-    void GetCoordinateSet();
+    struct AxisSet getAxisSet();
 protected:
     void mouseEventOccurred(const pcl::visualization::MouseEvent& event, void* viewer_void); //不规则框选的鼠标画线
 
@@ -43,6 +43,8 @@ protected:
     int inOrNot1(int poly_sides, double* poly_X, double* poly_Y, double x, double y);
     
     void subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2);
+
+    void SetCoordinateSet();
 public slots:
     bool SetBackgroundColor(QColor color);
     bool CoordinateAxisRendering(QString curaxis);

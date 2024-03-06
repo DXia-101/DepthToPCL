@@ -30,7 +30,7 @@ public:
 	QColor getFontColorByFirstColumnValue(const QString& searchString);
 
 signals:
-	void currentRowSelected(const QString& content, const QColor& fontColor);
+	void sig_currentRowSelected(const QString& content, const QColor& fontColor);
 
 protected slots:
 	void on_addLabelButton_clicked();

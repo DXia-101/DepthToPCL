@@ -6,6 +6,7 @@
 #include"teAiExTypes.h"
 #include"teDataTypeRegistration.h"
 
+#include <QColor>
 
 TE_BEGIN_NAMESPACE
 
@@ -35,6 +36,7 @@ RTTR_REGISTRATION
 
 TE_END_NAMESPACE
 
+
 class teDataStorage  : public QObject
 {
 	Q_OBJECT
@@ -58,12 +60,16 @@ public:
 	std::string getSelectResultGt(int index);
 	te::SampleMark getSelectTrainSampleInfo(int index);
 	te::SampleMark getSelectResultSampleInfo(int index);
+	te::SampleMark getCurrentTrainSampleInfo();
+	te::SampleMark getCurrentResultSampleInfo();
 
 	bool insertOriginImage(std::string filepath);
 	bool insertGtFilePath(std::string filepath);
 
 	bool updateTrainSampleMark(int index,te::SampleMark samplemark);
 	bool updateResultSampleMark(int index,te::SampleMark samplemark);
+	bool updateCurrentTrainSampleMark(te::SampleMark samplemark);
+	bool updateCurrentResultSampleMark(te::SampleMark samplemark);
 	bool updateShrinkageChart(int index,std::string filepath);
 	bool updatePointCloud(int index,std::string filepath);
 	bool updateTrainGtFilePath(int index,std::string filepath);
@@ -71,6 +77,8 @@ public:
 
 	bool isOriginImage(std::string filepath);
 
+	QString getCurrentLabelCategory();
+	QColor getCurrentLabelColor();
 private:
 	std::string getSelectResultFormResourceTable(int index, std::string keyword);
 	std::vector<std::string> getResultFromResourceTable(std::string keyword);
@@ -81,6 +89,7 @@ public slots:
 	void setCurrentIndex(int index);
 	void setCurrentLoadImageNum(int num);
 	void LoadTrainingImages(const QStringList& filePaths);
+	void currentRowChange(const QString& content, const QColor& fontColor);
 
 signals:
 	void sig_teUpDataSet(int iNum, int iLayerNum, bool bReset);
@@ -94,6 +103,9 @@ private:
 	std::unique_ptr<te::Sqlite3DB> db;
 	std::unique_ptr<te::Sqlite3DataModel> ResourceTable;
 	std::unique_ptr<te::Sqlite3DataModel> GtTable;
+
+	QString currentCategory;
+	QColor currentColor;
 
 private:
 	static teDataStorage* instance;

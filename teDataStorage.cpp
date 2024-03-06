@@ -174,6 +174,16 @@ te::SampleMark teDataStorage::getSelectResultSampleInfo(int index)
 	return getSelectResultFormSampleMarkTable(index,"Result");
 }
 
+te::SampleMark teDataStorage::getCurrentTrainSampleInfo()
+{
+	return getSelectResultFormSampleMarkTable(currentIndex, "Train");
+}
+
+te::SampleMark teDataStorage::getCurrentResultSampleInfo()
+{
+	return getSelectResultFormSampleMarkTable(currentIndex, "Result");
+}
+
 bool teDataStorage::insertOriginImage(std::string filepath)
 {
 	te::StdU8String originimage = filepath;
@@ -204,6 +214,16 @@ bool teDataStorage::updateTrainSampleMark(int index, te::SampleMark samplemark)
 bool teDataStorage::updateResultSampleMark(int index, te::SampleMark samplemark)
 {
 	return ResourceTable->updateRecord(index+1, { std::pair<te::StdU8String,te::SampleMark>("ResultSampleMark",samplemark) });
+}
+
+bool teDataStorage::updateCurrentTrainSampleMark(te::SampleMark samplemark)
+{
+	return ResourceTable->updateRecord(currentIndex + 1, { std::pair<te::StdU8String,te::SampleMark>("TrainSampleMark",samplemark) });
+}
+
+bool teDataStorage::updateCurrentResultSampleMark(te::SampleMark samplemark)
+{
+	return ResourceTable->updateRecord(currentIndex + 1, { std::pair<te::StdU8String,te::SampleMark>("ResultSampleMark",samplemark) });
 }
 
 bool teDataStorage::updateShrinkageChart(int index, std::string filepath)
@@ -246,6 +266,16 @@ bool teDataStorage::isOriginImage(std::string filepath)
 	return false;
 }
 
+QString teDataStorage::getCurrentLabelCategory()
+{
+	return currentCategory;
+}
+
+QColor teDataStorage::getCurrentLabelColor()
+{
+	return currentColor;
+}
+
 void teDataStorage::setCurrentLoadImageNum(int num)
 {
 	currentLoadImageNum = num;
@@ -261,6 +291,12 @@ void teDataStorage::LoadTrainingImages(const QStringList& filePaths)
 
 	emit sig_teUpDataSet(filePaths.size(), 1,true);
 	emit sig_LoadTrainImagesComplete();
+}
+
+void teDataStorage::currentRowChange(const QString& content, const QColor& fontColor)
+{
+	currentCategory = content;
+	currentColor = fontColor;
 }
 
 void teDataStorage::setCurrentIndex(int index)
