@@ -91,6 +91,7 @@ private:
     bool isPickingMode = false;
     bool flag = false;//判断是不是第一次点击
     unsigned int line_id = 0;
+    pcl::PointXYZ curP, lastP;
 
 public:
     QString currentCategory;

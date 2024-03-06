@@ -67,7 +67,6 @@ void te3DCanvas::mouseEventOccurred(const pcl::visualization::MouseEvent& event,
     if (event.getButton() == pcl::visualization::MouseEvent::LeftButton &&
         event.getType() == pcl::visualization::MouseEvent::MouseButtonRelease)
     {
-        pcl::PointXYZ curP, lastP;
         if (isPickingMode) {
             double world_point[3];
             double displayPos[2];
