@@ -157,7 +157,6 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
             cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
             emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
             te2DCanvasController::getInstance()->setImage(te::Image(heatmap).clone());
-            // ожеп╤он╙
             cv::waitKey(0);
         }
     }

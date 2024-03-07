@@ -1,18 +1,18 @@
 #pragma once
 
-#include <QWidget>
+#include <QDialog>
 #include "ui_te3DCanvasCoordinateAxisRenderDialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class te3DCanvasCoordinateAxisRenderDialogClass; };
 QT_END_NAMESPACE
 
-class te3DCanvasCoordinateAxisRenderDialog : public QWidget
+class te3DCanvasCoordinateAxisRenderDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	te3DCanvasCoordinateAxisRenderDialog(QWidget *parent = nullptr);
+	te3DCanvasCoordinateAxisRenderDialog(QDialog*parent = nullptr);
 	~te3DCanvasCoordinateAxisRenderDialog();
 
 private:

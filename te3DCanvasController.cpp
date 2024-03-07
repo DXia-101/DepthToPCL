@@ -139,10 +139,9 @@ void te3DCanvasController::BackgroundColorSelect()
 
 void te3DCanvasController::CoordinateAxisSelect()
 {
-	
 	dialog_render = new te3DCanvasCoordinateAxisRenderDialog();
 	connect(dialog_render, &te3DCanvasCoordinateAxisRenderDialog::sig_CoordinateAxisRender, this, &te3DCanvasController::sig_CoordinateAxis);
-
+	if (dialog_render->exec() == QDialog::Accepted) {}
 	delete dialog_render;
 }
 

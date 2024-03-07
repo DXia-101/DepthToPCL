@@ -1,10 +1,11 @@
 #include "te3DCanvasCoordinateAxisRenderDialog.h"
 
-te3DCanvasCoordinateAxisRenderDialog::te3DCanvasCoordinateAxisRenderDialog(QWidget *parent)
-	: QWidget(parent)
+te3DCanvasCoordinateAxisRenderDialog::te3DCanvasCoordinateAxisRenderDialog(QDialog*parent)
+	: QDialog(parent)
 	, ui(new Ui::te3DCanvasCoordinateAxisRenderDialogClass())
 {
 	ui->setupUi(this);
+	this->show();
 }
 
 te3DCanvasCoordinateAxisRenderDialog::~te3DCanvasCoordinateAxisRenderDialog()
