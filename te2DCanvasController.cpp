@@ -18,6 +18,10 @@ te2DCanvasController::te2DCanvasController(QObject *parent)
 	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_te2DCanvasRedo, m_te2DCanvas, &te2DCanvas::Redo);
 	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_te2DCanvasUndo, m_te2DCanvas, &te2DCanvas::Undo);
 	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_te2DCanvasShapeSelected, m_te2DCanvas, &te2DCanvas::ShapeSelect);
+	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_ShowDimension, m_te2DCanvas, &te2DCanvas::ShowDimension);
+	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_ShowResult, m_te2DCanvas, &te2DCanvas::ShowResult);
+	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_ShowLocalMask , m_te2DCanvas, &te2DCanvas::ShowLocalMask);
+	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_ShowGlobalMask, m_te2DCanvas, &te2DCanvas::ShowGlobalMask);
 	connect(this, &te2DCanvasController::sig_ClearAll2DCanvasMarks, m_te2DCanvas, &te2DCanvas::ClearAll2DCanvasMarks);
 	connect(this, &te2DCanvasController::sig_StartMarking, m_te2DCanvas, &te2DCanvas::StartMarked);
 	connect(this, &te2DCanvasController::sig_StartMarking, this, &te2DCanvasController::ShowFirstImage);

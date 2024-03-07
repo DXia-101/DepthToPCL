@@ -6,6 +6,7 @@ te2DCanvas::te2DCanvas(QWidget* parent)
     : te::GraphicsView(parent)
 {
     this->addItemMgr(8);
+    this->addItemMgr(8);
 
     setBrushPriority(false);
 
@@ -55,12 +56,22 @@ void te2DCanvas::setImg(te::Image* img)
 
 void te2DCanvas::ShowDimension(int arg)
 {
-
+    if (arg > 0) {
+        this->itemMgr(0)->setItemsVisible(true);
+    }
+    else {
+        this->itemMgr(0)->setItemsVisible(false);
+    }
 }
 
 void te2DCanvas::ShowResult(int arg)
 {
-
+    if (arg > 0) {
+        this->itemMgr(1)->setItemsVisible(true);
+    }
+    else {
+        this->itemMgr(1)->setItemsVisible(false);
+    }
 }
 
 void te2DCanvas::ShowLocalMask(int arg)

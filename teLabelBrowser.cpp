@@ -32,15 +32,14 @@ void teLabelBrowser::InitInterface()
 	LabelWidget->verticalHeader()->setVisible(false);
 	LabelWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-	QWidget* parentWidget = LabelWidget->parentWidget();
-	int parentWidth = parentWidget->width(); // 获取父窗口的宽度
+	int Width = LabelWidget->width(); // 获取父窗口的宽度
 
 	int columnCount = LabelWidget->columnCount();
-	int columnWidth = parentWidth / (columnCount + 1);
+	int columnWidth = Width / (columnCount + 5);
 
 	for (int column = 0; column < columnCount; ++column) {
 		LabelWidget->setColumnWidth(column, columnWidth);
-		LabelWidget->horizontalHeader()->setSectionResizeMode(column, QHeaderView::Fixed);
+		//LabelWidget->horizontalHeader()->setSectionResizeMode(column, QHeaderView::ResizeToContents);
 	}
 
 	LabelWidget->insertRow(0);
