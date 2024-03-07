@@ -42,6 +42,7 @@ protected slots:
 	void ColorSelect();
 private:
 	void InitInterface();
+	void SendCurrentItemInfo(QTableWidgetItem* item);
 
 private:
 	Ui::teLabelBrowserClass *ui;

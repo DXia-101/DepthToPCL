@@ -15,7 +15,7 @@ MainInterface::MainInterface(QWidget *parent)
 	, ui(new Ui::MainInterfaceClass())
 {
 	ui->setupUi(this);
-
+	//this->showFullScreen();
 	te3DCanvasController::getInstance()->displayUIInWidget(ui->canvasLayout);
 	te3DCanvasController::getInstance()->hideAllUI();
 	te2DCanvasController::getInstance()->displayUIInWidget(ui->canvasLayout);
@@ -38,6 +38,8 @@ MainInterface::MainInterface(QWidget *parent)
 
 	connect(m_teLabelBrowser, &teLabelBrowser::sig_currentRowSelected, teDataStorage::getInstance(), &teDataStorage::currentRowChange);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, te2DCanvasController::getInstance(), &te2DCanvasController::sig_currentLabelChange);
+	connect(te2DCanvasController::getInstance(), &te2DCanvasController::sig_ClearCurrentTrainGT,teDataStorage::getInstance(), &teDataStorage::clearCurrentMarkersGT);
+
 }
 
 MainInterface::~MainInterface()

@@ -37,12 +37,16 @@ public slots:
 	void Undo();
 	void ClearAll2DCanvasMarks();
 	void setImg(te::Image* img);
+	void ShowDimension(int arg);
+	void ShowResult(int arg);
+	void ShowLocalMask(int arg);
+	void ShowGlobalMask(int arg);
 
 signals:
 	void sig_PolygonMarkingCompleted(te::ConnectedRegionGraphicsItem* polygonItem);
 	void ReplaceToEraseState();
 	void ReplaceToDrawState();
-	void ClearCurrent2DCanvasMarkers();
+	void sig_ClearCurrent2DCanvasMarkers();
 
 private:
 	void InitStateMachine();
@@ -51,13 +55,15 @@ private:
 	void DrawRectGraphics(const QRectF& rect);
 	void DrawLineGraphics(const QList<QPolygonF>& polyline);
 	void DrawGraphics(const QList<QPolygonF>& region);
-
-	
 private:
 	QStateMachine* m_pStateMachine;
 	QState* DrawState;
 	QState* EraseState;
 
+	bool isShowDimension;
+	bool isShowResult;
+	bool isShowLocalMask;
+	bool isShowGlobalMask;
 public:
 	QString currentCategory;
 	QColor currentColor;

@@ -49,3 +49,23 @@ void te2DCanvasToolBar::on_ShapeCBox_currentTextChanged(const QString& arg1)
 {
 	emit sig_te2DCanvasShapeSelected(arg1);
 }
+
+void te2DCanvasToolBar::on_DimensionCheckBox_stateChanged(int arg)
+{
+	emit sig_ShowDimension(arg);
+}
+
+void te2DCanvasToolBar::on_ResultCheckBox_stateChanged(int arg)
+{
+	emit sig_ShowResult(arg);
+}
+
+void te2DCanvasToolBar::on_LocalMaskCheckBox_stateChanged(int arg)
+{
+	emit sig_ShowLocalMask(arg);
+}
+
+void te2DCanvasToolBar::on_GlobalMaskCheckBox_stateChanged(int arg)
+{
+	emit sig_ShowGlobalMask(arg);
+}

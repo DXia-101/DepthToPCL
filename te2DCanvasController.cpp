@@ -1,6 +1,7 @@
 #include "te2DCanvasController.h"
 #include <QVBoxLayout>
 #include "teDataStorage.h"
+#include "Depth2RGB.h"
 
 te2DCanvasController::Garbo te2DCanvasController::tmp;
 
@@ -19,7 +20,9 @@ te2DCanvasController::te2DCanvasController(QObject *parent)
 	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_te2DCanvasShapeSelected, m_te2DCanvas, &te2DCanvas::ShapeSelect);
 	connect(this, &te2DCanvasController::sig_ClearAll2DCanvasMarks, m_te2DCanvas, &te2DCanvas::ClearAll2DCanvasMarks);
 	connect(this, &te2DCanvasController::sig_StartMarking, m_te2DCanvas, &te2DCanvas::StartMarked);
+	connect(this, &te2DCanvasController::sig_StartMarking, this, &te2DCanvasController::ShowFirstImage);
 	connect(m_te2DCanvas, &te2DCanvas::sig_PolygonMarkingCompleted, this, &te2DCanvasController::add2DAiInstance);
+	connect(m_te2DCanvas, &te2DCanvas::sig_ClearCurrent2DCanvasMarkers, this, &te2DCanvasController::sig_ClearCurrentTrainGT);
 	connect(this, &te2DCanvasController::sig_currentLabelChange, m_te2DCanvas, &te2DCanvas::LabelChanged);
 	
 }
@@ -92,6 +95,27 @@ void te2DCanvasController::add2DAiInstance(te::ConnectedRegionGraphicsItem* poly
 	te::SampleMark sampleMark = teDataStorage::getInstance()->getCurrentTrainSampleInfo();
 	sampleMark.gtDataSet.push_back(instance);
 	teDataStorage::getInstance()->updateCurrentTrainSampleMark(sampleMark);
+}
+
+void te2DCanvasController::ShowFirstImage()
+{
+	std::string str = teDataStorage::getInstance()->getSelectOriginImage(0);
+	cv::Mat image = cv::imread(str,cv::IMREAD_UNCHANGED);
+	if (image.empty()) {
+		return;
+	}
+	cv::Mat median;
+	median.create(image.size(), CV_8UC3);
+	TeJetColorCode trans;
+	if (trans.cvt32F2BGR(image, median)) {
+		cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
+		cv::Mat heatmap;
+		cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
+		emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
+		te2DCanvasController::getInstance()->setImage(te::Image(heatmap).clone());
+		// ожеп╤он╙
+		cv::waitKey(0);
+	}
 }
 
 void te2DCanvasController::hideAllUI()

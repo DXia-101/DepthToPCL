@@ -63,9 +63,19 @@ void teLabelBrowser::InitInterface()
 
 	QTableWidgetItem* currentItem = LabelWidget->item(0, 0);
 	LabelWidget->setCurrentItem(currentItem);
+	SendCurrentItemInfo(currentItem);
 
 	connect(LabelWidget, &QTableWidget::cellDoubleClicked, this, &teLabelBrowser::ColorSelect);
 	connect(LabelWidget, &QTableWidget::itemSelectionChanged, this, &teLabelBrowser::handleSelectionChanged);
+}
+
+void teLabelBrowser::SendCurrentItemInfo(QTableWidgetItem* item)
+{
+	if (item) {
+		QString content = item->text();
+		QColor fontColor = item->foreground().color();
+		emit sig_currentRowSelected(content, fontColor);
+	}
 }
 
 QColor teLabelBrowser::getSelectedRowFontColor()
@@ -116,6 +126,8 @@ void teLabelBrowser::addRowToTable(const QString& content, const QColor& fontCol
 	itemContent->setForeground(fontColor);
 
 	LabelWidget->setItem(row, 0, itemContent);
+	LabelWidget->setCurrentItem(itemContent);
+	SendCurrentItemInfo(itemContent);
 }
 
 bool teLabelBrowser::checkFirstColumn(const QString& searchString)
@@ -168,11 +180,7 @@ void teLabelBrowser::handleSelectionChanged()
 		int row = LabelWidget->selectedItems().first()->row();
 		QTableWidgetItem* item = LabelWidget->item(row, 0); // 第一列的索引为0
 
-		if (item) {
-			QString content = item->text();
-			QColor fontColor = item->foreground().color();
-			emit sig_currentRowSelected(content, fontColor);
-		}
+		SendCurrentItemInfo(item);
 	}
 }
 
@@ -184,9 +192,7 @@ void teLabelBrowser::ColorSelect()
 		if (colorDialog.exec() == QDialog::Accepted) {
 			QColor selectedColor = colorDialog.selectedColor();
 			item->setForeground(QBrush(selectedColor));
-			QString content = item->text();
-			QColor fontColor = item->foreground().color();
-			emit sig_currentRowSelected(content, fontColor);
+			SendCurrentItemInfo(item);
 		}
 	}
 }

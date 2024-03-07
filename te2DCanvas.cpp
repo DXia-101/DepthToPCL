@@ -11,6 +11,11 @@ te2DCanvas::te2DCanvas(QWidget* parent)
 
     setAlignment(Qt::AlignJustify);
     InitStateMachine();
+
+    isShowDimension = true;
+    isShowResult = true;
+    isShowLocalMask = true;
+    isShowGlobalMask = true;
 }
 
 te2DCanvas::~te2DCanvas()
@@ -48,6 +53,26 @@ void te2DCanvas::setImg(te::Image* img)
     setImage(*img);
 }
 
+void te2DCanvas::ShowDimension(int arg)
+{
+
+}
+
+void te2DCanvas::ShowResult(int arg)
+{
+
+}
+
+void te2DCanvas::ShowLocalMask(int arg)
+{
+
+}
+
+void te2DCanvas::ShowGlobalMask(int arg)
+{
+
+}
+
 void te2DCanvas::LabelChanged(const QString& content, const QColor& fontColor)
 {
     graphicsBrush()[0]->setBrush(QBrush(fontColor));
@@ -81,14 +106,14 @@ void te2DCanvas::StartMarked()
 void te2DCanvas::Redo()
 {
     itemMgr(0)->redoItems();
-    emit ClearCurrent2DCanvasMarkers();
+    emit sig_ClearCurrent2DCanvasMarkers();
     te2DCanvasMarkingCompleted();
 }
 
 void te2DCanvas::Undo()
 {
     itemMgr(0)->undoItems();
-    emit ClearCurrent2DCanvasMarkers();
+    emit sig_ClearCurrent2DCanvasMarkers();
     te2DCanvasMarkingCompleted();
 }
 
@@ -150,7 +175,7 @@ void te2DCanvas::DrawGraphics(const QList<QPolygonF>& region)
     else if (EraseState->active()) {
         QList<QPolygonF> contours = polygonItem->polygonList();
         this->itemMgr(0)->eraseItems(contours);
-        emit ClearCurrent2DCanvasMarkers();
+        emit sig_ClearCurrent2DCanvasMarkers();
     }
     te2DCanvasMarkingCompleted();
 }

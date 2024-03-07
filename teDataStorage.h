@@ -90,6 +90,7 @@ public slots:
 	void setCurrentLoadImageNum(int num);
 	void LoadTrainingImages(const QStringList& filePaths);
 	void currentRowChange(const QString& content, const QColor& fontColor);
+	void clearCurrentMarkersGT();
 
 signals:
 	void sig_teUpDataSet(int iNum, int iLayerNum, bool bReset);

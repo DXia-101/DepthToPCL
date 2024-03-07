@@ -73,7 +73,7 @@ int teDataStorage::getCurrentLoadImageNum()
 std::string teDataStorage::getSelectResultFormResourceTable(int index, std::string keyword)
 {
 	auto dataQuery = db->createDataQuery();
-	std::string sqlquery = "select " + keyword + " from Resource where ID = " + std::to_string(index);
+	std::string sqlquery = "select " + keyword + " from Resource where ID = " + std::to_string(index+1);
 	std::string result;
 	if (dataQuery->query(const_cast<char*>(sqlquery.c_str()))) {
 		while (dataQuery->next()) {
@@ -101,7 +101,7 @@ std::vector<std::string> teDataStorage::getResultFromResourceTable(std::string k
 std::pair<std::string, std::string> teDataStorage::getSelectResultFormGtTable(int index)
 {
 	auto dataQuery = db->createDataQuery();
-	std::string sqlquery = "select TrainGtFilePath,ResultGtFilePath from TrainGt where ID = " + std::to_string(index);
+	std::string sqlquery = "select TrainGtFilePath,ResultGtFilePath from TrainGt where ID = " + std::to_string(index+1);
 	std::string TrainGt,ResultGt;
 	if (dataQuery->query(const_cast<char*>(sqlquery.c_str()))) {
 		while (dataQuery->next()) {
@@ -114,7 +114,7 @@ std::pair<std::string, std::string> teDataStorage::getSelectResultFormGtTable(in
 te::SampleMark teDataStorage::getSelectResultFormSampleMarkTable(int index, std::string keyword)
 {
 	auto dataQuery = db->createDataQuery();
-	std::string sqlquery = "select " + keyword + " from Resource where ID = " + std::to_string(index);
+	std::string sqlquery = "select " + keyword + " from Resource where ID = " + std::to_string(index+1);
 	te::SampleMark result;
 	if (dataQuery->query(const_cast<char*>(sqlquery.c_str()))) {
 		while (dataQuery->next()) {
@@ -298,6 +298,11 @@ void teDataStorage::currentRowChange(const QString& content, const QColor& fontC
 	currentCategory = content;
 	currentColor = fontColor;
 	emit sig_currentLabelChange(content, fontColor);
+}
+
+void teDataStorage::clearCurrentMarkersGT()
+{
+	ResourceTable->updateRecord(currentIndex + 1, { std::pair<te::StdU8String,te::SampleMark>("ResultSampleMark",te::SampleMark()) });
 }
 
 void teDataStorage::setCurrentIndex(int index)
