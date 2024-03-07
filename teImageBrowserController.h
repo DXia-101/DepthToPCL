@@ -22,7 +22,6 @@ private slots:
 	void SwitchImg(int pIndex, int len);
 
 public slots:
-	void InitSourceVector();
 	void ChangeGTShowFlag(int index);
 	void ChangeRSTShowFlag(int index);
 	void ChangeCurrentState();
@@ -34,10 +33,6 @@ private:
 	bool GTShowFlag;
 	bool RSTShowFlag;
 	bool CurrentState;
-
-	std::vector<std::string> m_SkcImgs;
-	std::vector<std::string> m_OriImgs;
-	std::vector<std::string> m_Pcds;
 
 private:
 	static teImageBrowserController* instance;

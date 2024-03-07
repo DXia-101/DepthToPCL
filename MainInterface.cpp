@@ -32,7 +32,6 @@ MainInterface::MainInterface(QWidget *parent)
 	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::ChangeCurrentState);
 
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, teImageBrowserController::getInstance(), &teImageBrowserController::teUpDataSet);
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, teImageBrowserController::getInstance(), &teImageBrowserController::InitSourceVector);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, te2DCanvasController::getInstance(),&te2DCanvasController::sig_StartMarking);
 	
 
