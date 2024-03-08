@@ -10,7 +10,8 @@ teTrainParameter::teTrainParameter(QWidget *parent)
 	ui->treeView->setWriter(std::make_shared<te::TrainParamWriter>());
 
 	te::TrainParam param;
-
+	te::deserializeJsonFromIFStream("./paraconfig.ini", &param);
+	
 	ui->treeView->writeObject_t(param);
 
 	ui->treeView->setExpandedRecursive(true);

@@ -53,8 +53,8 @@ TrainParam::TrainParam()
 	locateSide = 0;
 	netName = "defalut";
 	sampleDesc.resize(1);
-	sampleDesc[0].dtype = te::BaseType::E_UInt8;
-	sampleDesc[0].channel = 3;
+	sampleDesc[0].dtype = te::BaseType::E_Float32;
+	sampleDesc[0].channel = 1;
 	sampleDesc[0].heapId = 0;
 	DeviceID = 0;
 	AutomaticStop = false;

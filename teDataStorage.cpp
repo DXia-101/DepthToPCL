@@ -281,6 +281,9 @@ void teDataStorage::getTrainSamples(std::vector<te::SampleInfo>* trainSamples)
 	for (int i = 0; i < currentLoadImageNum; ++i) {
 		te::SampleInfo sampleInfo;
 		sampleInfo.sampleMark = getSelectTrainSampleInfo(i);
+		te::Image ss = te::Image::load(getSelectOriginImage(i));
+		sampleInfo.sampleData.imageMatrix.push_back(ss);
+		sampleInfo.sampleData.roi = { 0,0,ss.width(),ss.height() };
 		
 		trainSamples->push_back(sampleInfo);
 	}
