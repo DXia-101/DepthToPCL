@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>teTrainParameterClass</class>
+ <widget class="QWidget" name="teTrainParameterClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>371</width>
+    <height>336</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>teTrainParameter</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QCheckBox" name="TrainingCurveCBox">
+     <property name="text">
+      <string>训练曲线</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="te::ObjectTreeWidget" name="treeView"/>
+   </item>
+   <item>
+    <widget class="QPushButton" name="SaveButton">
+     <property name="text">
+      <string>保存配置项</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>te::ObjectTreeWidget</class>
+   <extends>QTreeView</extends>
+   <header>teObjectTreeWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

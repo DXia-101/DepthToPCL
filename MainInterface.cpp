@@ -24,6 +24,9 @@ MainInterface::MainInterface(QWidget *parent)
 	ui->labelLayout->addWidget(m_teLabelBrowser);
 	teImageBrowserController::getInstance()->displayUIInWidget(ui->browserLayout);
 
+	m_AiModelController = new AiModelController();
+	m_AiModelController->displayUIInWidget(ui->labelLayout);
+
 	InitStateMachine();
 	InitToolBar();
 
@@ -89,7 +92,7 @@ void MainInterface::InitToolBar()
 
 	connect(Load_Images, &QAction::triggered, this, &MainInterface::LoadTrainingImages);
 	connect(this, &MainInterface::sig_LoadTrainingImages, teDataStorage::getInstance(), &teDataStorage::LoadTrainingImages);
-	//connect(Start_Train, &QAction::triggered, this, &DepthToPCL::StartedTrainAction);
+	connect(Start_Train, &QAction::triggered, m_AiModelController, &AiModelController::sig_PrepareTrain);
 	//connect(Stop_Train, &QAction::triggered, this, &DepthToPCL::StopTrainAction);
 	//connect(Start_Test, &QAction::triggered, this, &DepthToPCL::StartTestAction);
 
@@ -99,4 +102,5 @@ void MainInterface::LoadTrainingImages()
 {
 	QStringList filepaths = QFileDialog::getOpenFileNames(nullptr, u8"Ñ¡ÔñÎÄ¼þ", "", "TIFF Files (*.tif *.tiff)");
 	emit sig_LoadTrainingImages(filepaths);
+	teDataStorage::getInstance()->setCurrentLoadImageNum(filepaths.size());
 }

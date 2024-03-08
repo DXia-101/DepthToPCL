@@ -4,7 +4,7 @@
 #include "ui_MainInterface.h"
 
 #include "teLabelBrowser.h"
-
+#include "AiModelController.h"
 
 #include <QStateMachine>
 #include <QState>
@@ -39,4 +39,5 @@ private:
 	QStateMachine* m_pStateMachine;
 	QState* TwoDState;
 	QState* ThrDState;
+	AiModelController* m_AiModelController;
 };

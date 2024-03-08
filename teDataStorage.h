@@ -79,6 +79,11 @@ public:
 
 	QString getCurrentLabelCategory();
 	QColor getCurrentLabelColor();
+
+	void getTrainSamples(std::vector<te::SampleInfo>* trainSamples);
+	void getResultSamples(std::vector<te::SampleInfo>* resultSamples);
+
+	void setDataDuringTraining(int iteration, float fAvgLoss, float fPosAcc);
 private:
 	std::string getSelectResultFormResourceTable(int index, std::string keyword);
 	std::vector<std::string> getResultFromResourceTable(std::string keyword);
@@ -96,6 +101,7 @@ signals:
 	void sig_teUpDataSet(int iNum, int iLayerNum, bool bReset);
 	void sig_LoadTrainImagesComplete();
 	void sig_currentLabelChange(const QString& content, const QColor& fontColor);
+	void sig_DataChangeDuringTraining(int iteration, float fAvgLoss, float fPosAcc);
 
 private:
 

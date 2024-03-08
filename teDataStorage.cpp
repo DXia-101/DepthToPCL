@@ -166,22 +166,22 @@ std::string teDataStorage::getSelectResultGt(int index)
 
 te::SampleMark teDataStorage::getSelectTrainSampleInfo(int index)
 {
-	return getSelectResultFormSampleMarkTable(index,"Train");
+	return getSelectResultFormSampleMarkTable(index,"TrainSampleMark");
 }
 
 te::SampleMark teDataStorage::getSelectResultSampleInfo(int index)
 {
-	return getSelectResultFormSampleMarkTable(index,"Result");
+	return getSelectResultFormSampleMarkTable(index,"ResultSampleMark");
 }
 
 te::SampleMark teDataStorage::getCurrentTrainSampleInfo()
 {
-	return getSelectResultFormSampleMarkTable(currentIndex, "Train");
+	return getSelectResultFormSampleMarkTable(currentIndex, "TrainSampleMark");
 }
 
 te::SampleMark teDataStorage::getCurrentResultSampleInfo()
 {
-	return getSelectResultFormSampleMarkTable(currentIndex, "Result");
+	return getSelectResultFormSampleMarkTable(currentIndex, "ResultSampleMark");
 }
 
 bool teDataStorage::insertOriginImage(std::string filepath)
@@ -274,6 +274,31 @@ QString teDataStorage::getCurrentLabelCategory()
 QColor teDataStorage::getCurrentLabelColor()
 {
 	return currentColor;
+}
+
+void teDataStorage::getTrainSamples(std::vector<te::SampleInfo>* trainSamples)
+{
+	for (int i = 0; i < currentLoadImageNum; ++i) {
+		te::SampleInfo sampleInfo;
+		sampleInfo.sampleMark = getSelectTrainSampleInfo(i);
+		
+		trainSamples->push_back(sampleInfo);
+	}
+}
+
+void teDataStorage::getResultSamples(std::vector<te::SampleInfo>* resultSamples)
+{
+	for (int i = 0; i < currentLoadImageNum; ++i) {
+		te::SampleInfo sampleInfo;
+		sampleInfo.sampleMark = getSelectResultSampleInfo(i);
+
+		resultSamples->push_back(sampleInfo);
+	}
+}
+
+void teDataStorage::setDataDuringTraining(int iteration, float fAvgLoss, float fPosAcc)
+{
+	emit sig_DataChangeDuringTraining(iteration, fAvgLoss, fPosAcc);
 }
 
 void teDataStorage::setCurrentLoadImageNum(int num)
