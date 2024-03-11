@@ -49,10 +49,6 @@ void te3DCanvas::PCL_Initalization()
 
     viewer->registerMouseCallback(&te3DCanvas::mouseEventOccurred, *this);
 
-    PositiveAndNegative_X_axis = true;
-    PositiveAndNegative_Y_axis = true;
-    PositiveAndNegative_Z_axis = true;
-
     currentCategory = "";
 }
 
@@ -67,17 +63,17 @@ void te3DCanvas::mouseEventOccurred(const pcl::visualization::MouseEvent& event,
     if (event.getButton() == pcl::visualization::MouseEvent::LeftButton &&
         event.getType() == pcl::visualization::MouseEvent::MouseButtonRelease)
     {
-        if (isPickingMode) {
+        if (m_member.isPickingMode) {
             double world_point[3];
             double displayPos[2];
             displayPos[0] = double(event.getX()), displayPos[1] = double(event.getY());
             getScreentPos(displayPos, world_point, viewer_void);
 
             curP = pcl::PointXYZ(world_point[0], world_point[1], world_point[2]);
-            if (!flag)flag = true;
+            if (!m_member.flag)m_member.flag = true;
             else {
                 char str1[512];
-                sprintf(str1, "line#%03d", line_id++);
+                sprintf(str1, "line#%03d", m_member.line_id++);
                 viewer->addLine(lastP, curP, str1);
             }
             lastP = curP;
@@ -484,11 +480,11 @@ void te3DCanvas::PerspectiveToYaxis()
 {
     Eigen::Vector4f centroid;
     pcl::compute3DCentroid(*cloud, centroid);
-    if (PositiveAndNegative_Y_axis)
+    if (m_member.PositiveAndNegative_Y_axis)
         viewer->setCameraPosition(centroid.x(), centroid.y(), centroid.z(), 0, 1, 0, 1, 0, 0);
     else
         viewer->setCameraPosition(centroid.x(), centroid.y(), centroid.z(), 0, 1, 0, -1, 0, 0);
-    PositiveAndNegative_Y_axis = !PositiveAndNegative_Y_axis;
+    m_member.PositiveAndNegative_Y_axis = !m_member.PositiveAndNegative_Y_axis;
     viewer->updateCamera();
     viewer->spinOnce();
 }
@@ -497,11 +493,11 @@ void te3DCanvas::PerspectiveToXaxis()
 {
     Eigen::Vector4f centroid;
     pcl::compute3DCentroid(*cloud, centroid);
-    if (PositiveAndNegative_X_axis)
+    if (m_member.PositiveAndNegative_X_axis)
         viewer->setCameraPosition(centroid.x(), centroid.y(), centroid.z(), 1, 0, 0, 0, 1, 0);
     else
         viewer->setCameraPosition(centroid.x(), centroid.y(), centroid.z(), 1, 0, 0, 0, -1, 0);
-    PositiveAndNegative_X_axis = !PositiveAndNegative_X_axis;
+    m_member.PositiveAndNegative_X_axis = !m_member.PositiveAndNegative_X_axis;
     viewer->updateCamera();
     viewer->spinOnce();
 }
@@ -510,11 +506,11 @@ void te3DCanvas::PerspectiveToZaxis()
 {
     Eigen::Vector4f centroid;
     pcl::compute3DCentroid(*cloud, centroid);
-    if (PositiveAndNegative_Z_axis)
+    if (m_member.PositiveAndNegative_Z_axis)
         viewer->setCameraPosition(0, 0, centroid.z(), 0, 0, -1, 0, 1, 0);
     else
         viewer->setCameraPosition(0, 0, -centroid.z(), 0, 0, -1,0, 1, 0);
-        PositiveAndNegative_Z_axis = !PositiveAndNegative_Z_axis;
+    m_member.PositiveAndNegative_Z_axis = !m_member.PositiveAndNegative_Z_axis;
     viewer->updateCamera();
     viewer->spinOnce();
 }
@@ -596,11 +592,11 @@ void te3DCanvas::PointCloudHeightTransform(int factor)
 
 void te3DCanvas::te3DCanvasStartMarking()
 {
-    isPickingMode = !isPickingMode;
-    if (isPickingMode) {
-        line_id++;
+    m_member.isPickingMode = !m_member.isPickingMode;
+    if (m_member.isPickingMode) {
+        m_member.line_id++;
         cloud_polygon->clear();
-        flag = false;
+        m_member.flag = false;
     }
     else {
         PolygonSelect(this);

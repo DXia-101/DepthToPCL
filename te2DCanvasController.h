@@ -26,6 +26,8 @@ public slots:
 	void showAllUI();
 	void add2DAiInstance(te::ConnectedRegionGraphicsItem* polygonItem);
 	void ShowFirstImage();
+	void ShowAllResults();
+	void ShowAllMarkers();
 
 private:
 	static te2DCanvasController* instance;

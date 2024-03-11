@@ -12,36 +12,11 @@ te2DCanvas::te2DCanvas(QWidget* parent)
 
     setAlignment(Qt::AlignJustify);
     InitStateMachine();
-
-    isShowDimension = true;
-    isShowResult = true;
-    isShowLocalMask = true;
-    isShowGlobalMask = true;
 }
 
 te2DCanvas::~te2DCanvas()
 {
     
-}
-
-void te2DCanvas::AiInstance2GraphicsItem(te::AiInstance* instance,QString label,QColor color)
-{
-    QList<QPolygonF> contours;
-    QPolygonF polygonF;
-    QPointF point;
-    for (te::Point2f polygonPoint : instance->contour.polygons.front()) {
-        point.setX(static_cast<float>(polygonPoint.x));
-        point.setY(static_cast<float>(polygonPoint.y));
-        polygonF.append(point);
-    }
-    contours.append(polygonF);
-    te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({}, label);
-    polygonItem->setPolygonList(contours);
-    polygonItem->setPen(QColor(Qt::black));
-    polygonItem->setBrush(QBrush(color));
-    
-    //添加该item
-    this->itemMgr(0)->clipItem(polygonItem);
 }
 
 void te2DCanvas::ClearAll2DCanvasMarks()
@@ -126,6 +101,46 @@ void te2DCanvas::Undo()
     itemMgr(0)->undoItems();
     emit sig_ClearCurrent2DCanvasMarkers();
     te2DCanvasMarkingCompleted();
+}
+
+void te2DCanvas::MarkersShowInCanvas(te::AiInstance* instance, QString label, QColor color)
+{
+    QList<QPolygonF> contours;
+    QPolygonF polygonF;
+    QPointF point;
+    for (te::Point2f polygonPoint : instance->contour.polygons.front()) {
+        point.setX(static_cast<float>(polygonPoint.x));
+        point.setY(static_cast<float>(polygonPoint.y));
+        polygonF.append(point);
+    }
+    contours.append(polygonF);
+    te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({}, label);
+    polygonItem->setPolygonList(contours);
+    polygonItem->setPen(QColor(Qt::black));
+    polygonItem->setBrush(QBrush(color));
+
+    //添加该item
+    this->itemMgr(0)->clipItem(polygonItem);
+}
+
+void te2DCanvas::ResultsShowInCanvas(te::AiInstance* instance, QString label, QColor color)
+{
+    QList<QPolygonF> contours;
+    QPolygonF polygonF;
+    QPointF point;
+    for (te::Point2f polygonPoint : instance->contour.polygons.front()) {
+        point.setX(static_cast<float>(polygonPoint.x));
+        point.setY(static_cast<float>(polygonPoint.y));
+        polygonF.append(point);
+    }
+    contours.append(polygonF);
+    te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({}, label);
+    polygonItem->setPolygonList(contours);
+    polygonItem->setPen(QColor(Qt::black));
+    polygonItem->setBrush(QBrush(color));
+
+    //添加该item
+    this->itemMgr(1)->clipItem(polygonItem);
 }
 
 void te2DCanvas::ShapeSelect(QString shape)

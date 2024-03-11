@@ -4,13 +4,8 @@
 #include "Filter_Direct.h"
 
 #include "teAiExTypes.h"
+#include "te3DCanvasMember.h"
 
-struct AxisSet {
-    int curwidth;
-    int curheight;
-    float OriginX;
-    float OriginY;
-};
 
 class te3DCanvas  : public QVTKOpenGLNativeWidget
 {
@@ -76,26 +71,20 @@ private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cliped;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_Filter_out;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_marked;
+
+    pcl::PointXYZ curP, lastP; //画线
     
     pcl::MomentOfInertiaEstimation<pcl::PointXYZ> feature_extractor;
     pcl::visualization::PCLVisualizer::Ptr viewer;
     vtkRenderWindow* m_renderWindow;
     vtkSmartPointer<vtkRenderer> m_renderer;
-private:
-    struct AxisSet axisset;
+
     Filter_Guass* dialog_Guass_filter;
     Filter_Direct* dialog_Direct_filter;
+private:
+    struct AxisSet axisset;
+    struct te3DCanvasMember m_member;
 
-    bool PositiveAndNegative_X_axis;
-    bool PositiveAndNegative_Y_axis;
-    bool PositiveAndNegative_Z_axis;
-
-    bool isPickingMode = false;
-    bool flag = false;//判断是不是第一次点击
-    unsigned int line_id = 0;
-    pcl::PointXYZ curP, lastP;
-
-public:
     QString currentCategory;
     QColor currentColor;
 };

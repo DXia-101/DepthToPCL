@@ -43,6 +43,8 @@ protected slots:
 private:
 	void InitInterface();
 	void SendCurrentItemInfo(QTableWidgetItem* item);
+	void saveTableWidget();
+	void loadTableWidget();
 
 private:
 	Ui::teLabelBrowserClass *ui;

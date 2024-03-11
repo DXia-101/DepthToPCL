@@ -117,9 +117,21 @@ void te2DCanvasController::ShowFirstImage()
 		cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
 		emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
 		te2DCanvasController::getInstance()->setImage(te::Image(heatmap).clone());
-		// ожеп╤он╙
 		cv::waitKey(0);
 	}
+}
+
+void te2DCanvasController::ShowAllResults()
+{
+	te::SampleMark samplemark = teDataStorage::getInstance()->getCurrentTrainSampleInfo();
+	for (te::AiInstance instance : samplemark.gtDataSet) {
+		//m_te2DCanvas->MarkersShowInCanvas(&instance, QString::fromStdString(instance.name), );
+	}
+}
+
+void te2DCanvasController::ShowAllMarkers()
+{
+
 }
 
 void te2DCanvasController::hideAllUI()

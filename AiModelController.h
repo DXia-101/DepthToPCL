@@ -19,6 +19,7 @@ signals:
 	void sig_SaveTrianParameter();
 	void sig_PrepareTrain();
 	void sig_PrepareTest();
+	void sig_isShowTSChart(int arg);
 
 public:
 	void displayUIInWidget(QVBoxLayout* layout);

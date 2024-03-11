@@ -26,10 +26,11 @@ public:
 	te2DCanvas(QWidget *parent = nullptr);
 	~te2DCanvas();
 
-	void AiInstance2GraphicsItem(te::AiInstance* instance,QString label, QColor color);
 	void te2DCanvasMarkingCompleted();
 
 public slots:
+	void MarkersShowInCanvas(te::AiInstance* instance, QString label, QColor color);
+	void ResultsShowInCanvas(te::AiInstance* instance, QString label, QColor color);
 	void ShapeSelect(QString shape);
 	void LabelChanged(const QString& content, const QColor& fontColor);
 	void StartMarked();
@@ -60,10 +61,6 @@ private:
 	QState* DrawState;
 	QState* EraseState;
 
-	bool isShowDimension;
-	bool isShowResult;
-	bool isShowLocalMask;
-	bool isShowGlobalMask;
 public:
 	QString currentCategory;
 	QColor currentColor;

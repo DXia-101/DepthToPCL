@@ -5,6 +5,7 @@
 
 #include "teLabelBrowser.h"
 #include "AiModelController.h"
+#include "teTrainStatisticsChart.h"
 
 #include <QStateMachine>
 #include <QState>
@@ -40,4 +41,5 @@ private:
 	QState* TwoDState;
 	QState* ThrDState;
 	AiModelController* m_AiModelController;
+	teTrainStatisticsChart* m_SChart;
 };

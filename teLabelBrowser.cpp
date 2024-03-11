@@ -1,11 +1,14 @@
 #include "teLabelBrowser.h"
 #include "CategoryDialog.h"
 
+#include <QAbstractItemDelegate>
+#include <QColorDialog>
 #include <QDialog>
+#include <QFile>
+#include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
-#include <QColorDialog>
-#include <QHeaderView>
+#include <QTextStream>
 
 teLabelBrowser::teLabelBrowser(QWidget *parent)
 	: QWidget(parent)
@@ -13,10 +16,12 @@ teLabelBrowser::teLabelBrowser(QWidget *parent)
 {
 	ui->setupUi(this);
 	InitInterface();
+	loadTableWidget();
 }
 
 teLabelBrowser::~teLabelBrowser()
 {
+	saveTableWidget();
 	delete ui;
 }
 
@@ -42,28 +47,6 @@ void teLabelBrowser::InitInterface()
 		//LabelWidget->horizontalHeader()->setSectionResizeMode(column, QHeaderView::ResizeToContents);
 	}
 
-	LabelWidget->insertRow(0);
-	LabelWidget->setItem(0, 0, new QTableWidgetItem("LMask"));
-	LabelWidget->setItem(0, 1, new QTableWidgetItem("0"));
-	LabelWidget->setItem(0, 2, new QTableWidgetItem("0"));
-	LabelWidget->setItem(0, 3, new QTableWidgetItem("0"));
-
-	LabelWidget->insertRow(1);
-	LabelWidget->setItem(1, 0, new QTableWidgetItem("GMask"));
-	LabelWidget->setItem(1, 1, new QTableWidgetItem("0"));
-	LabelWidget->setItem(1, 2, new QTableWidgetItem("0"));
-	LabelWidget->setItem(1, 3, new QTableWidgetItem("0"));
-
-	LabelWidget->insertRow(2);
-	LabelWidget->setItem(2, 0, new QTableWidgetItem("BG"));
-	LabelWidget->setItem(2, 1, new QTableWidgetItem("0"));
-	LabelWidget->setItem(2, 2, new QTableWidgetItem("0"));
-	LabelWidget->setItem(2, 3, new QTableWidgetItem("0"));
-
-	QTableWidgetItem* currentItem = LabelWidget->item(0, 0);
-	LabelWidget->setCurrentItem(currentItem);
-	SendCurrentItemInfo(currentItem);
-
 	connect(LabelWidget, &QTableWidget::cellDoubleClicked, this, &teLabelBrowser::ColorSelect);
 	connect(LabelWidget, &QTableWidget::itemSelectionChanged, this, &teLabelBrowser::handleSelectionChanged);
 }
@@ -75,6 +58,102 @@ void teLabelBrowser::SendCurrentItemInfo(QTableWidgetItem* item)
 		QColor fontColor = item->foreground().color();
 		emit sig_currentRowSelected(content, fontColor);
 	}
+}
+
+void teLabelBrowser::saveTableWidget()
+{
+	QFile file("./tableconfig.ini");
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+		return;
+
+	QTextStream stream(&file);
+	int rowCount = LabelWidget->rowCount();
+	int columnCount = LabelWidget->columnCount();
+
+	for (int row = 0; row < rowCount; ++row)
+	{
+		for (int column = 0; column < columnCount; ++column)
+		{
+			QTableWidgetItem* item = LabelWidget->item(row, column);
+			if (item)
+			{
+				QString data = item->data(Qt::DisplayRole).toString();
+				stream << data << "\t";
+			}
+		}
+
+		QTableWidgetItem* itemcolor = LabelWidget->item(row, 0);
+		if (itemcolor)
+		{
+			stream << itemcolor->foreground().color().name() << "\t";
+		}
+		stream << "\n";
+	}
+
+	file.close();
+}
+
+void teLabelBrowser::loadTableWidget()
+{
+	QFile file("./tableconfig.ini");
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		LabelWidget->insertRow(0);
+		LabelWidget->setItem(0, 0, new QTableWidgetItem("LMask"));
+		LabelWidget->setItem(0, 1, new QTableWidgetItem("0"));
+		LabelWidget->setItem(0, 2, new QTableWidgetItem("0"));
+		LabelWidget->setItem(0, 3, new QTableWidgetItem("0"));
+
+		LabelWidget->insertRow(1);
+		LabelWidget->setItem(1, 0, new QTableWidgetItem("GMask"));
+		LabelWidget->setItem(1, 1, new QTableWidgetItem("0"));
+		LabelWidget->setItem(1, 2, new QTableWidgetItem("0"));
+		LabelWidget->setItem(1, 3, new QTableWidgetItem("0"));
+
+		LabelWidget->insertRow(2);
+		LabelWidget->setItem(2, 0, new QTableWidgetItem("BG"));
+		LabelWidget->setItem(2, 1, new QTableWidgetItem("0"));
+		LabelWidget->setItem(2, 2, new QTableWidgetItem("0"));
+		LabelWidget->setItem(2, 3, new QTableWidgetItem("0"));
+
+		QTableWidgetItem* currentItem = LabelWidget->item(0, 0);
+		LabelWidget->setCurrentItem(currentItem);
+		SendCurrentItemInfo(currentItem);
+
+		return;
+	}
+
+	LabelWidget->clear();
+
+	QTextStream stream(&file);
+	while (!stream.atEnd())
+	{
+		QString line = stream.readLine();
+		QStringList items = line.split("\t");
+
+		int row = LabelWidget->rowCount();
+		LabelWidget->insertRow(row);
+
+		int columnCount = items.size();
+		for (int column = 0; column < columnCount; ++column)
+		{
+			if (column < LabelWidget->columnCount())
+			{
+				QString data = items[column];
+				QTableWidgetItem* item = new QTableWidgetItem(data);
+				LabelWidget->setItem(row, column, item);
+			}
+		}
+		QTableWidgetItem* delegate = LabelWidget->item(row, 0);
+		if (delegate)
+		{
+			QString colorName = items[columnCount - 2];
+			QColor color(colorName);
+			delegate->setForeground(color);
+		}
+	}
+
+	file.close();
 }
 
 QColor teLabelBrowser::getSelectedRowFontColor()

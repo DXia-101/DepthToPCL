@@ -38,7 +38,7 @@ void AiModelInterface::teTrainStateCallBack(AiStatus status, TrainState& statein
 
 	printf("iter: %d  loss: %f  pacc: %f\n", stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
 	//emit DataUpdate(stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
-	//teDataStorage::getInstance()->setDataDuringTraining(stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
+	teDataStorage::getInstance()->setDataDuringTraining(stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
 
 	if (stateinfo.fProgress > 0.999999f)
 	{

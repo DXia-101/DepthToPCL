@@ -42,6 +42,10 @@ MainInterface::MainInterface(QWidget *parent)
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, te2DCanvasController::getInstance(), &te2DCanvasController::sig_currentLabelChange);
 	connect(te2DCanvasController::getInstance(), &te2DCanvasController::sig_ClearCurrentTrainGT,teDataStorage::getInstance(), &teDataStorage::clearCurrentMarkersGT);
 
+	m_SChart = new teTrainStatisticsChart();
+	m_SChart->hide();
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_DataChangeDuringTraining, m_SChart, &teTrainStatisticsChart::ReceiveData);
+	connect(m_AiModelController, &AiModelController::sig_isShowTSChart, m_SChart, &teTrainStatisticsChart::isShow);
 }
 
 MainInterface::~MainInterface()

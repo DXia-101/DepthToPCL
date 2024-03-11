@@ -36,6 +36,11 @@ void teTrainParameter::on_SaveButton_clicked()
 	SaveteTrainParameter();
 }
 
+void teTrainParameter::on_TrainingCurveCBox_stateChanged(int arg)
+{
+	emit sig_ShowTrainStatisticsChart(arg);
+}
+
 void teTrainParameter::getTrainParam(te::TrainParam* train)
 {
 	ui->treeView->readObject_t(train);
