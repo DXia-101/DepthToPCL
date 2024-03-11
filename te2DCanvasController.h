@@ -26,6 +26,9 @@ public slots:
 	void showAllUI();
 	void add2DAiInstance(te::ConnectedRegionGraphicsItem* polygonItem);
 	void ShowFirstImage();
+	void ShowAllItems();
+
+private:
 	void ShowAllResults();
 	void ShowAllMarkers();
 

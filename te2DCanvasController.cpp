@@ -121,17 +121,36 @@ void te2DCanvasController::ShowFirstImage()
 	}
 }
 
+void te2DCanvasController::ShowAllItems()
+{
+	if (m_te2DCanvasToolBar->isDimensionShow()) {
+		ShowAllMarkers();
+	}
+	if (m_te2DCanvasToolBar->isResultShow()) {
+		ShowAllResults();
+	}
+	if (m_te2DCanvasToolBar->isLocalMaskShow()) {
+
+	}
+	if (m_te2DCanvasToolBar->isGlobalMaskShow()) {
+
+	}
+}
+
 void te2DCanvasController::ShowAllResults()
 {
-	te::SampleMark samplemark = teDataStorage::getInstance()->getCurrentTrainSampleInfo();
+	te::SampleMark samplemark = teDataStorage::getInstance()->getCurrentResultSampleInfo();
 	for (te::AiInstance instance : samplemark.gtDataSet) {
-		//m_te2DCanvas->MarkersShowInCanvas(&instance, QString::fromStdString(instance.name), );
+		m_te2DCanvas->MarkersShowInCanvas(&instance, QString::fromStdString(instance.name), teDataStorage::getInstance()->FindContentColor(QString::fromStdString(instance.name)));
 	}
 }
 
 void te2DCanvasController::ShowAllMarkers()
 {
-
+	te::SampleMark samplemark = teDataStorage::getInstance()->getCurrentTrainSampleInfo();
+	for (te::AiInstance instance : samplemark.gtDataSet) {
+		m_te2DCanvas->MarkersShowInCanvas(&instance, QString::fromStdString(instance.name), teDataStorage::getInstance()->FindContentColor(QString::fromStdString(instance.name)));
+	}
 }
 
 void te2DCanvasController::hideAllUI()

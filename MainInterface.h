@@ -3,7 +3,6 @@
 #include <QWidget>
 #include "ui_MainInterface.h"
 
-#include "teLabelBrowser.h"
 #include "AiModelController.h"
 #include "teTrainStatisticsChart.h"
 
@@ -30,8 +29,7 @@ private slots:
 
 private:
 	Ui::MainInterfaceClass *ui;
-	teLabelBrowser* m_teLabelBrowser;
-
+	
 signals:
 	void ConversionBetween2Dand3D();
 	void sig_LoadTrainingImages(const QStringList& filePaths);

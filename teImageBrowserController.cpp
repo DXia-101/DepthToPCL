@@ -159,6 +159,7 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
             te2DCanvasController::getInstance()->setImage(te::Image(heatmap).clone());
             cv::waitKey(0);
         }
+        emit sig_showAllItem();
     }
 }
 

@@ -26,6 +26,26 @@ void te2DCanvasToolBar::InitInterface()
 	menu_bar->setStyleSheet("font-size : 18px");
 }
 
+bool te2DCanvasToolBar::isDimensionShow()
+{
+	return ui->DimensionCheckBox->isChecked();
+}
+
+bool te2DCanvasToolBar::isResultShow()
+{
+	return ui->ResultCheckBox->isChecked();
+}
+
+bool te2DCanvasToolBar::isLocalMaskShow()
+{
+	return ui->LocalMaskCheckBox->isChecked();
+}
+
+bool te2DCanvasToolBar::isGlobalMaskShow()
+{
+	return ui->GlobalMaskCheckBox->isChecked();
+}
+
 void te2DCanvasToolBar::on_redoButton_clicked()
 {
 	

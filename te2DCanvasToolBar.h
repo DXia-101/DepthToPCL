@@ -18,6 +18,12 @@ public:
 public:
 	void InitInterface();
 
+public:
+	bool isDimensionShow();
+	bool isResultShow();
+	bool isLocalMaskShow();
+	bool isGlobalMaskShow();
+
 private slots:
 	void on_redoButton_clicked();
 	void on_undoButton_clicked();

@@ -60,6 +60,15 @@ void teDataStorage::InitDatabase()
 		});
 }
 
+void teDataStorage::displayUIInWidget(QVBoxLayout* layout)
+{
+	m_teLabelBrowser = new teLabelBrowser();
+	layout->addWidget(m_teLabelBrowser);
+	m_teLabelBrowser->show();
+
+	connect(m_teLabelBrowser, &teLabelBrowser::sig_currentRowSelected, this, &teDataStorage::currentRowChange);
+}
+
 int teDataStorage::getCurrentIndex()
 {
 	return currentIndex;
@@ -302,6 +311,11 @@ void teDataStorage::getResultSamples(std::vector<te::SampleInfo>* resultSamples)
 void teDataStorage::setDataDuringTraining(int iteration, float fAvgLoss, float fPosAcc)
 {
 	emit sig_DataChangeDuringTraining(iteration, fAvgLoss, fPosAcc);
+}
+
+QColor teDataStorage::FindContentColor(const QString& searchString)
+{
+	return m_teLabelBrowser->getFontColorByFirstColumnValue(searchString);
 }
 
 void teDataStorage::setCurrentLoadImageNum(int num)

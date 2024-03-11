@@ -5,8 +5,10 @@
 
 #include"teAiExTypes.h"
 #include"teDataTypeRegistration.h"
+#include "teLabelBrowser.h"
 
 #include <QColor>
+#include <QVBoxLayout>
 
 TE_BEGIN_NAMESPACE
 
@@ -36,6 +38,7 @@ RTTR_REGISTRATION
 
 TE_END_NAMESPACE
 
+class QVBoxLayout;
 
 class teDataStorage  : public QObject
 {
@@ -46,6 +49,7 @@ public:
 	static void destroy();
 
 	void InitDatabase();
+	void displayUIInWidget(QVBoxLayout* layout);
 public:
 	int getCurrentIndex();
 	int getCurrentLoadImageNum();
@@ -84,6 +88,8 @@ public:
 	void getResultSamples(std::vector<te::SampleInfo>* resultSamples);
 
 	void setDataDuringTraining(int iteration, float fAvgLoss, float fPosAcc);
+
+	QColor FindContentColor(const QString& searchString);
 private:
 	std::string getSelectResultFormResourceTable(int index, std::string keyword);
 	std::vector<std::string> getResultFromResourceTable(std::string keyword);
@@ -115,6 +121,7 @@ private:
 	QString currentCategory;
 	QColor currentColor;
 
+	teLabelBrowser* m_teLabelBrowser;
 private:
 	static teDataStorage* instance;
 

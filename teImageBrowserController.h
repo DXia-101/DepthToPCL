@@ -27,8 +27,10 @@ public slots:
 	void ChangeCurrentState();
 	void teUpDataSet(int iNum, int iLayerNum, bool bReset);
 
-private:
+signals:
+	void sig_showAllItem();
 
+private:
 	TeSampWidget* ImageBrowser;
 	bool GTShowFlag;
 	bool RSTShowFlag;
