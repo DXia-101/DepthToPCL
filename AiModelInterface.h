@@ -37,6 +37,7 @@
 #include "teTimer.h"
 
 #include "TrainParam.h"
+#include "TestParam.h"
 
 using namespace te;
 
@@ -63,13 +64,6 @@ public:
 	void TrainParameterSettings(const char* modelpath);
 	void TestParameterSettings(const char* modelpath);
 	void ParameterSettings(const char* modelpath);
-
-	void InitTestConfig(
-		int maxbatchsize, int batchsize, int maxcontourcount,
-		int maxcontourpointcount, int maxinnercontourcount,
-		int deviceid, te::DeviceType devicetype, te::ComputePrecision precision
-	);
-
 protected:
 	void run();
 
@@ -77,6 +71,7 @@ public slots:
 	void trainModel(std::vector<te::SampleInfo>& trainSamples);
 	void testModel(std::vector<te::SampleInfo>& trainSamples);
 	void InitTrainConfig(te::TrainParam* para);
+	void InitTestConfig(te::TestParam* para);
 
 signals:
 	void sig_TestingCompleted();
@@ -87,15 +82,7 @@ private:
 
 public:
 	TrainConfig config;
-
 	int DeviceID;
-
 	AiStatus status;
 	te::ModelInfer infer_;
-	ContourDesc contrDesc;
-	DeviceInfo devInfo;
-
-	std::vector<te::SampleInfo> m_Trainsamples;
-	std::vector<te::SampleInfo> m_Resultsamples;
-	std::vector<te::AiResult> m_SampleMark;
 };

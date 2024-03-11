@@ -3,6 +3,7 @@
 
 #include "Transfer_Function.h"
 #include "teDataStorage.h"
+#include "teAiExtypes.h"
 
 AiModelInterface::AiModelInterface(QThread* parent)
 	: QThread(parent)
@@ -102,30 +103,27 @@ void AiModelInterface::InitTrainConfig(te::TrainParam* para)
 	DeviceID = para->DeviceID;
 }
 
-void AiModelInterface::InitTestConfig(
-	int maxbatchsize, int batchsize,
-	int maxcontourcount, int maxcontourpointcount, int maxinnercontourcount,
-	int deviceid, te::DeviceType devicetype, te::ComputePrecision precision)
+void AiModelInterface::InitTestConfig(te::TestParam* para)
 {
-	status = infer_.setMaxBatchSize(maxbatchsize);
-	status = infer_.setBatchSize(batchsize);
-	contrDesc = { maxcontourcount, maxcontourpointcount, maxinnercontourcount };
-	status = infer_.setCoutourDesc(contrDesc);
-	devInfo = { devicetype, deviceid };
-	status = infer_.setComputeDesc(devInfo);
+	status = infer_.setMaxBatchSize(para->maxbatchsize);
+	status = infer_.setBatchSize(para->batchsize);
+	status = infer_.setCoutourDesc(para->contourdesc);
+	status = infer_.setComputeDesc(para->deviceinfo);
 	status = infer_.setModelPath(modelPath);
-	status = infer_.setPrecisionType(precision);
+	status = infer_.setPrecisionType(para->precision);
 	status = infer_.setExceptionFunc(teException, nullptr);
 }
 
 void AiModelInterface::run()
 {
 	if (mode == trainMode) {
+		std::vector<te::SampleInfo> m_Trainsamples;
 		teDataStorage::getInstance()->getTrainSamples(&m_Trainsamples);
 		trainModel(m_Trainsamples);
 	}
 	else if (mode == testMode) {
-		teDataStorage::getInstance()->getResultSamples(&m_Resultsamples);
+		std::vector<te::SampleInfo> m_Resultsamples;
+		teDataStorage::getInstance()->getTrainSamples(&m_Resultsamples);
 		testModel(m_Resultsamples);
 	}
 }
@@ -278,7 +276,9 @@ void AiModelInterface::testModel(std::vector<te::SampleInfo>& trainSamples)
 		cv.wait(locker);
 		auto endTimePoint = currentSteadyTimePoint();
 
-		m_SampleMark.push_back(m_InferResult);
+		te::SampleMark samplemark;
+		samplemark.gtDataSet = m_InferResult;
+		teDataStorage::getInstance()->updateTrainSampleMark(i, samplemark);
 	}
 
 	emit sig_TestingCompleted();

@@ -94,7 +94,7 @@ void MainInterface::InitToolBar()
 	connect(this, &MainInterface::sig_LoadTrainingImages, teDataStorage::getInstance(), &teDataStorage::LoadTrainingImages);
 	connect(Start_Train, &QAction::triggered, m_AiModelController, &AiModelController::sig_PrepareTrain);
 	//connect(Stop_Train, &QAction::triggered, this, &DepthToPCL::StopTrainAction);
-	//connect(Start_Test, &QAction::triggered, this, &DepthToPCL::StartTestAction);
+	connect(Start_Test, &QAction::triggered, m_AiModelController, &AiModelController::sig_PrepareTest);
 
 }
 

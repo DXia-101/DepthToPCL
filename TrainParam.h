@@ -76,7 +76,6 @@ public:
 
 signals:
 	void sig_ValueChange();
-
 };
 
 

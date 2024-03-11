@@ -3,7 +3,7 @@
 #include <QObject>
 #include "AiModelInterface.h"
 #include "teTrainParameter.h"
-#include "TrainParam.h"
+#include "teTestParameter.h"
 
 class QVBoxLayout;
 
@@ -27,6 +27,6 @@ public:
 
 private:
 	teTrainParameter* m_teTrainPara;
+	teTestParameter* m_teTestPara;
 	AiModelInterface* m_AiModel;
-	te::TrainParam* train;
 };

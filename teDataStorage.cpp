@@ -206,42 +206,42 @@ bool teDataStorage::insertGtFilePath(std::string filepath)
 	return ResourceTable->commit();
 }
 
-bool teDataStorage::updateTrainSampleMark(int index, te::SampleMark samplemark)
+bool teDataStorage::updateTrainSampleMark(int index, te::SampleMark& samplemark)
 {
 	return ResourceTable->updateRecord(index+1, { std::pair<te::StdU8String,te::SampleMark>("TrainSampleMark",samplemark) });
 }
 
-bool teDataStorage::updateResultSampleMark(int index, te::SampleMark samplemark)
+bool teDataStorage::updateResultSampleMark(int index, te::SampleMark& samplemark)
 {
 	return ResourceTable->updateRecord(index+1, { std::pair<te::StdU8String,te::SampleMark>("ResultSampleMark",samplemark) });
 }
 
-bool teDataStorage::updateCurrentTrainSampleMark(te::SampleMark samplemark)
+bool teDataStorage::updateCurrentTrainSampleMark(te::SampleMark& samplemark)
 {
 	return ResourceTable->updateRecord(currentIndex + 1, { std::pair<te::StdU8String,te::SampleMark>("TrainSampleMark",samplemark) });
 }
 
-bool teDataStorage::updateCurrentResultSampleMark(te::SampleMark samplemark)
+bool teDataStorage::updateCurrentResultSampleMark(te::SampleMark& samplemark)
 {
 	return ResourceTable->updateRecord(currentIndex + 1, { std::pair<te::StdU8String,te::SampleMark>("ResultSampleMark",samplemark) });
 }
 
-bool teDataStorage::updateShrinkageChart(int index, std::string filepath)
+bool teDataStorage::updateShrinkageChart(int index, std::string& filepath)
 {
 	return ResourceTable->updateRecord(index+1, { std::pair<te::StdU8String,te::StdU8String>("ShrinkageChartPath",static_cast<te::StdU8String>(filepath)) });
 }
 
-bool teDataStorage::updatePointCloud(int index, std::string filepath)
+bool teDataStorage::updatePointCloud(int index, std::string& filepath)
 {
 	return ResourceTable->updateRecord(index+1, { std::pair<te::StdU8String,te::StdU8String>("PointCloudPath",static_cast<te::StdU8String>(filepath)) });
 }
 
-bool teDataStorage::updateTrainGtFilePath(int index, std::string filepath)
+bool teDataStorage::updateTrainGtFilePath(int index, std::string& filepath)
 {
 	return GtTable->updateRecord(index+1, { std::pair<te::StdU8String,te::StdU8String>("TrainGtFilePath",static_cast<te::StdU8String>(filepath)) });
 }
 
-bool teDataStorage::updateResultGtFilePath(int index, std::string filepath)
+bool teDataStorage::updateResultGtFilePath(int index, std::string& filepath)
 {
 	return GtTable->updateRecord(index+1, { std::pair<te::StdU8String,te::StdU8String>("ResultGtFilePath",static_cast<te::StdU8String>(filepath)) });
 }

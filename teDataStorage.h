@@ -66,14 +66,14 @@ public:
 	bool insertOriginImage(std::string filepath);
 	bool insertGtFilePath(std::string filepath);
 
-	bool updateTrainSampleMark(int index,te::SampleMark samplemark);
-	bool updateResultSampleMark(int index,te::SampleMark samplemark);
-	bool updateCurrentTrainSampleMark(te::SampleMark samplemark);
-	bool updateCurrentResultSampleMark(te::SampleMark samplemark);
-	bool updateShrinkageChart(int index,std::string filepath);
-	bool updatePointCloud(int index,std::string filepath);
-	bool updateTrainGtFilePath(int index,std::string filepath);
-	bool updateResultGtFilePath(int index,std::string filepath);
+	bool updateTrainSampleMark(int index,te::SampleMark& samplemark);
+	bool updateResultSampleMark(int index,te::SampleMark& samplemark);
+	bool updateCurrentTrainSampleMark(te::SampleMark& samplemark);
+	bool updateCurrentResultSampleMark(te::SampleMark& samplemark);
+	bool updateShrinkageChart(int index,std::string& filepath);
+	bool updatePointCloud(int index,std::string& filepath);
+	bool updateTrainGtFilePath(int index,std::string& filepath);
+	bool updateResultGtFilePath(int index,std::string& filepath);
 
 	bool isOriginImage(std::string filepath);
 

@@ -10,7 +10,7 @@ teTrainParameter::teTrainParameter(QWidget *parent)
 	ui->treeView->setWriter(std::make_shared<te::TrainParamWriter>());
 
 	te::TrainParam param;
-	te::deserializeJsonFromIFStream("./paraconfig.ini", &param);
+	te::deserializeJsonFromIFStream("./TrainParaconfig.ini", &param);
 	
 	ui->treeView->writeObject_t(param);
 
@@ -27,7 +27,8 @@ void teTrainParameter::SaveteTrainParameter()
 	te::TrainParam param;
 	ui->treeView->readObject_t(&param);
 
-	te::serializeJsonToOFStream("./paraconfig.ini", param);
+	te::serializeJsonToOFStream("./TrainParaconfig.ini", param);
+	ui->treeView->checkItemChange();
 }
 
 void teTrainParameter::on_SaveButton_clicked()
