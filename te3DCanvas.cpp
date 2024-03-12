@@ -275,6 +275,7 @@ void te3DCanvas::ShowDimension(int arg)
             }
         }
     }
+    m_renderWindow->Render();
 }
 
 void te3DCanvas::ShowResult(int arg)
@@ -293,6 +294,7 @@ void te3DCanvas::ShowResult(int arg)
             }
         }
     }
+    m_renderWindow->Render();
 }
 
 bool te3DCanvas::SetBackgroundColor(QColor color)
