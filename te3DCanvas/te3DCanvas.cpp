@@ -1,6 +1,8 @@
 #include "te3DCanvas.h"
 #include <QMessageBox>
 #include <QDebug>
+#include <QWheelEvent>
+#include <QEvent>
 #include "Transfer_Function.h"
 #include "teDataStorage.h"
 
@@ -49,7 +51,6 @@ void te3DCanvas::PCL_Initalization()
     viewer->addPointCloud<pcl::PointXYZ>(cloud, "cloud");
 
     viewer->registerMouseCallback(&te3DCanvas::mouseEventOccurred, *this);
-
     currentCategory = "";
 }
 
@@ -704,3 +705,12 @@ void te3DCanvas::pcl_filter_direct(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in,
     pass.filter(*cloud_Filter_out);
 }
 
+vtkRenderWindow* te3DCanvas::getvtkRenderWindow()
+{
+    return m_renderWindow;
+}
+
+vtkSmartPointer<vtkRenderer> te3DCanvas::getvtkRenderer()
+{
+    return vtkSmartPointer<vtkRenderer>();
+}

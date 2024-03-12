@@ -30,6 +30,9 @@ public:
 
     void pcl_filter_guass(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float paraA, float paraB, float paraC, float paraD);
     void pcl_filter_direct(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float min, float max, QString axis, float is_save);
+
+    vtkRenderWindow* getvtkRenderWindow();
+    vtkSmartPointer<vtkRenderer> getvtkRenderer();
 public:
     void MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
     void ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
@@ -75,6 +78,8 @@ public:
     std::map<QString,std::vector<QString>> markerPCID;
     std::map<QString,std::vector<QString>> resultPCID;
 
+    vtkRenderWindow* m_renderWindow;
+    vtkSmartPointer<vtkRenderer> m_renderer;
 private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr Point_clicked_cloud;
@@ -88,8 +93,6 @@ private:
     
     pcl::MomentOfInertiaEstimation<pcl::PointXYZ> feature_extractor;
     pcl::visualization::PCLVisualizer::Ptr viewer;
-    vtkRenderWindow* m_renderWindow;
-    vtkSmartPointer<vtkRenderer> m_renderer;
 
     Filter_Guass* dialog_Guass_filter;
     Filter_Direct* dialog_Direct_filter;

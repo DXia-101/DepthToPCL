@@ -15,7 +15,6 @@ MainInterface::MainInterface(QWidget *parent)
 	, ui(new Ui::MainInterfaceClass())
 {
 	ui->setupUi(this);
-	//this->showMaximized();
 	te3DCanvasController::getInstance()->displayUIInWidget(ui->canvasLayout);
 	te3DCanvasController::getInstance()->hideAllUI();
 	te2DCanvasController::getInstance()->displayUIInWidget(ui->canvasLayout);

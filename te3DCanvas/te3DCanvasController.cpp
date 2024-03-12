@@ -13,7 +13,9 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	m_te3DCanvas = new te3DCanvas();
 	m_te3DCanvasMenu = new te3DCanvasMenu();
 	m_te3DCanvasToolBar = new te3DCanvasToolBar();
-
+	m_interactor = CustomInteractorStyle::New();
+	m_interactor->setRenderWindow(m_te3DCanvas->m_renderWindow,m_te3DCanvas->m_renderer);
+	m_te3DCanvas->m_renderWindow->GetInteractor()->SetInteractorStyle(m_interactor);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, m_te3DCanvas, &te3DCanvas::PointCloudHeightTransform);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToXaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToXaxis);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToYaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToYaxis);
@@ -45,7 +47,7 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 
 te3DCanvasController::~te3DCanvasController()
 {
-
+	m_interactor->Delete();
 }
 
 te3DCanvasController::te3DCanvasController(const te3DCanvasController&)
