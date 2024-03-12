@@ -22,13 +22,11 @@ private slots:
 	void SwitchImg(int pIndex, int len);
 
 public slots:
-	void ChangeGTShowFlag(int index);
-	void ChangeRSTShowFlag(int index);
 	void ChangeCurrentState();
 	void teUpDataSet(int iNum, int iLayerNum, bool bReset);
 
 signals:
-	void sig_showAllItem();
+	void sig_showAll2DItem();
 
 private:
 	TeSampWidget* ImageBrowser;

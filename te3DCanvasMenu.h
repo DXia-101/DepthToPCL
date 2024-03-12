@@ -15,6 +15,10 @@ public:
 	te3DCanvasMenu(QWidget *parent = nullptr);
 	~te3DCanvasMenu();
 
+public:
+	bool isDimensionShow();
+	bool isResultShow();
+
 public slots:
 	void on_ConfirmTransformationBtn_clicked();
 

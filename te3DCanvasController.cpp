@@ -19,8 +19,8 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToYaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToYaxis);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToZaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToZaxis);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_StartMarking, m_te3DCanvas, &te3DCanvas::te3DCanvasStartMarking);
-	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_GtCheckStateChanged, this, &te3DCanvasController::sig_GTShowSignalChange);
-	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_RSTCheckStateChanged, this, &te3DCanvasController::sig_RSTShowSignalChange);
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_GtCheckStateChanged, m_te3DCanvas,&te3DCanvas::ShowDimension);
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_RSTCheckStateChanged, m_te3DCanvas,&te3DCanvas::ShowResult);
 	
 	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_BackgroundColorSetting, this, &te3DCanvasController::BackgroundColorSelect);
 	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_CoordinateAxisRendering, this, &te3DCanvasController::CoordinateAxisSelect);
@@ -39,6 +39,8 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	connect(this, &te3DCanvasController::sig_LoadPointCloud, m_te3DCanvas, &te3DCanvas::LoadPointCloud);
 	connect(this, &te3DCanvasController::sig_ReRenderOriginCloud, m_te3DCanvas, &te3DCanvas::reRenderOriginCloud);
 	connect(this, &te3DCanvasController::sig_currentLabelChange, m_te3DCanvas, &te3DCanvas::LabelChanged);
+
+	connect(this, &te3DCanvasController::sig_ShowAllPointCloud, this, &te3DCanvasController::ShowAllItems);
 }
 
 te3DCanvasController::~te3DCanvasController()
@@ -126,6 +128,34 @@ void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr c
 	te::SampleMark sampleMark = teDataStorage::getInstance()->getCurrentTrainSampleInfo();
 	sampleMark.gtDataSet.push_back(instance);
 	teDataStorage::getInstance()->updateCurrentTrainSampleMark(sampleMark);
+}
+
+void te3DCanvasController::ShowAllItems()
+{
+	if (m_te3DCanvasMenu->isDimensionShow()) {
+		ShowAllMarkers();
+	}
+	if (m_te3DCanvasMenu->isResultShow()) {
+		ShowAllResults();
+	}
+}
+
+void te3DCanvasController::ShowAllResults()
+{
+	cv::Mat image = cv::imread(teDataStorage::getInstance()->getCurrentOriginImage(), cv::IMREAD_UNCHANGED);
+	te::SampleMark samplemark = teDataStorage::getInstance()->getCurrentResultSampleInfo();
+	for (te::AiInstance instance : samplemark.gtDataSet) {
+		m_te3DCanvas->MarkersShowInCanvas(&instance, image, teDataStorage::getInstance()->FindContentColor(QString::fromStdString(instance.name)));
+	}
+}
+
+void te3DCanvasController::ShowAllMarkers()
+{
+	cv::Mat image = cv::imread(teDataStorage::getInstance()->getCurrentOriginImage(), cv::IMREAD_UNCHANGED);
+	te::SampleMark samplemark = teDataStorage::getInstance()->getCurrentTrainSampleInfo();
+	for (te::AiInstance instance : samplemark.gtDataSet) {
+		m_te3DCanvas->MarkersShowInCanvas(&instance, image, teDataStorage::getInstance()->FindContentColor(QString::fromStdString(instance.name)));
+	}
 }
 
 void te3DCanvasController::BackgroundColorSelect()

@@ -59,6 +59,7 @@ public:
 	std::vector<std::string> getPointCloud();
 	std::string getSelectShrinkageChart(int index);
 	std::string getSelectOriginImage(int index);
+	std::string getCurrentOriginImage();
 	std::string getSelectPointCloud(int index);
 	std::string getSelectTrainGt(int index);
 	std::string getSelectResultGt(int index);

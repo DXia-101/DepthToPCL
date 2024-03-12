@@ -141,7 +141,7 @@ void te2DCanvasController::ShowAllResults()
 {
 	te::SampleMark samplemark = teDataStorage::getInstance()->getCurrentResultSampleInfo();
 	for (te::AiInstance instance : samplemark.gtDataSet) {
-		m_te2DCanvas->MarkersShowInCanvas(&instance, QString::fromStdString(instance.name), teDataStorage::getInstance()->FindContentColor(QString::fromStdString(instance.name)));
+		m_te2DCanvas->ResultsShowInCanvas(&instance, QString::fromStdString(instance.name), teDataStorage::getInstance()->FindContentColor(QString::fromStdString(instance.name)));
 	}
 }
 

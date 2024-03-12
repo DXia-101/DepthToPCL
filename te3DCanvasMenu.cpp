@@ -12,6 +12,16 @@ te3DCanvasMenu::~te3DCanvasMenu()
 	delete ui;
 }
 
+bool te3DCanvasMenu::isDimensionShow()
+{
+	return ui->showGTCheckBox->isChecked();
+}
+
+bool te3DCanvasMenu::isResultShow()
+{
+	return ui->showRSTcheckBox->isChecked();
+}
+
 void te3DCanvasMenu::on_ConfirmTransformationBtn_clicked()
 {
 	int factor = ui->HeightCoefficientSpinBox->value();

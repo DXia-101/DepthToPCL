@@ -29,8 +29,6 @@ MainInterface::MainInterface(QWidget *parent)
 	InitStateMachine();
 	InitToolBar();
 
-	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_GTShowSignalChange, teImageBrowserController::getInstance(), &teImageBrowserController::ChangeGTShowFlag);
-	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_RSTShowSignalChange, teImageBrowserController::getInstance(), &teImageBrowserController::ChangeRSTShowFlag);
 	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::ChangeCurrentState);
 
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, teImageBrowserController::getInstance(), &teImageBrowserController::teUpDataSet);
@@ -39,7 +37,7 @@ MainInterface::MainInterface(QWidget *parent)
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, te2DCanvasController::getInstance(), &te2DCanvasController::sig_currentLabelChange);
 	connect(te2DCanvasController::getInstance(), &te2DCanvasController::sig_ClearCurrentTrainGT,teDataStorage::getInstance(), &teDataStorage::clearCurrentMarkersGT);
 
-	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_showAllItem, te2DCanvasController::getInstance(), &te2DCanvasController::ShowAllItems);
+	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_showAll2DItem, te2DCanvasController::getInstance(), &te2DCanvasController::ShowAllItems);
 
 	m_SChart = new teTrainStatisticsChart();
 	m_SChart->hide();

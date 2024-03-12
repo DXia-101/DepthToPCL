@@ -158,6 +158,11 @@ std::string teDataStorage::getSelectOriginImage(int index)
 	return getSelectResultFormResourceTable(index, "OriginImagePath");
 }
 
+std::string teDataStorage::getCurrentOriginImage()
+{
+	return getSelectResultFormResourceTable(currentIndex, "OriginImagePath");
+}
+
 std::string teDataStorage::getSelectPointCloud(int index)
 {
 	return getSelectResultFormResourceTable(index, "PointCloudPath");

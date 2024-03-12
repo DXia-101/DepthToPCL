@@ -23,8 +23,6 @@ teImageBrowserController::teImageBrowserController(QObject *parent)
 {
 	ImageBrowser = new TeSampWidget();
     
-    connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_GTShowSignalChange, this, &teImageBrowserController::ChangeGTShowFlag);
-    connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_RSTShowSignalChange, this, &teImageBrowserController::ChangeRSTShowFlag);
     GTShowFlag = false;
     RSTShowFlag = false;
     CurrentState = TwoD;
@@ -141,6 +139,7 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
     if (CurrentState == ThrD) {
         emit te3DCanvasController::getInstance()->sig_LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getPointCloud()[pIndex]));
         emit te3DCanvasController::getInstance()->sig_ReRenderOriginCloud();
+        emit te3DCanvasController::getInstance()->sig_ShowAllPointCloud();
     }
     else if (CurrentState == TwoD) {
         cv::Mat image = cv::imread(teDataStorage::getInstance()->getOriginImage()[pIndex], cv::IMREAD_UNCHANGED);
@@ -159,27 +158,7 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
             te2DCanvasController::getInstance()->setImage(te::Image(heatmap).clone());
             cv::waitKey(0);
         }
-        emit sig_showAllItem();
-    }
-}
-
-void teImageBrowserController::ChangeGTShowFlag(int index)
-{
-    if (index > 0) {
-        GTShowFlag = true;
-    }
-    else {
-        GTShowFlag = false;
-    }
-}
-
-void teImageBrowserController::ChangeRSTShowFlag(int index)
-{
-    if (index > 0) {
-        RSTShowFlag = true;
-    }
-    else {
-        RSTShowFlag = false;
+        emit sig_showAll2DItem();
     }
 }
 

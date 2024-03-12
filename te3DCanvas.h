@@ -6,6 +6,9 @@
 #include "teAiExTypes.h"
 #include "te3DCanvasMember.h"
 
+#include <map>
+#include <vector>
+
 
 class te3DCanvas  : public QVTKOpenGLNativeWidget
 {
@@ -28,7 +31,8 @@ public:
     void pcl_filter_guass(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float paraA, float paraB, float paraC, float paraD);
     void pcl_filter_direct(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float min, float max, QString axis, float is_save);
 public:
-    void AiInstance2Cloud(te::AiInstance* instance, cv::Mat& m_image, QColor color);
+    void MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
+    void ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
     void reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin);
     struct AxisSet getAxisSet();
 protected:
@@ -60,9 +64,17 @@ public slots:
     bool SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>::Ptr saveCloud);
 
     void reRenderOriginCloud();
+
+    void ShowDimension(int arg);
+    void ShowResult(int arg);
 signals:
     void sig_3DCanvasMarkingCompleted(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
     void CloudChanged();
+
+public:
+    std::map<QString,std::vector<QString>> markerPCID;
+    std::map<QString,std::vector<QString>> resultPCID;
+
 private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr Point_clicked_cloud;

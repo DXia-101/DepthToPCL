@@ -32,6 +32,7 @@ public slots:
 	void hideAllUI();
 	void showAllUI();
 	void add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+	void ShowAllItems();
 
 signals:
 	void sig_BackgroundColor(QColor color);
@@ -45,10 +46,13 @@ signals:
 	void sig_LabelChanged(const QString& content, const QColor& fontColor);
 	void sig_LoadPointCloud(QString fileName);
 	void sig_SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>::Ptr saveCloud);
-	void sig_GTShowSignalChange(int arg);
-	void sig_RSTShowSignalChange(int arg);
 	void sig_ReRenderOriginCloud();
 	void sig_currentLabelChange(const QString& category, const QColor& color);
+	void sig_ShowAllPointCloud();
+
+private:
+	void ShowAllResults();
+	void ShowAllMarkers();
 
 private:
 	static te3DCanvasController* instance;

@@ -32,12 +32,18 @@
            <property name="text">
             <string>标记</string>
            </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QCheckBox" name="showRSTcheckBox">
            <property name="text">
             <string>识别结果</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
