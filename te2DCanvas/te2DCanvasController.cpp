@@ -28,7 +28,6 @@ te2DCanvasController::te2DCanvasController(QObject *parent)
 	connect(m_te2DCanvas, &te2DCanvas::sig_PolygonMarkingCompleted, this, &te2DCanvasController::add2DAiInstance);
 	connect(m_te2DCanvas, &te2DCanvas::sig_ClearCurrent2DCanvasMarkers, this, &te2DCanvasController::sig_ClearCurrentTrainGT);
 	connect(this, &te2DCanvasController::sig_currentLabelChange, m_te2DCanvas, &te2DCanvas::LabelChanged);
-	
 }
 
 te2DCanvasController::~te2DCanvasController()
@@ -81,6 +80,7 @@ void te2DCanvasController::showAllUI()
 {
 	m_te2DCanvasToolBar->show();
 	m_te2DCanvas->show();
+	
 }
 
 void te2DCanvasController::add2DAiInstance(te::ConnectedRegionGraphicsItem* polygonItem)
@@ -119,6 +119,7 @@ void te2DCanvasController::ShowFirstImage()
 		te2DCanvasController::getInstance()->setImage(te::Image(heatmap).clone());
 		cv::waitKey(0);
 	}
+	ShowAllItems();
 }
 
 void te2DCanvasController::ShowAllItems()

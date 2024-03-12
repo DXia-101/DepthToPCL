@@ -31,7 +31,6 @@ private:
 	Ui::MainInterfaceClass *ui;
 	
 signals:
-	void ConversionBetween2Dand3D();
 	void sig_LoadTrainingImages(const QStringList& filePaths);
 
 private:

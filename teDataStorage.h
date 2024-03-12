@@ -61,6 +61,7 @@ public:
 	std::string getSelectOriginImage(int index);
 	std::string getCurrentOriginImage();
 	std::string getSelectPointCloud(int index);
+	std::string getCurrentPointCloud();
 	std::string getSelectTrainGt(int index);
 	std::string getSelectResultGt(int index);
 	te::SampleMark getSelectTrainSampleInfo(int index);

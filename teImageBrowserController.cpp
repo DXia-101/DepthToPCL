@@ -137,7 +137,7 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
 {
     teDataStorage::getInstance()->setCurrentIndex(pIndex);
     if (CurrentState == ThrD) {
-        emit te3DCanvasController::getInstance()->sig_LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getPointCloud()[pIndex]));
+        emit te3DCanvasController::getInstance()->sig_LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
         emit te3DCanvasController::getInstance()->sig_ReRenderOriginCloud();
         emit te3DCanvasController::getInstance()->sig_ShowAllPointCloud();
     }

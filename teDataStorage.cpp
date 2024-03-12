@@ -168,6 +168,11 @@ std::string teDataStorage::getSelectPointCloud(int index)
 	return getSelectResultFormResourceTable(index, "PointCloudPath");
 }
 
+std::string teDataStorage::getCurrentPointCloud()
+{
+	return getSelectResultFormResourceTable(currentIndex, "PointCloudPath");
+}
+
 std::string teDataStorage::getSelectTrainGt(int index)
 {
 	return getSelectResultFormGtTable(index).first;

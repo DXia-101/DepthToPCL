@@ -101,6 +101,9 @@ void te3DCanvasController::showAllUI()
 	m_te3DCanvasToolBar->show();
 	m_te3DCanvasMenu->show();
 	m_te3DCanvas->show();
+	sig_LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
+	sig_ReRenderOriginCloud();
+	sig_ShowAllPointCloud();
 }
 
 void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
