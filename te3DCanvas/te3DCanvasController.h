@@ -36,6 +36,8 @@ public slots:
 	void ShowAllItems();
 	void HegithTransForm();
 	void SaveHeightTransFromFactor(int factor);
+	void SaveAxis(QString axis);
+	void MaintainCoordinateAxis();
 
 signals:
 	void sig_BackgroundColor(QColor color);
@@ -54,6 +56,7 @@ signals:
 	void sig_ShowAllPointCloud();
 	void sig_ConnectHeightTransform();
 	void sig_DisonnectHeightTransform();
+	void sig_MaintainCoordinateAxis();
 
 private:
 	void ShowAllResults();
@@ -91,4 +94,5 @@ private:
 	Filter_Direct* dialog_Direct_filter;
 
 	int hegithTransFactor;
+	QString axis;
 };

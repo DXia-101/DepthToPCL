@@ -30,6 +30,7 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	
 	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_BackgroundColorSetting, this, &te3DCanvasController::BackgroundColorSelect);
 	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_CoordinateAxisRendering, this, &te3DCanvasController::CoordinateAxisSelect);
+
 	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_PointCloudColorSetting, this, &te3DCanvasController::PointCloudColorSelect);
 	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_PointCloudPointSizeSetting, this, &te3DCanvasController::PointCloudPointSizeSelect);
 	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_GaussFilter, this, &te3DCanvasController::GaussFilterAction);
@@ -47,6 +48,7 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	connect(this, &te3DCanvasController::sig_currentLabelChange, m_te3DCanvas, &te3DCanvas::LabelChanged);
 
 	connect(this, &te3DCanvasController::sig_ShowAllPointCloud, this, &te3DCanvasController::ShowAllItems);
+	
 }
 
 te3DCanvasController::~te3DCanvasController()
@@ -159,6 +161,17 @@ void te3DCanvasController::SaveHeightTransFromFactor(int factor)
 	hegithTransFactor = factor;
 }
 
+void te3DCanvasController::SaveAxis(QString axis)
+{
+	this->axis = axis;
+	connect(this, &te3DCanvasController::sig_MaintainCoordinateAxis, this, &te3DCanvasController::MaintainCoordinateAxis);
+}
+
+void te3DCanvasController::MaintainCoordinateAxis()
+{
+	emit sig_CoordinateAxis(this->axis);
+}
+
 void te3DCanvasController::ShowAllResults()
 {
 	cv::Mat image = cv::imread(teDataStorage::getInstance()->getCurrentOriginImage(), cv::IMREAD_UNCHANGED);
@@ -190,6 +203,7 @@ void te3DCanvasController::CoordinateAxisSelect()
 {
 	dialog_render = new te3DCanvasCoordinateAxisRenderDialog();
 	connect(dialog_render, &te3DCanvasCoordinateAxisRenderDialog::sig_CoordinateAxisRender, this, &te3DCanvasController::sig_CoordinateAxis);
+	connect(dialog_render, &te3DCanvasCoordinateAxisRenderDialog::sig_CoordinateAxisRender, this, &te3DCanvasController::SaveAxis);
 	if (dialog_render->exec() == QDialog::Accepted) {}
 	delete dialog_render;
 }
