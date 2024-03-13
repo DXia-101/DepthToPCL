@@ -27,7 +27,7 @@ MainInterface::MainInterface(QWidget *parent)
 
 	InitStateMachine();
 	InitToolBar();
-
+	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_ConnectHeightTransform, this, &MainInterface::ConnectHeightTransform);
 	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::ChangeCurrentState);
 	connect(this, &MainInterface::sig_InvalidPointThresholdChange, teImageBrowserController::getInstance(), &teImageBrowserController::InvalidPointThresholdChange);
 
@@ -102,6 +102,11 @@ void MainInterface::InitToolBar()
 void MainInterface::on_InvalidPointThresholdSpinBox_valueChanged(int arg)
 {
 	emit sig_InvalidPointThresholdChange(arg);
+}
+
+void MainInterface::ConnectHeightTransform()
+{
+	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_HeightTransform, te3DCanvasController::getInstance(), &te3DCanvasController::HegithTransForm);
 }
 
 void MainInterface::LoadTrainingImages()

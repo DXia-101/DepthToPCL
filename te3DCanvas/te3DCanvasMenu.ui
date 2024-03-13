@@ -80,7 +80,7 @@
        <item>
         <widget class="QSpinBox" name="HeightCoefficientSpinBox">
          <property name="minimum">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="maximum">
           <number>10000</number>

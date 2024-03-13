@@ -17,6 +17,8 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	//m_interactor->setRenderWindow(m_te3DCanvas->m_renderWindow,m_te3DCanvas->m_renderer);
 	//m_te3DCanvas->m_renderWindow->GetInteractor()->SetInteractorStyle(m_interactor);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, m_te3DCanvas, &te3DCanvas::PointCloudHeightTransform);
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_ConnectHeightTransForm, this, &te3DCanvasController::sig_ConnectHeightTransform);
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, this, &te3DCanvasController::SaveHeightTransFromFactor);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToXaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToXaxis);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToYaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToYaxis);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToZaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToZaxis);
@@ -143,6 +145,16 @@ void te3DCanvasController::ShowAllItems()
 	if (m_te3DCanvasMenu->isResultShow()) {
 		ShowAllResults();
 	}
+}
+
+void te3DCanvasController::HegithTransForm()
+{
+	m_te3DCanvas->PointCloudHeightTransform(hegithTransFactor);
+}
+
+void te3DCanvasController::SaveHeightTransFromFactor(int factor)
+{
+	hegithTransFactor = factor;
 }
 
 void te3DCanvasController::ShowAllResults()

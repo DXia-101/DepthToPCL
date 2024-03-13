@@ -35,6 +35,34 @@ bool TeJetColorCode::cvt16Bit2BGR(cv::Mat& obj16Bit, cv::Mat& objBGR)
 	return true;
 }
 
+bool TeJetColorCode::cvt32F2BGR(int threshold,cv::Mat& obj32FC1, cv::Mat& objBGR)
+{
+	if (obj32FC1.type() != CV_32FC1 || objBGR.type() != CV_8UC3)
+	{
+		return false;
+	}
+	int iWidth = obj32FC1.cols;
+	int iHeight = obj32FC1.rows;
+
+	for (size_t h = 0; h < iHeight; h++)
+	{
+		float* pDepth = obj32FC1.ptr<float>(h);
+		TeBGR* pBGR = objBGR.ptr<TeBGR>(h);
+
+		for (size_t w = 0; w < iWidth; w++)
+		{
+			float absDepth = pDepth[w] > threshold ? pDepth[w] : 0.0;
+			int iIndex = 1023 * absDepth;//将[0-1.0]之间的数据映射到[0-1024)之间
+			if (iIndex > 1023)
+			{
+				iIndex = 1023;
+			}
+			pBGR[w] = m_pJetTab1024[iIndex];
+		}
+	}
+	return true;
+}
+
 bool TeJetColorCode::cvt32F2BGR(cv::Mat& obj32FC1, cv::Mat& objBGR)
 {
 	if (obj32FC1.type() != CV_32FC1 || objBGR.type() != CV_8UC3)
@@ -51,7 +79,7 @@ bool TeJetColorCode::cvt32F2BGR(cv::Mat& obj32FC1, cv::Mat& objBGR)
 
 		for (size_t w = 0; w < iWidth; w++)
 		{
-			float absDepth = pDepth[w] > 0.0 ? pDepth[w] : 0.0;
+			float absDepth = pDepth[w] > 0 ? pDepth[w] : 0.0;
 			int iIndex = 1023 * absDepth;//将[0-1.0]之间的数据映射到[0-1024)之间
 			if (iIndex > 1023)
 			{

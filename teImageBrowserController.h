@@ -28,6 +28,7 @@ public slots:
 
 signals:
 	void sig_showAll2DItem();
+	void sig_HeightTransform();
 
 private:
 	TeSampWidget* ImageBrowser;

@@ -38,6 +38,7 @@ signals:
 	void sig_StartMarking();
 	void sig_GtCheckStateChanged(int arg);
 	void sig_RSTCheckStateChanged(int arg);
+	void sig_ConnectHeightTransForm();
 private:
 	Ui::te3DCanvasMenuClass *ui;
 };

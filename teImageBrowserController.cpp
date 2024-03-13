@@ -144,6 +144,7 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
         emit te3DCanvasController::getInstance()->sig_LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
         emit te3DCanvasController::getInstance()->sig_ReRenderOriginCloud();
         emit te3DCanvasController::getInstance()->sig_ShowAllPointCloud();
+        emit sig_HeightTransform();
     }
     else if (CurrentState == TwoD) {
         cv::Mat image = cv::imread(teDataStorage::getInstance()->getOriginImage()[pIndex], cv::IMREAD_UNCHANGED);
@@ -156,13 +157,12 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
         TeJetColorCode trans;
         if (trans.cvt32F2BGR(image, median)) {
             cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
-            cv::Mat heatmap;
-            cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
             emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
-            te2DCanvasController::getInstance()->setImage(te::Image(heatmap).clone());
+            te2DCanvasController::getInstance()->setImage(te::Image(median).clone());
             cv::waitKey(0);
         }
         emit sig_showAll2DItem();
+        
     }
 }
 

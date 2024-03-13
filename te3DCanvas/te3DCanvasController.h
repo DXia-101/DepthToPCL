@@ -34,6 +34,8 @@ public slots:
 	void showAllUI();
 	void add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 	void ShowAllItems();
+	void HegithTransForm();
+	void SaveHeightTransFromFactor(int factor);
 
 signals:
 	void sig_BackgroundColor(QColor color);
@@ -50,6 +52,7 @@ signals:
 	void sig_ReRenderOriginCloud();
 	void sig_currentLabelChange(const QString& category, const QColor& color);
 	void sig_ShowAllPointCloud();
+	void sig_ConnectHeightTransform();
 
 private:
 	void ShowAllResults();
@@ -85,4 +88,6 @@ private:
 
 	Filter_Guass* dialog_Guass_filter;
 	Filter_Direct* dialog_Direct_filter;
+
+	int hegithTransFactor;
 };
