@@ -72,6 +72,7 @@ public slots:
     void ShowResult(int arg);
 
     void RemoveOutliers();
+    void ReductionPointCloud();
 signals:
     void sig_3DCanvasMarkingCompleted(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
     void CloudChanged();
@@ -85,8 +86,6 @@ public:
 private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_NoOutliers;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr Point_clicked_cloud;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr Frame_clicked_cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_polygon;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cliped;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_Filter_out;

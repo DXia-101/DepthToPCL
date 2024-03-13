@@ -28,6 +28,7 @@ private slots:
 	void LoadTrainingImages();
 	void on_InvalidPointThresholdSpinBox_valueChanged(int arg);
 	void ConnectHeightTransform();
+	void DisconnectHeightTransform();
 
 private:
 	Ui::MainInterfaceClass *ui;

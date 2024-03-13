@@ -19,6 +19,8 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, m_te3DCanvas, &te3DCanvas::PointCloudHeightTransform);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_ConnectHeightTransForm, this, &te3DCanvasController::sig_ConnectHeightTransform);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, this, &te3DCanvasController::SaveHeightTransFromFactor);
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_DisconnectHeightTransForm, this, &te3DCanvasController::sig_DisonnectHeightTransform);
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_DisconnectHeightTransForm, m_te3DCanvas, &te3DCanvas::ReductionPointCloud);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToXaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToXaxis);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToYaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToYaxis);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToZaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToZaxis);

@@ -94,6 +94,13 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QPushButton" name="reductionBtn">
+         <property name="text">
+          <string>还原</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>

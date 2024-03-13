@@ -29,6 +29,11 @@ void te3DCanvasMenu::on_ConfirmTransformationBtn_clicked()
 	emit sig_ConnectHeightTransForm();
 }
 
+void te3DCanvasMenu::on_reductionBtn_clicked()
+{
+	emit sig_DisconnectHeightTransForm();
+}
+
 void te3DCanvasMenu::on_ViewYBtn_clicked()
 {
 	emit sig_PerspectiveToYaxis();

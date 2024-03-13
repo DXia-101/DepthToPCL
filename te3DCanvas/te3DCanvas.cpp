@@ -32,8 +32,6 @@ void te3DCanvas::PCL_Initalization()
 {
     cloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_NoOutliers = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
-    Point_clicked_cloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
-    Frame_clicked_cloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_polygon = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_cliped = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_Filter_out = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
@@ -200,8 +198,6 @@ bool te3DCanvas::LoadPointCloud(QString fileName)
     }
 
     cloud->points.clear();
-    Frame_clicked_cloud->points.clear();
-    Point_clicked_cloud->points.clear();
 
     int currentDisplayImageWidth, currentDisplayImageHeight;
 
@@ -310,6 +306,12 @@ void te3DCanvas::RemoveOutliers()
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
     viewer->resetCamera();
     m_renderWindow->Render();
+}
+
+void te3DCanvas::ReductionPointCloud()
+{
+    LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
+    reRenderOriginCloud();
 }
 
 bool te3DCanvas::SetBackgroundColor(QColor color)

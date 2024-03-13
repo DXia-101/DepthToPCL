@@ -21,6 +21,7 @@ public:
 
 public slots:
 	void on_ConfirmTransformationBtn_clicked();
+	void on_reductionBtn_clicked();
 
 	void on_ViewYBtn_clicked();
 	void on_ViewXBtn_clicked();
@@ -39,6 +40,7 @@ signals:
 	void sig_GtCheckStateChanged(int arg);
 	void sig_RSTCheckStateChanged(int arg);
 	void sig_ConnectHeightTransForm();
+	void sig_DisconnectHeightTransForm();
 private:
 	Ui::te3DCanvasMenuClass *ui;
 };

@@ -53,6 +53,7 @@ signals:
 	void sig_currentLabelChange(const QString& category, const QColor& color);
 	void sig_ShowAllPointCloud();
 	void sig_ConnectHeightTransform();
+	void sig_DisonnectHeightTransform();
 
 private:
 	void ShowAllResults();
