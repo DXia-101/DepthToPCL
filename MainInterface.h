@@ -30,7 +30,8 @@ private slots:
 	void on_ValidPointThresholdSpinBox_valueChanged(int arg);
 	void ConnectHeightTransform();
 	void DisconnectHeightTransform();
-
+	void ChangeBtnTextTo2D();
+	void ChangeBtnTextTo3D();
 private:
 	Ui::MainInterfaceClass *ui;
 	

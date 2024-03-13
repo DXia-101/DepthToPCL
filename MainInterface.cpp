@@ -59,8 +59,10 @@ void MainInterface::InitStateMachine()
     ThrDState = new QState(m_pStateMachine);
 
 	connect(TwoDState, &QState::entered, te2DCanvasController::getInstance(), &te2DCanvasController::showAllUI);
+	connect(TwoDState, &QState::entered, this, &MainInterface::ChangeBtnTextTo2D);
 	connect(TwoDState, &QState::exited, te2DCanvasController::getInstance(), &te2DCanvasController::hideAllUI);
 	connect(ThrDState, &QState::entered, te3DCanvasController::getInstance(), &te3DCanvasController::showAllUI);
+	connect(ThrDState, &QState::entered, this, &MainInterface::ChangeBtnTextTo3D);
 	connect(ThrDState, &QState::exited, te3DCanvasController::getInstance(), &te3DCanvasController::hideAllUI);
 
 	TwoDState->addTransition(ui->convertBtn, &QPushButton::clicked, ThrDState);
@@ -119,6 +121,16 @@ void MainInterface::ConnectHeightTransform()
 void MainInterface::DisconnectHeightTransform()
 {
 	disconnect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_HeightTransform, te3DCanvasController::getInstance(), &te3DCanvasController::HegithTransForm);
+}
+
+void MainInterface::ChangeBtnTextTo2D()
+{
+	ui->convertBtn->setText(u8"转换到3D");
+}
+
+void MainInterface::ChangeBtnTextTo3D()
+{
+	ui->convertBtn->setText(u8"转换到2D");
 }
 
 void MainInterface::LoadTrainingImages()

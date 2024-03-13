@@ -145,6 +145,7 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
         emit te3DCanvasController::getInstance()->sig_LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
         emit te3DCanvasController::getInstance()->sig_ReRenderOriginCloud();
         emit te3DCanvasController::getInstance()->sig_ShowAllPointCloud();
+        emit te3DCanvasController::getInstance()->sig_MaintainCoordinateAxis();
         emit sig_HeightTransform();
     }
     else if (CurrentState == TwoD) {
@@ -163,7 +164,6 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
             cv::waitKey(0);
         }
         emit sig_showAll2DItem();
-        
     }
 }
 
