@@ -35,7 +35,7 @@ public:
 	/// </summary>
 	/// <param name="imageIn">待转换的cv::Mat</param>
 	/// <param name="cloudOut">转换后的点云</param>
-	static void cvMat2Cloud(cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut);
+	static void cvMat2Cloud(int threshold,cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut);
 	
 	/// <summary>
 	/// cv::Mat 查找轮廓

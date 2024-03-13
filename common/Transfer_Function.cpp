@@ -18,7 +18,7 @@ void Transfer_Function::Cloud2cvMat(int width,int height,float originX,float ori
     }
 }
 
-void Transfer_Function::cvMat2Cloud(cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)
+void Transfer_Function::cvMat2Cloud(int threshold,cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)
 {
     cloudOut->points.clear();
 
@@ -28,8 +28,9 @@ void Transfer_Function::cvMat2Cloud(cv::Mat& imageIn, pcl::PointCloud<pcl::Point
             point.x = static_cast<float>(x);
             point.y = static_cast<float>(y);
             point.z = imageIn.at<float>(y,x);
-
-            cloudOut->push_back(point);
+            if (point.z > threshold) {
+                cloudOut->push_back(point);
+            }
         }
     }
 }

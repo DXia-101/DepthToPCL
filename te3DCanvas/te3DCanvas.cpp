@@ -31,6 +31,7 @@ std::string rand_str(const int len)
 void te3DCanvas::PCL_Initalization()
 {
     cloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
+    cloud_NoOutliers = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     Point_clicked_cloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     Frame_clicked_cloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_polygon = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
@@ -212,14 +213,6 @@ bool te3DCanvas::LoadPointCloud(QString fileName)
             return false;
         }
     }
-    else if (fileName.endsWith("tif") || fileName.endsWith("tiff")) {
-        cv::Mat image = cv::imread(fileName.toStdString(), cv::IMREAD_UNCHANGED);
-        if (image.empty()) {
-            QMessageBox::warning(this, "Warning", u8"无法读取图像文件");
-            return false;
-        }
-        Transfer_Function::cvMat2Cloud(image,cloud);
-    }
     else {
         QMessageBox::warning(this, "Warning", u8"点云读取格式错误！");
     }
@@ -295,6 +288,27 @@ void te3DCanvas::ShowResult(int arg)
             }
         }
     }
+    m_renderWindow->Render();
+}
+
+void te3DCanvas::RemoveOutliers()
+{
+    pcl::PointXYZ min;
+    pcl::PointXYZ max;
+    pcl::getMinMax3D(*cloud, min, max);
+
+    float rangeZ = max.z - min.z;
+    float minCropZ = min.z + ((1.0 - (m_member.cutParameter / 100)) / 2.0) * rangeZ;
+    float maxCropZ = max.z - ((1.0 - (m_member.cutParameter / 100)) / 2.0) * rangeZ;
+
+    // 创建滤波器
+    pcl_filter_direct(cloud, minCropZ, maxCropZ, "z", 0);
+    *cloud = *cloud_Filter_out;
+    viewer->removeAllPointClouds();
+    viewer->removeAllShapes();
+    viewer->addPointCloud(cloud, "cloud");
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
+    viewer->resetCamera();
     m_renderWindow->Render();
 }
 
@@ -407,9 +421,10 @@ void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
 {
     viewer->removeAllPointClouds();
     viewer->removeAllShapes();
-
+    
     viewer->addPointCloud<pcl::PointXYZ>(cloudin, "cloud");
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
+    //RemoveOutliers();
     viewer->resetCamera();
     //update();
     m_renderWindow->Render();

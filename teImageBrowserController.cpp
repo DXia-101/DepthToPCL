@@ -1,15 +1,16 @@
 #include "teImageBrowserController.h"
 #include "Transfer_Function.h"
-#include <QVBoxLayout>
-#include <QFileInfo>
 #include "pcl_function.h"
 #include "Depth2RGB.h"
 #include "teImage.h"
 #include "te3DCanvasController.h"
 #include "te2DCanvasController.h"
 #include "teDataStorage.h"
+
 #include <QSettings>
 #include <QDir>
+#include <QVBoxLayout>
+#include <QFileInfo>
 
 constexpr bool TwoD = false;
 constexpr bool ThrD = true;
@@ -26,6 +27,7 @@ teImageBrowserController::teImageBrowserController(QObject *parent)
     GTShowFlag = false;
     RSTShowFlag = false;
     CurrentState = TwoD;
+    InvalidPointThreshold = 0;
 
     connect(ImageBrowser, &TeSampWidget::sig_SwitchImg, this, &teImageBrowserController::SwitchImg, Qt::DirectConnection);
     connect(ImageBrowser, &TeSampWidget::sig_UpDateItem, this, &teImageBrowserController::UpdateItem);
@@ -103,10 +105,12 @@ void teImageBrowserController::ItemActive(int* pIndex, int len)
                 TeJetColorCode trans;
                 if (trans.cvt32F2BGR(image, median)) {
                     cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
-                    cv::Mat heatmap;
-                    cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
-                    cv::resize(heatmap, heatmap, cv::Size(80, 80));
-                    cv::imwrite(std::to_string(pIndex[i]) + "_thumb.bmp", heatmap);
+                    //cv::Mat heatmap;
+                    //cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
+                    //cv::resize(heatmap, heatmap, cv::Size(80, 80));
+                    //cv::imwrite(std::to_string(pIndex[i]) + "_thumb.bmp", heatmap);
+                    cv::resize(median, median, cv::Size(80, 80));
+                    cv::imwrite(std::to_string(pIndex[i]) + "_thumb.bmp", median);
                     teDataStorage::getInstance()->updateShrinkageChart(pIndex[i], std::to_string(pIndex[i]) + "_thumb.bmp");
                 }
             }
@@ -126,7 +130,7 @@ void teImageBrowserController::ItemActive(int* pIndex, int len)
                 qDebug() << "Failed to load the TIF image.";
                 return;
             }
-            Transfer_Function::cvMat2Cloud(image, mediancloud);
+            Transfer_Function::cvMat2Cloud(InvalidPointThreshold,image, mediancloud);
             emit te3DCanvasController::getInstance()->sig_SavePointCloud(QString::fromStdString(std::to_string(pIndex[i]) + "_thumb.pcd"), mediancloud);
             teDataStorage::getInstance()->updatePointCloud(pIndex[i], std::to_string(pIndex[i]) + "_thumb.pcd");
         }
@@ -170,4 +174,9 @@ void teImageBrowserController::ChangeCurrentState()
 void teImageBrowserController::teUpDataSet(int iNum, int iLayerNum, bool bReset)
 {
     ImageBrowser->teUpDateSet(iNum,iLayerNum,bReset);
+}
+
+void teImageBrowserController::InvalidPointThresholdChange(int threshold)
+{
+    InvalidPointThreshold = threshold;
 }

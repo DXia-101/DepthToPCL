@@ -15,6 +15,7 @@
 #include <pcl/common/centroid.h>
 
 #include <pcl/features/moment_of_inertia_estimation.h>
+#include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/filters/project_inliers.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/extract_indices.h>

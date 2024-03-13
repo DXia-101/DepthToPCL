@@ -21,4 +21,6 @@ struct te3DCanvasMember {
     bool isShowResult = true;
     bool isShowLocalMask = true;
     bool isShowGlobalMask = true;
+
+    int cutParameter = 70;
 };

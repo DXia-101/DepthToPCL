@@ -70,6 +70,8 @@ public slots:
 
     void ShowDimension(int arg);
     void ShowResult(int arg);
+
+    void RemoveOutliers();
 signals:
     void sig_3DCanvasMarkingCompleted(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
     void CloudChanged();
@@ -82,6 +84,7 @@ public:
     vtkSmartPointer<vtkRenderer> m_renderer;
 private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_NoOutliers;
     pcl::PointCloud<pcl::PointXYZ>::Ptr Point_clicked_cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr Frame_clicked_cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_polygon;

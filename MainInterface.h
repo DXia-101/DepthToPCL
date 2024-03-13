@@ -26,12 +26,14 @@ public:
 
 private slots:
 	void LoadTrainingImages();
+	void on_InvalidPointThresholdSpinBox_valueChanged(int arg);
 
 private:
 	Ui::MainInterfaceClass *ui;
 	
 signals:
 	void sig_LoadTrainingImages(const QStringList& filePaths);
+	void sig_InvalidPointThresholdChange(int threshold);
 
 private:
 	QStateMachine* m_pStateMachine;

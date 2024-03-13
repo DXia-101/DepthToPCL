@@ -29,6 +29,7 @@ MainInterface::MainInterface(QWidget *parent)
 	InitToolBar();
 
 	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::ChangeCurrentState);
+	connect(this, &MainInterface::sig_InvalidPointThresholdChange, teImageBrowserController::getInstance(), &teImageBrowserController::InvalidPointThresholdChange);
 
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, teImageBrowserController::getInstance(), &teImageBrowserController::teUpDataSet);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, te2DCanvasController::getInstance(),&te2DCanvasController::sig_StartMarking);
@@ -96,6 +97,11 @@ void MainInterface::InitToolBar()
 	//connect(Stop_Train, &QAction::triggered, this, &DepthToPCL::StopTrainAction);
 	connect(Start_Test, &QAction::triggered, m_AiModelController, &AiModelController::sig_PrepareTest);
 
+}
+
+void MainInterface::on_InvalidPointThresholdSpinBox_valueChanged(int arg)
+{
+	emit sig_InvalidPointThresholdChange(arg);
 }
 
 void MainInterface::LoadTrainingImages()
