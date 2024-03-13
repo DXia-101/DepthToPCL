@@ -27,6 +27,7 @@ public:
 private slots:
 	void LoadTrainingImages();
 	void on_InvalidPointThresholdSpinBox_valueChanged(int arg);
+	void on_ValidPointThresholdSpinBox_valueChanged(int arg);
 	void ConnectHeightTransform();
 	void DisconnectHeightTransform();
 
@@ -36,6 +37,7 @@ private:
 signals:
 	void sig_LoadTrainingImages(const QStringList& filePaths);
 	void sig_InvalidPointThresholdChange(int threshold);
+	void sig_ValidPointThresholdChange(int threshold);
 
 private:
 	QStateMachine* m_pStateMachine;

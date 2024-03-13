@@ -35,7 +35,7 @@ bool TeJetColorCode::cvt16Bit2BGR(cv::Mat& obj16Bit, cv::Mat& objBGR)
 	return true;
 }
 
-bool TeJetColorCode::cvt32F2BGR(int threshold,cv::Mat& obj32FC1, cv::Mat& objBGR)
+bool TeJetColorCode::cvt32F2BGR(float minHeight, float maxHeight,cv::Mat& obj32FC1, cv::Mat& objBGR)
 {
 	if (obj32FC1.type() != CV_32FC1 || objBGR.type() != CV_8UC3)
 	{
@@ -51,12 +51,10 @@ bool TeJetColorCode::cvt32F2BGR(int threshold,cv::Mat& obj32FC1, cv::Mat& objBGR
 
 		for (size_t w = 0; w < iWidth; w++)
 		{
-			float absDepth = pDepth[w] > threshold ? pDepth[w] : 0.0;
-			int iIndex = 1023 * absDepth;//将[0-1.0]之间的数据映射到[0-1024)之间
-			if (iIndex > 1023)
-			{
-				iIndex = 1023;
-			}
+			float absDepth = pDepth[w] > minHeight ? pDepth[w] : minHeight;
+			absDepth = absDepth < maxHeight ? absDepth : maxHeight;
+			float realDepth = maxHeight == minHeight ? 0 : ((absDepth - minHeight) / (maxHeight - minHeight));
+			int iIndex = 1023 * realDepth;//将[0-1.0]之间的数据映射到[0-1024)之间
 			pBGR[w] = m_pJetTab1024[iIndex];
 		}
 	}

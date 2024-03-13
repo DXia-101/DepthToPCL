@@ -29,13 +29,15 @@ public:
 	/// <param name="cloudin">待转换点云</param>
 	/// <param name="imageout">转换后的cv::Mat</param>
 	static void Cloud2cvMat(int width, int height, float originX, float originY, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& imageout);
-
+	
 	/// <summary>
 	/// cv::Mat 转为 点云
 	/// </summary>
+	/// <param name="minHeight"></param>
+	/// <param name="maxHeight"></param>
 	/// <param name="imageIn">待转换的cv::Mat</param>
 	/// <param name="cloudOut">转换后的点云</param>
-	static void cvMat2Cloud(int threshold,cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut);
+	static void cvMat2Cloud(int minHeight,int maxHeight,cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut);
 	
 	/// <summary>
 	/// cv::Mat 查找轮廓

@@ -28,6 +28,7 @@ teImageBrowserController::teImageBrowserController(QObject *parent)
     RSTShowFlag = false;
     CurrentState = TwoD;
     InvalidPointThreshold = 0;
+    ValidPointThreshold = 800;
 
     connect(ImageBrowser, &TeSampWidget::sig_SwitchImg, this, &teImageBrowserController::SwitchImg, Qt::DirectConnection);
     connect(ImageBrowser, &TeSampWidget::sig_UpDateItem, this, &teImageBrowserController::UpdateItem);
@@ -103,7 +104,7 @@ void teImageBrowserController::ItemActive(int* pIndex, int len)
                 cv::Mat median;
                 median.create(image.size(), CV_8UC3);
                 TeJetColorCode trans;
-                if (trans.cvt32F2BGR(image, median)) {
+                if (trans.cvt32F2BGR(InvalidPointThreshold, ValidPointThreshold, image, median)) {
                     cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
                     //cv::Mat heatmap;
                     //cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
@@ -130,7 +131,7 @@ void teImageBrowserController::ItemActive(int* pIndex, int len)
                 qDebug() << "Failed to load the TIF image.";
                 return;
             }
-            Transfer_Function::cvMat2Cloud(InvalidPointThreshold,image, mediancloud);
+            Transfer_Function::cvMat2Cloud(InvalidPointThreshold,ValidPointThreshold,image, mediancloud);
             emit te3DCanvasController::getInstance()->sig_SavePointCloud(QString::fromStdString(std::to_string(pIndex[i]) + "_thumb.pcd"), mediancloud);
             teDataStorage::getInstance()->updatePointCloud(pIndex[i], std::to_string(pIndex[i]) + "_thumb.pcd");
         }
@@ -155,7 +156,7 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
         cv::Mat median;
         median.create(image.size(), CV_8UC3);
         TeJetColorCode trans;
-        if (trans.cvt32F2BGR(image, median)) {
+        if (trans.cvt32F2BGR(InvalidPointThreshold, ValidPointThreshold, image, median)) {
             cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
             emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
             te2DCanvasController::getInstance()->setImage(te::Image(median).clone());
@@ -179,4 +180,9 @@ void teImageBrowserController::teUpDataSet(int iNum, int iLayerNum, bool bReset)
 void teImageBrowserController::InvalidPointThresholdChange(int threshold)
 {
     InvalidPointThreshold = threshold;
+}
+
+void teImageBrowserController::ValidPointThresholdChange(int threshold)
+{
+    ValidPointThreshold = threshold;
 }

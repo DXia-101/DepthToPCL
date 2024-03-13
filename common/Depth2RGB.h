@@ -20,7 +20,7 @@ public:
 
 	bool cvt16Bit2BGR(cv::Mat& obj16Bit, cv::Mat& objBGR);
 
-	bool cvt32F2BGR(int threshold, cv::Mat& obj32FC1, cv::Mat& objBGR);
+	bool cvt32F2BGR(float minHeight, float maxHeight, cv::Mat& obj32FC1, cv::Mat& objBGR);
 	bool cvt32F2BGR(cv::Mat& obj32FC1, cv::Mat& objBGR);
 private:
 	void teBuildJetTab();

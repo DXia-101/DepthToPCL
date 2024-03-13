@@ -25,6 +25,7 @@ public slots:
 	void ChangeCurrentState();
 	void teUpDataSet(int iNum, int iLayerNum, bool bReset);
 	void InvalidPointThresholdChange(int threshold);
+	void ValidPointThresholdChange(int threshold);
 
 signals:
 	void sig_showAll2DItem();
@@ -33,6 +34,7 @@ signals:
 private:
 	TeSampWidget* ImageBrowser;
 	int InvalidPointThreshold;
+	int ValidPointThreshold;
 	bool GTShowFlag;
 	bool RSTShowFlag;
 	bool CurrentState;
