@@ -424,11 +424,24 @@ void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
     
     viewer->addPointCloud<pcl::PointXYZ>(cloudin, "cloud");
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
+
+    pcl::PointXYZ minPt, maxPt;
+    pcl::getMinMax3D(*cloud, minPt, maxPt);
+    // 计算点云中心位置和对角线长度
+    Eigen::Vector3f center((maxPt.x + minPt.x) / 2, (maxPt.y + minPt.y) / 2, (maxPt.z + minPt.z) / 2);
+    Eigen::Vector3f diff = maxPt.getVector3fMap() - minPt.getVector3fMap();
+    float distance = diff.norm();
+
+    // 设置相机位置和视角
+    // (场景中心点的坐标, 摄像机到场景中心点的距离, 摄像机的方向向量)
+    viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), center(1), center(2), 0, 0, 0);
+    // 显示可视化窗口
+    viewer->spin();
+
     //RemoveOutliers();
-    viewer->resetCamera();
-    //update();
+
     m_renderWindow->Render();
-    viewer->resetCameraViewpoint("cloud");
+    //viewer->resetCameraViewpoint("cloud");
 }
 
 AxisSet te3DCanvas::getAxisSet()
