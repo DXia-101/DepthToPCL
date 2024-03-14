@@ -3,6 +3,12 @@
 #include <QDebug>
 #include <QWheelEvent>
 #include <QEvent>
+
+#define DEBUG
+
+#ifdef DEBUG
+#include <QTime>
+#endif
 #include "Transfer_Function.h"
 #include "teDataStorage.h"
 
@@ -14,19 +20,6 @@ te3DCanvas::te3DCanvas(QWidget *parent)
 
 te3DCanvas::~te3DCanvas()
 {}
-
-std::string rand_str(const int len)
-{
-    std::string str;
-    char c;
-    int idx;
-    for (idx = 0; idx < len; idx++)
-    {
-        c = 'a' + rand() % 26;
-        str.push_back(c);
-    }
-    return str;
-}
 
 void te3DCanvas::PCL_Initalization()
 {
@@ -192,14 +185,16 @@ void te3DCanvas::PolygonSelect(void* viewer_void)
 
 bool te3DCanvas::LoadPointCloud(QString fileName)
 {
+#ifdef DEBUG
+    QTime timer;
+    timer.start();
+#endif
     if (fileName.isEmpty())
     {
         return false;
     }
 
     cloud->points.clear();
-
-    int currentDisplayImageWidth, currentDisplayImageHeight;
 
     if (fileName.endsWith("pcd"))
     {
@@ -214,6 +209,9 @@ bool te3DCanvas::LoadPointCloud(QString fileName)
     }
 
     SetCoordinateSet();
+#ifdef DEBUG
+    qDebug() << u8"加载点云耗时：" << timer.elapsed() / 1000.0 << "s";
+#endif
     return true;
 }
 
@@ -287,27 +285,6 @@ void te3DCanvas::ShowResult(int arg)
     m_renderWindow->Render();
 }
 
-void te3DCanvas::RemoveOutliers()
-{
-    pcl::PointXYZ min;
-    pcl::PointXYZ max;
-    pcl::getMinMax3D(*cloud, min, max);
-
-    float rangeZ = max.z - min.z;
-    float minCropZ = min.z + ((1.0 - (m_member.cutParameter / 100)) / 2.0) * rangeZ;
-    float maxCropZ = max.z - ((1.0 - (m_member.cutParameter / 100)) / 2.0) * rangeZ;
-
-    // 创建滤波器
-    pcl_filter_direct(cloud, minCropZ, maxCropZ, "z", 0);
-    *cloud = *cloud_Filter_out;
-    viewer->removeAllPointClouds();
-    viewer->removeAllShapes();
-    viewer->addPointCloud(cloud, "cloud");
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
-    viewer->resetCamera();
-    m_renderWindow->Render();
-}
-
 void te3DCanvas::ReductionPointCloud()
 {
     LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
@@ -323,11 +300,18 @@ bool te3DCanvas::SetBackgroundColor(QColor color)
 
 bool te3DCanvas::CoordinateAxisRendering(QString curaxis)
 {
+#ifdef DEBUG
+    QTime timer;
+    timer.start();
+#endif
     if (!cloud->empty()) {
         pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> render(cloud, curaxis.toStdString());
         viewer->updatePointCloud(cloud, render, "cloud");
         m_renderWindow->Render();
     }
+#ifdef DEBUG
+    qDebug() << u8"按坐标轴渲染点云耗时：" << timer.elapsed() / 1000.0 << "s";
+#endif
     return true;
 }
 
@@ -421,6 +405,10 @@ void te3DCanvas::ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
 
 void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
 {
+#ifdef DEBUG
+    QTime timer;
+    timer.start();
+#endif
     viewer->removeAllPointClouds();
     viewer->removeAllShapes();
     
@@ -444,6 +432,9 @@ void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
 
     m_renderWindow->Render();
     //viewer->resetCameraViewpoint("cloud");
+#ifdef DEBUG
+    qDebug() << u8"渲染点云耗时：" << timer.elapsed() / 1000.0 << "s";
+#endif
 }
 
 AxisSet te3DCanvas::getAxisSet()
@@ -598,12 +589,16 @@ void te3DCanvas::subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cl
 
 void te3DCanvas::PerspectiveToYaxis()
 {
-    Eigen::Vector4f centroid;
-    pcl::compute3DCentroid(*cloud, centroid);
+    pcl::PointXYZ minPt, maxPt;
+    pcl::getMinMax3D(*cloud, minPt, maxPt);
+    Eigen::Vector3f center((maxPt.x + minPt.x) / 2, (maxPt.y + minPt.y) / 2, (maxPt.z + minPt.z) / 2);
+    Eigen::Vector3f diff = maxPt.getVector3fMap() - minPt.getVector3fMap();
+    float distance = diff.norm();
+
     if (m_member.PositiveAndNegative_Y_axis)
-        viewer->setCameraPosition(centroid.x(), centroid.y(), centroid.z(), 0, 1, 0, 1, 0, 0);
+        viewer->setCameraPosition(center(0), center(1), center(2) + distance, 0, center(1), 0, 1, 0, 0);
     else
-        viewer->setCameraPosition(centroid.x(), centroid.y(), centroid.z(), 0, 1, 0, -1, 0, 0);
+        viewer->setCameraPosition(center(0), center(1), center(2) + distance, 0, center(1), 0, -1, 0, 0);
     m_member.PositiveAndNegative_Y_axis = !m_member.PositiveAndNegative_Y_axis;
     viewer->updateCamera();
     viewer->spinOnce();
@@ -611,12 +606,16 @@ void te3DCanvas::PerspectiveToYaxis()
 
 void te3DCanvas::PerspectiveToXaxis()
 {
-    Eigen::Vector4f centroid;
-    pcl::compute3DCentroid(*cloud, centroid);
+    pcl::PointXYZ minPt, maxPt;
+    pcl::getMinMax3D(*cloud, minPt, maxPt);
+    Eigen::Vector3f center((maxPt.x + minPt.x) / 2, (maxPt.y + minPt.y) / 2, (maxPt.z + minPt.z) / 2);
+    Eigen::Vector3f diff = maxPt.getVector3fMap() - minPt.getVector3fMap();
+    float distance = diff.norm();
+
     if (m_member.PositiveAndNegative_X_axis)
-        viewer->setCameraPosition(centroid.x(), centroid.y(), centroid.z(), 1, 0, 0, 0, 1, 0);
+        viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), 0, 0, 0, 1, 0);
     else
-        viewer->setCameraPosition(centroid.x(), centroid.y(), centroid.z(), 1, 0, 0, 0, -1, 0);
+        viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), 0, 0, 0, -1, 0);
     m_member.PositiveAndNegative_X_axis = !m_member.PositiveAndNegative_X_axis;
     viewer->updateCamera();
     viewer->spinOnce();
@@ -624,12 +623,16 @@ void te3DCanvas::PerspectiveToXaxis()
 
 void te3DCanvas::PerspectiveToZaxis()
 {
-    Eigen::Vector4f centroid;
-    pcl::compute3DCentroid(*cloud, centroid);
+    pcl::PointXYZ minPt, maxPt;
+    pcl::getMinMax3D(*cloud, minPt, maxPt);
+    Eigen::Vector3f center((maxPt.x + minPt.x) / 2, (maxPt.y + minPt.y) / 2, (maxPt.z + minPt.z) / 2);
+    Eigen::Vector3f diff = maxPt.getVector3fMap() - minPt.getVector3fMap();
+    float distance = diff.norm();
+
     if (m_member.PositiveAndNegative_Z_axis)
-        viewer->setCameraPosition(0, 0, centroid.z(), 0, 0, -1, 0, 1, 0);
+        viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), center(1), center(2), 1, 0, 0);
     else
-        viewer->setCameraPosition(0, 0, -centroid.z(), 0, 0, -1,0, 1, 0);
+        viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), center(1), center(2), -1, 0, 0);
     m_member.PositiveAndNegative_Z_axis = !m_member.PositiveAndNegative_Z_axis;
     viewer->updateCamera();
     viewer->spinOnce();

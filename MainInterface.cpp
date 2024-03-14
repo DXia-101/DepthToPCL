@@ -29,11 +29,11 @@ MainInterface::MainInterface(QWidget *parent)
 	InitToolBar();
 	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_ConnectHeightTransform, this, &MainInterface::ConnectHeightTransform);
 	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_DisonnectHeightTransform, this, &MainInterface::DisconnectHeightTransform);
-	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::ChangeCurrentState);
-	connect(this, &MainInterface::sig_InvalidPointThresholdChange, teImageBrowserController::getInstance(), &teImageBrowserController::InvalidPointThresholdChange);
-	connect(this, &MainInterface::sig_ValidPointThresholdChange, teImageBrowserController::getInstance(), &teImageBrowserController::ValidPointThresholdChange);
+	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ChangeCurrentState);
+	connect(this, &MainInterface::sig_InvalidPointThresholdChange, teImageBrowserController::getInstance(), &teImageBrowserController::sig_InvalidPointThresholdChange);
+	connect(this, &MainInterface::sig_ValidPointThresholdChange, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ValidPointThresholdChange);
 
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, teImageBrowserController::getInstance(), &teImageBrowserController::teUpDataSet);
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, teImageBrowserController::getInstance(), &teImageBrowserController::sig_teUpDataSet);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, te2DCanvasController::getInstance(),&te2DCanvasController::sig_StartMarking);
 	
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, te2DCanvasController::getInstance(), &te2DCanvasController::sig_currentLabelChange);

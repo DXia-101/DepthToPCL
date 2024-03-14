@@ -10,29 +10,45 @@
 #include <QSettings>
 #include <QDir>
 #include <QVBoxLayout>
-#include <QFileInfo>
+#include <QFileInfo>BlockingQueuedConnection
+#include <QDebug>
+#include <QTime>
 
-constexpr bool TwoD = false;
-constexpr bool ThrD = true;
+#define DEBUG
 
 teImageBrowserController::Garbo teImageBrowserController::tmp;
 
 teImageBrowserController* teImageBrowserController::instance = nullptr;
 
+constexpr bool TwoD = false;
+constexpr bool ThrD = true;
+
 teImageBrowserController::teImageBrowserController(QObject *parent)
 	: QObject(parent)
 {
 	ImageBrowser = new TeSampWidget();
-    
-    GTShowFlag = false;
-    RSTShowFlag = false;
+    worker = new teImageBrowserWorkThread();
+    worker->setImageBrowser(ImageBrowser);
+    thread = new QThread();
+    worker->moveToThread(thread);
+        
     CurrentState = TwoD;
     InvalidPointThreshold = 0;
     ValidPointThreshold = 800;
 
     connect(ImageBrowser, &TeSampWidget::sig_SwitchImg, this, &teImageBrowserController::SwitchImg, Qt::DirectConnection);
-    connect(ImageBrowser, &TeSampWidget::sig_UpDateItem, this, &teImageBrowserController::UpdateItem);
-    connect(ImageBrowser, &TeSampWidget::sig_ItemActive, this, &teImageBrowserController::ItemActive);
+    connect(this, &teImageBrowserController::sig_ChangeCurrentState, this, &teImageBrowserController::ChangeCurrentState);
+
+    connect(ImageBrowser, &TeSampWidget::sig_UpDateItem, worker, &teImageBrowserWorkThread::UpdateItem,Qt::QueuedConnection);
+    connect(ImageBrowser, &TeSampWidget::sig_ItemActive, worker, &teImageBrowserWorkThread::ItemActive,Qt::QueuedConnection);
+    connect(worker, &teImageBrowserWorkThread::sig_showAll2DItem,this, &teImageBrowserController::sig_showAll2DItem, Qt::QueuedConnection);
+    connect(worker, &teImageBrowserWorkThread::sig_SavePointCloud,this, &teImageBrowserController::sig_SavePointCloud, Qt::BlockingQueuedConnection);
+
+    connect(this, &teImageBrowserController::sig_teUpDataSet,worker, &teImageBrowserWorkThread::teUpDataSet, Qt::QueuedConnection);
+    connect(this, &teImageBrowserController::sig_InvalidPointThresholdChange,worker, &teImageBrowserWorkThread::InvalidPointThresholdChange, Qt::QueuedConnection);
+    connect(this, &teImageBrowserController::sig_ValidPointThresholdChange,worker, &teImageBrowserWorkThread::ValidPointThresholdChange, Qt::QueuedConnection);
+
+    thread->start();
 }
 
 teImageBrowserController::~teImageBrowserController()
@@ -72,72 +88,6 @@ void teImageBrowserController::displayUIInWidget(QVBoxLayout * layout)
 	ImageBrowser->show();
 }
 
-void teImageBrowserController::UpdateItem(int* pIndex, int len)
-{
-    for (int i = 0; i < len; i++) {
-        cv::Mat image = cv::imread(teDataStorage::getInstance()->getOriginImage()[pIndex[i]], cv::IMREAD_UNCHANGED);
-        if (!image.empty()) {
-            QSize imageSize(image.cols, image.rows);
-
-            QFileInfo fileInfo(QString::fromStdString(teDataStorage::getInstance()->getOriginImage()[i]));
-            QString fileName = fileInfo.fileName();
-
-            ImageBrowser->teUpDateImg(pIndex[i], { QString::fromStdString(teDataStorage::getInstance()->getShrinkageChart()[i]) }, imageSize, fileName);
-        }
-    }
-}
-
-void teImageBrowserController::ItemActive(int* pIndex, int len)
-{
-    for (int i = 0; i < len; i++) {
-        if (!QFile::exists(QString::fromStdString(teDataStorage::getInstance()->getShrinkageChart()[pIndex[i]]))) {
-            QFileInfo fileInfo(QString::fromStdString(teDataStorage::getInstance()->getOriginImage()[pIndex[i]]));
-            QString suffix = fileInfo.suffix().toLower();
-            if ((suffix == "tif" || suffix == "tiff")) {
-                std::string imgPath = teDataStorage::getInstance()->getOriginImage()[pIndex[i]];
-                cv::Mat image = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
-
-                if (image.empty()) {
-                    qDebug() << "Failed to load the TIF image.";
-                    return;
-                }
-                cv::Mat median;
-                median.create(image.size(), CV_8UC3);
-                TeJetColorCode trans;
-                if (trans.cvt32F2BGR(InvalidPointThreshold, ValidPointThreshold, image, median)) {
-                    cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
-                    //cv::Mat heatmap;
-                    //cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
-                    //cv::resize(heatmap, heatmap, cv::Size(80, 80));
-                    //cv::imwrite(std::to_string(pIndex[i]) + "_thumb.bmp", heatmap);
-                    cv::resize(median, median, cv::Size(80, 80));
-                    cv::imwrite(std::to_string(pIndex[i]) + "_thumb.bmp", median);
-                    teDataStorage::getInstance()->updateShrinkageChart(pIndex[i], std::to_string(pIndex[i]) + "_thumb.bmp");
-                }
-            }
-            else {
-                te::Image img = te::Image::load(teDataStorage::getInstance()->getOriginImage()[pIndex[i]]).resize(te::Size(80, 80));
-                img.save(std::to_string(pIndex[i]) + "_thumb.bmp");
-                teDataStorage::getInstance()->updateShrinkageChart(pIndex[i], std::to_string(pIndex[i]) + "_thumb.bmp");
-                ImageBrowser->teUpdateThumb(pIndex[i], 0, QImage(QString::number(pIndex[i]) + "_thumb.bmp"), E_FORMAT_RGB);
-            }
-        }
-        if (!QFile::exists(QString::fromStdString(teDataStorage::getInstance()->getPointCloud()[pIndex[i]]))) {
-            std::string imgPath = teDataStorage::getInstance()->getOriginImage()[pIndex[i]];
-            cv::Mat image = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
-            pcl::PointCloud<pcl::PointXYZ>::Ptr mediancloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
-
-            if (image.empty()) {
-                qDebug() << "Failed to load the TIF image.";
-                return;
-            }
-            Transfer_Function::cvMat2Cloud(InvalidPointThreshold,ValidPointThreshold,image, mediancloud);
-            emit te3DCanvasController::getInstance()->sig_SavePointCloud(QString::fromStdString(std::to_string(pIndex[i]) + "_thumb.pcd"), mediancloud);
-            teDataStorage::getInstance()->updatePointCloud(pIndex[i], std::to_string(pIndex[i]) + "_thumb.pcd");
-        }
-    }
-}
-
 void teImageBrowserController::SwitchImg(int pIndex, int len)
 {
     teDataStorage::getInstance()->setCurrentIndex(pIndex);
@@ -167,16 +117,6 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
     }
 }
 
-void teImageBrowserController::ChangeCurrentState()
-{
-    CurrentState = !CurrentState;
-}
-
-void teImageBrowserController::teUpDataSet(int iNum, int iLayerNum, bool bReset)
-{
-    ImageBrowser->teUpDateSet(iNum,iLayerNum,bReset);
-}
-
 void teImageBrowserController::InvalidPointThresholdChange(int threshold)
 {
     InvalidPointThreshold = threshold;
@@ -185,4 +125,9 @@ void teImageBrowserController::InvalidPointThresholdChange(int threshold)
 void teImageBrowserController::ValidPointThresholdChange(int threshold)
 {
     ValidPointThreshold = threshold;
+}
+
+void teImageBrowserController::ChangeCurrentState()
+{
+    CurrentState = !CurrentState;
 }

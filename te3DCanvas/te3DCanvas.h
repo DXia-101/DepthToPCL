@@ -70,8 +70,6 @@ public slots:
 
     void ShowDimension(int arg);
     void ShowResult(int arg);
-
-    void RemoveOutliers();
     void ReductionPointCloud();
 signals:
     void sig_3DCanvasMarkingCompleted(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);

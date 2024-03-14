@@ -2,7 +2,8 @@
 
 #include <QObject>
 #include "tesampwidget.h"
-
+#include "teImageBrowserWorkThread.h"
+#include <QThread>
 
 class QVBoxLayout;
 class QThread;
@@ -16,29 +17,30 @@ public:
 
 	void displayUIInWidget(QVBoxLayout* layout);
 
-private slots:
-	void UpdateItem(int* pIndex, int len);
-	void ItemActive(int* pIndex, int len);
-	void SwitchImg(int pIndex, int len);
-
 public slots:
 	void ChangeCurrentState();
-	void teUpDataSet(int iNum, int iLayerNum, bool bReset);
+	void SwitchImg(int pIndex, int len);
 	void InvalidPointThresholdChange(int threshold);
 	void ValidPointThresholdChange(int threshold);
+
+private:
+	TeSampWidget* ImageBrowser;
+	teImageBrowserWorkThread* worker;
+	QThread* thread;
 
 signals:
 	void sig_showAll2DItem();
 	void sig_HeightTransform();
+	void sig_ChangeCurrentState();
+	void sig_teUpDataSet(int iNum, int iLayerNum, bool bReset);
+	void sig_InvalidPointThresholdChange(int threshold);
+	void sig_ValidPointThresholdChange(int threshold);
+	void sig_SavePointCloud(QString filepath, pcl::PointCloud<pcl::PointXYZ>::Ptr pcr);
 
 private:
-	TeSampWidget* ImageBrowser;
+	bool CurrentState;
 	int InvalidPointThreshold;
 	int ValidPointThreshold;
-	bool GTShowFlag;
-	bool RSTShowFlag;
-	bool CurrentState;
-	
 
 private:
 	static teImageBrowserController* instance;
