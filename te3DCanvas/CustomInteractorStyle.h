@@ -8,6 +8,9 @@ public:
 	void setRenderWindow(vtkRenderWindow* window, vtkSmartPointer<vtkRenderer> render);
 	virtual void OnMouseWheelForward()override;
 	virtual void OnMouseWheelBackward()override;
+	virtual void OnMiddleButtonDown()override;
+	virtual void OnMiddleButtonUp()override;
+	virtual void OnMouseMove()override;
 protected:
 	void Dolly(double factor);
 	void DollyToPosition(double fact, int* position, vtkRenderer* renderer);

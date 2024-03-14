@@ -13,9 +13,9 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	m_te3DCanvas = new te3DCanvas();
 	m_te3DCanvasMenu = new te3DCanvasMenu();
 	m_te3DCanvasToolBar = new te3DCanvasToolBar();
-	//m_interactor = CustomInteractorStyle::New();
-	//m_interactor->setRenderWindow(m_te3DCanvas->m_renderWindow,m_te3DCanvas->m_renderer);
-	//m_te3DCanvas->m_renderWindow->GetInteractor()->SetInteractorStyle(m_interactor);
+	m_interactor = CustomInteractorStyle::New();
+	m_interactor->setRenderWindow(m_te3DCanvas->m_renderWindow,m_te3DCanvas->m_renderer);
+	m_te3DCanvas->m_renderWindow->GetInteractor()->SetInteractorStyle(m_interactor);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, m_te3DCanvas, &te3DCanvas::PointCloudHeightTransform);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_ConnectHeightTransForm, this, &te3DCanvasController::sig_ConnectHeightTransform);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, this, &te3DCanvasController::SaveHeightTransFromFactor);

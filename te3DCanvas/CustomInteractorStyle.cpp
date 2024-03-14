@@ -30,6 +30,45 @@ void CustomInteractorStyle::OnMouseWheelBackward() {
 	}
 }
 
+void CustomInteractorStyle::OnMiddleButtonDown()
+{
+	int mouse_x, mouse_y;
+	vtkInteractorStyleTrackballCamera::GetInteractor()->GetEventPosition(mouse_x, mouse_y);
+
+	int viewport;
+	double x, y, z;
+	vtkInteractorStyleTrackballCamera::GetInteractor()->FindPokedRenderer(mouse_x, mouse_y);
+	//vtkInteractorStyleTrackballCamera::GetInteractor()->ComputeDisplayToWorld(mouse_x, mouse_y, z, x, y);
+
+	vtkInteractorStyleTrackballCamera::OnMiddleButtonDown();
+}
+
+void CustomInteractorStyle::OnMiddleButtonUp()
+{
+	int mouse_x, mouse_y;
+	vtkInteractorStyleTrackballCamera::GetInteractor()->GetEventPosition(mouse_x, mouse_y);
+
+	int viewport;
+	double x, y, z;
+	vtkInteractorStyleTrackballCamera::GetInteractor()->FindPokedRenderer(mouse_x, mouse_y);
+	//vtkInteractorStyleTrackballCamera::GetInteractor()->ComputeDisplayToWorld(mouse_x, mouse_y, z, x, y);
+
+	vtkInteractorStyleTrackballCamera::OnMiddleButtonUp();
+}
+
+void CustomInteractorStyle::OnMouseMove()
+{
+	int mouse_x, mouse_y;
+	vtkInteractorStyleTrackballCamera::GetInteractor()->GetEventPosition(mouse_x, mouse_y);
+
+	int viewport;
+	double x, y, z;
+	vtkInteractorStyleTrackballCamera::GetInteractor()->FindPokedRenderer(mouse_x, mouse_y);
+	//vtkInteractorStyleTrackballCamera::GetInteractor()->ComputeDisplayToWorld(mouse_x, mouse_y, z, x, y);
+
+	vtkInteractorStyleTrackballCamera::OnMouseMove();
+}
+
 void CustomInteractorStyle::Dolly(double factor)
 {
 	DollyToPosition(factor, this->Interactor->GetEventPosition(), m_renderer);
