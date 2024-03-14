@@ -19,6 +19,7 @@ public:
 
 public slots:
 	void ChangeCurrentState();
+	void UpdateItem(int* pIndex, int len);
 	void SwitchImg(int pIndex, int len);
 	void InvalidPointThresholdChange(int threshold);
 	void ValidPointThresholdChange(int threshold);

@@ -32,21 +32,6 @@ void teImageBrowserWorkThread::setImageBrowser(TeSampWidget * browser)
     ImageBrowser = browser;
 }
 
-void teImageBrowserWorkThread::UpdateItem(int* pIndex, int len)
-{
-    for (int i = 0; i < len; i++) {
-        cv::Mat image = cv::imread(teDataStorage::getInstance()->getOriginImage()[pIndex[i]], cv::IMREAD_UNCHANGED);
-        if (!image.empty()) {
-            QSize imageSize(image.cols, image.rows);
-
-            QFileInfo fileInfo(QString::fromStdString(teDataStorage::getInstance()->getOriginImage()[i]));
-            QString fileName = fileInfo.fileName();
-
-            ImageBrowser->teUpDateImg(pIndex[i], { QString::fromStdString(teDataStorage::getInstance()->getShrinkageChart()[i]) }, imageSize, fileName);
-        }
-    }
-}
-
 void teImageBrowserWorkThread::ItemActive(int* pIndex, int len)
 {
     for (int i = 0; i < len; i++) {

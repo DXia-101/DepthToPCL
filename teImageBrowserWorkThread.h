@@ -16,7 +16,6 @@ public:
 	void setImageBrowser(TeSampWidget* browser);
 
 public slots:
-	void UpdateItem(int* pIndex, int len);
 	void ItemActive(int* pIndex, int len);
 
 public slots:
