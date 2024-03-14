@@ -20,6 +20,7 @@ public:
 	static void destroy();
 
 	void displayUIInWidget(QVBoxLayout* layout);
+	void SavePointCloud(QString filepath, pcl::PointCloud<pcl::PointXYZ>::Ptr pcr);
 
 private slots:
 	void BackgroundColorSelect();
@@ -38,6 +39,9 @@ public slots:
 	void SaveHeightTransFromFactor(int factor);
 	void SaveAxis(QString axis);
 	void MaintainCoordinateAxis();
+	void LoadPointCloud(QString fileName);
+	void ReRenderOriginCloud();
+	void CurrentLabelChange(const QString& category, const QColor& color);
 
 signals:
 	void sig_BackgroundColor(QColor color);
@@ -49,11 +53,8 @@ signals:
 	void sig_GuassFilter(QString data1, QString data2, QString data3, QString data4);
 	void sig_DirectFilter(QString data1, QString data2, QString data3, QString data4);
 	void sig_LabelChanged(const QString& content, const QColor& fontColor);
-	void sig_LoadPointCloud(QString fileName);
-	void sig_SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>::Ptr saveCloud);
-	void sig_ReRenderOriginCloud();
-	void sig_currentLabelChange(const QString& category, const QColor& color);
-	void sig_ShowAllPointCloud();
+
+	
 	void sig_ConnectHeightTransform();
 	void sig_DisonnectHeightTransform();
 	void sig_MaintainCoordinateAxis();

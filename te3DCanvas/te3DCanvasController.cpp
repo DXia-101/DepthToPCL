@@ -42,21 +42,12 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_OBBSurrounding, m_te3DCanvas, &te3DCanvas::OrientedBoundingBox);
 	connect(this, &te3DCanvasController::sig_CoordinateAxis, m_te3DCanvas, &te3DCanvas::CoordinateAxisRendering);
 	
-	connect(m_te3DCanvas, &te3DCanvas::sig_3DCanvasMarkingCompleted, this, &te3DCanvasController::add3DAiInstance);
-	connect(this, &te3DCanvasController::sig_LabelChanged, m_te3DCanvas, &te3DCanvas::LabelChanged);
-
-	connect(this, &te3DCanvasController::sig_SavePointCloud, m_te3DCanvas, &te3DCanvas::SavePointCloud);
-	connect(this, &te3DCanvasController::sig_LoadPointCloud, m_te3DCanvas, &te3DCanvas::LoadPointCloud);
-	connect(this, &te3DCanvasController::sig_ReRenderOriginCloud, m_te3DCanvas, &te3DCanvas::reRenderOriginCloud);
-	connect(this, &te3DCanvasController::sig_currentLabelChange, m_te3DCanvas, &te3DCanvas::LabelChanged);
-
-	connect(this, &te3DCanvasController::sig_ShowAllPointCloud, this, &te3DCanvasController::ShowAllItems);
-	
+	connect(m_te3DCanvas, &te3DCanvas::sig_3DCanvasMarkingCompleted, this, &te3DCanvasController::add3DAiInstance);	
 }
 
 te3DCanvasController::~te3DCanvasController()
 {
-	//m_interactor->Delete();
+	m_interactor->Delete();
 }
 
 te3DCanvasController::te3DCanvasController(const te3DCanvasController&)
@@ -100,6 +91,11 @@ void te3DCanvasController::displayUIInWidget(QVBoxLayout* layout)
 	layout->setStretchFactor(m_te3DCanvas, 10);
 }
 
+void te3DCanvasController::SavePointCloud(QString filepath, pcl::PointCloud<pcl::PointXYZ>::Ptr pcr)
+{
+	m_te3DCanvas->SavePointCloud(filepath, pcr);
+}
+
 void te3DCanvasController::hideAllUI()
 {
 	m_te3DCanvasToolBar->hide();
@@ -112,9 +108,9 @@ void te3DCanvasController::showAllUI()
 	m_te3DCanvasToolBar->show();
 	m_te3DCanvasMenu->show();
 	m_te3DCanvas->show();
-	sig_LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
-	sig_ReRenderOriginCloud();
-	sig_ShowAllPointCloud();
+	m_te3DCanvas->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
+	m_te3DCanvas->reRenderOriginCloud();
+	ShowAllItems();
 }
 
 void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
@@ -180,6 +176,21 @@ void te3DCanvasController::SaveAxis(QString axis)
 void te3DCanvasController::MaintainCoordinateAxis()
 {
 	emit sig_CoordinateAxis(this->axis);
+}
+
+void te3DCanvasController::LoadPointCloud(QString fileName)
+{
+	m_te3DCanvas->LoadPointCloud(fileName);
+}
+
+void te3DCanvasController::ReRenderOriginCloud()
+{
+	m_te3DCanvas->reRenderOriginCloud();
+}
+
+void te3DCanvasController::CurrentLabelChange(const QString& category, const QColor& color)
+{
+	m_te3DCanvas->LabelChanged(category, color);
 }
 
 void te3DCanvasController::ShowAllResults()
