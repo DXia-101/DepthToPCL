@@ -1,31 +1,26 @@
 #pragma once
 
-#include <QObject>
+#include <QThread>
 #include "tesampwidget.h"
 #include "pcl_function.h"
 
-class teImageBrowserWorkThread  : public QObject
+class teImageBrowserWorkThread  : public QThread
 {
 	Q_OBJECT
 
 public:
-	teImageBrowserWorkThread(QObject*parent = nullptr);
+	teImageBrowserWorkThread(QThread*parent = nullptr);
 	~teImageBrowserWorkThread();
 
 public:
 	void setImageBrowser(TeSampWidget* browser);
-
-public slots:
-	void ItemActive(int* pIndex, int len);
+	void setItemActive(int* pIndex, int len);
+	void run();
 
 public slots:
 	void teUpDataSet(int iNum, int iLayerNum, bool bReset);
 	void InvalidPointThresholdChange(int threshold);
 	void ValidPointThresholdChange(int threshold);
-
-signals:
-	void sig_SavePointCloud(QString filepath, pcl::PointCloud<pcl::PointXYZ>::Ptr pcr);
-	void sig_showAll2DItem();
 
 private:
 	TeSampWidget* ImageBrowser;
@@ -33,5 +28,6 @@ private:
 	int ValidPointThreshold;
 	bool GTShowFlag;
 	bool RSTShowFlag;
-
+	int* pIndex;
+	int len;
 };

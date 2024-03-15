@@ -14,8 +14,8 @@
 #include <QFileInfo>
 #include <QDebug>
 
-teImageBrowserWorkThread::teImageBrowserWorkThread(QObject*parent)
-	: QObject(parent)
+teImageBrowserWorkThread::teImageBrowserWorkThread(QThread*parent)
+	: QThread(parent)
 {
     GTShowFlag = false;
     RSTShowFlag = false;
@@ -32,7 +32,7 @@ void teImageBrowserWorkThread::setImageBrowser(TeSampWidget * browser)
     ImageBrowser = browser;
 }
 
-void teImageBrowserWorkThread::ItemActive(int* pIndex, int len)
+void teImageBrowserWorkThread::run()
 {
     for (int i = 0; i < len; i++) {
         if (!QFile::exists(QString::fromStdString(teDataStorage::getInstance()->getShrinkageChart()[pIndex[i]]))) {
@@ -73,10 +73,16 @@ void teImageBrowserWorkThread::ItemActive(int* pIndex, int len)
                 return;
             }
             Transfer_Function::cvMat2Cloud(InvalidPointThreshold, ValidPointThreshold, image, mediancloud);
-            emit sig_SavePointCloud(QString::fromStdString(std::to_string(pIndex[i]) + "_thumb.pcd"), mediancloud);
+            te3DCanvasController::getInstance()->SavePointCloud(QString::fromStdString(std::to_string(pIndex[i]) + "_thumb.pcd"), mediancloud);
             teDataStorage::getInstance()->updatePointCloud(pIndex[i], std::to_string(pIndex[i]) + "_thumb.pcd");
         }
     }
+}
+
+void teImageBrowserWorkThread::setItemActive(int* pIndex, int len)
+{
+    this->pIndex = pIndex;
+    this->len = len;
 }
 
 void teImageBrowserWorkThread::teUpDataSet(int iNum, int iLayerNum, bool bReset)

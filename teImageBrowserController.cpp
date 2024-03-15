@@ -12,7 +12,7 @@
 #include <QVBoxLayout>
 #include <QFileInfo>BlockingQueuedConnection
 #include <QDebug>
-#include <QTime>
+#include <QElapsedTimer>
 
 #define DEBUG
 
@@ -29,8 +29,6 @@ teImageBrowserController::teImageBrowserController(QObject *parent)
 	ImageBrowser = new TeSampWidget();
     worker = new teImageBrowserWorkThread();
     worker->setImageBrowser(ImageBrowser);
-    thread = new QThread();
-    worker->moveToThread(thread);
         
     CurrentState = TwoD;
     InvalidPointThreshold = 0;
@@ -38,17 +36,12 @@ teImageBrowserController::teImageBrowserController(QObject *parent)
 
     connect(ImageBrowser, &TeSampWidget::sig_SwitchImg, this, &teImageBrowserController::SwitchImg, Qt::DirectConnection);
     connect(this, &teImageBrowserController::sig_ChangeCurrentState, this, &teImageBrowserController::ChangeCurrentState);
-
-    connect(ImageBrowser, &TeSampWidget::sig_UpDateItem, worker, &teImageBrowserWorkThread::UpdateItem,Qt::QueuedConnection);
-    connect(ImageBrowser, &TeSampWidget::sig_ItemActive, worker, &teImageBrowserWorkThread::ItemActive,Qt::QueuedConnection);
-    connect(worker, &teImageBrowserWorkThread::sig_showAll2DItem,this, &teImageBrowserController::sig_showAll2DItem, Qt::QueuedConnection);
-    connect(worker, &teImageBrowserWorkThread::sig_SavePointCloud,this, &teImageBrowserController::sig_SavePointCloud, Qt::BlockingQueuedConnection);
+    connect(ImageBrowser, &TeSampWidget::sig_UpDateItem, this, &teImageBrowserController::UpdateItem);
+    connect(ImageBrowser, &TeSampWidget::sig_ItemActive, this, &teImageBrowserController::ItemActive);
 
     connect(this, &teImageBrowserController::sig_teUpDataSet,worker, &teImageBrowserWorkThread::teUpDataSet, Qt::QueuedConnection);
     connect(this, &teImageBrowserController::sig_InvalidPointThresholdChange,worker, &teImageBrowserWorkThread::InvalidPointThresholdChange, Qt::QueuedConnection);
     connect(this, &teImageBrowserController::sig_ValidPointThresholdChange,worker, &teImageBrowserWorkThread::ValidPointThresholdChange, Qt::QueuedConnection);
-
-    thread->start();
 }
 
 teImageBrowserController::~teImageBrowserController()
@@ -108,10 +101,14 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
 {
     teDataStorage::getInstance()->setCurrentIndex(pIndex);
     if (CurrentState == ThrD) {
-        emit te3DCanvasController::getInstance()->sig_LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
-        emit te3DCanvasController::getInstance()->sig_ReRenderOriginCloud();
-        emit te3DCanvasController::getInstance()->sig_ShowAllPointCloud();
-        emit te3DCanvasController::getInstance()->sig_MaintainCoordinateAxis();
+        te3DCanvasController::getInstance()->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
+
+        te3DCanvasController::getInstance()->ReRenderOriginCloud();
+
+        te3DCanvasController::getInstance()->ShowAllItems();
+
+        te3DCanvasController::getInstance()->MaintainCoordinateAxis();
+
         emit sig_HeightTransform();
     }
     else if (CurrentState == TwoD) {
@@ -131,6 +128,12 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
         }
         emit sig_showAll2DItem();
     }
+}
+
+void teImageBrowserController::ItemActive(int* pIndex, int len)
+{
+    worker->setItemActive(pIndex, len);
+    worker->run();
 }
 
 void teImageBrowserController::InvalidPointThresholdChange(int threshold)
