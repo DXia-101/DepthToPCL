@@ -47,6 +47,7 @@ protected:
     void subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2);
 
     void SetCoordinateSet();
+    void VTKCoordinateAxis();
 public slots:
     bool SetBackgroundColor(QColor color);
     bool CoordinateAxisRendering(QString curaxis);
@@ -81,6 +82,7 @@ public:
 
     vtkRenderWindow* m_renderWindow;
     vtkSmartPointer<vtkRenderer> m_renderer;
+    
 private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_NoOutliers;
@@ -97,6 +99,10 @@ private:
 
     Filter_Guass* dialog_Guass_filter;
     Filter_Direct* dialog_Direct_filter;
+
+    vtkSmartPointer<vtkInteractorStyleTrackballCamera> style;
+    vtkSmartPointer<vtkOrientationMarkerWidget> markerWidget;
+    vtkSmartPointer<vtkAxesActor> axes_actor;
 private:
     struct AxisSet axisset;
     struct te3DCanvasMember m_member;

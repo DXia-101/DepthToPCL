@@ -17,6 +17,7 @@ te3DCanvas::te3DCanvas(QWidget *parent)
 	: QVTKOpenGLNativeWidget(parent)
 {
 	PCL_Initalization();
+    VTKCoordinateAxis();
 }
 
 te3DCanvas::~te3DCanvas()
@@ -427,6 +428,26 @@ void te3DCanvas::SetCoordinateSet()
         min,
         max,
     };
+}
+
+void te3DCanvas::VTKCoordinateAxis()
+{
+    axes_actor = vtkSmartPointer<vtkAxesActor>::New();
+    axes_actor->SetPosition(0, 0, 0);
+    axes_actor->SetTotalLength(2, 2, 2);
+    axes_actor->SetShaftType(0);
+    axes_actor->SetCylinderRadius(0.02);
+
+    style = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
+    this->interactor()->SetInteractorStyle(style);
+
+    markerWidget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
+    markerWidget->SetOrientationMarker(axes_actor);
+    markerWidget->SetInteractor(this->interactor());
+    markerWidget->SetEnabled(1);
+    markerWidget->InteractiveOn();
+
+    m_renderWindow->Render();
 }
 
 /**
