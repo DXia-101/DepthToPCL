@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <QMouseEvent>
+#include <QWheelEvent>
 
 class teMouseCircle  : public QWidget
 {
@@ -14,7 +15,12 @@ public:
 protected:
 	void paintEvent(QPaintEvent* event) override;
 	void mouseMoveEvent(QMouseEvent* event) override;
-
+	void mousePressEvent(QMouseEvent* event) override;
+	void mouseReleaseEvent(QMouseEvent* event) override;
+	void wheelEvent(QWheelEvent* event) override;
+	void transMouseEvents(QMouseEvent* event);
+	void transWheelEvents(QWheelEvent* event);
 private:
 	QPoint centerPoint;
+	int radius;
 };
