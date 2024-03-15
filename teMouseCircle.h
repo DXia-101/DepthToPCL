@@ -20,6 +20,9 @@ protected:
 	void wheelEvent(QWheelEvent* event) override;
 	void transMouseEvents(QMouseEvent* event);
 	void transWheelEvents(QWheelEvent* event);
+
+public slots:
+	void receptiveFieldChange(int factor);
 private:
 	QPoint centerPoint;
 	int radius;

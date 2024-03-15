@@ -35,6 +35,7 @@ MainInterface::MainInterface(QWidget *parent)
 
 	m_mouseCircle = new teMouseCircle();
 	m_mouseCircle->show();
+	m_mouseCircle->receptiveFieldChange(m_AiModelController->getReceptiveField());
 	stacklayout->addWidget(m_mouseCircle);
 	stacklayout->setCurrentWidget(m_mouseCircle);
 
@@ -58,6 +59,7 @@ MainInterface::MainInterface(QWidget *parent)
 	m_SChart->hide();
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_DataChangeDuringTraining, m_SChart, &teTrainStatisticsChart::ReceiveData);
 	connect(m_AiModelController, &AiModelController::sig_isShowTSChart, m_SChart, &teTrainStatisticsChart::isShow);
+	connect(m_AiModelController, &AiModelController::sig_receptiveFieldChange, m_mouseCircle, &teMouseCircle::receptiveFieldChange);
 }
 
 MainInterface::~MainInterface()
@@ -74,9 +76,11 @@ void MainInterface::InitStateMachine()
 
 	connect(TwoDState, &QState::entered, te2DCanvasController::getInstance(), &te2DCanvasController::showAllUI);
 	connect(TwoDState, &QState::entered, this, &MainInterface::ChangeBtnTextTo2D);
+	connect(TwoDState, &QState::entered, this, &MainInterface::ResetMouseRadius);
 	connect(TwoDState, &QState::exited, te2DCanvasController::getInstance(), &te2DCanvasController::hideAllUI);
 	connect(ThrDState, &QState::entered, te3DCanvasController::getInstance(), &te3DCanvasController::showAllUI);
 	connect(ThrDState, &QState::entered, this, &MainInterface::ChangeBtnTextTo3D);
+	connect(ThrDState, &QState::entered, this, &MainInterface::ResetMouseRadius);
 	connect(ThrDState, &QState::exited, te3DCanvasController::getInstance(), &te3DCanvasController::hideAllUI);
 
 	TwoDState->addTransition(ui->convertBtn, &QPushButton::clicked, ThrDState);
@@ -145,6 +149,11 @@ void MainInterface::ChangeBtnTextTo2D()
 void MainInterface::ChangeBtnTextTo3D()
 {
 	ui->convertBtn->setText(u8"×ª»»µ½2D");
+}
+
+void MainInterface::ResetMouseRadius()
+{
+	m_mouseCircle->receptiveFieldChange(m_AiModelController->getReceptiveField());
 }
 
 void MainInterface::LoadTrainingImages()

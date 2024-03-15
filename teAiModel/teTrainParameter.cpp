@@ -1,6 +1,8 @@
 #include "teTrainParameter.h"
 #include "teRapidjsonObjectTree.h"
 
+#include<QDebug>
+
 teTrainParameter::teTrainParameter(QWidget *parent)
 	: QWidget(parent)
 	, ui(new Ui::teTrainParameterClass())
@@ -8,6 +10,18 @@ teTrainParameter::teTrainParameter(QWidget *parent)
 	ui->setupUi(this);
 
 	ui->treeView->setWriter(std::make_shared<te::TrainParamWriter>());
+
+
+	connect(ui->treeView->getWriter(), &te::ObjectTreeWidgetWriter::sig_ItemChange, this, [this](te::ObjectTreeWidgetItem* pItem)
+	{
+		if (pItem->key() == "receptiveField") {
+
+			int value = 0;
+			ui->treeView->readObject_t(&value, pItem);
+
+			emit sig_receptiveFieldChange(value);
+		}
+	});
 
 	te::TrainParam param;
 	te::deserializeJsonFromIFStream("./TrainParaconfig.ini", &param);

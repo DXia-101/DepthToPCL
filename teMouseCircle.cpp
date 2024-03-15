@@ -1,6 +1,54 @@
 #include "teMouseCircle.h"
 #include <QPainter>
 #include <QApplication>
+#include <QPen>
+
+QTransform getZoomMat(const QPoint& center, double dRatio)
+{
+    QTransform mat;
+
+    mat.translate(center.x() * (1.0 - dRatio), center.y() * (1.0 - dRatio));
+
+    mat.scale(dRatio, dRatio);
+
+    return mat;
+}
+
+QTransform getResizeMat(Qt::Alignment align, const QSize& oldSize, const QSize& newSize)
+{
+    QTransform mat;
+
+    double dDeltaSizeWidth = (newSize.width() - oldSize.width());
+    double dDeltaSizeHeight = (newSize.height() - oldSize.height());
+
+    double dDeltaX = 0.0;
+    double dDeltaY = 0.0;
+
+    if (align & Qt::AlignLeft) {
+        dDeltaX = 0.0;
+    }
+    else if (align & Qt::AlignRight) {
+        dDeltaX = dDeltaSizeWidth;
+    }
+    else if (align & Qt::AlignHCenter) {
+        dDeltaX = dDeltaSizeWidth / 2.0;
+    }
+
+    if (align & Qt::AlignTop) {
+        dDeltaY = 0.0;
+    }
+    else if (align & Qt::AlignBottom) {
+        dDeltaY = dDeltaSizeHeight;
+    }
+    else if (align & Qt::AlignVCenter) {
+        dDeltaY = dDeltaSizeHeight / 2.0;
+    }
+
+    mat.translate(dDeltaX, dDeltaY);
+
+    return mat;
+}
+
 
 teMouseCircle::teMouseCircle(QWidget *parent)
 	: QWidget(parent)
@@ -25,13 +73,14 @@ void teMouseCircle::paintEvent(QPaintEvent * event)
     int centerX = width() / 2;
     int centerY = height() / 2;
 
-    // 绘制透明的背景
     painter.setPen(Qt::NoPen);
     painter.setBrush(QColor(0, 0, 0, 0)); 
     painter.drawRect(rect());
 
-    // 绘制不透明的圆形轮廓
-    painter.setPen(Qt::green);
+    QPen pen(Qt::green);
+    pen.setWidth(3);
+
+    painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
     painter.drawEllipse(centerPoint, radius, radius);
 }
@@ -55,6 +104,11 @@ void teMouseCircle::mouseReleaseEvent(QMouseEvent* event)
 
 void teMouseCircle::wheelEvent(QWheelEvent* event)
 {
+    if (event->modifiers() == Qt::NoModifier) {
+        int iDelta = event->delta();
+        double dZoomRatio = 1.0 + iDelta / 1000.0;
+        radius *= dZoomRatio;
+    }
     transWheelEvents(event);
 }
 
@@ -92,4 +146,9 @@ void teMouseCircle::transWheelEvents(QWheelEvent* event)
 
         this->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     }
+}
+
+void teMouseCircle::receptiveFieldChange(int factor)
+{
+    radius = factor;
 }

@@ -25,6 +25,7 @@ public slots:
 
 signals:
 	void sig_ShowTrainStatisticsChart(int arg);
+	void sig_receptiveFieldChange(int factor);
 
 public:
 	void getTrainParam(te::TrainParam* train);

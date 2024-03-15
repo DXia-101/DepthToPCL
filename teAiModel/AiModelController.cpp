@@ -14,6 +14,7 @@ AiModelController::AiModelController(QObject *parent)
 	connect(this, &AiModelController::sig_PrepareTest, this, &AiModelController::PrepareTest);
 	connect(this, &AiModelController::sig_SaveTrianParameter, m_teTrainPara, &teTrainParameter::SaveteTrainParameter);
 	connect(m_teTrainPara, &teTrainParameter::sig_ShowTrainStatisticsChart, this, &AiModelController::sig_isShowTSChart);
+	connect(m_teTrainPara, &teTrainParameter::sig_receptiveFieldChange , this, &AiModelController::sig_receptiveFieldChange);
 }	
 
 AiModelController::~AiModelController()
@@ -47,4 +48,11 @@ void AiModelController::PrepareTest()
 	m_teTestPara->getTestParam(test);
 	m_AiModel->InitTestConfig(test);
 	m_AiModel->start();
+}
+
+int AiModelController::getReceptiveField()
+{
+	te::TrainParam* train = new te::TrainParam();
+	m_teTrainPara->getTrainParam(train);
+	return train->receptiveField;
 }

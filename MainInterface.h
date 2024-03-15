@@ -33,6 +33,7 @@ private slots:
 	void DisconnectHeightTransform();
 	void ChangeBtnTextTo2D();
 	void ChangeBtnTextTo3D();
+	void ResetMouseRadius();
 private:
 	Ui::MainInterfaceClass *ui;
 	
