@@ -6,6 +6,8 @@ struct AxisSet {
     int curheight;
     float OriginX;
     float OriginY;
+    pcl::PointXYZ minPt;
+    pcl::PointXYZ maxPt;
 };
 
 struct te3DCanvasMember {

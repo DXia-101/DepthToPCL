@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QWheelEvent>
 #include <QEvent>
+#include <QElapsedTimer>
 
 #define DEBUG
 
@@ -185,10 +186,6 @@ void te3DCanvas::PolygonSelect(void* viewer_void)
 
 bool te3DCanvas::LoadPointCloud(QString fileName)
 {
-#ifdef DEBUG
-    QTime timer;
-    timer.start();
-#endif
     if (fileName.isEmpty())
     {
         return false;
@@ -209,10 +206,6 @@ bool te3DCanvas::LoadPointCloud(QString fileName)
     }
 
     SetCoordinateSet();
-#ifdef DEBUG
-    qDebug() << u8"加载点云耗时：" << timer.elapsed() / 1000.0 << "s";
-#endif
-    return true;
 }
 
 bool te3DCanvas::SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>::Ptr saveCloud)
@@ -300,18 +293,11 @@ bool te3DCanvas::SetBackgroundColor(QColor color)
 
 bool te3DCanvas::CoordinateAxisRendering(QString curaxis)
 {
-#ifdef DEBUG
-    QTime timer;
-    timer.start();
-#endif
-    if (!cloud->empty()) {
+    if (!cloud->empty() && !curaxis.isEmpty()) {
         pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> render(cloud, curaxis.toStdString());
         viewer->updatePointCloud(cloud, render, "cloud");
         m_renderWindow->Render();
     }
-#ifdef DEBUG
-    qDebug() << u8"按坐标轴渲染点云耗时：" << timer.elapsed() / 1000.0 << "s";
-#endif
     return true;
 }
 
@@ -355,7 +341,7 @@ void te3DCanvas::MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
     }
     cv::Mat extractImage;
     cloud_marked->points.clear();
-    Transfer_Function::ExtractImage2Cloud(m_image, axisset.OriginX, axisset.OriginY, &contour,cloud_marked);
+    Transfer_Function::ExtractImage2Cloud(m_image, axisset.OriginX, axisset.OriginY, &contour, cloud_marked);
 
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_marked, color.red(), color.green(), color.blue());
     QString CloudId;
@@ -405,36 +391,19 @@ void te3DCanvas::ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
 
 void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
 {
-#ifdef DEBUG
-    QTime timer;
-    timer.start();
-#endif
     viewer->removeAllPointClouds();
     viewer->removeAllShapes();
     
     viewer->addPointCloud<pcl::PointXYZ>(cloudin, "cloud");
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
-
-    pcl::PointXYZ minPt, maxPt;
-    pcl::getMinMax3D(*cloud, minPt, maxPt);
     // 计算点云中心位置和对角线长度
-    Eigen::Vector3f center((maxPt.x + minPt.x) / 2, (maxPt.y + minPt.y) / 2, (maxPt.z + minPt.z) / 2);
-    Eigen::Vector3f diff = maxPt.getVector3fMap() - minPt.getVector3fMap();
+    Eigen::Vector3f center((axisset.maxPt.x + axisset.minPt.x) / 2, (axisset.maxPt.y + axisset.minPt.y) / 2, (axisset.maxPt.z + axisset.minPt.z) / 2);
+    Eigen::Vector3f diff = axisset.maxPt.getVector3fMap() - axisset.minPt.getVector3fMap();
     float distance = diff.norm();
 
-    // 设置相机位置和视角
-    // (场景中心点的坐标, 摄像机到场景中心点的距离, 摄像机的方向向量)
-    viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), center(1), center(2), 0, 0, 0);
-    // 显示可视化窗口
-    viewer->spin();
-
-    //RemoveOutliers();
-
+    viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), center(1), center(2), 0, 0, 0); //耗时最多 2秒多
+    //viewer->spinOnce();
     m_renderWindow->Render();
-    //viewer->resetCameraViewpoint("cloud");
-#ifdef DEBUG
-    qDebug() << u8"渲染点云耗时：" << timer.elapsed() / 1000.0 << "s";
-#endif
 }
 
 AxisSet te3DCanvas::getAxisSet()
@@ -454,6 +423,8 @@ void te3DCanvas::SetCoordinateSet()
         currentDisplayImageHeight,
         min.x,
         min.y,
+        min,
+        max,
     };
 }
 

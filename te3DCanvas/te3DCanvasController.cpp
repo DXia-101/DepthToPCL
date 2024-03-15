@@ -142,19 +142,12 @@ void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr c
 
 void te3DCanvasController::ShowAllItems()
 {
-#ifdef DEBUG
-	QTime timer;
-	timer.start();
-#endif
 	if (m_te3DCanvasMenu->isDimensionShow()) {
 		ShowAllMarkers();
 	}
 	if (m_te3DCanvasMenu->isResultShow()) {
 		ShowAllResults();
 	}
-#ifdef DEBUG
-	qDebug() << u8"显示标记点云耗时：" << timer.elapsed() / 1000.0 << "s";
-#endif
 }
 
 void te3DCanvasController::HegithTransForm()
