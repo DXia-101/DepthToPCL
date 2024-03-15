@@ -10,6 +10,7 @@
 #include "te3DCanvasCoordinateAxisRenderDialog.h"
 #include "PointCloud_PointSize_Set_Dialog.h"
 #include "CustomInteractorStyle.h"
+#include <QStackedLayout>
 
 class te3DCanvasController  : public QObject
 {
@@ -19,8 +20,11 @@ public:
 	static te3DCanvasController* getInstance();
 	static void destroy();
 
-	void displayUIInWidget(QVBoxLayout* layout);
+	void displayToolBarInWidget(QVBoxLayout* layout);
+	void displayCanvasInWidget(QStackedLayout* layout);
 	void SavePointCloud(QString filepath, pcl::PointCloud<pcl::PointXYZ>::Ptr pcr);
+
+	QRect getGeometry();
 
 private slots:
 	void BackgroundColorSelect();

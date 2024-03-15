@@ -30,6 +30,7 @@ void te3DCanvas::PCL_Initalization()
     cloud_cliped = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_Filter_out = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_marked = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
+    crossCloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
 
     m_renderer = vtkSmartPointer<vtkRenderer>::New();
     m_renderWindow = this->renderWindow();

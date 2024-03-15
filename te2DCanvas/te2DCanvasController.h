@@ -4,6 +4,7 @@
 #include "te2DCanvas.h"
 #include "te2DCanvasToolBar.h"
 #include "teImage.h"
+#include <QStackedLayout>
 
 class te2DCanvasController  : public QObject
 {
@@ -13,7 +14,8 @@ public:
 	static te2DCanvasController* getInstance();
 	static void destroy();
 
-	void displayUIInWidget(QVBoxLayout* layout);
+	void displayToolBarInWidget(QVBoxLayout* layout);
+	void displayCanvasInWidget(QStackedLayout* layout);
 	void setImage(const te::Image& img, bool resetView = true);
 
 signals:

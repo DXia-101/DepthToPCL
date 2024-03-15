@@ -5,6 +5,7 @@
 
 #include "AiModelController.h"
 #include "teTrainStatisticsChart.h"
+#include "teMouseCircle.h"
 
 #include <QStateMachine>
 #include <QState>
@@ -46,4 +47,5 @@ private:
 	QState* ThrDState;
 	AiModelController* m_AiModelController;
 	teTrainStatisticsChart* m_SChart;
+	teMouseCircle* m_mouseCircle;
 };

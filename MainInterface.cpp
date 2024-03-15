@@ -9,21 +9,34 @@
 #include <QToolBar>
 #include <QAction>
 #include <QFileDialog>
+#include <QStackedLayout>
 
 MainInterface::MainInterface(QWidget *parent)
 	: QWidget(parent)
 	, ui(new Ui::MainInterfaceClass())
 {
 	ui->setupUi(this);
-	te3DCanvasController::getInstance()->displayUIInWidget(ui->canvasLayout);
+	QStackedLayout* stacklayout = new QStackedLayout();
+	ui->CanvasLayout->addLayout(stacklayout);
+	stacklayout->setStackingMode(QStackedLayout::StackAll);
+	te3DCanvasController::getInstance()->displayCanvasInWidget(stacklayout);
+	te2DCanvasController::getInstance()->displayCanvasInWidget(stacklayout);
+	te3DCanvasController::getInstance()->displayToolBarInWidget(ui->CanvasToolBarLayout);
+	te2DCanvasController::getInstance()->displayToolBarInWidget(ui->CanvasToolBarLayout);
 	te3DCanvasController::getInstance()->hideAllUI();
-	te2DCanvasController::getInstance()->displayUIInWidget(ui->canvasLayout);
+	
+
 	te2DCanvasController::getInstance()->showAllUI();
 	teDataStorage::getInstance()->displayUIInWidget(ui->labelLayout);
 	teImageBrowserController::getInstance()->displayUIInWidget(ui->browserLayout);
 
 	m_AiModelController = new AiModelController();
 	m_AiModelController->displayUIInWidget(ui->labelLayout);
+
+	m_mouseCircle = new teMouseCircle();
+	m_mouseCircle->show();
+	stacklayout->addWidget(m_mouseCircle);
+	stacklayout->setCurrentWidget(m_mouseCircle);
 
 	InitStateMachine();
 	InitToolBar();
@@ -49,6 +62,7 @@ MainInterface::MainInterface(QWidget *parent)
 
 MainInterface::~MainInterface()
 {
+	delete m_mouseCircle;
 	delete ui;
 }
 

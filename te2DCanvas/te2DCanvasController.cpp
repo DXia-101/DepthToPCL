@@ -61,14 +61,16 @@ void te2DCanvasController::destroy()
 	}
 }
 
-void te2DCanvasController::displayUIInWidget(QVBoxLayout * layout)
+void te2DCanvasController::displayToolBarInWidget(QVBoxLayout* layout)
 {
 	layout->addWidget(m_te2DCanvasToolBar);
-	layout->addWidget(m_te2DCanvas);
 	m_te2DCanvasToolBar->show();
+}
+
+void te2DCanvasController::displayCanvasInWidget(QStackedLayout* layout)
+{
+	layout->addWidget(m_te2DCanvas);
 	m_te2DCanvas->show();
-	layout->setStretchFactor(m_te2DCanvasToolBar, 1);
-	layout->setStretchFactor(m_te2DCanvas, 9);
 }
 
 void te2DCanvasController::setImage(const te::Image& img, bool resetView)

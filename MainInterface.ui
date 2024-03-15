@@ -85,7 +85,14 @@
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="canvasLayout"/>
+      <layout class="QVBoxLayout" name="showLayout" stretch="1,99">
+       <item>
+        <layout class="QVBoxLayout" name="CanvasToolBarLayout"/>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="CanvasLayout"/>
+       </item>
+      </layout>
      </item>
      <item>
       <layout class="QVBoxLayout" name="browserLayout"/>

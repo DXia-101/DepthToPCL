@@ -6,6 +6,7 @@
 #include <QTime>
 #include <QDebug>
 
+
 te3DCanvasController::Garbo te3DCanvasController::tmp;
 
 te3DCanvasController* te3DCanvasController::instance = nullptr;
@@ -78,22 +79,28 @@ void te3DCanvasController::destroy()
 	}
 }
 
-void te3DCanvasController::displayUIInWidget(QVBoxLayout* layout)
-{	
+void te3DCanvasController::displayToolBarInWidget(QVBoxLayout* layout)
+{
 	layout->addWidget(m_te3DCanvasToolBar);
 	layout->addWidget(m_te3DCanvasMenu);
-	layout->addWidget(m_te3DCanvas);
 	m_te3DCanvasToolBar->show();
 	m_te3DCanvasMenu->show();
+}
+
+void te3DCanvasController::displayCanvasInWidget(QStackedLayout* layout)
+{
+	layout->addWidget(m_te3DCanvas);
 	m_te3DCanvas->show();
-	layout->setStretchFactor(m_te3DCanvasToolBar, 1);
-	layout->setStretchFactor(m_te3DCanvasMenu, 1);
-	layout->setStretchFactor(m_te3DCanvas, 10);
 }
 
 void te3DCanvasController::SavePointCloud(QString filepath, pcl::PointCloud<pcl::PointXYZ>::Ptr pcr)
 {
 	m_te3DCanvas->SavePointCloud(filepath, pcr);
+}
+
+QRect te3DCanvasController::getGeometry()
+{
+	return m_te3DCanvas->geometry();
 }
 
 void te3DCanvasController::hideAllUI()

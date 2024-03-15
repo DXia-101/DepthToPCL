@@ -88,6 +88,7 @@ private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cliped;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_Filter_out;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_marked;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr crossCloud;
 
     pcl::PointXYZ curP, lastP; //»­Ïß
     
