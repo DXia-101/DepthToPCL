@@ -26,9 +26,9 @@ signals:
 	void sig_PrepareTrain();
 	void sig_PrepareTest();
 	void sig_isShowTSChart(int arg);
+	void sig_TSChartClose();
 	void sig_receptiveFieldChange(int factor);
-
-
+	void sig_StopTrain();
 
 private:
 	teTrainParameter* m_teTrainPara;

@@ -13,6 +13,8 @@ AiModelController::AiModelController(QObject *parent)
 	connect(this, &AiModelController::sig_PrepareTrain, this, &AiModelController::PrepareTrain);
 	connect(this, &AiModelController::sig_PrepareTest, this, &AiModelController::PrepareTest);
 	connect(this, &AiModelController::sig_SaveTrianParameter, m_teTrainPara, &teTrainParameter::SaveteTrainParameter);
+	connect(this, &AiModelController::sig_StopTrain, m_AiModel, &AiModelInterface::StopTrain);
+	connect(this, &AiModelController::sig_TSChartClose, m_teTrainPara, &teTrainParameter::teTrainStatisticsChartClose);
 	connect(m_teTrainPara, &teTrainParameter::sig_ShowTrainStatisticsChart, this, &AiModelController::sig_isShowTSChart);
 	connect(m_teTrainPara, &teTrainParameter::sig_receptiveFieldChange , this, &AiModelController::sig_receptiveFieldChange);
 }	

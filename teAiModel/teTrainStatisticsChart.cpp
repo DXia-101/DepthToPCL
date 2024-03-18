@@ -136,3 +136,9 @@ void teTrainStatisticsChart::Show_Plot(QCustomPlot* customPlot, int iterationNum
         frameCount = 0;
     }
 }
+
+void teTrainStatisticsChart::closeEvent(QCloseEvent* event)
+{
+    emit sig_closeteTrainStatisticsChart();
+    event->accept();
+}

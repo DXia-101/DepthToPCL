@@ -72,6 +72,7 @@ public slots:
 	void testModel(std::vector<te::SampleInfo>& trainSamples);
 	void InitTrainConfig(te::TrainParam* para);
 	void InitTestConfig(te::TestParam* para);
+	void StopTrain();
 
 signals:
 	void sig_TestingCompleted();
@@ -85,4 +86,5 @@ public:
 	int DeviceID;
 	AiStatus status;
 	te::ModelInfer infer_;
+	Training train_;
 };

@@ -114,6 +114,11 @@ void AiModelInterface::InitTestConfig(te::TestParam* para)
 	status = infer_.setExceptionFunc(teException, nullptr);
 }
 
+void AiModelInterface::StopTrain()
+{
+	//train_.stop();
+}
+
 void AiModelInterface::run()
 {
 	if (mode == trainMode) {
@@ -203,7 +208,6 @@ void AiModelInterface::trainModel(std::vector<te::SampleInfo>& trainSamples)
 	config.augmentHandle->algorithmProcess.push_back(flip);*/
 	std::string initInfo;
 
-	Training train_;
 	train_.setDeviceInfo({ E_GPU, DeviceID });
 	train_.setTrainConfig(config);
 	status = train_.init(trainSamples, initInfo);

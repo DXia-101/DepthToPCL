@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QCloseEvent>
 #include "ui_teTrainStatisticsChart.h"
 #include "qcustomplot.h"
 
@@ -20,7 +21,7 @@ public:
 
 private:
 	Ui::teTrainStatisticsChartClass *ui;
-
+	
 public slots:
 	void ReceiveData(int iteration, float fAvgLoss, float fPosAcc);
 
@@ -36,6 +37,10 @@ protected:
 	void QPlot_init(QCustomPlot* customPlot);
 
 	void Show_Plot(QCustomPlot* customPlot, int iterationNum, float fAvgLossNum, float fPosAccNum);
+	void closeEvent(QCloseEvent* event) override;
+
+signals:
+	void sig_closeteTrainStatisticsChart();
 
 private:
 	QCustomPlot* customPlot;

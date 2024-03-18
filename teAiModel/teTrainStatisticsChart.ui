@@ -36,6 +36,9 @@
            <property name="text">
             <string>iteration</string>
            </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item>
@@ -49,6 +52,9 @@
            <property name="text">
             <string>fAvgLoss</string>
            </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item>
@@ -61,6 +67,9 @@
            </property>
            <property name="text">
             <string>fPosAcc</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

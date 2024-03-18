@@ -55,7 +55,13 @@ void teTrainParameter::on_TrainingCurveCBox_stateChanged(int arg)
 	emit sig_ShowTrainStatisticsChart(arg);
 }
 
+void teTrainParameter::teTrainStatisticsChartClose()
+{
+	ui->TrainingCurveCBox->setChecked(false);
+}
+
 void teTrainParameter::getTrainParam(te::TrainParam* train)
 {
 	ui->treeView->readObject_t(train);
 }
+

@@ -22,6 +22,7 @@ public slots:
 	void SaveteTrainParameter();
 	void on_SaveButton_clicked(); 
 	void on_TrainingCurveCBox_stateChanged(int arg);
+	void teTrainStatisticsChartClose();
 
 signals:
 	void sig_ShowTrainStatisticsChart(int arg);
