@@ -64,6 +64,7 @@ MainInterface::MainInterface(QWidget *parent)
 
 MainInterface::~MainInterface()
 {
+	ClearAllCaches();
 	delete m_mouseCircle;
 	delete ui;
 }
@@ -119,6 +120,19 @@ void MainInterface::InitToolBar()
 	//connect(Stop_Train, &QAction::triggered, this, &DepthToPCL::StopTrainAction);
 	connect(Start_Test, &QAction::triggered, m_AiModelController, &AiModelController::sig_PrepareTest);
 
+}
+
+void MainInterface::ClearAllCaches()
+{
+	QDir currentDir = QDir::current();
+	QStringList filters;
+	filters << "*.pcd" << "*.bmp";
+	QFileInfoList fileList = currentDir.entryInfoList(filters, QDir::Files);
+
+	foreach(QFileInfo fileInfo, fileList) {
+		QString filePath = fileInfo.absoluteFilePath();
+		currentDir.remove(filePath);
+	}
 }
 
 void MainInterface::on_InvalidPointThresholdSpinBox_valueChanged(int arg)

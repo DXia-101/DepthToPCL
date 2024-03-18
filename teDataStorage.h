@@ -90,6 +90,7 @@ public:
 	void getResultSamples(std::vector<te::SampleInfo>* resultSamples);
 
 	void setDataDuringTraining(int iteration, float fAvgLoss, float fPosAcc);
+	void DropAllTables();
 
 	QColor FindContentColor(const QString& searchString);
 private:

@@ -1,13 +1,18 @@
 #pragma once
 #define PCL_FUNCTION_H
 
-#include <vtkGenericOpenGLRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <QVTKOpenGLNativeWidget.h>
-#include <vtkRenderWindow.h>
-#include <vtkSmartPointer.h>
-#include <vtkCamera.h>
+#include <vtkActor.h>
 #include <vtkAutoInit.h>
+#include <vtkAxesActor.h>
+#include <vtkCamera.h>
+#include <vtkGenericOpenGLRenderWindow.h>
+#include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkOrientationMarkerWidget.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkSmartPointer.h>
+
+#include <QVTKOpenGLNativeWidget.h>
 
 #include <pcl/common/io.h>
 #include <pcl/common/common.h>

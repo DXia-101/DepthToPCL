@@ -57,7 +57,7 @@ teMouseCircle::teMouseCircle(QWidget *parent)
     setAttribute(Qt::WA_TranslucentBackground);
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
     installEventFilter(this);
-    radius = 10;
+    radius = 10.0;
 }
 
 teMouseCircle::~teMouseCircle()
@@ -107,7 +107,13 @@ void teMouseCircle::wheelEvent(QWheelEvent* event)
     if (event->modifiers() == Qt::NoModifier) {
         int iDelta = event->delta();
         double dZoomRatio = 1.0 + iDelta / 1000.0;
-        radius *= dZoomRatio;
+        if ((radius * dZoomRatio) <= 0)
+        {
+            radius = 1.0;
+        }
+        else {
+            radius *= dZoomRatio;
+        }
     }
     transWheelEvents(event);
 }
@@ -150,5 +156,5 @@ void teMouseCircle::transWheelEvents(QWheelEvent* event)
 
 void teMouseCircle::receptiveFieldChange(int factor)
 {
-    radius = factor;
+    radius = static_cast<float>(factor);
 }

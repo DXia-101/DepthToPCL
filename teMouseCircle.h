@@ -24,6 +24,6 @@ protected:
 public slots:
 	void receptiveFieldChange(int factor);
 private:
-	QPoint centerPoint;
-	int radius;
+	QPointF centerPoint;
+	float radius;
 };

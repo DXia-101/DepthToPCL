@@ -38,10 +38,14 @@ teImageBrowserController::teImageBrowserController(QObject *parent)
     connect(this, &teImageBrowserController::sig_ChangeCurrentState, this, &teImageBrowserController::ChangeCurrentState);
     connect(ImageBrowser, &TeSampWidget::sig_UpDateItem, this, &teImageBrowserController::UpdateItem);
     connect(ImageBrowser, &TeSampWidget::sig_ItemActive, this, &teImageBrowserController::ItemActive);
+    connect(this, &teImageBrowserController::sig_InvalidPointThresholdChange, this, &teImageBrowserController::InvalidPointThresholdChange);
+    connect(this, &teImageBrowserController::sig_ValidPointThresholdChange, this, &teImageBrowserController::ValidPointThresholdChange);
 
     connect(this, &teImageBrowserController::sig_teUpDataSet,worker, &teImageBrowserWorkThread::teUpDataSet, Qt::QueuedConnection);
     connect(this, &teImageBrowserController::sig_InvalidPointThresholdChange,worker, &teImageBrowserWorkThread::InvalidPointThresholdChange, Qt::QueuedConnection);
     connect(this, &teImageBrowserController::sig_ValidPointThresholdChange,worker, &teImageBrowserWorkThread::ValidPointThresholdChange, Qt::QueuedConnection);
+
+
 }
 
 teImageBrowserController::~teImageBrowserController()

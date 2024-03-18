@@ -323,6 +323,10 @@ void teDataStorage::setDataDuringTraining(int iteration, float fAvgLoss, float f
 	emit sig_DataChangeDuringTraining(iteration, fAvgLoss, fPosAcc);
 }
 
+void teDataStorage::DropAllTables()
+{
+}
+
 QColor teDataStorage::FindContentColor(const QString& searchString)
 {
 	return m_teLabelBrowser->getFontColorByFirstColumnValue(searchString);

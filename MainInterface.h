@@ -24,6 +24,7 @@ public:
 
 	void InitStateMachine();
 	void InitToolBar();
+	void ClearAllCaches();
 
 private slots:
 	void LoadTrainingImages();
