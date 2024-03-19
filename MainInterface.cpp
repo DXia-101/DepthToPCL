@@ -147,6 +147,11 @@ void MainInterface::on_ValidPointThresholdSpinBox_valueChanged(int arg)
 	emit sig_ValidPointThresholdChange(arg);
 }
 
+void MainInterface::on_clearDatabaseBtn_clicked()
+{
+	teDataStorage::getInstance()->DropAllTables();
+}
+
 void MainInterface::ConnectHeightTransform()
 {
 	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_HeightTransform, te3DCanvasController::getInstance(), &te3DCanvasController::HegithTransForm);

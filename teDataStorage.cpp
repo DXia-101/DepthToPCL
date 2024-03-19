@@ -325,6 +325,16 @@ void teDataStorage::setDataDuringTraining(int iteration, float fAvgLoss, float f
 
 void teDataStorage::DropAllTables()
 {
+	db->dropDataModel("Resource");
+
+	ResourceTable = db->createDataModel("Resource",
+		{
+			te::makeFieldType<te::StdU8String>("OriginImagePath"),
+			te::makeFieldType<te::StdU8String>("ShrinkageChartPath"),
+			te::makeFieldType<te::StdU8String>("PointCloudPath"),
+			te::makeFieldType<te::SampleMark>("TrainSampleMark"),
+			te::makeFieldType<te::SampleMark>("ResultSampleMark"),
+		});
 }
 
 QColor teDataStorage::FindContentColor(const QString& searchString)
