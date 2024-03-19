@@ -204,8 +204,9 @@ void teLabelBrowser::addRowToTable(const QString& content, const QColor& fontCol
 	itemContent->setForeground(fontColor);
 
 	LabelWidget->setItem(row, 0, itemContent);
-	LabelWidget->setCurrentItem(itemContent);
-	SendCurrentItemInfo(itemContent);
+	QTableWidgetItem* currentItem = LabelWidget->item(row, 0);
+	LabelWidget->setCurrentItem(currentItem);
+	SendCurrentItemInfo(currentItem);
 }
 
 bool teLabelBrowser::checkFirstColumn(const QString& searchString)
