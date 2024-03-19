@@ -75,6 +75,7 @@ public slots:
 signals:
     void sig_3DCanvasMarkingCompleted(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
     void CloudChanged();
+    void sig_CanvasreRender();
 
 public:
     std::map<QString,std::vector<QString>> markerPCID;

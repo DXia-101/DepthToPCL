@@ -173,11 +173,11 @@ void te3DCanvas::PolygonSelect(void* viewer_void)
     QString CloudId;
     auto it = markerPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != markerPCID.end()) {
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + QString::number(it->second.size());
+        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "marker" + QString::number(it->second.size());
         it->second.push_back(CloudId);
     }
     else {
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "0";
+        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "marker" + "0";
         markerPCID.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<QString>{CloudId}));
     }
     
@@ -349,11 +349,11 @@ void te3DCanvas::MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
     QString CloudId;
     auto it = markerPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != markerPCID.end()) {
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + QString::number(it->second.size());
+        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "marker" + QString::number(it->second.size());
         it->second.push_back(CloudId);
     }
     else {
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "0";
+        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "marker" + "0";
         markerPCID.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<QString>{CloudId}));
     }
     viewer->addPointCloud(cloud_marked, currentColor, CloudId.toStdString());
@@ -380,11 +380,11 @@ void te3DCanvas::ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
     QString CloudId;
     auto it = resultPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != resultPCID.end()) {
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + QString::number(it->second.size());
+        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "result" + QString::number(it->second.size());
         it->second.push_back(CloudId);
     }
     else {
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "0";
+        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "result" + "0";
         resultPCID.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<QString>{CloudId}));
     }
     viewer->addPointCloud(cloud_marked, currentColor, CloudId.toStdString());
@@ -406,6 +406,7 @@ void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
     viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), center(1), center(2), 0, 0, 0); //耗时最多 2秒多
     //viewer->spinOnce();
     m_renderWindow->Render();
+    emit sig_CanvasreRender();
 }
 
 AxisSet te3DCanvas::getAxisSet()

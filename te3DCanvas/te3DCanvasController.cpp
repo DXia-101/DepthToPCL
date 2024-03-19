@@ -44,6 +44,7 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	connect(this, &te3DCanvasController::sig_CoordinateAxis, m_te3DCanvas, &te3DCanvas::CoordinateAxisRendering);
 	
 	connect(m_te3DCanvas, &te3DCanvas::sig_3DCanvasMarkingCompleted, this, &te3DCanvasController::add3DAiInstance);	
+	connect(m_te3DCanvas, &te3DCanvas::sig_CanvasreRender, this, &te3DCanvasController::ShowAllItems);	
 }
 
 te3DCanvasController::~te3DCanvasController()
@@ -117,7 +118,6 @@ void te3DCanvasController::showAllUI()
 	m_te3DCanvas->show();
 	m_te3DCanvas->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
 	m_te3DCanvas->reRenderOriginCloud();
-	ShowAllItems();
 }
 
 void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
@@ -197,8 +197,9 @@ void te3DCanvasController::ShowAllResults()
 {
 	cv::Mat image = cv::imread(teDataStorage::getInstance()->getCurrentOriginImage(), cv::IMREAD_UNCHANGED);
 	te::SampleMark samplemark = teDataStorage::getInstance()->getCurrentResultSampleInfo();
+	m_te3DCanvas->resultPCID.clear();
 	for (te::AiInstance instance : samplemark.gtDataSet) {
-		m_te3DCanvas->MarkersShowInCanvas(&instance, image, teDataStorage::getInstance()->FindContentColor(QString::fromStdString(instance.name)));
+		m_te3DCanvas->ResultsShowInCanvas(&instance, image, teDataStorage::getInstance()->FindContentColor(QString::fromStdString(instance.name)));
 	}
 }
 
@@ -206,6 +207,7 @@ void te3DCanvasController::ShowAllMarkers()
 {
 	cv::Mat image = cv::imread(teDataStorage::getInstance()->getCurrentOriginImage(), cv::IMREAD_UNCHANGED);
 	te::SampleMark samplemark = teDataStorage::getInstance()->getCurrentTrainSampleInfo();
+	m_te3DCanvas->markerPCID.clear();
 	for (te::AiInstance instance : samplemark.gtDataSet) {
 		m_te3DCanvas->MarkersShowInCanvas(&instance, image, teDataStorage::getInstance()->FindContentColor(QString::fromStdString(instance.name)));
 	}
