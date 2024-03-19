@@ -10,6 +10,7 @@
 #include <QAction>
 #include <QFileDialog>
 #include <QStackedLayout>
+#include <QKeyEvent>
 
 MainInterface::MainInterface(QWidget *parent)
 	: QWidget(parent)
@@ -59,6 +60,7 @@ MainInterface::MainInterface(QWidget *parent)
 	m_SChart->hide();
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_DataChangeDuringTraining, m_SChart, &teTrainStatisticsChart::ReceiveData);
 	connect(m_AiModelController, &AiModelController::sig_isShowTSChart, m_SChart, &teTrainStatisticsChart::isShow);
+	connect(m_SChart, &teTrainStatisticsChart::sig_closeteTrainStatisticsChart, m_AiModelController, &AiModelController::sig_TSChartClose);
 	connect(m_AiModelController, &AiModelController::sig_receptiveFieldChange, m_mouseCircle, &teMouseCircle::receptiveFieldChange);
 }
 
@@ -109,7 +111,7 @@ void MainInterface::InitToolBar()
 
 	Train_menu->addAction(Load_Images);
 	Train_menu->addAction(Start_Train);
-	Train_menu->addAction(Stop_Train);
+	//Train_menu->addAction(Stop_Train);
 	Train_menu->addAction(Start_Test);
 
 	menu_bar->addMenu(Train_menu);
@@ -117,9 +119,9 @@ void MainInterface::InitToolBar()
 	connect(Load_Images, &QAction::triggered, this, &MainInterface::LoadTrainingImages);
 	connect(this, &MainInterface::sig_LoadTrainingImages, teDataStorage::getInstance(), &teDataStorage::LoadTrainingImages);
 	connect(Start_Train, &QAction::triggered, m_AiModelController, &AiModelController::sig_PrepareTrain);
-	//connect(Stop_Train, &QAction::triggered, this, &DepthToPCL::StopTrainAction);
+	connect(Stop_Train, &QAction::triggered, m_AiModelController, &AiModelController::sig_StopTrain);
 	connect(Start_Test, &QAction::triggered, m_AiModelController, &AiModelController::sig_PrepareTest);
-
+	connect(this, &MainInterface::sig_SaveParameter, m_AiModelController, &AiModelController::sig_SaveParameter);
 }
 
 void MainInterface::ClearAllCaches()

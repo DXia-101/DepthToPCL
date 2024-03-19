@@ -12,7 +12,8 @@ AiModelController::AiModelController(QObject *parent)
 	m_AiModel = new AiModelInterface();
 	connect(this, &AiModelController::sig_PrepareTrain, this, &AiModelController::PrepareTrain);
 	connect(this, &AiModelController::sig_PrepareTest, this, &AiModelController::PrepareTest);
-	connect(this, &AiModelController::sig_SaveTrianParameter, m_teTrainPara, &teTrainParameter::SaveteTrainParameter);
+	connect(this, &AiModelController::sig_SaveParameter, m_teTrainPara, &teTrainParameter::SaveteTrainParameter);
+	//connect(this, &AiModelController::sig_SaveParameter, m_teTestPara, &teTestParameter::SaveteTestParameter);
 	connect(this, &AiModelController::sig_StopTrain, m_AiModel, &AiModelInterface::StopTrain);
 	connect(this, &AiModelController::sig_TSChartClose, m_teTrainPara, &teTrainParameter::teTrainStatisticsChartClose);
 	connect(m_teTrainPara, &teTrainParameter::sig_ShowTrainStatisticsChart, this, &AiModelController::sig_isShowTSChart);
@@ -36,6 +37,7 @@ void AiModelController::PrepareTrain()
 {
 	std::string fileName = "2.te";
 	m_AiModel->TrainParameterSettings(fileName.c_str());
+	m_teTrainPara->SaveteTrainParameter();
 	te::TrainParam* train = new te::TrainParam();
 	m_teTrainPara->getTrainParam(train);
 	m_AiModel->InitTrainConfig(train);
@@ -46,6 +48,7 @@ void AiModelController::PrepareTest()
 {
 	std::string fileName = "2.te";
 	m_AiModel->TestParameterSettings(fileName.c_str());
+	m_teTestPara->SaveteTestParameter();
 	te::TestParam* test = new te::TestParam();
 	m_teTestPara->getTestParam(test);
 	m_AiModel->InitTestConfig(test);

@@ -80,7 +80,7 @@ void te2DCanvas::StartMarked()
 
     te::PolyLineGraphicsBrush* LineBrush = new te::PolyLineGraphicsBrush;
     LineBrush->setPen(QPen(Qt::green, 2));
-    LineBrush->setWidth(50);
+    LineBrush->setWidth(70);
     this->addBrush(LineBrush);
     connect(PolygonBrush, &te::PolygonGraphicsBrush::sig_DrawPolygon, this, &te2DCanvas::DrawPolygonGraphics);
     connect(RectBrush, &te::RectGraphicsBrush::sig_DrawRect, this, &te2DCanvas::DrawRectGraphics);
@@ -117,6 +117,7 @@ void te2DCanvas::MarkersShowInCanvas(te::AiInstance* instance, QString label, QC
     te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({}, label);
     polygonItem->setPolygonList(contours);
     polygonItem->setPen(QColor(Qt::black));
+    color.setAlpha(100);
     polygonItem->setBrush(QBrush(color));
 
     //添加该item
@@ -137,6 +138,7 @@ void te2DCanvas::ResultsShowInCanvas(te::AiInstance* instance, QString label, QC
     te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({}, label);
     polygonItem->setPolygonList(contours);
     polygonItem->setPen(QColor(Qt::black));
+    color.setAlpha(80);
     polygonItem->setBrush(QBrush(color));
 
     //添加该item
@@ -191,6 +193,7 @@ void te2DCanvas::DrawLineGraphics(const QList<QPolygonF>& polyline)
 void te2DCanvas::DrawGraphics(const QList<QPolygonF>& region)
 {
     te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem(region, currentCategory);
+    currentColor.setAlpha(100);
     polygonItem->setPen(QColor(currentColor));
     polygonItem->setBrush(QBrush(currentColor));
 

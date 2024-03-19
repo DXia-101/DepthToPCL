@@ -92,10 +92,10 @@ void teImageBrowserController::UpdateItem(int* pIndex, int len)
         if (!image.empty()) {
             QSize imageSize(image.cols, image.rows);
 
-            QFileInfo fileInfo(QString::fromStdString(teDataStorage::getInstance()->getOriginImage()[i]));
+            QFileInfo fileInfo(QString::fromStdString(teDataStorage::getInstance()->getOriginImage()[pIndex[i]]));
             QString fileName = fileInfo.fileName();
 
-            ImageBrowser->teUpDateImg(pIndex[i], { QString::fromStdString(teDataStorage::getInstance()->getShrinkageChart()[i]) }, imageSize, fileName);
+            ImageBrowser->teUpDateImg(pIndex[i], { QString::fromStdString(teDataStorage::getInstance()->getShrinkageChart()[pIndex[i]]) }, imageSize, fileName);
         }
     }
 }

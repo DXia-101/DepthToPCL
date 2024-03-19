@@ -9,6 +9,7 @@
 
 #include <QStateMachine>
 #include <QState>
+#include <QEvent>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainInterfaceClass; };
@@ -35,6 +36,7 @@ private slots:
 	void ChangeBtnTextTo2D();
 	void ChangeBtnTextTo3D();
 	void ResetMouseRadius();
+	
 private:
 	Ui::MainInterfaceClass *ui;
 	
@@ -42,6 +44,7 @@ signals:
 	void sig_LoadTrainingImages(const QStringList& filePaths);
 	void sig_InvalidPointThresholdChange(int threshold);
 	void sig_ValidPointThresholdChange(int threshold);
+	void sig_SaveParameter();
 
 private:
 	QStateMachine* m_pStateMachine;

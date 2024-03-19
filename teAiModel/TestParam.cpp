@@ -47,7 +47,7 @@ TestParam::TestParam()
 	batchsize = 1;
 	contourdesc = { 12,5,256 };
 	deviceinfo = { E_GPU,0 };
-	precision = E_FP16;
+	precision = E_FP32;
 }
 
 TE_END_NAMESPACE
