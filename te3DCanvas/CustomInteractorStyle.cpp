@@ -1,6 +1,14 @@
 #include "CustomInteractorStyle.h"
 #include <vtkInteractorStyle.h>
 
+#include "vtkCamera.h"
+#include "vtkCellPicker.h"
+#include "vtkCallbackCommand.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkProp3D.h"
+
 CustomInteractorStyle* CustomInteractorStyle::New() {
 	CustomInteractorStyle* self = new CustomInteractorStyle();
 	return self;
@@ -12,150 +20,222 @@ void CustomInteractorStyle::setRenderWindow(vtkRenderWindow* window, vtkSmartPoi
 	m_renderer = render;
 }
 
-void CustomInteractorStyle::OnMouseWheelForward() {
-	if (Zoomflag) {
-		Dolly(1.1);
-	}
-	else {
-		vtkInteractorStyleTrackballCamera::OnMouseWheelForward();
-	}
-}
-
-void CustomInteractorStyle::OnMouseWheelBackward() {
-	if (Zoomflag) {
-		Dolly(0.9);
-	}
-	else {
-		vtkInteractorStyleTrackballCamera::OnMouseWheelBackward();
-	}
-}
-
-void CustomInteractorStyle::OnMiddleButtonDown()
-{
-	int mouse_x, mouse_y;
-	vtkInteractorStyleTrackballCamera::GetInteractor()->GetEventPosition(mouse_x, mouse_y);
-
-	int viewport;
-	double x, y, z;
-	vtkInteractorStyleTrackballCamera::GetInteractor()->FindPokedRenderer(mouse_x, mouse_y);
-	//vtkInteractorStyleTrackballCamera::GetInteractor()->ComputeDisplayToWorld(mouse_x, mouse_y, z, x, y);
-
-	vtkInteractorStyleTrackballCamera::OnMiddleButtonDown();
-}
-
-void CustomInteractorStyle::OnMiddleButtonUp()
-{
-	int mouse_x, mouse_y;
-	vtkInteractorStyleTrackballCamera::GetInteractor()->GetEventPosition(mouse_x, mouse_y);
-
-	int viewport;
-	double x, y, z;
-	vtkInteractorStyleTrackballCamera::GetInteractor()->FindPokedRenderer(mouse_x, mouse_y);
-	//vtkInteractorStyleTrackballCamera::GetInteractor()->ComputeDisplayToWorld(mouse_x, mouse_y, z, x, y);
-
-	vtkInteractorStyleTrackballCamera::OnMiddleButtonUp();
-}
+//void CustomInteractorStyle::OnMouseWheelForward() 
+//{
+//	if (Zoomflag) {
+//		Dolly(1.1);
+//	}
+//	else {
+//		vtkInteractorStyleTrackballCamera::OnMouseWheelForward();
+//	}
+//}
+//
+//void CustomInteractorStyle::OnMouseWheelBackward() 
+//{
+//	if (Zoomflag) {
+//		Dolly(0.9);
+//	}
+//	else {
+//		vtkInteractorStyleTrackballCamera::OnMouseWheelBackward();
+//	}
+//}
+//
+//void CustomInteractorStyle::OnMiddleButtonDown()
+//{
+//	vtkInteractorStyleTrackballCamera::OnMiddleButtonDown();
+//}
+//
+//void CustomInteractorStyle::OnMiddleButtonUp()
+//{
+//	vtkInteractorStyleTrackballCamera::OnMiddleButtonUp();
+//}
 
 void CustomInteractorStyle::OnMouseMove()
 {
-	int mouse_x, mouse_y;
-	vtkInteractorStyleTrackballCamera::GetInteractor()->GetEventPosition(mouse_x, mouse_y);
-
-	int viewport;
-	double x, y, z;
-	vtkInteractorStyleTrackballCamera::GetInteractor()->FindPokedRenderer(mouse_x, mouse_y);
-	//vtkInteractorStyleTrackballCamera::GetInteractor()->ComputeDisplayToWorld(mouse_x, mouse_y, z, x, y);
-
-	vtkInteractorStyleTrackballCamera::OnMouseMove();
-}
-
-void CustomInteractorStyle::Dolly(double factor)
-{
-	DollyToPosition(factor, this->Interactor->GetEventPosition(), m_renderer);
-
-	//这一句必须加，不然图像不出现，得拖拽一下
-	m_renderer->ResetCameraClippingRange();
-
-	m_rendererwindow->Render();
-}
-
-void CustomInteractorStyle::DollyToPosition(double fact, int* position, vtkRenderer* renderer)
-{
-	vtkCamera* cam = renderer->GetActiveCamera();
-	if (cam->GetParallelProjection())
+	if (!m_bLBtnDown) //没有按下鼠标左键
 	{
-		int x0 = 0, y0 = 0, x1 = 0, y1 = 0;
-		// 相对于光标缩放
-		int* aSize = renderer->GetRenderWindow()->GetSize();
-		int w = aSize[0];
-		int h = aSize[1];
-		x0 = w / 2;
-		y0 = h / 2;
-		x1 = position[0];
-		y1 = position[1];
-		TranslateCamera(renderer, x0, y0, x1, y1);
-		cam->SetParallelScale(cam->GetParallelScale() / fact);
-		TranslateCamera(renderer, x1, y1, x0, y0);
+		vtkInteractorStyleTrackballCamera::OnMouseMove();
+		return;
 	}
-	else
+
+	int X = this->Interactor->GetEventPosition()[0];
+	int Y = this->Interactor->GetEventPosition()[1];
+	int deltX = X - m_nOldMousePosX;
+	int deltY = Y - m_nOldMousePosY;
+	if (abs(deltX) > 10 || abs(deltY) > 10)
 	{
-		// 相对于光标位置进行缩放
-		double viewFocus[4], originalViewFocus[3], cameraPos[3], newCameraPos[3];
-		double newFocalPoint[4], norm[3];
-
-		// 将焦点移动到光标位置
-		cam->GetPosition(cameraPos);
-		cam->GetFocalPoint(viewFocus);
-		cam->GetFocalPoint(originalViewFocus);
-		cam->GetViewPlaneNormal(norm);
-
-		CustomInteractorStyle::ComputeWorldToDisplay(
-			renderer, viewFocus[0], viewFocus[1], viewFocus[2], viewFocus);
-
-		CustomInteractorStyle::ComputeDisplayToWorld(
-			renderer, double(position[0]), double(position[1]), viewFocus[2], newFocalPoint);
-
-		cam->SetFocalPoint(newFocalPoint);
-
-		// 沿投影方向移入/移出相机
-		cam->Dolly(fact);
-
-		// 寻找新的焦点
-		cam->GetPosition(newCameraPos);
-
-		double newPoint[3];
-		newPoint[0] = originalViewFocus[0] + newCameraPos[0] - cameraPos[0];
-		newPoint[1] = originalViewFocus[1] + newCameraPos[1] - cameraPos[1];
-		newPoint[2] = originalViewFocus[2] + newCameraPos[2] - cameraPos[2];
-
-		cam->SetFocalPoint(newPoint);
+		m_nOldMousePosX = X;
+		m_nOldMousePosY = Y;
 	}
-}
 
-void CustomInteractorStyle::TranslateCamera(vtkRenderer* renderer, int toX, int toY, int fromX, int fromY)
+	for (int i = 0; i < m_pSelectedActor.size(); ++i)
+	{
+		if (m_pSelectedActor[i] == nullptr) {
+			continue;
+		}
+		double angleX = deltY;
+		double angleY = deltX;
+
+		if (!m_pRotationTransform[i])
+		{
+			m_pRotationTransform[i] = vtkSmartPointer<vtkTransform>::New();
+			m_pRotationTransform[i]->Identity();
+		}
+		//double* center = m_pSelectedActor[i]->GetCenter();
+		m_pRotationTransform[i]->Translate(rotationCenter[0], rotationCenter[1], rotationCenter[2]);
+		m_pRotationTransform[i]->RotateX(angleX);
+		m_pRotationTransform[i]->RotateY(angleY);
+		m_pRotationTransform[i]->Translate(-rotationCenter[0], -rotationCenter[1], -rotationCenter[2]);
+
+		m_pSelectedActor[i]->SetUserTransform(m_pRotationTransform[i]);
+	}
+
+	m_nOldMousePosX = X;
+	m_nOldMousePosY = Y;
+
+	this->Interactor->GetRenderWindow()->Render();
+}
+void CustomInteractorStyle::OnLeftButtonDown()
 {
-	vtkCamera* cam = renderer->GetActiveCamera();
-	double viewFocus[4], focalDepth, viewPoint[3];
-	double newPickPoint[4], oldPickPoint[4], motionVector[3];
-	cam->GetFocalPoint(viewFocus);
+	m_bLBtnDown = true;
 
-	CustomInteractorStyle::ComputeWorldToDisplay(
-		renderer, viewFocus[0], viewFocus[1], viewFocus[2], viewFocus);
-	focalDepth = viewFocus[2];
+	this->Interactor->GetPicker()->Pick(this->Interactor->GetEventPosition()[0],
+		this->Interactor->GetEventPosition()[1],
+		0,
+		m_renderer);
+	this->Interactor->GetPicker()->GetPickPosition(m_pickedPos);
+	vtkSmartPointer<vtkPropCollection> propCollection = m_renderer->GetViewProps();
+	propCollection->InitTraversal();
+	vtkProp* prop = nullptr;
+	vtkProp3D* pActor = nullptr;
+	int pickNum = propCollection->GetNumberOfItems() - 1;
+	m_pRotationTransform.resize(pickNum);
+	m_pSelectedActor.clear();
+	while (pickNum > 0)
+	{
+		prop = propCollection->GetNextProp();
+		pActor = vtkProp3D::SafeDownCast(prop);
+		m_pSelectedActor.push_back(vtkActor::SafeDownCast(pActor));
+		pickNum--;
+	}
+	this->Interactor->GetRenderWindow()->Render();
+	m_nOldMousePosX = this->Interactor->GetEventPosition()[0];
+	m_nOldMousePosY = this->Interactor->GetEventPosition()[1];
 
-	CustomInteractorStyle::ComputeDisplayToWorld(
-		renderer, double(toX), double(toY), focalDepth, newPickPoint);
-	CustomInteractorStyle::ComputeDisplayToWorld(
-		renderer, double(fromX), double(fromY), focalDepth, oldPickPoint);
-
-	//摄像机运动反向
-	motionVector[0] = oldPickPoint[0] - newPickPoint[0];
-	motionVector[1] = oldPickPoint[1] - newPickPoint[1];
-	motionVector[2] = oldPickPoint[2] - newPickPoint[2];
-
-	cam->GetFocalPoint(viewFocus);
-	cam->GetPosition(viewPoint);
-	cam->SetFocalPoint(motionVector[0] + viewFocus[0], motionVector[1] + viewFocus[1], motionVector[2] + viewFocus[2]);
-
-	cam->SetPosition(motionVector[0] + viewPoint[0], motionVector[1] + viewPoint[1], motionVector[2] + viewPoint[2]);
+	vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
 }
+
+void CustomInteractorStyle::OnLeftButtonUp()
+{
+	m_bLBtnDown = false;
+	vtkInteractorStyleTrackballCamera::OnLeftButtonUp();
+}
+
+void CustomInteractorStyle::setRotationCenter(double x, double y, double z)
+{
+	rotationCenter[0] = x;
+	rotationCenter[1] = y;
+	rotationCenter[2] = z;
+}
+
+CustomInteractorStyle::CustomInteractorStyle()
+{
+	this->InteractionProp = nullptr;
+	this->InteractionPicker = vtkCellPicker::New();
+	this->InteractionPicker->SetTolerance(0.001);
+}
+
+CustomInteractorStyle::~CustomInteractorStyle()
+{
+	this->InteractionPicker->Delete();
+}
+
+//void CustomInteractorStyle::Dolly(double factor)
+//{
+//	DollyToPosition(factor, this->Interactor->GetEventPosition(), m_renderer);
+//
+//	m_renderer->ResetCameraClippingRange();
+//
+//	m_rendererwindow->Render();
+//}
+//
+//void CustomInteractorStyle::DollyToPosition(double fact, int* position, vtkRenderer* renderer)
+//{
+//	vtkCamera* cam = renderer->GetActiveCamera();
+//	if (cam->GetParallelProjection())
+//	{
+//		int x0 = 0, y0 = 0, x1 = 0, y1 = 0;
+//		// 相对于光标缩放
+//		int* aSize = renderer->GetRenderWindow()->GetSize();
+//		int w = aSize[0];
+//		int h = aSize[1];
+//		x0 = w / 2;
+//		y0 = h / 2;
+//		x1 = position[0];
+//		y1 = position[1];
+//		TranslateCamera(renderer, x0, y0, x1, y1);
+//		cam->SetParallelScale(cam->GetParallelScale() / fact);
+//		TranslateCamera(renderer, x1, y1, x0, y0);
+//	}
+//	else
+//	{
+//		// 相对于光标位置进行缩放
+//		double viewFocus[4], originalViewFocus[3], cameraPos[3], newCameraPos[3];
+//		double newFocalPoint[4], norm[3];
+//
+//		// 将焦点移动到光标位置
+//		cam->GetPosition(cameraPos);
+//		cam->GetFocalPoint(viewFocus);
+//		cam->GetFocalPoint(originalViewFocus);
+//		cam->GetViewPlaneNormal(norm);
+//
+//		CustomInteractorStyle::ComputeWorldToDisplay(
+//			renderer, viewFocus[0], viewFocus[1], viewFocus[2], viewFocus);
+//
+//		CustomInteractorStyle::ComputeDisplayToWorld(
+//			renderer, double(position[0]), double(position[1]), viewFocus[2], newFocalPoint);
+//
+//		cam->SetFocalPoint(newFocalPoint);
+//
+//		// 沿投影方向移入/移出相机
+//		cam->Dolly(fact);
+//
+//		// 寻找新的焦点
+//		cam->GetPosition(newCameraPos);
+//
+//		double newPoint[3];
+//		newPoint[0] = originalViewFocus[0] + newCameraPos[0] - cameraPos[0];
+//		newPoint[1] = originalViewFocus[1] + newCameraPos[1] - cameraPos[1];
+//		newPoint[2] = originalViewFocus[2] + newCameraPos[2] - cameraPos[2];
+//
+//		cam->SetFocalPoint(newPoint);
+//	}
+//}
+//
+//void CustomInteractorStyle::TranslateCamera(vtkRenderer* renderer, int toX, int toY, int fromX, int fromY)
+//{
+//	vtkCamera* cam = renderer->GetActiveCamera();
+//	double viewFocus[4], focalDepth, viewPoint[3];
+//	double newPickPoint[4], oldPickPoint[4], motionVector[3];
+//	cam->GetFocalPoint(viewFocus);
+//
+//	CustomInteractorStyle::ComputeWorldToDisplay(
+//		renderer, viewFocus[0], viewFocus[1], viewFocus[2], viewFocus);
+//	focalDepth = viewFocus[2];
+//
+//	CustomInteractorStyle::ComputeDisplayToWorld(
+//		renderer, double(toX), double(toY), focalDepth, newPickPoint);
+//	CustomInteractorStyle::ComputeDisplayToWorld(
+//		renderer, double(fromX), double(fromY), focalDepth, oldPickPoint);
+//
+//	//摄像机运动反向
+//	motionVector[0] = oldPickPoint[0] - newPickPoint[0];
+//	motionVector[1] = oldPickPoint[1] - newPickPoint[1];
+//	motionVector[2] = oldPickPoint[2] - newPickPoint[2];
+//
+//	cam->GetFocalPoint(viewFocus);
+//	cam->GetPosition(viewPoint);
+//	cam->SetFocalPoint(motionVector[0] + viewFocus[0], motionVector[1] + viewFocus[1], motionVector[2] + viewFocus[2]);
+//
+//	cam->SetPosition(motionVector[0] + viewPoint[0], motionVector[1] + viewPoint[1], motionVector[2] + viewPoint[2]);
+//}

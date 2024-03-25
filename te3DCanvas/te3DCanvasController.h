@@ -10,6 +10,7 @@
 #include "te3DCanvasCoordinateAxisRenderDialog.h"
 #include "PointCloud_PointSize_Set_Dialog.h"
 #include "CustomInteractorStyle.h"
+//#include "ActorInteractorStyle.h"
 #include <QStackedLayout>
 
 class te3DCanvasController  : public QObject
@@ -46,6 +47,7 @@ public slots:
 	void LoadPointCloud(QString fileName);
 	void ReRenderOriginCloud();
 	void CurrentLabelChange(const QString& category, const QColor& color);
+	void SetCentroid();
 
 signals:
 	void sig_BackgroundColor(QColor color);
@@ -89,7 +91,8 @@ private:
 	te3DCanvas* m_te3DCanvas;
 	te3DCanvasMenu* m_te3DCanvasMenu;
 	te3DCanvasToolBar* m_te3DCanvasToolBar;
-	CustomInteractorStyle* m_interactor;
+	CustomInteractorStyle* m_CustomInteractor;
+	//ActorInteractorStyle* m_ActorInteractor;
 
 	te3DCanvasPointCloudColorSelectDialog* dialog_colorselect;
 	te3DCanvasCoordinateAxisRenderDialog* dialog_render;

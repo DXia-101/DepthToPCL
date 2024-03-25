@@ -2,6 +2,7 @@
 #include <QVBoxLayout>
 #include "Transfer_Function.h"
 #include "teDataStorage.h"
+#include "pcl_function.h"
 #define DEBUG
 #include <QTime>
 #include <QDebug>
@@ -17,9 +18,12 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	m_te3DCanvas = new te3DCanvas();
 	m_te3DCanvasMenu = new te3DCanvasMenu();
 	m_te3DCanvasToolBar = new te3DCanvasToolBar();
-	m_interactor = CustomInteractorStyle::New();
-	m_interactor->setRenderWindow(m_te3DCanvas->m_renderWindow,m_te3DCanvas->m_renderer);
-	m_te3DCanvas->m_renderWindow->GetInteractor()->SetInteractorStyle(m_interactor);
+	m_CustomInteractor = CustomInteractorStyle::New();
+	m_CustomInteractor->setRenderWindow(m_te3DCanvas->m_renderWindow,m_te3DCanvas->m_renderer);
+	m_te3DCanvas->m_renderWindow->GetInteractor()->SetInteractorStyle(m_CustomInteractor);
+	//m_ActorInteractor = ActorInteractorStyle::New();
+	//m_ActorInteractor->setRenderWindow(m_te3DCanvas->m_renderWindow,m_te3DCanvas->m_renderer,m_te3DCanvas->m_renderWindow->GetInteractor());
+	//m_te3DCanvas->m_renderWindow->GetInteractor()->SetInteractorStyle(m_ActorInteractor);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, m_te3DCanvas, &te3DCanvas::PointCloudHeightTransform);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_ConnectHeightTransForm, this, &te3DCanvasController::sig_ConnectHeightTransform);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, this, &te3DCanvasController::SaveHeightTransFromFactor);
@@ -31,6 +35,7 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_StartMarking, m_te3DCanvas, &te3DCanvas::te3DCanvasStartMarking);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_GtCheckStateChanged, m_te3DCanvas,&te3DCanvas::ShowDimension);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_RSTCheckStateChanged, m_te3DCanvas,&te3DCanvas::ShowResult);
+
 	
 	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_BackgroundColorSetting, this, &te3DCanvasController::BackgroundColorSelect);
 	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_CoordinateAxisRendering, this, &te3DCanvasController::CoordinateAxisSelect);
@@ -49,7 +54,7 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 
 te3DCanvasController::~te3DCanvasController()
 {
-	m_interactor->Delete();
+	//m_interactor->Delete();
 }
 
 te3DCanvasController::te3DCanvasController(const te3DCanvasController&)
@@ -118,6 +123,7 @@ void te3DCanvasController::showAllUI()
 	m_te3DCanvas->show();
 	m_te3DCanvas->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
 	m_te3DCanvas->reRenderOriginCloud();
+	m_CustomInteractor->setRotationCenter(m_te3DCanvas->getCloudCentroid()[0], m_te3DCanvas->getCloudCentroid()[1], m_te3DCanvas->getCloudCentroid()[2]);
 }
 
 void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
@@ -191,6 +197,11 @@ void te3DCanvasController::ReRenderOriginCloud()
 void te3DCanvasController::CurrentLabelChange(const QString& category, const QColor& color)
 {
 	m_te3DCanvas->LabelChanged(category, color);
+}
+
+void te3DCanvasController::SetCentroid()
+{
+	m_CustomInteractor->setRotationCenter(m_te3DCanvas->getCloudCentroid()[0], m_te3DCanvas->getCloudCentroid()[1], m_te3DCanvas->getCloudCentroid()[2]);
 }
 
 void te3DCanvasController::ShowAllResults()

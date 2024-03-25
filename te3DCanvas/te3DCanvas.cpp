@@ -46,6 +46,7 @@ void te3DCanvas::PCL_Initalization()
     viewer->addPointCloud<pcl::PointXYZ>(cloud, "cloud");
 
     viewer->registerMouseCallback(&te3DCanvas::mouseEventOccurred, *this);
+
     currentCategory = "";
 }
 
@@ -343,7 +344,7 @@ void te3DCanvas::MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
     }
     cv::Mat extractImage;
     cloud_marked->points.clear();
-    Transfer_Function::ExtractImage2Cloud(m_image, axisset.OriginX, axisset.OriginY, &contour, cloud_marked);
+    Transfer_Function::ExtractCloud2Cloud(cloud, &contour, cloud_marked);
 
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_marked, color.red(), color.green(), color.blue());
     QString CloudId;
@@ -374,7 +375,7 @@ void te3DCanvas::ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
     }
     cv::Mat extractImage;
     cloud_marked->points.clear();
-    Transfer_Function::ExtractImage2Cloud(m_image, axisset.OriginX, axisset.OriginY, &contour, cloud_marked);
+    Transfer_Function::ExtractCloud2Cloud(cloud, &contour, cloud_marked);
 
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_marked, color.red(), color.green(), color.blue());
     QString CloudId;
@@ -412,6 +413,13 @@ void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
 AxisSet te3DCanvas::getAxisSet()
 {
     return axisset;
+}
+
+std::vector<double> te3DCanvas::getCloudCentroid()
+{
+    Eigen::Vector4f centroid;
+    pcl::compute3DCentroid(*cloud,centroid);
+    return { centroid.x(), centroid.y(), centroid.z() };
 }
 
 void te3DCanvas::SetCoordinateSet()
@@ -700,6 +708,7 @@ void te3DCanvas::LabelChanged(const QString& content, const QColor& fontColor)
     currentCategory = content;
     currentColor = fontColor;
 }
+
 void te3DCanvas::PointCloudHeightTransform(int factor)
 {
     for (int i = 0; i < cloud->size(); ++i) {

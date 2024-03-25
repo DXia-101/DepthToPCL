@@ -17,7 +17,6 @@ class te3DCanvas  : public QVTKOpenGLNativeWidget
 public:
 	te3DCanvas(QWidget *parent = nullptr);
 	~te3DCanvas();
-
     
 public:
     void PCL_Initalization();
@@ -38,6 +37,7 @@ public:
     void ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
     void reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin);
     struct AxisSet getAxisSet();
+    std::vector<double> getCloudCentroid();
 protected:
     void mouseEventOccurred(const pcl::visualization::MouseEvent& event, void* viewer_void); //不规则框选的鼠标画线
 
@@ -83,7 +83,6 @@ public:
 
     vtkRenderWindow* m_renderWindow;
     vtkSmartPointer<vtkRenderer> m_renderer;
-    
 private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_NoOutliers;
