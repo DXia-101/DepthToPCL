@@ -108,7 +108,7 @@ void CustomInteractorStyle::OnLeftButtonDown()
 	propCollection->InitTraversal();
 	vtkProp* prop = nullptr;
 	vtkProp3D* pActor = nullptr;
-	int pickNum = propCollection->GetNumberOfItems() - 1;
+	int pickNum = propCollection->GetNumberOfItems();
 	m_pRotationTransform.resize(pickNum);
 	m_pSelectedActor.clear();
 	while (pickNum > 0)
