@@ -9,8 +9,7 @@
 #include "te3DCanvasPointCloudColorSelectDialog.h"
 #include "te3DCanvasCoordinateAxisRenderDialog.h"
 #include "PointCloud_PointSize_Set_Dialog.h"
-#include "CustomInteractorStyle.h"
-//#include "ActorInteractorStyle.h"
+
 #include <QStackedLayout>
 
 class te3DCanvasController  : public QObject
@@ -91,8 +90,6 @@ private:
 	te3DCanvas* m_te3DCanvas;
 	te3DCanvasMenu* m_te3DCanvasMenu;
 	te3DCanvasToolBar* m_te3DCanvasToolBar;
-	CustomInteractorStyle* m_CustomInteractor;
-	//ActorInteractorStyle* m_ActorInteractor;
 
 	te3DCanvasPointCloudColorSelectDialog* dialog_colorselect;
 	te3DCanvasCoordinateAxisRenderDialog* dialog_render;

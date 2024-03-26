@@ -18,9 +18,7 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	m_te3DCanvas = new te3DCanvas();
 	m_te3DCanvasMenu = new te3DCanvasMenu();
 	m_te3DCanvasToolBar = new te3DCanvasToolBar();
-	m_CustomInteractor = CustomInteractorStyle::New();
-	m_CustomInteractor->setRenderWindow(m_te3DCanvas->m_renderWindow,m_te3DCanvas->m_renderer);
-	m_te3DCanvas->m_renderWindow->GetInteractor()->SetInteractorStyle(m_CustomInteractor);
+
 	//m_ActorInteractor = ActorInteractorStyle::New();
 	//m_ActorInteractor->setRenderWindow(m_te3DCanvas->m_renderWindow,m_te3DCanvas->m_renderer,m_te3DCanvas->m_renderWindow->GetInteractor());
 	//m_te3DCanvas->m_renderWindow->GetInteractor()->SetInteractorStyle(m_ActorInteractor);
@@ -123,7 +121,7 @@ void te3DCanvasController::showAllUI()
 	m_te3DCanvas->show();
 	m_te3DCanvas->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
 	m_te3DCanvas->reRenderOriginCloud();
-	m_CustomInteractor->setRotationCenter(m_te3DCanvas->getCloudCentroid()[0], m_te3DCanvas->getCloudCentroid()[1], m_te3DCanvas->getCloudCentroid()[2]);
+	m_te3DCanvas->setRotationCenter();
 }
 
 void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
@@ -201,7 +199,7 @@ void te3DCanvasController::CurrentLabelChange(const QString& category, const QCo
 
 void te3DCanvasController::SetCentroid()
 {
-	m_CustomInteractor->setRotationCenter(m_te3DCanvas->getCloudCentroid()[0], m_te3DCanvas->getCloudCentroid()[1], m_te3DCanvas->getCloudCentroid()[2]);
+	m_te3DCanvas->setRotationCenter();
 }
 
 void te3DCanvasController::ShowAllResults()

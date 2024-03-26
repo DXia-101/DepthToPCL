@@ -9,15 +9,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkProp3D.h"
 
-CustomInteractorStyle* CustomInteractorStyle::New() {
-	CustomInteractorStyle* self = new CustomInteractorStyle();
-	return self;
-}
+vtkStandardNewMacro(CustomInteractorStyle);
 
-void CustomInteractorStyle::setRenderWindow(vtkRenderWindow* window, vtkSmartPointer<vtkRenderer> render)
+void CustomInteractorStyle::setRenderWindow(vtkRenderWindow* window, vtkSmartPointer<vtkRenderer> render, vtkSmartPointer<vtkAxesActor> axes)
 {
 	m_rendererwindow = window;
 	m_renderer = render;
+	axes_actor = axes;
 }
 
 //void CustomInteractorStyle::OnMouseWheelForward() 
@@ -60,12 +58,27 @@ void CustomInteractorStyle::OnMouseMove()
 
 	int X = this->Interactor->GetEventPosition()[0];
 	int Y = this->Interactor->GetEventPosition()[1];
-	int deltX = X - m_nOldMousePosX;
-	int deltY = Y - m_nOldMousePosY;
+	double deltX = X - m_nOldMousePosX;
+	double deltY = Y - m_nOldMousePosY;
 	if (abs(deltX) > 10 || abs(deltY) > 10)
 	{
 		m_nOldMousePosX = X;
 		m_nOldMousePosY = Y;
+	}
+
+	if (axes_actor != nullptr)
+	{
+		if (!axesTransform)
+		{
+			axesTransform = vtkSmartPointer<vtkTransform>::New();
+			//axesTransform->Identity();
+		}
+		axesTransform->Translate(rotationCenter[0], rotationCenter[1], rotationCenter[2]);
+		axesTransform->RotateX(deltY);
+		axesTransform->RotateY(deltX);
+		axesTransform->Translate(-rotationCenter[0], -rotationCenter[1], -rotationCenter[2]);
+		axes_actor->SetUserTransform(axesTransform);
+		axes_actor->SetPosition(rotationCenter);
 	}
 
 	for (int i = 0; i < m_pSelectedActor.size(); ++i)
@@ -73,18 +86,16 @@ void CustomInteractorStyle::OnMouseMove()
 		if (m_pSelectedActor[i] == nullptr) {
 			continue;
 		}
-		double angleX = deltY;
-		double angleY = deltX;
 
 		if (!m_pRotationTransform[i])
 		{
 			m_pRotationTransform[i] = vtkSmartPointer<vtkTransform>::New();
-			m_pRotationTransform[i]->Identity();
+			//m_pRotationTransform[i]->Identity();
 		}
 		//double* center = m_pSelectedActor[i]->GetCenter();
 		m_pRotationTransform[i]->Translate(rotationCenter[0], rotationCenter[1], rotationCenter[2]);
-		m_pRotationTransform[i]->RotateX(angleX);
-		m_pRotationTransform[i]->RotateY(angleY);
+		m_pRotationTransform[i]->RotateX(deltY);
+		m_pRotationTransform[i]->RotateY(deltX);
 		m_pRotationTransform[i]->Translate(-rotationCenter[0], -rotationCenter[1], -rotationCenter[2]);
 
 		m_pSelectedActor[i]->SetUserTransform(m_pRotationTransform[i]);
@@ -99,11 +110,6 @@ void CustomInteractorStyle::OnLeftButtonDown()
 {
 	m_bLBtnDown = true;
 
-	this->Interactor->GetPicker()->Pick(this->Interactor->GetEventPosition()[0],
-		this->Interactor->GetEventPosition()[1],
-		0,
-		m_renderer);
-	this->Interactor->GetPicker()->GetPickPosition(m_pickedPos);
 	vtkSmartPointer<vtkPropCollection> propCollection = m_renderer->GetViewProps();
 	propCollection->InitTraversal();
 	vtkProp* prop = nullptr;
@@ -140,14 +146,10 @@ void CustomInteractorStyle::setRotationCenter(double x, double y, double z)
 
 CustomInteractorStyle::CustomInteractorStyle()
 {
-	this->InteractionProp = nullptr;
-	this->InteractionPicker = vtkCellPicker::New();
-	this->InteractionPicker->SetTolerance(0.001);
 }
 
 CustomInteractorStyle::~CustomInteractorStyle()
 {
-	this->InteractionPicker->Delete();
 }
 
 //void CustomInteractorStyle::Dolly(double factor)

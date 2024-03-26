@@ -442,17 +442,19 @@ void te3DCanvas::SetCoordinateSet()
 void te3DCanvas::VTKCoordinateAxis()
 {
     axes_actor = vtkSmartPointer<vtkAxesActor>::New();
+    axes_actor->SetAxisLabels(1);
     axes_actor->SetPosition(0, 0, 0);
     axes_actor->SetTotalLength(2, 2, 2);
     axes_actor->SetShaftType(0);
     axes_actor->SetCylinderRadius(0.02);
 
-    style = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
-    this->interactor()->SetInteractorStyle(style);
+    m_CustomInteractor = CustomInteractorStyle::New();
+    m_CustomInteractor->setRenderWindow(m_renderWindow, m_renderer, axes_actor);
+    m_renderWindow->GetInteractor()->SetInteractorStyle(m_CustomInteractor);
 
     markerWidget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
     markerWidget->SetOrientationMarker(axes_actor);
-    markerWidget->SetInteractor(this->interactor());
+    markerWidget->SetInteractor(m_renderWindow->GetInteractor());
     markerWidget->SetEnabled(1);
     markerWidget->InteractiveOn();
     markerWidget->SetInteractive(false);
@@ -750,4 +752,9 @@ vtkRenderWindow* te3DCanvas::getvtkRenderWindow()
 vtkSmartPointer<vtkRenderer> te3DCanvas::getvtkRenderer()
 {
     return vtkSmartPointer<vtkRenderer>();
+}
+
+void te3DCanvas::setRotationCenter()
+{
+    m_CustomInteractor->setRotationCenter(getCloudCentroid()[0], getCloudCentroid()[1], getCloudCentroid()[2]);
 }

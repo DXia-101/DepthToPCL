@@ -5,6 +5,7 @@
 
 #include "teAiExTypes.h"
 #include "te3DCanvasMember.h"
+#include "CustomInteractorStyle.h"
 
 #include <map>
 #include <vector>
@@ -32,6 +33,8 @@ public:
 
     vtkRenderWindow* getvtkRenderWindow();
     vtkSmartPointer<vtkRenderer> getvtkRenderer();
+
+    void setRotationCenter();
 public:
     void MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
     void ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
@@ -83,6 +86,7 @@ public:
 
     vtkRenderWindow* m_renderWindow;
     vtkSmartPointer<vtkRenderer> m_renderer;
+    
 private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_NoOutliers;
@@ -97,12 +101,14 @@ private:
     pcl::MomentOfInertiaEstimation<pcl::PointXYZ> feature_extractor;
     pcl::visualization::PCLVisualizer::Ptr viewer;
 
+    CustomInteractorStyle* m_CustomInteractor;
+
     Filter_Guass* dialog_Guass_filter;
     Filter_Direct* dialog_Direct_filter;
 
-    vtkSmartPointer<vtkInteractorStyleTrackballCamera> style;
     vtkSmartPointer<vtkOrientationMarkerWidget> markerWidget;
     vtkSmartPointer<vtkAxesActor> axes_actor;
+    
 private:
     struct AxisSet axisset;
     struct te3DCanvasMember m_member;
