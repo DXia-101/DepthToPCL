@@ -73,12 +73,12 @@ void CustomInteractorStyle::OnMouseMove()
 			axesTransform = vtkSmartPointer<vtkTransform>::New();
 			//axesTransform->Identity();
 		}
-		axesTransform->Translate(rotationCenter[0], rotationCenter[1], rotationCenter[2]);
+		double* axesCenter = axes_actor->GetCenter();
+		axesTransform->Translate(axesCenter[0], axesCenter[1], axesCenter[2]);
 		axesTransform->RotateX(deltY);
 		axesTransform->RotateY(deltX);
-		axesTransform->Translate(-rotationCenter[0], -rotationCenter[1], -rotationCenter[2]);
+		axesTransform->Translate(-axesCenter[0], -axesCenter[1], -axesCenter[2]);
 		axes_actor->SetUserTransform(axesTransform);
-		axes_actor->SetPosition(rotationCenter);
 	}
 
 	for (int i = 0; i < m_pSelectedActor.size(); ++i)
