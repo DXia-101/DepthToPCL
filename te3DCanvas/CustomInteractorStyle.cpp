@@ -106,6 +106,7 @@ void CustomInteractorStyle::OnMouseMove()
 
 	this->Interactor->GetRenderWindow()->Render();
 }
+
 void CustomInteractorStyle::OnLeftButtonDown()
 {
 	m_bLBtnDown = true;

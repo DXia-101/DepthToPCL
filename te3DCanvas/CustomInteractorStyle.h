@@ -37,6 +37,8 @@ private:
 	CustomInteractorStyle(const CustomInteractorStyle&) = delete;
 	void operator=(const CustomInteractorStyle&) = delete;
 
+
+
 	bool Zoomflag = false;
 	bool m_bLBtnDown = false;
 

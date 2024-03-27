@@ -45,7 +45,7 @@ void te3DCanvas::PCL_Initalization()
     this->update();
     viewer->addPointCloud<pcl::PointXYZ>(cloud, "cloud");
 
-    viewer->registerMouseCallback(&te3DCanvas::mouseEventOccurred, *this);
+    //viewer->registerMouseCallback(&te3DCanvas::mouseEventOccurred, *this);
 
     currentCategory = "";
 }
@@ -55,17 +55,42 @@ void te3DCanvas::PCL_Initalization()
 /// </summary>
 /// <param name="event"></param>
 /// <param name="viewer_void"></param>
-/// 
-void te3DCanvas::mouseEventOccurred(const pcl::visualization::MouseEvent& event, void* viewer_void)
+//void te3DCanvas::mouseEventOccurred(const pcl::visualization::MouseEvent& event, void* viewer_void)
+//{
+//    if (event.getButton() == pcl::visualization::MouseEvent::LeftButton &&
+//        event.getType() == pcl::visualization::MouseEvent::MouseButtonRelease)
+//    {
+        //if (m_member.isPickingMode) {
+        //    double world_point[3];
+        //    double displayPos[2];
+        //    displayPos[0] = double(event.getX()), displayPos[1] = double(event.getY());
+        //    qDebug() << "PCLEVENT PosX:" << event.getX() << " PosY:" << double(event.getY());
+        //    getScreentPos(displayPos, world_point, viewer_void);
+
+        //    curP = pcl::PointXYZ(world_point[0], world_point[1], world_point[2]);
+        //    if (!m_member.flag)m_member.flag = true;
+        //    else {
+        //        char str1[512];
+        //        sprintf(str1, "line#%03d", m_member.line_id++);
+        //        viewer->addLine(lastP, curP, str1);
+        //    }
+        //    lastP = curP;
+        //    cloud_polygon->push_back(curP);
+        //}
+//    }
+//}
+
+void te3DCanvas::mouseReleaseEvent(QMouseEvent* event)
 {
-    if (event.getButton() == pcl::visualization::MouseEvent::LeftButton &&
-        event.getType() == pcl::visualization::MouseEvent::MouseButtonRelease)
+    if (event->button() == Qt::LeftButton)
     {
         if (m_member.isPickingMode) {
             double world_point[3];
             double displayPos[2];
-            displayPos[0] = double(event.getX()), displayPos[1] = double(event.getY());
-            getScreentPos(displayPos, world_point, viewer_void);
+            displayPos[0] = double(event->pos().x()), displayPos[1] = double(this->height() - event->pos().y() - 1);
+            //qDebug() << "QQTEVENT PosX:" << event->pos().x() << " PosY:" << double(this->height() - event->pos().y() - 1);
+            //qDebug() << " ";
+            getScreentPos(displayPos, world_point, this);
 
             curP = pcl::PointXYZ(world_point[0], world_point[1], world_point[2]);
             if (!m_member.flag)m_member.flag = true;
@@ -114,7 +139,6 @@ void te3DCanvas::getScreentPos(double* displayPos, double* world, void* viewer_v
 /// 不规则框选
 /// </summary>
 /// <param name="viewer_void"></param>
-/// <param name="mode">模式选择:Primary,Invert,Label1,Label2,Label3</param>
 void te3DCanvas::PolygonSelect(void* viewer_void)
 {
     double focal[3] = { 0 }; double pos[3] = { 0 };

@@ -51,6 +51,14 @@ void te3DCanvasMenu::on_ViewZBtn_clicked()
 
 void te3DCanvasMenu::on_startMarkBtn_clicked()
 {
+	if (ui->startMarkBtn->isChecked()) {
+		ui->startMarkBtn->setChecked(true);
+		ui->startMarkBtn->setText(u8"完成标记");
+	}
+	else {
+		ui->startMarkBtn->setChecked(false);
+		ui->startMarkBtn->setText(u8"开始标记");
+	}
 	emit sig_StartMarking();
 }
 

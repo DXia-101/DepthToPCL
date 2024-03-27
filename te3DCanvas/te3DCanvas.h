@@ -42,7 +42,8 @@ public:
     struct AxisSet getAxisSet();
     std::vector<double> getCloudCentroid();
 protected:
-    void mouseEventOccurred(const pcl::visualization::MouseEvent& event, void* viewer_void); //不规则框选的鼠标画线
+    //void mouseEventOccurred(const pcl::visualization::MouseEvent& event, void* viewer_void); //不规则框选的鼠标画线
+    void mouseReleaseEvent(QMouseEvent* event) override;
 
     void getScreentPos(double* displayPos, double* world, void* viewer_void);
     int inOrNot1(int poly_sides, double* poly_X, double* poly_Y, double x, double y);
