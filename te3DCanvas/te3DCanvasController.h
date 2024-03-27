@@ -26,6 +26,7 @@ public:
 
 	QRect getGeometry();
 
+	void SetClassBCallback(teMouseCircle& classB);
 private slots:
 	void BackgroundColorSelect();
 	void CoordinateAxisSelect();

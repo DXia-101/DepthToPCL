@@ -6,6 +6,7 @@
 #include "teAiExTypes.h"
 #include "te3DCanvasMember.h"
 #include "CustomInteractorStyle.h"
+#include "teMouseCircle.h"
 
 #include <map>
 #include <vector>
@@ -35,6 +36,8 @@ public:
     vtkSmartPointer<vtkRenderer> getvtkRenderer();
 
     void setRotationCenter();
+
+    void SetClassBCallback(teMouseCircle& classB);
 public:
     void MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
     void ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
@@ -42,7 +45,6 @@ public:
     struct AxisSet getAxisSet();
     std::vector<double> getCloudCentroid();
 protected:
-    //void mouseEventOccurred(const pcl::visualization::MouseEvent& event, void* viewer_void); //不规则框选的鼠标画线
     void mouseReleaseEvent(QMouseEvent* event) override;
 
     void getScreentPos(double* displayPos, double* world, void* viewer_void);

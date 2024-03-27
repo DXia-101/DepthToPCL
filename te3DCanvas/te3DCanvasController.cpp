@@ -18,10 +18,6 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	m_te3DCanvas = new te3DCanvas();
 	m_te3DCanvasMenu = new te3DCanvasMenu();
 	m_te3DCanvasToolBar = new te3DCanvasToolBar();
-
-	//m_ActorInteractor = ActorInteractorStyle::New();
-	//m_ActorInteractor->setRenderWindow(m_te3DCanvas->m_renderWindow,m_te3DCanvas->m_renderer,m_te3DCanvas->m_renderWindow->GetInteractor());
-	//m_te3DCanvas->m_renderWindow->GetInteractor()->SetInteractorStyle(m_ActorInteractor);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, m_te3DCanvas, &te3DCanvas::PointCloudHeightTransform);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_ConnectHeightTransForm, this, &te3DCanvasController::sig_ConnectHeightTransform);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, this, &te3DCanvasController::SaveHeightTransFromFactor);
@@ -52,7 +48,6 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 
 te3DCanvasController::~te3DCanvasController()
 {
-	//m_interactor->Delete();
 }
 
 te3DCanvasController::te3DCanvasController(const te3DCanvasController&)
@@ -105,6 +100,11 @@ void te3DCanvasController::SavePointCloud(QString filepath, pcl::PointCloud<pcl:
 QRect te3DCanvasController::getGeometry()
 {
 	return m_te3DCanvas->geometry();
+}
+
+void te3DCanvasController::SetClassBCallback(teMouseCircle& classB)
+{
+	m_te3DCanvas->SetClassBCallback(classB);
 }
 
 void te3DCanvasController::hideAllUI()
