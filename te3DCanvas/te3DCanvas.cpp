@@ -711,6 +711,7 @@ void te3DCanvas::PointCloudHeightTransform(int factor)
         cloud->at(i).z *= factor;
     }
     reRendering(cloud->makeShared());
+    setRotationCenter();
 }
 
 void te3DCanvas::te3DCanvasStartMarking()

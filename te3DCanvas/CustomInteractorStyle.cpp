@@ -1,6 +1,9 @@
 #include "CustomInteractorStyle.h"
 #include <vtkInteractorStyle.h>
 
+#include "RotateAroundAxis.h"
+#include "teStereoCamera.h"
+
 #include "vtkCamera.h"
 #include "vtkCellPicker.h"
 #include "vtkCallbackCommand.h"
@@ -8,7 +11,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkProp3D.h"
-
+#include <cmath>
 vtkStandardNewMacro(CustomInteractorStyle);
 
 void CustomInteractorStyle::setRenderWindow(vtkRenderWindow* window, vtkSmartPointer<vtkRenderer> render, vtkSmartPointer<vtkAxesActor> axes)
@@ -73,32 +76,58 @@ void CustomInteractorStyle::OnMouseMove()
 			axesTransform = vtkSmartPointer<vtkTransform>::New();
 			//axesTransform->Identity();
 		}
+		double xAngle, yAngle, zAngle;
+
 		double* axesCenter = axes_actor->GetCenter();
 		axesTransform->Translate(axesCenter[0], axesCenter[1], axesCenter[2]);
-		axesTransform->RotateX(deltY);
-		axesTransform->RotateY(deltX);
+
+		rotateAroundAxis(-deltY,Axes_xAxis ,&Axes_yAxis);
+		teCalcEulerAngle(mat, E_ORDER_XYZ, &xAngle, &yAngle, &zAngle);
+		axesTransform->RotateX(xAngle);
+		axesTransform->RotateY(yAngle);
+		axesTransform->RotateZ(zAngle);
+		
+		rotateAroundAxis(deltX,Axes_yAxis, &Axes_xAxis);
+		teCalcEulerAngle(mat, E_ORDER_XYZ, &xAngle, &yAngle, &zAngle);
+		axesTransform->RotateX(xAngle);
+		axesTransform->RotateY(yAngle);
+		axesTransform->RotateZ(zAngle);
+		
 		axesTransform->Translate(-axesCenter[0], -axesCenter[1], -axesCenter[2]);
 		axes_actor->SetUserTransform(axesTransform);
 	}
+	
+	if (!m_pRotationTransform)
+	{
+		m_pRotationTransform = vtkSmartPointer<vtkTransform>::New();
+	}
 
+	m_pRotationTransform->Translate(rotationCenter[0], rotationCenter[1], rotationCenter[2]);
+	double xAngle, yAngle, zAngle;
+
+	rotateAroundAxis(-deltY, Actor_xAxis, &Actor_yAxis);
+	teCalcEulerAngle(mat, E_ORDER_XYZ, &xAngle, &yAngle, &zAngle);
+
+	m_pRotationTransform->RotateX(xAngle);
+	m_pRotationTransform->RotateY(yAngle);
+	m_pRotationTransform->RotateZ(zAngle);
+
+	rotateAroundAxis(deltX, Actor_yAxis, &Actor_xAxis);
+	teCalcEulerAngle(mat, E_ORDER_XYZ, &xAngle, &yAngle, &zAngle);
+
+	m_pRotationTransform->RotateX(xAngle);
+	m_pRotationTransform->RotateY(yAngle);
+	m_pRotationTransform->RotateZ(zAngle);
+
+	m_pRotationTransform->Translate(-rotationCenter[0], -rotationCenter[1], -rotationCenter[2]);
+	//
 	for (int i = 0; i < m_pSelectedActor.size(); ++i)
 	{
 		if (m_pSelectedActor[i] == nullptr) {
 			continue;
 		}
 
-		if (!m_pRotationTransform[i])
-		{
-			m_pRotationTransform[i] = vtkSmartPointer<vtkTransform>::New();
-			//m_pRotationTransform[i]->Identity();
-		}
-		//double* center = m_pSelectedActor[i]->GetCenter();
-		m_pRotationTransform[i]->Translate(rotationCenter[0], rotationCenter[1], rotationCenter[2]);
-		m_pRotationTransform[i]->RotateX(deltY);
-		m_pRotationTransform[i]->RotateY(deltX);
-		m_pRotationTransform[i]->Translate(-rotationCenter[0], -rotationCenter[1], -rotationCenter[2]);
-
-		m_pSelectedActor[i]->SetUserTransform(m_pRotationTransform[i]);
+		m_pSelectedActor[i]->SetUserTransform(m_pRotationTransform);
 	}
 
 	m_nOldMousePosX = X;
@@ -116,7 +145,6 @@ void CustomInteractorStyle::OnLeftButtonDown()
 	vtkProp* prop = nullptr;
 	vtkProp3D* pActor = nullptr;
 	int pickNum = propCollection->GetNumberOfItems();
-	m_pRotationTransform.resize(pickNum);
 	m_pSelectedActor.clear();
 	while (pickNum > 0)
 	{
@@ -147,6 +175,7 @@ void CustomInteractorStyle::setRotationCenter(double x, double y, double z)
 
 CustomInteractorStyle::CustomInteractorStyle()
 {
+	this->InteractionProp = nullptr;
 }
 
 CustomInteractorStyle::~CustomInteractorStyle()
@@ -158,7 +187,8 @@ void CustomInteractorStyle::Dolly(double factor)
 	double initialPosition[3];
 	vtkCamera* cam = m_renderer->GetActiveCamera();
 	cam->GetPosition(initialPosition);
-	double* oldFocalPoint = cam->GetFocalPoint();
+	double oldFocalPoint[3];
+	cam->GetFocalPoint(oldFocalPoint);
 
 	DollyToPosition(factor, this->Interactor->GetEventPosition(), m_renderer);
 
@@ -264,7 +294,6 @@ void CustomInteractorStyle::TranslateCamera(vtkRenderer* renderer, int toX, int 
 	cam->GetFocalPoint(viewFocus);
 	cam->GetPosition(viewPoint);
 	cam->SetFocalPoint(motionVector[0] + viewFocus[0], motionVector[1] + viewFocus[1], motionVector[2] + viewFocus[2]);
-
 	cam->SetPosition(motionVector[0] + viewPoint[0], motionVector[1] + viewPoint[1], motionVector[2] + viewPoint[2]);
 }
 
@@ -279,4 +308,28 @@ void CustomInteractorStyle::TriggerCallback()
 	{
 		callback_();
 	}
+}
+
+void CustomInteractorStyle::rotateAroundAxis(double angle, std::vector<double>& axis, std::vector<double>* point)
+{
+	cv::Point3d OutPoint = cv::Point3d(0, 0, 0);
+	mat = cv::Mat();
+	RotateAroundAxis(cv::Point3d(point->at(0), point->at(1), point->at(2)), cv::Point3d(0, 0, 0),
+		cv::Vec3d(axis.at(0), axis.at(1), axis.at(2)), cv::saturate_cast<double>(angle * CV_PI / 180.0),
+		OutPoint, mat);
+
+	mat = mat(cv::Rect(0, 0, 3, 3));
+	cv::invert(mat, submatrix);
+	cv::Mat matrix1_mat(3, 1, CV_64F);
+
+	matrix1_mat.at<double>(0, 0) = point->at(0);
+	matrix1_mat.at<double>(1, 0) = point->at(1);
+	matrix1_mat.at<double>(2, 0) = point->at(2);
+
+	cv::Mat result;
+	result = submatrix * matrix1_mat;
+
+	point->at(0) = result.at<double>(0, 0);
+	point->at(1) = result.at<double>(1, 0);
+	point->at(2) = result.at<double>(2, 0);
 }

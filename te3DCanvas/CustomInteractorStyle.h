@@ -34,6 +34,7 @@ protected:
 	bool IsCameraOutOfBounds(vtkCamera* camera);
 	void DollyToPosition(double fact, int* position, vtkRenderer* renderer);
 	void TranslateCamera(vtkRenderer* renderer, int toX, int toY, int fromX, int fromY);
+	void rotateAroundAxis(double angle, std::vector<double>& axis, std::vector<double>* point);
 
 	vtkRenderWindow* m_rendererwindow;
 	vtkSmartPointer<vtkRenderer> m_renderer;
@@ -42,7 +43,7 @@ protected:
 	vtkSmartPointer<vtkTransform> axesTransform;
 
 	std::vector<vtkActor*> m_pSelectedActor = { nullptr };
-	std::vector<vtkSmartPointer<vtkTransform>> m_pRotationTransform = { nullptr };
+	vtkSmartPointer<vtkTransform> m_pRotationTransform = nullptr;
 private:
 	CustomInteractorStyle(const CustomInteractorStyle&) = delete;
 	void operator=(const CustomInteractorStyle&) = delete;
@@ -56,7 +57,16 @@ private:
 
 	int m_nOldMousePosX;
 	int m_nOldMousePosY;
+
+	vtkProp3D* InteractionProp;
 	
 	double m_pickedPos[3] = { 0.0, 0.0, 0.0 }; // 初始化为0
 	double rotationCenter[3] = { 0.0,0.0,0.0 }; // 旋转中心点
+
+	cv::Mat mat;
+	cv::Mat submatrix;
+	std::vector<double> Actor_xAxis = { 1.0,0.0,0.0 };
+	std::vector<double> Actor_yAxis = { 0.0,1.0,0.0 };
+	std::vector<double> Axes_xAxis = { 1.0,0.0,0.0 };
+	std::vector<double> Axes_yAxis = { 0.0,1.0,0.0 };
 };
