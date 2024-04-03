@@ -36,6 +36,8 @@ void te3DCanvas::PCL_Initalization()
     m_renderer = vtkSmartPointer<vtkRenderer>::New();
     m_renderWindow = this->renderWindow();
     m_renderWindow->AddRenderer(m_renderer);
+    //m_renderer->GetActiveCamera()->vtkCamera::ParallelProjectionOn();
+    m_renderer->ResetCameraClippingRange();
 
     viewer.reset(new pcl::visualization::PCLVisualizer(m_renderer, m_renderWindow, "viewer", false));
     this->setRenderWindow(m_renderWindow);

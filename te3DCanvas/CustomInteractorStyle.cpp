@@ -21,35 +21,35 @@ void CustomInteractorStyle::setRenderWindow(vtkRenderWindow* window, vtkSmartPoi
 	axes_actor = axes;
 }
 
-void CustomInteractorStyle::OnMouseWheelForward() 
-{
-	if (Zoomflag) {
-		Dolly(1.12);
-	}
-	else {
-		vtkInteractorStyleTrackballCamera::OnMouseWheelForward();
-	}
-}
-
-void CustomInteractorStyle::OnMouseWheelBackward() 
-{
-	if (Zoomflag) {
-		Dolly(0.88);
-	}
-	else {
-		vtkInteractorStyleTrackballCamera::OnMouseWheelBackward();
-	}
-}
-
-void CustomInteractorStyle::OnMiddleButtonDown()
-{
-	vtkInteractorStyleTrackballCamera::OnMiddleButtonDown();
-}
-
-void CustomInteractorStyle::OnMiddleButtonUp()
-{
-	vtkInteractorStyleTrackballCamera::OnMiddleButtonUp();
-}
+//void CustomInteractorStyle::OnMouseWheelForward() 
+//{
+//	if (Zoomflag) {
+//		Dolly(1.12);
+//	}
+//	else {
+//		vtkInteractorStyleTrackballCamera::OnMouseWheelForward();
+//	}
+//}
+//
+//void CustomInteractorStyle::OnMouseWheelBackward() 
+//{
+//	if (Zoomflag) {
+//		Dolly(0.88);
+//	}
+//	else {
+//		vtkInteractorStyleTrackballCamera::OnMouseWheelBackward();
+//	}
+//}
+//
+//void CustomInteractorStyle::OnMiddleButtonDown()
+//{
+//	vtkInteractorStyleTrackballCamera::OnMiddleButtonDown();
+//}
+//
+//void CustomInteractorStyle::OnMiddleButtonUp()
+//{
+//	vtkInteractorStyleTrackballCamera::OnMiddleButtonUp();
+//}
 
 void CustomInteractorStyle::OnMouseMove()
 {
@@ -132,8 +132,8 @@ void CustomInteractorStyle::OnMouseMove()
 
 	m_nOldMousePosX = X;
 	m_nOldMousePosY = Y;
-
-	this->Interactor->GetRenderWindow()->Render();
+	m_renderer->ResetCameraClippingRange();
+	m_renderer->Render();
 }
 
 void CustomInteractorStyle::OnLeftButtonDown()
@@ -199,8 +199,8 @@ void CustomInteractorStyle::Dolly(double factor)
 		TriggerCallback();
 	}
 
+	
 	m_renderer->ResetCameraClippingRange();
-
 	m_rendererwindow->Render();
 }
 
