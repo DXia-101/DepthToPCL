@@ -98,6 +98,40 @@ void Transfer_Function::ExtractImage2Cloud(cv::Mat& imageIn, float originX,float
     }
 }
 
+void Transfer_Function::ExtractCloud2Cloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudIn, std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)
+{
+    cloudOut->clear();
+
+    int minX = std::numeric_limits<int>::max();
+    int minY = std::numeric_limits<int>::max();
+    int maxX = std::numeric_limits<int>::min();
+    int maxY = std::numeric_limits<int>::min();
+    for (const auto& point : *contour)
+    {
+        minX = std::min(minX, point.x);
+        minY = std::min(minY, point.y);
+        maxX = std::max(maxX, point.x);
+        maxY = std::max(maxY, point.y);
+    }
+
+    for (const auto& point : cloudIn->points)
+    {
+        Eigen::Vector3f pointEigen(point.x, point.y, point.z);
+
+        //Eigen::Vector3f pointProjected = pointEigen;
+        pointEigen.z() = 0.0;
+
+        if (pointEigen.x() >= minX && pointEigen.x() <= maxX && pointEigen.y() >= minY && pointEigen.y() <= maxY)
+        {
+            cloudOut->points.push_back(point);
+        }
+    }
+
+    cloudOut->width = cloudOut->points.size();
+    cloudOut->height = 1;
+    cloudOut->is_dense = true;
+}
+
 void Transfer_Function::AddPointsInsideContour(cv::Mat& Matin, std::vector<cv::Point>* contour)
 {
     cv::Rect boundingRect = cv::boundingRect(*contour);

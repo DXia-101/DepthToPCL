@@ -36,7 +36,7 @@ void AiModelInterface::teTrainStateCallBack(AiStatus status, TrainState& statein
 		cv->notify_all();
 	}
 
-	printf("iter: %d  loss: %f  pacc: %f\n", stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
+	//printf("iter: %d  loss: %f  pacc: %f\n", stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
 	//emit DataUpdate(stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
 	teDataStorage::getInstance()->setDataDuringTraining(stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
 

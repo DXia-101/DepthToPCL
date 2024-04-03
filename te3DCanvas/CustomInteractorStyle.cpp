@@ -61,8 +61,8 @@ void CustomInteractorStyle::OnMouseMove()
 
 	int X = this->Interactor->GetEventPosition()[0];
 	int Y = this->Interactor->GetEventPosition()[1];
-	double deltX = X - m_nOldMousePosX;
-	double deltY = Y - m_nOldMousePosY;
+	double deltX = (X - m_nOldMousePosX)*0.1;
+	double deltY = (Y - m_nOldMousePosY)*0.1;
 	if (abs(deltX) > 10 || abs(deltY) > 10)
 	{
 		m_nOldMousePosX = X;

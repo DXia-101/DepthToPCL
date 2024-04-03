@@ -26,7 +26,6 @@ MainInterface::MainInterface(QWidget *parent)
 	te2DCanvasController::getInstance()->displayToolBarInWidget(ui->CanvasToolBarLayout);
 	te3DCanvasController::getInstance()->hideAllUI();
 	
-
 	te2DCanvasController::getInstance()->showAllUI();
 	teDataStorage::getInstance()->displayUIInWidget(ui->labelLayout);
 	teImageBrowserController::getInstance()->displayUIInWidget(ui->browserLayout);
@@ -39,6 +38,7 @@ MainInterface::MainInterface(QWidget *parent)
 	m_mouseCircle->receptiveFieldChange(m_AiModelController->getReceptiveField());
 	stacklayout->addWidget(m_mouseCircle);
 	stacklayout->setCurrentWidget(m_mouseCircle);
+	te3DCanvasController::getInstance()->SetClassBCallback(*m_mouseCircle);
 
 	InitStateMachine();
 	InitToolBar();
@@ -102,19 +102,24 @@ void MainInterface::InitToolBar()
 	ui->ToolBarLayout->addWidget(menu_bar);
 	menu_bar->setStyleSheet("font-size : 18px");
 
-	QMenu* Train_menu = new QMenu(u8"ÑµÁ·", menu_bar);
+	QMenu* operate_menu = new QMenu(u8"ÎÄ¼þ", menu_bar);
+	QAction* Load_Images = new QAction(u8"¼ÓÔØÍ¼Æ¬");
+	operate_menu->addAction(Load_Images);
 
-	QAction* Load_Images = new QAction(u8"¼ÓÔØÑµÁ·Í¼Æ¬");
+	menu_bar->addMenu(operate_menu);
+
+	QMenu* Train_menu = new QMenu(u8"ÑµÁ·", menu_bar);
 	QAction* Start_Train = new QAction(u8"¿ªÊ¼ÑµÁ·");
 	QAction* Stop_Train = new QAction(u8"Í£Ö¹ÑµÁ·");
 	QAction* Start_Test = new QAction(u8"¿ªÊ¼²âÊÔ");
 
-	Train_menu->addAction(Load_Images);
+	
 	Train_menu->addAction(Start_Train);
 	//Train_menu->addAction(Stop_Train);
 	Train_menu->addAction(Start_Test);
-
 	menu_bar->addMenu(Train_menu);
+
+
 
 	connect(Load_Images, &QAction::triggered, this, &MainInterface::LoadTrainingImages);
 	connect(this, &MainInterface::sig_LoadTrainingImages, teDataStorage::getInstance(), &teDataStorage::LoadTrainingImages);

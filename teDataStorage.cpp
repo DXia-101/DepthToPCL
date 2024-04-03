@@ -368,7 +368,7 @@ void teDataStorage::currentRowChange(const QString& content, const QColor& fontC
 
 void teDataStorage::clearCurrentMarkersGT()
 {
-	ResourceTable->updateRecord(currentIndex + 1, { std::pair<te::StdU8String,te::SampleMark>("ResultSampleMark",te::SampleMark()) });
+	ResourceTable->updateRecord(currentIndex + 1, { std::pair<te::StdU8String,te::SampleMark>("TrainSampleMark",te::SampleMark()) });
 }
 
 void teDataStorage::setCurrentIndex(int index)

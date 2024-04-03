@@ -113,6 +113,8 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
 
         te3DCanvasController::getInstance()->MaintainCoordinateAxis();
 
+        te3DCanvasController::getInstance()->SetCentroid();
+
         emit sig_HeightTransform();
     }
     else if (CurrentState == TwoD) {

@@ -12,6 +12,9 @@ public:
 	teMouseCircle(QWidget *parent = nullptr);
 	~teMouseCircle();
 
+public:
+	void restitution();
+
 protected:
 	void paintEvent(QPaintEvent* event) override;
 	void mouseMoveEvent(QMouseEvent* event) override;
@@ -26,4 +29,5 @@ public slots:
 private:
 	QPointF centerPoint;
 	float radius;
+	bool MaxState;
 };

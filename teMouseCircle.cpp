@@ -58,10 +58,16 @@ teMouseCircle::teMouseCircle(QWidget *parent)
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
     installEventFilter(this);
     radius = 10.0;
+    MaxState = false;
 }
 
 teMouseCircle::~teMouseCircle()
 {}
+
+void teMouseCircle::restitution()
+{
+    MaxState = true;
+}
 
 void teMouseCircle::paintEvent(QPaintEvent * event)
 {
@@ -83,6 +89,7 @@ void teMouseCircle::paintEvent(QPaintEvent * event)
     painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
     painter.drawEllipse(centerPoint, radius, radius);
+    update();
 }
 
 void teMouseCircle::mouseMoveEvent(QMouseEvent* event)
@@ -104,18 +111,27 @@ void teMouseCircle::mouseReleaseEvent(QMouseEvent* event)
 
 void teMouseCircle::wheelEvent(QWheelEvent* event)
 {
+    transWheelEvents(event);
     if (event->modifiers() == Qt::NoModifier) {
         int iDelta = event->delta();
         double dZoomRatio = 1.0 + iDelta / 1000.0;
-        if ((radius * dZoomRatio) <= 0)
+        if ((radius * dZoomRatio) <= 1)
         {
+            MaxState = false;
             radius = 1.0;
         }
         else {
-            radius *= dZoomRatio;
+            if (!MaxState) {
+                radius *= dZoomRatio;
+            }
+            else if(dZoomRatio <= 1){
+                MaxState = false;
+                radius *= dZoomRatio;
+            }
+                
         }
     }
-    transWheelEvents(event);
+    update();
 }
 
 //传递鼠标事件

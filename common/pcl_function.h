@@ -7,10 +7,15 @@
 #include <vtkCamera.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkInteractorStyleTrackballActor.h>
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkSmartPointer.h>
+#include <vtkInteractionStyleModule.h>
+#include <vtkInteractorStyle.h>
+#include <vtkAutoInit.h>
+#include <Eigen/Dense>
 
 #include <QVTKOpenGLNativeWidget.h>
 
@@ -36,6 +41,7 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 
+#include <pcl/surface/convex_hull.h>
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
@@ -45,6 +51,7 @@
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/visualization/keyboard_event.h>
 #include <pcl/visualization/mouse_event.h>
+#include <pcl/visualization/interactor_style.h>
 
 #include <Eigen/Core>
 
