@@ -99,6 +99,6 @@ private:
 	Filter_Guass* dialog_Guass_filter;
 	Filter_Direct* dialog_Direct_filter;
 
-	int hegithTransFactor;
-	QString axis;
+	int hegithTransFactor = 1;
+	QString axis = "";
 };

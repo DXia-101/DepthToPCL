@@ -119,8 +119,11 @@ void te3DCanvasController::showAllUI()
 	m_te3DCanvasMenu->show();
 	m_te3DCanvas->show();
 	m_te3DCanvas->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
+	MaintainCoordinateAxis();
+	HegithTransForm();
 	m_te3DCanvas->reRenderOriginCloud();
 	m_te3DCanvas->setRotationCenter();
+	
 }
 
 void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
@@ -178,7 +181,8 @@ void te3DCanvasController::SaveAxis(QString axis)
 
 void te3DCanvasController::MaintainCoordinateAxis()
 {
-	emit sig_CoordinateAxis(this->axis);
+	if(this->axis != "")
+		emit sig_CoordinateAxis(this->axis);
 }
 
 void te3DCanvasController::LoadPointCloud(QString fileName)

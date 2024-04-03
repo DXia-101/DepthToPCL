@@ -51,6 +51,30 @@ void CustomInteractorStyle::setRenderWindow(vtkRenderWindow* window, vtkSmartPoi
 //	vtkInteractorStyleTrackballCamera::OnMiddleButtonUp();
 //}
 
+void CustomInteractorStyle::rotateAroundAxis(double angle, std::vector<double>& axis, std::vector<double>* point)
+{
+	cv::Point3d OutPoint = cv::Point3d(0, 0, 0);
+	mat = cv::Mat();
+	RotateAroundAxis(cv::Point3d(point->at(0), point->at(1), point->at(2)), cv::Point3d(0, 0, 0),
+		cv::Vec3d(axis.at(0), axis.at(1), axis.at(2)), cv::saturate_cast<double>(angle * CV_PI / 180.0),
+		OutPoint, mat);
+
+	mat = mat(cv::Rect(0, 0, 3, 3));
+	cv::invert(mat, submatrix);
+	cv::Mat matrix1_mat(3, 1, CV_64F);
+
+	matrix1_mat.at<double>(0, 0) = point->at(0);
+	matrix1_mat.at<double>(1, 0) = point->at(1);
+	matrix1_mat.at<double>(2, 0) = point->at(2);
+
+	cv::Mat result;
+	result = submatrix * matrix1_mat;
+
+	point->at(0) = result.at<double>(0, 0);
+	point->at(1) = result.at<double>(1, 0);
+	point->at(2) = result.at<double>(2, 0);
+}
+
 void CustomInteractorStyle::OnMouseMove()
 {
 	if (!m_bLBtnDown) //没有按下鼠标左键
@@ -198,8 +222,6 @@ void CustomInteractorStyle::Dolly(double factor)
 		cam->SetFocalPoint(oldFocalPoint);
 		TriggerCallback();
 	}
-
-	
 	m_renderer->ResetCameraClippingRange();
 	m_rendererwindow->Render();
 }
@@ -310,26 +332,3 @@ void CustomInteractorStyle::TriggerCallback()
 	}
 }
 
-void CustomInteractorStyle::rotateAroundAxis(double angle, std::vector<double>& axis, std::vector<double>* point)
-{
-	cv::Point3d OutPoint = cv::Point3d(0, 0, 0);
-	mat = cv::Mat();
-	RotateAroundAxis(cv::Point3d(point->at(0), point->at(1), point->at(2)), cv::Point3d(0, 0, 0),
-		cv::Vec3d(axis.at(0), axis.at(1), axis.at(2)), cv::saturate_cast<double>(angle * CV_PI / 180.0),
-		OutPoint, mat);
-
-	mat = mat(cv::Rect(0, 0, 3, 3));
-	cv::invert(mat, submatrix);
-	cv::Mat matrix1_mat(3, 1, CV_64F);
-
-	matrix1_mat.at<double>(0, 0) = point->at(0);
-	matrix1_mat.at<double>(1, 0) = point->at(1);
-	matrix1_mat.at<double>(2, 0) = point->at(2);
-
-	cv::Mat result;
-	result = submatrix * matrix1_mat;
-
-	point->at(0) = result.at<double>(0, 0);
-	point->at(1) = result.at<double>(1, 0);
-	point->at(2) = result.at<double>(2, 0);
-}
