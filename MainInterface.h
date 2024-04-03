@@ -37,6 +37,9 @@ private slots:
 	void ChangeBtnTextTo2D();
 	void ChangeBtnTextTo3D();
 	void ResetMouseRadius();
+
+private:
+	void SetThreshold(QString filePath);
 	
 private:
 	Ui::MainInterfaceClass *ui;

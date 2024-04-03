@@ -182,9 +182,61 @@ void MainInterface::ResetMouseRadius()
 	m_mouseCircle->receptiveFieldChange(m_AiModelController->getReceptiveField());
 }
 
+void MainInterface::SetThreshold(QString filePath)
+{
+	cv::Mat image = cv::imread(filePath.toStdString(), cv::IMREAD_UNCHANGED);
+
+	if (image.empty() || image.type() != CV_32FC1) {
+		return;
+	}
+
+	double minValue, maxValue;
+	cv::minMaxLoc(image, &minValue, &maxValue);
+	int histSize = 256;
+	float range[] = { static_cast<float>(minValue), static_cast<float>(maxValue) };
+	const float* histRange = { range };
+	cv::Mat hist;
+	bool uniform = true, accumulate = false;
+	cv::calcHist(&image, 1, 0, cv::Mat(), hist, 1, &histSize, &histRange, uniform, accumulate);
+	cv::Mat cumulativeHist;
+	hist.copyTo(cumulativeHist);
+	for (int i = 1; i < histSize; ++i) {
+		cumulativeHist.at<float>(i) += cumulativeHist.at<float>(i - 1);
+	}
+	float totalPixels = image.rows * image.cols;
+	float threshold = totalPixels * 0.9;
+	float maxValueInRange = 0;
+	for (int i = 0; i < histSize; ++i) {
+		if (cumulativeHist.at<float>(i) >= threshold) {
+			maxValueInRange = minValue + (maxValue - minValue) * i / histSize;
+			break;
+		}
+	}
+	float maxHeight = -FLT_MAX;
+	for (int y = 0; y < image.rows; ++y) {
+		for (int x = 0; x < image.cols; ++x) {
+			float pixelValue = image.at<float>(y, x);
+			if (pixelValue > maxValue) {
+				image.at<float>(y, x) = 0;
+			}
+			else {
+				maxHeight = std::max(maxHeight, pixelValue);
+			}
+		}
+	}
+
+	ui->ValidPointThresholdSpinBox->setValue(maxHeight);
+	ui->InvalidPointThresholdSpinBox->setValue(minValue);
+	emit sig_ValidPointThresholdChange(maxHeight);
+	emit sig_InvalidPointThresholdChange(minValue);
+}
+
 void MainInterface::LoadTrainingImages()
 {
 	QStringList filepaths = QFileDialog::getOpenFileNames(nullptr, u8"Ñ¡ÔñÎÄ¼þ", "", "TIFF Files (*.tif *.tiff)");
+	if (ui->AutomaticCheckBox->isChecked()) {
+		SetThreshold(filepaths[0]);
+	}
 	emit sig_LoadTrainingImages(filepaths);
 	teDataStorage::getInstance()->setCurrentLoadImageNum(filepaths.size());
 }

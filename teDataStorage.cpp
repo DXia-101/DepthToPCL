@@ -354,6 +354,8 @@ void teDataStorage::LoadTrainingImages(const QStringList& filePaths)
 			insertOriginImage(filePath.toStdString());
 		}
 	}
+	//在这处理高度变换的相关逻辑
+
 
 	emit sig_teUpDataSet(filePaths.size(), 1,true);
 	emit sig_LoadTrainImagesComplete();

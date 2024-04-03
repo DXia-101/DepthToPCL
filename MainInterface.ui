@@ -36,56 +36,75 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>无效点阈值</string>
-           </property>
-          </widget>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>有效点阈值</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="ValidPointThresholdSpinBox">
+               <property name="frame">
+                <bool>false</bool>
+               </property>
+               <property name="minimum">
+                <number>-100000</number>
+               </property>
+               <property name="maximum">
+                <number>10000</number>
+               </property>
+               <property name="value">
+                <number>800</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QLabel" name="label">
+               <property name="text">
+                <string>无效点阈值</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="InvalidPointThresholdSpinBox">
+               <property name="frame">
+                <bool>false</bool>
+               </property>
+               <property name="keyboardTracking">
+                <bool>true</bool>
+               </property>
+               <property name="minimum">
+                <number>-100000</number>
+               </property>
+               <property name="value">
+                <number>0</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </item>
          <item>
-          <widget class="QSpinBox" name="InvalidPointThresholdSpinBox">
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="keyboardTracking">
-            <bool>true</bool>
-           </property>
-           <property name="minimum">
-            <number>-100000</number>
-           </property>
-           <property name="value">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>有效点阈值</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="ValidPointThresholdSpinBox">
-           <property name="frame">
-            <bool>false</bool>
-           </property>
-           <property name="minimum">
-            <number>-100000</number>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
-           </property>
-           <property name="value">
-            <number>800</number>
-           </property>
-          </widget>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item>
+            <widget class="QCheckBox" name="AutomaticCheckBox">
+             <property name="text">
+              <string>自动</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
