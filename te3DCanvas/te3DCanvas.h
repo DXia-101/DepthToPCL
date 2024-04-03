@@ -89,6 +89,7 @@ public:
 
     vtkRenderWindow* m_renderWindow;
     vtkSmartPointer<vtkRenderer> m_renderer;
+    vtkSmartPointer<vtkRenderer> m_Axes_renderer;
     
 private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;

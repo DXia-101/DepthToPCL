@@ -133,7 +133,7 @@ void CustomInteractorStyle::OnMouseMove()
 	m_nOldMousePosX = X;
 	m_nOldMousePosY = Y;
 	m_renderer->ResetCameraClippingRange();
-	m_renderer->Render();
+	this->Interactor->GetRenderWindow()->Render();
 }
 
 void CustomInteractorStyle::OnLeftButtonDown()

@@ -452,7 +452,6 @@ void te3DCanvas::VTKCoordinateAxis()
     markerWidget->SetOrientationMarker(axes_actor);
     markerWidget->SetInteractor(m_renderWindow->GetInteractor());
     markerWidget->SetEnabled(1);
-    markerWidget->InteractiveOn();
     markerWidget->SetInteractive(false);
 
     m_renderWindow->Render();
