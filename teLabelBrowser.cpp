@@ -271,15 +271,26 @@ void teLabelBrowser::handleSelectionChanged()
 
 void teLabelBrowser::ColorSelect()
 {
-	QTableWidgetItem* item = LabelWidget->currentItem();
-	if (item) {
+	QTableWidgetItem* selectedItem = nullptr;
+	QList<QTableWidgetItem*> selectedItems = LabelWidget->selectedItems();
+	selectedItem = selectedItems.first();
+	if (selectedItem) {
 		QColorDialog colorDialog;
 		if (colorDialog.exec() == QDialog::Accepted) {
 			QColor selectedColor = colorDialog.selectedColor();
-			item->setForeground(QBrush(selectedColor));
-			SendCurrentItemInfo(item);
+				
+			int selectedRow = selectedItem->row();
+			QTableWidgetItem* firstColumnItem = LabelWidget->item(selectedRow, 0);
+			if (firstColumnItem) {
+				firstColumnItem->setForeground(QBrush(selectedColor));
+				SendCurrentItemInfo(firstColumnItem);
+			}
+			
 		}
 	}
+
+
+
 }
 
 
