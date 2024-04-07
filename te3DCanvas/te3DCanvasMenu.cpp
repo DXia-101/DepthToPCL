@@ -71,3 +71,8 @@ void te3DCanvasMenu::on_showRSTcheckBox_stateChanged(int arg)
 {
 	emit sig_RSTCheckStateChanged(arg);
 }
+
+void te3DCanvasMenu::setHeightCoefficientFactor(int factor)
+{
+	ui->HeightCoefficientSpinBox->setValue(factor);
+}

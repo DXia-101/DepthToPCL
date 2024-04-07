@@ -47,6 +47,7 @@ MainInterface::MainInterface(QWidget *parent)
 	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ChangeCurrentState);
 	connect(this, &MainInterface::sig_InvalidPointThresholdChange, teImageBrowserController::getInstance(), &teImageBrowserController::sig_InvalidPointThresholdChange);
 	connect(this, &MainInterface::sig_ValidPointThresholdChange, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ValidPointThresholdChange);
+	connect(this, &MainInterface::sig_setHeightCoefficientFactor, te3DCanvasController::getInstance(), &te3DCanvasController::sig_setHeightCoefficientFactor);
 
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, teImageBrowserController::getInstance(), &teImageBrowserController::sig_teUpDataSet);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, te2DCanvasController::getInstance(),&te2DCanvasController::sig_StartMarking);
@@ -115,11 +116,8 @@ void MainInterface::InitToolBar()
 
 	
 	Train_menu->addAction(Start_Train);
-	//Train_menu->addAction(Stop_Train);
 	Train_menu->addAction(Start_Test);
 	menu_bar->addMenu(Train_menu);
-
-
 
 	connect(Load_Images, &QAction::triggered, this, &MainInterface::LoadTrainingImages);
 	connect(this, &MainInterface::sig_LoadTrainingImages, teDataStorage::getInstance(), &teDataStorage::LoadTrainingImages);
@@ -184,51 +182,16 @@ void MainInterface::ResetMouseRadius()
 
 void MainInterface::SetThreshold(QString filePath)
 {
-	cv::Mat image = cv::imread(filePath.toStdString(), cv::IMREAD_UNCHANGED);
-
-	if (image.empty() || image.type() != CV_32FC1) {
-		return;
+	int maxHeight = ui->ValidPointThresholdSpinBox->value();
+	int minHeight = ui->InvalidPointThresholdSpinBox->value();
+	int factor = maxHeight - minHeight;
+	if (factor >= 1 && factor < 255) {
+		factor = 255 / factor;
 	}
-
-	double minValue, maxValue;
-	cv::minMaxLoc(image, &minValue, &maxValue);
-	int histSize = 256;
-	float range[] = { static_cast<float>(minValue), static_cast<float>(maxValue) };
-	const float* histRange = { range };
-	cv::Mat hist;
-	bool uniform = true, accumulate = false;
-	cv::calcHist(&image, 1, 0, cv::Mat(), hist, 1, &histSize, &histRange, uniform, accumulate);
-	cv::Mat cumulativeHist;
-	hist.copyTo(cumulativeHist);
-	for (int i = 1; i < histSize; ++i) {
-		cumulativeHist.at<float>(i) += cumulativeHist.at<float>(i - 1);
+	else {
+		factor = 1;
 	}
-	float totalPixels = image.rows * image.cols;
-	float threshold = totalPixels * 0.9;
-	float maxValueInRange = 0;
-	for (int i = 0; i < histSize; ++i) {
-		if (cumulativeHist.at<float>(i) >= threshold) {
-			maxValueInRange = minValue + (maxValue - minValue) * i / histSize;
-			break;
-		}
-	}
-	float maxHeight = -FLT_MAX;
-	for (int y = 0; y < image.rows; ++y) {
-		for (int x = 0; x < image.cols; ++x) {
-			float pixelValue = image.at<float>(y, x);
-			if (pixelValue > maxValue) {
-				image.at<float>(y, x) = 0;
-			}
-			else {
-				maxHeight = std::max(maxHeight, pixelValue);
-			}
-		}
-	}
-
-	ui->ValidPointThresholdSpinBox->setValue(maxHeight);
-	ui->InvalidPointThresholdSpinBox->setValue(minValue);
-	emit sig_ValidPointThresholdChange(maxHeight);
-	emit sig_InvalidPointThresholdChange(minValue);
+	emit sig_setHeightCoefficientFactor(factor);
 }
 
 void MainInterface::LoadTrainingImages()

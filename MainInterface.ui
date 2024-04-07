@@ -102,6 +102,9 @@
              <property name="text">
               <string>自动</string>
              </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
           </layout>

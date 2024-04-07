@@ -49,6 +49,7 @@ signals:
 	void sig_InvalidPointThresholdChange(int threshold);
 	void sig_ValidPointThresholdChange(int threshold);
 	void sig_SaveParameter();
+	void sig_setHeightCoefficientFactor(int factor);
 
 private:
 	QStateMachine* m_pStateMachine;

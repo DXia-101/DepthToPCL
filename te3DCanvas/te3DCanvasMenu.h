@@ -31,6 +31,8 @@ public slots:
 
 	void on_showGTCheckBox_stateChanged(int arg);
 	void on_showRSTcheckBox_stateChanged(int arg);
+
+	void setHeightCoefficientFactor(int factor);
 signals:
 	void sig_HeightTransform(int facetor);
 	void sig_PerspectiveToXaxis();
@@ -41,6 +43,7 @@ signals:
 	void sig_RSTCheckStateChanged(int arg);
 	void sig_ConnectHeightTransForm();
 	void sig_DisconnectHeightTransForm();
+
 private:
 	Ui::te3DCanvasMenuClass *ui;
 };
