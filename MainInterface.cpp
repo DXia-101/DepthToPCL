@@ -187,28 +187,25 @@ void MainInterface::ResetMouseRadius()
 
 void MainInterface::SetThreshold(QString filePath)
 {
-	////计算阈值
-	//cv::Mat image = cv::imread("input.png", cv::IMREAD_UNCHANGED);
+	//计算阈值
+	cv::Mat image = cv::imread(filePath.toStdString(), cv::IMREAD_UNCHANGED);
 
-	//if (image.empty() || image.type() != CV_32FC1) {
-	//	return;
-	//}
+	if (image.empty() || image.type() != CV_32FC1) {
+		return;
+	}
 
-	//double minValue, maxValue;
-	//cv::minMaxLoc(image, &minValue, &maxValue);
+	double minValue, maxValue;
+	cv::minMaxLoc(image, &minValue, &maxValue);
 
-	//int histSize = 100;
-	//float range[] = { static_cast<float>(minValue), static_cast<float>(maxValue) };
-	//const float* histRange = { range };
-	//bool uniform = true, accumulate = false;
-	//cv::Mat hist;
+	//int maxHeight = ui->ValidPointThresholdSpinBox->value();
+	//int minHeight = ui->InvalidPointThresholdSpinBox->value();
+	maxValue += 1;
+	minValue = -maxValue;
 
-	//// 计算直方图
-	//cv::calcHist(&image, 1, 0, cv::Mat(), hist, 1, &histSize, &histRange, uniform, accumulate);
+	ui->ValidPointThresholdSpinBox->setValue(maxValue);
+	ui->InvalidPointThresholdSpinBox->setValue(minValue);
 
-	int maxHeight = ui->ValidPointThresholdSpinBox->value();
-	int minHeight = ui->InvalidPointThresholdSpinBox->value();
-	int factor = maxHeight - minHeight;
+	int factor = maxValue - minValue;
 	if (factor >= 1 && factor < 255) {
 		factor = 255 / factor;
 	}

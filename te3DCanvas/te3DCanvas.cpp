@@ -281,8 +281,7 @@ void te3DCanvas::ReductionPointCloud()
 {
     LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
     reRenderOriginCloud();
-    setRotationCenter();
-    m_CustomInteractor->ResetData();
+    
 }
 
 bool te3DCanvas::SetBackgroundColor(QColor color)
@@ -405,6 +404,8 @@ void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
     viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), center(1), center(2), 0, 0, 0); //耗时最多 2秒多
     //viewer->spinOnce();
     m_renderWindow->Render();
+    setRotationCenter();
+    m_CustomInteractor->ResetData();
     emit sig_CanvasreRender();
 }
 
@@ -714,8 +715,6 @@ void te3DCanvas::PointCloudHeightTransform(int factor)
         cloud->at(i).z *= factor;
     }
     reRendering(cloud->makeShared());
-    setRotationCenter();
-    m_CustomInteractor->ResetData();
 }
 
 void te3DCanvas::te3DCanvasStartMarking()
