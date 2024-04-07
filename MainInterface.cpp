@@ -63,6 +63,11 @@ MainInterface::MainInterface(QWidget *parent)
 	connect(m_AiModelController, &AiModelController::sig_isShowTSChart, m_SChart, &teTrainStatisticsChart::isShow);
 	connect(m_SChart, &teTrainStatisticsChart::sig_closeteTrainStatisticsChart, m_AiModelController, &AiModelController::sig_TSChartClose);
 	connect(m_AiModelController, &AiModelController::sig_receptiveFieldChange, m_mouseCircle, &teMouseCircle::receptiveFieldChange);
+
+	QAction* saveAction = new QAction(tr("Save"), this);
+	saveAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
+	connect(saveAction, &QAction::triggered, this, &MainInterface::sig_SaveParameter);
+	addAction(saveAction);
 }
 
 MainInterface::~MainInterface()
@@ -182,6 +187,8 @@ void MainInterface::ResetMouseRadius()
 
 void MainInterface::SetThreshold(QString filePath)
 {
+	//¼ÆËããÐÖµ
+
 	int maxHeight = ui->ValidPointThresholdSpinBox->value();
 	int minHeight = ui->InvalidPointThresholdSpinBox->value();
 	int factor = maxHeight - minHeight;

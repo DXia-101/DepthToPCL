@@ -11,7 +11,6 @@ teTrainParameter::teTrainParameter(QWidget *parent)
 
 	ui->treeView->setWriter(std::make_shared<te::TrainParamWriter>());
 
-
 	connect(ui->treeView->getWriter(), &te::ObjectTreeWidgetWriter::sig_ItemChange, this, [this](te::ObjectTreeWidgetItem* pItem)
 	{
 		if (pItem->key() == "receptiveField") {
@@ -43,11 +42,6 @@ void teTrainParameter::SaveteTrainParameter()
 
 	te::serializeJsonToOFStream("./TrainParaconfig.ini", param);
 	ui->treeView->checkItemChange();
-}
-
-void teTrainParameter::on_SaveButton_clicked()
-{
-	SaveteTrainParameter();
 }
 
 void teTrainParameter::on_TrainingCurveCBox_stateChanged(int arg)

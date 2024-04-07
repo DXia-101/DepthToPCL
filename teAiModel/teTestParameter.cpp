@@ -29,6 +29,7 @@ void teTestParameter::SaveteTestParameter()
 	ui->treeView->readObject_t(&param);
 
 	te::serializeJsonToOFStream("./TestParaconfig.ini", param);
+	ui->treeView->checkItemChange();
 }
 
 void teTestParameter::getTestParam(te::TestParam* test)

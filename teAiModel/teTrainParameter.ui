@@ -24,13 +24,6 @@
    <item>
     <widget class="te::ObjectTreeWidget" name="treeView"/>
    </item>
-   <item>
-    <widget class="QPushButton" name="SaveButton">
-     <property name="text">
-      <string>保存配置项</string>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

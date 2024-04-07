@@ -31,7 +31,10 @@ void teLabelBrowser::InitInterface()
 	ui->TableWidgetLayout->addWidget(LabelWidget);
 
 	LabelWidget->setColumnCount(4);
-	LabelWidget->setHorizontalHeaderLabels({ u8"类别", u8"标记", u8"找到", u8"匹配" });
+	QStringList headerLabels;
+	headerLabels << u8"类别" << u8"标记" << u8"找到" << u8"匹配";
+	LabelWidget->setHorizontalHeaderLabels(headerLabels);
+
 	LabelWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 	LabelWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	LabelWidget->verticalHeader()->setVisible(false);
@@ -123,7 +126,7 @@ void teLabelBrowser::loadTableWidget()
 		return;
 	}
 
-	LabelWidget->clear();
+	LabelWidget->clearContents();
 
 	QTextStream stream(&file);
 	while (!stream.atEnd())
