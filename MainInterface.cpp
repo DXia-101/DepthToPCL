@@ -187,7 +187,24 @@ void MainInterface::ResetMouseRadius()
 
 void MainInterface::SetThreshold(QString filePath)
 {
-	//计算阈值
+	////计算阈值
+	//cv::Mat image = cv::imread("input.png", cv::IMREAD_UNCHANGED);
+
+	//if (image.empty() || image.type() != CV_32FC1) {
+	//	return;
+	//}
+
+	//double minValue, maxValue;
+	//cv::minMaxLoc(image, &minValue, &maxValue);
+
+	//int histSize = 100;
+	//float range[] = { static_cast<float>(minValue), static_cast<float>(maxValue) };
+	//const float* histRange = { range };
+	//bool uniform = true, accumulate = false;
+	//cv::Mat hist;
+
+	//// 计算直方图
+	//cv::calcHist(&image, 1, 0, cv::Mat(), hist, 1, &histSize, &histRange, uniform, accumulate);
 
 	int maxHeight = ui->ValidPointThresholdSpinBox->value();
 	int minHeight = ui->InvalidPointThresholdSpinBox->value();
@@ -204,9 +221,12 @@ void MainInterface::SetThreshold(QString filePath)
 void MainInterface::LoadTrainingImages()
 {
 	QStringList filepaths = QFileDialog::getOpenFileNames(nullptr, u8"选择文件", "", "TIFF Files (*.tif *.tiff)");
-	if (ui->AutomaticCheckBox->isChecked()) {
-		SetThreshold(filepaths[0]);
+	if (!filepaths.isEmpty())
+	{
+		if (ui->AutomaticCheckBox->isChecked()) {
+			SetThreshold(filepaths[0]);
+		}
+		emit sig_LoadTrainingImages(filepaths);
+		teDataStorage::getInstance()->setCurrentLoadImageNum(filepaths.size());
 	}
-	emit sig_LoadTrainingImages(filepaths);
-	teDataStorage::getInstance()->setCurrentLoadImageNum(filepaths.size());
 }

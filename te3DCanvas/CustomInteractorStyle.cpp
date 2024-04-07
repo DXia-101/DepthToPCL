@@ -82,7 +82,7 @@ void CustomInteractorStyle::OnMouseMove()
 		vtkInteractorStyleTrackballCamera::OnMouseMove();
 		return;
 	}
-
+	
 	int X = this->Interactor->GetEventPosition()[0];
 	int Y = this->Interactor->GetEventPosition()[1];
 	double deltX = (X - m_nOldMousePosX)*0.1;
@@ -98,7 +98,7 @@ void CustomInteractorStyle::OnMouseMove()
 		if (!axesTransform)
 		{
 			axesTransform = vtkSmartPointer<vtkTransform>::New();
-			//axesTransform->Identity();
+			axesTransform->Identity();
 		}
 		double xAngle, yAngle, zAngle;
 
@@ -124,9 +124,11 @@ void CustomInteractorStyle::OnMouseMove()
 	if (!m_pRotationTransform)
 	{
 		m_pRotationTransform = vtkSmartPointer<vtkTransform>::New();
+		m_pRotationTransform->Identity();
 	}
 
 	m_pRotationTransform->Translate(rotationCenter[0], rotationCenter[1], rotationCenter[2]);
+
 	double xAngle, yAngle, zAngle;
 
 	rotateAroundAxis(-deltY, Actor_xAxis, &Actor_yAxis);
@@ -144,16 +146,14 @@ void CustomInteractorStyle::OnMouseMove()
 	m_pRotationTransform->RotateZ(zAngle);
 
 	m_pRotationTransform->Translate(-rotationCenter[0], -rotationCenter[1], -rotationCenter[2]);
-	//
+
 	for (int i = 0; i < m_pSelectedActor.size(); ++i)
 	{
 		if (m_pSelectedActor[i] == nullptr) {
 			continue;
 		}
-
 		m_pSelectedActor[i]->SetUserTransform(m_pRotationTransform);
 	}
-
 	m_nOldMousePosX = X;
 	m_nOldMousePosY = Y;
 	m_renderer->ResetCameraClippingRange();
@@ -332,3 +332,12 @@ void CustomInteractorStyle::TriggerCallback()
 	}
 }
 
+void CustomInteractorStyle::ResetData()
+{
+	Actor_xAxis = { 1.0,0.0,0.0 };
+	Actor_yAxis = { 0.0,1.0,0.0 };
+	Axes_xAxis = { 1.0,0.0,0.0 };
+	Axes_yAxis = { 0.0,1.0,0.0 };
+	m_pRotationTransform = vtkSmartPointer<vtkTransform>::New();
+	m_pRotationTransform->Identity();
+}

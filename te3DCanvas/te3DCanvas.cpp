@@ -281,6 +281,8 @@ void te3DCanvas::ReductionPointCloud()
 {
     LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
     reRenderOriginCloud();
+    setRotationCenter();
+    m_CustomInteractor->ResetData();
 }
 
 bool te3DCanvas::SetBackgroundColor(QColor color)
@@ -713,6 +715,7 @@ void te3DCanvas::PointCloudHeightTransform(int factor)
     }
     reRendering(cloud->makeShared());
     setRotationCenter();
+    m_CustomInteractor->ResetData();
 }
 
 void te3DCanvas::te3DCanvasStartMarking()

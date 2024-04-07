@@ -288,9 +288,6 @@ void teLabelBrowser::ColorSelect()
 			
 		}
 	}
-
-
-
 }
 
 

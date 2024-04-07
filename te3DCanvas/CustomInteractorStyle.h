@@ -25,7 +25,7 @@ public:
 	void SetCallback(CallbackFunction callback);
 
 	void TriggerCallback();
-
+	void ResetData();
 protected:
 	CustomInteractorStyle();
 	~CustomInteractorStyle() override;
