@@ -168,6 +168,7 @@ void MainInterface::ConnectHeightTransform()
 
 void MainInterface::DisconnectHeightTransform()
 {
+	ResetMouseRadius();
 	disconnect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_HeightTransform, te3DCanvasController::getInstance(), &te3DCanvasController::HegithTransForm);
 }
 
