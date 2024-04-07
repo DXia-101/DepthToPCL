@@ -47,7 +47,6 @@ void teLabelBrowser::InitInterface()
 
 	for (int column = 0; column < columnCount; ++column) {
 		LabelWidget->setColumnWidth(column, columnWidth);
-		//LabelWidget->horizontalHeader()->setSectionResizeMode(column, QHeaderView::ResizeToContents);
 	}
 
 	connect(LabelWidget, &QTableWidget::cellDoubleClicked, this, &teLabelBrowser::ColorSelect);
@@ -138,7 +137,7 @@ void teLabelBrowser::loadTableWidget()
 		LabelWidget->insertRow(row);
 
 		int columnCount = items.size();
-		for (int column = 0; column < columnCount; ++column)
+		for (int column = 0; column < columnCount-1; ++column)
 		{
 			if (column < LabelWidget->columnCount())
 			{
@@ -207,6 +206,10 @@ void teLabelBrowser::addRowToTable(const QString& content, const QColor& fontCol
 	itemContent->setForeground(fontColor);
 
 	LabelWidget->setItem(row, 0, itemContent);
+	LabelWidget->setItem(row, 1, new QTableWidgetItem("0"));
+	LabelWidget->setItem(row, 2, new QTableWidgetItem("0"));
+	LabelWidget->setItem(row, 3, new QTableWidgetItem("0"));
+	
 	QTableWidgetItem* currentItem = LabelWidget->item(row, 0);
 	LabelWidget->setCurrentItem(currentItem);
 	SendCurrentItemInfo(currentItem);
