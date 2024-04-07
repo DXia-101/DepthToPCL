@@ -45,6 +45,7 @@ MainInterface::MainInterface(QWidget *parent)
 	InitToolBar();
 	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_ConnectHeightTransform, this, &MainInterface::ConnectHeightTransform);
 	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_DisonnectHeightTransform, this, &MainInterface::DisconnectHeightTransform);
+	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_DisonnectHeightTransform, this, &MainInterface::ResetMouseRadius);
 	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ChangeCurrentState);
 	connect(this, &MainInterface::sig_InvalidPointThresholdChange, teImageBrowserController::getInstance(), &teImageBrowserController::sig_InvalidPointThresholdChange);
 	connect(this, &MainInterface::sig_ValidPointThresholdChange, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ValidPointThresholdChange);
@@ -168,7 +169,6 @@ void MainInterface::ConnectHeightTransform()
 
 void MainInterface::DisconnectHeightTransform()
 {
-	ResetMouseRadius();
 	disconnect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_HeightTransform, te3DCanvasController::getInstance(), &te3DCanvasController::HegithTransForm);
 }
 
