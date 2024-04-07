@@ -17,6 +17,7 @@ MainInterface::MainInterface(QWidget *parent)
 	, ui(new Ui::MainInterfaceClass())
 {
 	ui->setupUi(this);
+	this->showMaximized();
 	QStackedLayout* stacklayout = new QStackedLayout();
 	ui->CanvasLayout->addLayout(stacklayout);
 	stacklayout->setStackingMode(QStackedLayout::StackAll);
