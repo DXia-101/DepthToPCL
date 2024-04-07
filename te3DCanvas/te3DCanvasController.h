@@ -65,6 +65,7 @@ signals:
 	void sig_DisonnectHeightTransform();
 	void sig_MaintainCoordinateAxis();
 	void sig_setHeightCoefficientFactor(int factor);
+	void sig_HeightTransform();
 private:
 	void ShowAllResults();
 	void ShowAllMarkers();

@@ -43,8 +43,6 @@ MainInterface::MainInterface(QWidget *parent)
 
 	InitStateMachine();
 	InitToolBar();
-	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_ConnectHeightTransform, this, &MainInterface::ConnectHeightTransform);
-	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_DisonnectHeightTransform, this, &MainInterface::DisconnectHeightTransform);
 	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_DisonnectHeightTransform, this, &MainInterface::ResetMouseRadius);
 	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ChangeCurrentState);
 	connect(this, &MainInterface::sig_InvalidPointThresholdChange, teImageBrowserController::getInstance(), &teImageBrowserController::sig_InvalidPointThresholdChange);
@@ -147,12 +145,12 @@ void MainInterface::ClearAllCaches()
 	}
 }
 
-void MainInterface::on_InvalidPointThresholdSpinBox_valueChanged(int arg)
+void MainInterface::on_InvalidPointThresholdSpinBox_valueChanged(double arg)
 {
 	emit sig_InvalidPointThresholdChange(arg);
 }
 
-void MainInterface::on_ValidPointThresholdSpinBox_valueChanged(int arg)
+void MainInterface::on_ValidPointThresholdSpinBox_valueChanged(double arg)
 {
 	emit sig_ValidPointThresholdChange(arg);
 }
@@ -160,16 +158,6 @@ void MainInterface::on_ValidPointThresholdSpinBox_valueChanged(int arg)
 void MainInterface::on_clearDatabaseBtn_clicked()
 {
 	teDataStorage::getInstance()->DropAllTables();
-}
-
-void MainInterface::ConnectHeightTransform()
-{
-	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_HeightTransform, te3DCanvasController::getInstance(), &te3DCanvasController::HegithTransForm);
-}
-
-void MainInterface::DisconnectHeightTransform()
-{
-	disconnect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_HeightTransform, te3DCanvasController::getInstance(), &te3DCanvasController::HegithTransForm);
 }
 
 void MainInterface::ChangeBtnTextTo2D()
@@ -201,7 +189,6 @@ void MainInterface::SetThreshold(QString filePath)
 
 	//int maxHeight = ui->ValidPointThresholdSpinBox->value();
 	//int minHeight = ui->InvalidPointThresholdSpinBox->value();
-	maxValue += 1;
 	minValue = -maxValue;
 
 	ui->ValidPointThresholdSpinBox->setValue(maxValue);

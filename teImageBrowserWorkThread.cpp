@@ -90,12 +90,12 @@ void teImageBrowserWorkThread::teUpDataSet(int iNum, int iLayerNum, bool bReset)
     ImageBrowser->teUpDateSet(iNum, iLayerNum, bReset);
 }
 
-void teImageBrowserWorkThread::InvalidPointThresholdChange(int threshold)
+void teImageBrowserWorkThread::InvalidPointThresholdChange(double threshold)
 {
     InvalidPointThreshold = threshold;
 }
 
-void teImageBrowserWorkThread::ValidPointThresholdChange(int threshold)
+void teImageBrowserWorkThread::ValidPointThresholdChange(double threshold)
 {
     ValidPointThreshold = threshold;
 }

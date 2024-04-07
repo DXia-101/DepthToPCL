@@ -18,7 +18,7 @@ void Transfer_Function::Cloud2cvMat(int width,int height,float originX,float ori
     }
 }
 
-void Transfer_Function::cvMat2Cloud(int minHeight, int maxHeight, cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)
+void Transfer_Function::cvMat2Cloud(double minHeight, double maxHeight, cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)
 {
     cloudOut->points.clear();
 

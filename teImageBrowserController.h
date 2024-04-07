@@ -22,8 +22,8 @@ public slots:
 	void UpdateItem(int* pIndex, int len);
 	void SwitchImg(int pIndex, int len);
 	void ItemActive(int* pIndex, int len);
-	void InvalidPointThresholdChange(int threshold);
-	void ValidPointThresholdChange(int threshold);
+	void InvalidPointThresholdChange(double threshold);
+	void ValidPointThresholdChange(double threshold);
 
 private:
 	TeSampWidget* ImageBrowser;
@@ -31,16 +31,15 @@ private:
 
 signals:
 	void sig_showAll2DItem();
-	void sig_HeightTransform();
 	void sig_ChangeCurrentState();
 	void sig_teUpDataSet(int iNum, int iLayerNum, bool bReset);
-	void sig_InvalidPointThresholdChange(int threshold);
-	void sig_ValidPointThresholdChange(int threshold);
+	void sig_InvalidPointThresholdChange(double threshold);
+	void sig_ValidPointThresholdChange(double threshold);
 
 private:
 	bool CurrentState;
-	int InvalidPointThreshold;
-	int ValidPointThreshold;
+	double InvalidPointThreshold;
+	double ValidPointThreshold;
 
 private:
 	static teImageBrowserController* instance;

@@ -106,7 +106,7 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
     teDataStorage::getInstance()->setCurrentIndex(pIndex);
     if (CurrentState == ThrD) {
         te3DCanvasController::getInstance()->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
-
+        
         te3DCanvasController::getInstance()->ReRenderOriginCloud();
 
         te3DCanvasController::getInstance()->ShowAllItems();
@@ -115,7 +115,7 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
 
         te3DCanvasController::getInstance()->SetCentroid();
 
-        emit sig_HeightTransform();
+        emit te3DCanvasController::getInstance()->sig_HeightTransform();
     }
     else if (CurrentState == TwoD) {
         cv::Mat image = cv::imread(teDataStorage::getInstance()->getOriginImage()[pIndex], cv::IMREAD_UNCHANGED);
@@ -142,12 +142,12 @@ void teImageBrowserController::ItemActive(int* pIndex, int len)
     worker->run();
 }
 
-void teImageBrowserController::InvalidPointThresholdChange(int threshold)
+void teImageBrowserController::InvalidPointThresholdChange(double threshold)
 {
     InvalidPointThreshold = threshold;
 }
 
-void teImageBrowserController::ValidPointThresholdChange(int threshold)
+void teImageBrowserController::ValidPointThresholdChange(double threshold)
 {
     ValidPointThreshold = threshold;
 }

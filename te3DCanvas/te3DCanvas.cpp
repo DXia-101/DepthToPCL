@@ -196,7 +196,7 @@ bool te3DCanvas::LoadPointCloud(QString fileName)
     {
         if (pcl::io::loadPCDFile<pcl::PointXYZ>(fileName.toStdString(), *cloud) == -1)
         {
-            qDebug() << "Couldn't read pcd file  \n";
+            qDebug() << "Couldn't read pcd file!\n";
             return false;
         }
     }
@@ -281,7 +281,6 @@ void te3DCanvas::ReductionPointCloud()
 {
     LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
     reRenderOriginCloud();
-    
 }
 
 bool te3DCanvas::SetBackgroundColor(QColor color)
@@ -711,6 +710,7 @@ void te3DCanvas::LabelChanged(const QString& content, const QColor& fontColor)
 
 void te3DCanvas::PointCloudHeightTransform(int factor)
 {
+    LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
     for (int i = 0; i < cloud->size(); ++i) {
         cloud->at(i).z *= factor;
     }
