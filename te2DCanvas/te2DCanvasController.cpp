@@ -82,7 +82,7 @@ void te2DCanvasController::showAllUI()
 {
 	m_te2DCanvasToolBar->show();
 	m_te2DCanvas->show();
-	
+	ShowAllItems();
 }
 
 void te2DCanvasController::add2DAiInstance(te::ConnectedRegionGraphicsItem* polygonItem)

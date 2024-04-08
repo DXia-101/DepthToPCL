@@ -125,7 +125,7 @@ void te3DCanvasController::showAllUI()
 	emit sig_HeightTransform();
 	m_te3DCanvas->reRenderOriginCloud();
 	m_te3DCanvas->setRotationCenter();
-	
+	ShowAllItems();
 }
 
 void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
