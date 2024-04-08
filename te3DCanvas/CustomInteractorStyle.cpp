@@ -340,4 +340,6 @@ void CustomInteractorStyle::ResetData()
 	Axes_yAxis = { 0.0,1.0,0.0 };
 	m_pRotationTransform = vtkSmartPointer<vtkTransform>::New();
 	m_pRotationTransform->Identity();
+	axesTransform = vtkSmartPointer<vtkTransform>::New();
+	axesTransform->Identity();
 }
