@@ -1,4 +1,6 @@
 #include "teDataStorage.h"
+#include <QFile>
+#include <QDir>
 
 teDataStorage::Garbo teDataStorage::tmp;
 
@@ -79,6 +81,56 @@ int teDataStorage::getCurrentLoadImageNum()
 	return currentLoadImageNum;
 }
 
+void teDataStorage::InvalidPointThresholdChange(double threshold)
+{
+	InvalidPointThresholds[currentIndex] = threshold;
+}
+
+void teDataStorage::ValidPointThresholdChange(double threshold)
+{
+	ValidPointThresholds[currentIndex] = threshold;
+}
+
+void teDataStorage::InvalidPointThresholdsChange(double threshold)
+{
+	for (int i = 0; i < InvalidPointThresholds.size();++i) {
+		InvalidPointThresholds[i] = threshold;
+	}
+}
+
+void teDataStorage::ValidPointThresholdsChange(double threshold)
+{
+	for (int i = 0; i < ValidPointThresholds.size(); ++i) {
+		ValidPointThresholds[i] = threshold;
+	}
+}
+
+void teDataStorage::InitThreasholds(int size)
+{
+	ValidPointThresholds = std::vector<double>(size, 0.0);
+	InvalidPointThresholds = std::vector<double>(size, 0.0);
+}
+
+double teDataStorage::getCurrentInvalidPointThreshold()
+{
+	return InvalidPointThresholds[currentIndex];
+}
+
+double teDataStorage::getSelectInvalidPointThreshold(int index)
+{
+	return InvalidPointThresholds[index];
+}
+
+double teDataStorage::getCurrentValidPointThreshold()
+{
+	return ValidPointThresholds[currentIndex];
+}
+
+double teDataStorage::getSelectValidPointThreshold(int index)
+{
+	return ValidPointThresholds[index];
+}
+
 std::string teDataStorage::getSelectResultFormResourceTable(int index, std::string keyword)
 {
 	auto dataQuery = db->createDataQuery();
@@ -151,6 +203,11 @@ std::vector<std::string> teDataStorage::getPointCloud()
 std::string teDataStorage::getSelectShrinkageChart(int index)
 {
 	return getSelectResultFormResourceTable(index,"ShrinkageChartPath");
+}
+
+std::string teDataStorage::getCurrentShrinkageChart()
+{
+	return getSelectResultFormResourceTable(currentIndex, "ShrinkageChartPath");
 }
 
 std::string teDataStorage::getSelectOriginImage(int index)
@@ -263,6 +320,13 @@ bool teDataStorage::updateTrainGtFilePath(int index, std::string& filepath)
 bool teDataStorage::updateResultGtFilePath(int index, std::string& filepath)
 {
 	return GtTable->updateRecord(index+1, { std::pair<te::StdU8String,te::StdU8String>("ResultGtFilePath",static_cast<te::StdU8String>(filepath)) });
+}
+
+bool teDataStorage::DeleteCurrentPointCloudAndThumbnail()
+{
+	bool ret = QFile::remove(QString::fromStdString(getSelectShrinkageChart(currentIndex)));
+	ret = QFile::remove(QString::fromStdString(getCurrentPointCloud()));
+	return ret;
 }
 
 bool teDataStorage::isOriginImage(std::string filepath)

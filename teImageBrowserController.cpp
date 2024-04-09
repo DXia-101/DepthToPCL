@@ -31,21 +31,13 @@ teImageBrowserController::teImageBrowserController(QObject *parent)
     worker->setImageBrowser(ImageBrowser);
         
     CurrentState = TwoD;
-    InvalidPointThreshold = 0;
-    ValidPointThreshold = 800;
 
     connect(ImageBrowser, &TeSampWidget::sig_SwitchImg, this, &teImageBrowserController::SwitchImg, Qt::DirectConnection);
     connect(this, &teImageBrowserController::sig_ChangeCurrentState, this, &teImageBrowserController::ChangeCurrentState);
     connect(ImageBrowser, &TeSampWidget::sig_UpDateItem, this, &teImageBrowserController::UpdateItem);
     connect(ImageBrowser, &TeSampWidget::sig_ItemActive, this, &teImageBrowserController::ItemActive);
-    connect(this, &teImageBrowserController::sig_InvalidPointThresholdChange, this, &teImageBrowserController::InvalidPointThresholdChange);
-    connect(this, &teImageBrowserController::sig_ValidPointThresholdChange, this, &teImageBrowserController::ValidPointThresholdChange);
-
     connect(this, &teImageBrowserController::sig_teUpDataSet,worker, &teImageBrowserWorkThread::teUpDataSet, Qt::QueuedConnection);
-    connect(this, &teImageBrowserController::sig_InvalidPointThresholdChange,worker, &teImageBrowserWorkThread::InvalidPointThresholdChange, Qt::QueuedConnection);
-    connect(this, &teImageBrowserController::sig_ValidPointThresholdChange,worker, &teImageBrowserWorkThread::ValidPointThresholdChange, Qt::QueuedConnection);
-
-
+    connect(this, &teImageBrowserController::sig_GenerateCurrentData, worker, &teImageBrowserWorkThread::GenerateCurrentData);
 }
 
 teImageBrowserController::~teImageBrowserController()
@@ -107,15 +99,13 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
     if (CurrentState == ThrD) {
         te3DCanvasController::getInstance()->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
         
-        te3DCanvasController::getInstance()->ReRenderOriginCloud();
-
         te3DCanvasController::getInstance()->ShowAllItems();
 
-        te3DCanvasController::getInstance()->MaintainCoordinateAxis();
+        emit te3DCanvasController::getInstance()->sig_HeightTransform();
 
         te3DCanvasController::getInstance()->SetCentroid();
 
-        emit te3DCanvasController::getInstance()->sig_HeightTransform();
+        te3DCanvasController::getInstance()->MaintainCoordinateAxis();
     }
     else if (CurrentState == TwoD) {
         cv::Mat image = cv::imread(teDataStorage::getInstance()->getOriginImage()[pIndex], cv::IMREAD_UNCHANGED);
@@ -126,7 +116,7 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
         cv::Mat median;
         median.create(image.size(), CV_8UC3);
         TeJetColorCode trans;
-        if (trans.cvt32F2BGR(InvalidPointThreshold, ValidPointThreshold, image, median)) {
+        if (trans.cvt32F2BGR(teDataStorage::getInstance()->getSelectInvalidPointThreshold(pIndex), teDataStorage::getInstance()->getSelectValidPointThreshold(pIndex), image, median)) {
             cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
             emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
             te2DCanvasController::getInstance()->setImage(te::Image(median).clone());
@@ -140,16 +130,6 @@ void teImageBrowserController::ItemActive(int* pIndex, int len)
 {
     worker->setItemActive(pIndex, len);
     worker->run();
-}
-
-void teImageBrowserController::InvalidPointThresholdChange(double threshold)
-{
-    InvalidPointThreshold = threshold;
-}
-
-void teImageBrowserController::ValidPointThresholdChange(double threshold)
-{
-    ValidPointThreshold = threshold;
 }
 
 void teImageBrowserController::ChangeCurrentState()

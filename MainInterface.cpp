@@ -45,8 +45,6 @@ MainInterface::MainInterface(QWidget *parent)
 	InitToolBar();
 	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_DisonnectHeightTransform, this, &MainInterface::ResetMouseRadius);
 	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ChangeCurrentState);
-	connect(this, &MainInterface::sig_InvalidPointThresholdChange, teImageBrowserController::getInstance(), &teImageBrowserController::sig_InvalidPointThresholdChange);
-	connect(this, &MainInterface::sig_ValidPointThresholdChange, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ValidPointThresholdChange);
 	connect(this, &MainInterface::sig_setHeightCoefficientFactor, te3DCanvasController::getInstance(), &te3DCanvasController::sig_setHeightCoefficientFactor);
 
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, teImageBrowserController::getInstance(), &teImageBrowserController::sig_teUpDataSet);
@@ -147,12 +145,34 @@ void MainInterface::ClearAllCaches()
 
 void MainInterface::on_InvalidPointThresholdSpinBox_valueChanged(double arg)
 {
-	emit sig_InvalidPointThresholdChange(arg);
+	if (!HastheImageBeenLoaded) {
+		teDataStorage::getInstance()->InvalidPointThresholdsChange(arg);
+	}
 }
 
 void MainInterface::on_ValidPointThresholdSpinBox_valueChanged(double arg)
 {
-	emit sig_ValidPointThresholdChange(arg);
+	if (!HastheImageBeenLoaded) {
+		teDataStorage::getInstance()->ValidPointThresholdsChange(arg);
+	}
+}
+
+void MainInterface::on_ThresholdBtn_clicked()
+{
+	teDataStorage::getInstance()->DeleteCurrentPointCloudAndThumbnail();
+
+	teDataStorage::getInstance()->ValidPointThresholdChange(ui->ValidPointThresholdSpinBox->value());
+	teDataStorage::getInstance()->InvalidPointThresholdChange(ui->InvalidPointThresholdSpinBox->value());
+
+	emit teImageBrowserController::getInstance()->sig_GenerateCurrentData();
+
+	if (TwoDState->active()) {
+		te2DCanvasController::getInstance()->ShowCurrentImages();
+		te2DCanvasController::getInstance()->showAllUI();
+	}
+	else if(ThrDState->active()) {
+		te3DCanvasController::getInstance()->showAllUI();
+	}
 }
 
 void MainInterface::on_clearDatabaseBtn_clicked()
@@ -187,8 +207,6 @@ void MainInterface::SetThreshold(QString filePath)
 	double minValue, maxValue;
 	cv::minMaxLoc(image, &minValue, &maxValue);
 
-	//int maxHeight = ui->ValidPointThresholdSpinBox->value();
-	//int minHeight = ui->InvalidPointThresholdSpinBox->value();
 	minValue = -maxValue;
 
 	ui->ValidPointThresholdSpinBox->setValue(maxValue);
@@ -206,13 +224,17 @@ void MainInterface::SetThreshold(QString filePath)
 
 void MainInterface::LoadTrainingImages()
 {
+	
+	ui->clearDatabaseBtn->setVisible(false);
 	QStringList filepaths = QFileDialog::getOpenFileNames(nullptr, u8"Ñ¡ÔñÎÄ¼þ", "", "TIFF Files (*.tif *.tiff)");
+	teDataStorage::getInstance()->setCurrentLoadImageNum(filepaths.size());
+	teDataStorage::getInstance()->InitThreasholds(filepaths.size());
 	if (!filepaths.isEmpty())
 	{
 		if (ui->AutomaticCheckBox->isChecked()) {
 			SetThreshold(filepaths[0]);
 		}
+		HastheImageBeenLoaded = true;
 		emit sig_LoadTrainingImages(filepaths);
-		teDataStorage::getInstance()->setCurrentLoadImageNum(filepaths.size());
 	}
 }

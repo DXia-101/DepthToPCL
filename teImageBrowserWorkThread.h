@@ -19,13 +19,10 @@ public:
 
 public slots:
 	void teUpDataSet(int iNum, int iLayerNum, bool bReset);
-	void InvalidPointThresholdChange(double threshold);
-	void ValidPointThresholdChange(double threshold);
+	void GenerateCurrentData();
 
 private:
 	TeSampWidget* ImageBrowser;
-	double InvalidPointThreshold;
-	double ValidPointThreshold;
 	bool GTShowFlag;
 	bool RSTShowFlag;
 	int* pIndex;

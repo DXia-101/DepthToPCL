@@ -58,6 +58,7 @@ public:
 	std::vector<std::string> getOriginImage();
 	std::vector<std::string> getPointCloud();
 	std::string getSelectShrinkageChart(int index);
+	std::string getCurrentShrinkageChart();
 	std::string getSelectOriginImage(int index);
 	std::string getCurrentOriginImage();
 	std::string getSelectPointCloud(int index);
@@ -81,6 +82,8 @@ public:
 	bool updateTrainGtFilePath(int index,std::string& filepath);
 	bool updateResultGtFilePath(int index,std::string& filepath);
 
+	bool DeleteCurrentPointCloudAndThumbnail();
+
 	bool isOriginImage(std::string filepath);
 
 	QString getCurrentLabelCategory();
@@ -93,6 +96,18 @@ public:
 	void DropAllTables();
 
 	QColor FindContentColor(const QString& searchString);
+
+	void InitThreasholds(int size);
+	void InvalidPointThresholdsChange(double threshold);
+	void InvalidPointThresholdChange(double threshold);
+	double getSelectInvalidPointThreshold(int index);
+	double getCurrentInvalidPointThreshold();
+
+	void ValidPointThresholdsChange(double threshold);
+	void ValidPointThresholdChange(double threshold);
+	double getSelectValidPointThreshold(int index);
+	double getCurrentValidPointThreshold();
+	
 private:
 	std::string getSelectResultFormResourceTable(int index, std::string keyword);
 	std::vector<std::string> getResultFromResourceTable(std::string keyword);
@@ -116,6 +131,9 @@ private:
 
 	int currentIndex;
 	int currentLoadImageNum;
+
+	std::vector<double> InvalidPointThresholds;
+	std::vector<double> ValidPointThresholds;
 	
 	std::unique_ptr<te::Sqlite3DB> db;
 	std::unique_ptr<te::Sqlite3DataModel> ResourceTable;

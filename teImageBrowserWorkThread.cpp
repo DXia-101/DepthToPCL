@@ -19,9 +19,6 @@ teImageBrowserWorkThread::teImageBrowserWorkThread(QThread*parent)
 {
     GTShowFlag = false;
     RSTShowFlag = false;
-
-    InvalidPointThreshold = 0;
-    ValidPointThreshold = 800;
 }
 
 teImageBrowserWorkThread::~teImageBrowserWorkThread()
@@ -49,7 +46,7 @@ void teImageBrowserWorkThread::run()
                 cv::Mat median;
                 median.create(image.size(), CV_8UC3);
                 TeJetColorCode trans;
-                if (trans.cvt32F2BGR(InvalidPointThreshold, ValidPointThreshold, image, median)) {
+                if (trans.cvt32F2BGR(teDataStorage::getInstance()->getSelectInvalidPointThreshold(pIndex[i]), teDataStorage::getInstance()->getSelectValidPointThreshold(pIndex[i]), image, median)) {
                     cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
                     cv::resize(median, median, cv::Size(80, 80));
                     cv::imwrite(std::to_string(pIndex[i]) + "_thumb.bmp", median);
@@ -72,7 +69,7 @@ void teImageBrowserWorkThread::run()
                 qDebug() << "Failed to load the TIF image.";
                 return;
             }
-            Transfer_Function::cvMat2Cloud(InvalidPointThreshold, ValidPointThreshold, image, mediancloud);
+            Transfer_Function::cvMat2Cloud(teDataStorage::getInstance()->getSelectInvalidPointThreshold(pIndex[i]), teDataStorage::getInstance()->getSelectValidPointThreshold(pIndex[i]), image, mediancloud);
             te3DCanvasController::getInstance()->SavePointCloud(QString::fromStdString(std::to_string(pIndex[i]) + "_thumb.pcd"), mediancloud);
             teDataStorage::getInstance()->updatePointCloud(pIndex[i], std::to_string(pIndex[i]) + "_thumb.pcd");
         }
@@ -90,12 +87,48 @@ void teImageBrowserWorkThread::teUpDataSet(int iNum, int iLayerNum, bool bReset)
     ImageBrowser->teUpDateSet(iNum, iLayerNum, bReset);
 }
 
-void teImageBrowserWorkThread::InvalidPointThresholdChange(double threshold)
+void teImageBrowserWorkThread::GenerateCurrentData()
 {
-    InvalidPointThreshold = threshold;
-}
+    if (!QFile::exists(QString::fromStdString(teDataStorage::getInstance()->getCurrentShrinkageChart()))) {
+        QFileInfo fileInfo(QString::fromStdString(teDataStorage::getInstance()->getCurrentOriginImage()));
+        QString suffix = fileInfo.suffix().toLower();
+        if ((suffix == "tif" || suffix == "tiff")) {
+            std::string imgPath = teDataStorage::getInstance()->getCurrentOriginImage();
+            cv::Mat image = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
 
-void teImageBrowserWorkThread::ValidPointThresholdChange(double threshold)
-{
-    ValidPointThreshold = threshold;
+            if (image.empty()) {
+                qDebug() << "Failed to load the TIF image.";
+                return;
+            }
+            cv::Mat median;
+            median.create(image.size(), CV_8UC3);
+            TeJetColorCode trans;
+            if (trans.cvt32F2BGR(teDataStorage::getInstance()->getCurrentInvalidPointThreshold(), teDataStorage::getInstance()->getCurrentValidPointThreshold(), image, median)) {
+                cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
+                cv::resize(median, median, cv::Size(80, 80));
+                cv::imwrite(std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp", median);
+                teDataStorage::getInstance()->updateShrinkageChart(teDataStorage::getInstance()->getCurrentIndex(), std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp");
+            }
+        }
+        else {
+            te::Image img = te::Image::load(teDataStorage::getInstance()->getCurrentOriginImage()).resize(te::Size(80, 80));
+            img.save(std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp");
+            teDataStorage::getInstance()->updateShrinkageChart(teDataStorage::getInstance()->getCurrentIndex(), std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp");
+            ImageBrowser->teUpdateThumb(teDataStorage::getInstance()->getCurrentIndex(), 0, QImage(teDataStorage::getInstance()->getCurrentIndex() + "_thumb.bmp"), E_FORMAT_RGB);
+        }
+    }
+    if (!QFile::exists(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()))) {
+        std::string imgPath = teDataStorage::getInstance()->getCurrentOriginImage();
+        cv::Mat image = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr mediancloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
+
+        if (image.empty()) {
+            qDebug() << "Failed to load the TIF image.";
+            return;
+        }
+
+        Transfer_Function::cvMat2Cloud(teDataStorage::getInstance()->getCurrentInvalidPointThreshold(), teDataStorage::getInstance()->getCurrentValidPointThreshold(), image, mediancloud);
+        te3DCanvasController::getInstance()->SavePointCloud(QString::fromStdString(std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.pcd"), mediancloud);
+        teDataStorage::getInstance()->updatePointCloud(teDataStorage::getInstance()->getCurrentIndex(), std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.pcd");
+    }
 }

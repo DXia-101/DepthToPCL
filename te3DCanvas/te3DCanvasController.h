@@ -60,8 +60,6 @@ signals:
 	void sig_DirectFilter(QString data1, QString data2, QString data3, QString data4);
 	void sig_LabelChanged(const QString& content, const QColor& fontColor);
 
-	
-	void sig_ConnectHeightTransform();
 	void sig_DisonnectHeightTransform();
 	void sig_MaintainCoordinateAxis();
 	void sig_setHeightCoefficientFactor(int factor);
@@ -101,5 +99,5 @@ private:
 	Filter_Direct* dialog_Direct_filter;
 
 	int hegithTransFactor = 1;
-	QString axis = "";
+	QString axis = "z";
 };

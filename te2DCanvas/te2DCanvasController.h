@@ -17,6 +17,7 @@ public:
 	void displayToolBarInWidget(QVBoxLayout* layout);
 	void displayCanvasInWidget(QStackedLayout* layout);
 	void setImage(const te::Image& img, bool resetView = true);
+	void ResetImage();
 
 signals:
 	void sig_ClearAll2DCanvasMarks();
@@ -29,6 +30,7 @@ public slots:
 	void add2DAiInstance(te::ConnectedRegionGraphicsItem* polygonItem);
 	void ShowFirstImage();
 	void ShowAllItems();
+	void ShowCurrentImages();
 
 private:
 	void ShowAllResults();

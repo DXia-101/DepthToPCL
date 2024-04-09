@@ -20,7 +20,6 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	m_te3DCanvasToolBar = new te3DCanvasToolBar();
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, m_te3DCanvas, &te3DCanvas::PointCloudHeightTransform);
 	connect(this, &te3DCanvasController::sig_HeightTransform, m_te3DCanvasMenu, &te3DCanvasMenu::on_ConfirmTransformationBtn_clicked);
-	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_ConnectHeightTransForm, this, &te3DCanvasController::sig_ConnectHeightTransform);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, this, &te3DCanvasController::SaveHeightTransFromFactor);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_DisconnectHeightTransForm, this, &te3DCanvasController::sig_DisonnectHeightTransform);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_DisconnectHeightTransForm, m_te3DCanvas, &te3DCanvas::ReductionPointCloud);
@@ -121,9 +120,8 @@ void te3DCanvasController::showAllUI()
 	m_te3DCanvasMenu->show();
 	m_te3DCanvas->show();
 	m_te3DCanvas->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
-	MaintainCoordinateAxis();
 	emit sig_HeightTransform();
-	m_te3DCanvas->reRenderOriginCloud();
+	MaintainCoordinateAxis();
 	m_te3DCanvas->setRotationCenter();
 	ShowAllItems();
 }
