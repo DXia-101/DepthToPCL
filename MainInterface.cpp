@@ -200,7 +200,7 @@ void MainInterface::SetThreshold(QString filePath)
 	//¼ÆËããÐÖµ
 	cv::Mat image = cv::imread(filePath.toStdString(), cv::IMREAD_UNCHANGED);
 
-	if (image.empty() || image.type() != CV_32FC1) {
+	if (image.empty() || (image.type() != CV_32FC1 && image.type() != CV_16UC1)) {
 		return;
 	}
 

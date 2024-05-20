@@ -23,7 +23,6 @@ public slots:
 	void SwitchImg(int pIndex, int len);
 	void ItemActive(int* pIndex, int len);
 
-
 private:
 	TeSampWidget* ImageBrowser;
 	teImageBrowserWorkThread* worker;

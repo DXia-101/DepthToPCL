@@ -93,7 +93,7 @@ struct SampleData
 /**indicate groundtruth or result of AI tool**/
 struct AiInstance
 {
-	int     id;///< instance id, currently means class index.
+	int     id;
 	float   area;
 	float   angle;
 	float   probit;

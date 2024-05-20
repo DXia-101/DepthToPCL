@@ -9,6 +9,7 @@
 
 #include <QColor>
 #include <QVBoxLayout>
+#include <QMap>
 
 TE_BEGIN_NAMESPACE
 
@@ -69,6 +70,8 @@ public:
 	te::SampleMark getSelectResultSampleInfo(int index);
 	te::SampleMark getCurrentTrainSampleInfo();
 	te::SampleMark getCurrentResultSampleInfo();
+	QMap<QString, int> getCurrentTrainMarksNumber();
+	QMap<QString, int> getCurrentResultMarksNumber();
 
 	bool insertOriginImage(std::string filepath);
 	bool insertGtFilePath(std::string filepath);
@@ -108,6 +111,9 @@ public:
 	double getSelectValidPointThreshold(int index);
 	double getCurrentValidPointThreshold();
 	
+	void updateTrainWidget(QMap<QString, int>& nameCounts);
+	void updateResultWidget(QMap<QString, int>& nameCounts);
+	void updateMarkersNumber();
 private:
 	std::string getSelectResultFormResourceTable(int index, std::string keyword);
 	std::vector<std::string> getResultFromResourceTable(std::string keyword);

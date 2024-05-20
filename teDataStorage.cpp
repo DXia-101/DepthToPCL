@@ -126,6 +126,75 @@ double teDataStorage::getCurrentValidPointThreshold()
 	return ValidPointThresholds[currentIndex];
 }
 
+void teDataStorage::updateTrainWidget(QMap<QString, int>& nameCounts)
+{
+	for (int row = 0; row < m_teLabelBrowser->LabelWidget->rowCount(); ++row)
+	{
+		QTableWidgetItem* nameItem = m_teLabelBrowser->LabelWidget->item(row, 0);
+		if (nameItem)
+		{
+			QString name = nameItem->text();
+			if (nameCounts.contains(name))
+			{
+				int count = nameCounts.value(name);
+				QTableWidgetItem* countItem = m_teLabelBrowser->LabelWidget->item(row, 1);
+				if (!countItem)
+				{
+					countItem = new QTableWidgetItem();
+					m_teLabelBrowser->LabelWidget->setItem(row, 1, countItem);
+				}
+				countItem->setData(Qt::DisplayRole, count);
+			}
+		}
+	}
+}
+
+void teDataStorage::updateResultWidget(QMap<QString, int>& nameCounts)
+{
+	for (int row = 0; row < m_teLabelBrowser->LabelWidget->rowCount(); ++row)
+	{
+		QTableWidgetItem* nameItem = m_teLabelBrowser->LabelWidget->item(row, 0);
+		if (nameItem)
+		{
+			QString name = nameItem->text();
+			if (nameCounts.contains(name))
+			{
+				int count = nameCounts.value(name);
+				QTableWidgetItem* countItem = m_teLabelBrowser->LabelWidget->item(row, 2);
+				if (!countItem)
+				{
+					countItem = new QTableWidgetItem();
+					m_teLabelBrowser->LabelWidget->setItem(row, 2, countItem);
+				}
+				countItem->setData(Qt::DisplayRole, count);
+			}
+		}
+	}
+}
+
+void teDataStorage::updateMarkersNumber()
+{
+	for (int row = 0; row < m_teLabelBrowser->LabelWidget->rowCount(); ++row)
+	{
+		QTableWidgetItem* nameItem = m_teLabelBrowser->LabelWidget->item(row, 0);
+		if (nameItem)
+		{
+			QString name = nameItem->text();
+			if (name == currentCategory)
+			{
+				QTableWidgetItem* countItem = m_teLabelBrowser->LabelWidget->item(row, 2);
+				if (!countItem)
+				{
+					countItem = new QTableWidgetItem();
+					m_teLabelBrowser->LabelWidget->setItem(row, 2, countItem);
+				}
+				int count = countItem->data(Qt::DisplayRole).toInt();
+				countItem->setData(Qt::DisplayRole, count + 1);
+			}
+		}
+	}
+}
+
 double teDataStorage::getSelectValidPointThreshold(int index)
 {
 	return ValidPointThresholds[index];
@@ -180,7 +249,7 @@ te::SampleMark teDataStorage::getSelectResultFormSampleMarkTable(int index, std:
 	if (dataQuery->query(const_cast<char*>(sqlquery.c_str()))) {
 		while (dataQuery->next()) {
 			dataQuery->getRecord_t(result);
-		}
+		}																																															
 	}
 	return result;
 }
@@ -258,6 +327,34 @@ te::SampleMark teDataStorage::getCurrentTrainSampleInfo()
 te::SampleMark teDataStorage::getCurrentResultSampleInfo()
 {
 	return getSelectResultFormSampleMarkTable(currentIndex, "ResultSampleMark");
+}
+
+QMap<QString, int> teDataStorage::getCurrentTrainMarksNumber()
+{
+	te::SampleMark temp = getCurrentTrainSampleInfo();
+	QMap<QString, int> nameCounts;
+
+	for (const te::AiInstance& instance : temp.gtDataSet)
+	{
+		QString name = QString::fromStdString(instance.name);
+		nameCounts[name]++;
+	}
+
+	return nameCounts;
+}
+
+QMap<QString, int> teDataStorage::getCurrentResultMarksNumber()
+{
+	te::SampleMark temp = getCurrentResultSampleInfo();
+	QMap<QString, int> nameCounts;
+
+	for (const te::AiInstance& instance : temp.gtDataSet)
+	{
+		QString name = QString::fromStdString(instance.name);
+		nameCounts[name]++;
+	}
+
+	return nameCounts;
 }
 
 bool teDataStorage::insertOriginImage(std::string filepath)

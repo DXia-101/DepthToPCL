@@ -43,7 +43,7 @@ signals:
 	void sig_RSTCheckStateChanged(int arg);
 	void sig_ConnectHeightTransForm();
 	void sig_DisconnectHeightTransForm();
-
+	void sig_CoordinateAxisRender();
 private:
 	Ui::te3DCanvasMenuClass *ui;
 };

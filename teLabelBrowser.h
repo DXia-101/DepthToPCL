@@ -16,7 +16,7 @@ class teLabelBrowser : public QWidget
 public:
 	teLabelBrowser(QWidget *parent = nullptr);
 	~teLabelBrowser();
-
+	QTableWidget* LabelWidget;
 public:
 	QColor getSelectedRowFontColor();
 	QString getSelectedRowCategory();
@@ -49,5 +49,5 @@ private:
 private:
 	Ui::teLabelBrowserClass *ui;
 
-	QTableWidget* LabelWidget;
+	
 };

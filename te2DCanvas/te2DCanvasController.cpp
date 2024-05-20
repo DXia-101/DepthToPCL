@@ -132,26 +132,18 @@ void te2DCanvasController::ShowFirstImage()
 	if (image.empty()) {
 		return;
 	}
-	cv::Mat median;
-	median.create(image.size(), CV_8UC3);
+	emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
 	TeJetColorCode trans;
-	if (trans.cvt32F2BGR(teDataStorage::getInstance()->getSelectInvalidPointThreshold(0), teDataStorage::getInstance()->getSelectValidPointThreshold(0),image, median)) {
-		cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
-		cv::Mat heatmap;
-		cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
-		emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
-		te2DCanvasController::getInstance()->setImage(te::Image(heatmap).clone());
-		cv::waitKey(0);
-	}
+	trans.dealWithCvt(image, 0);
 	ShowAllItems();
 }
 
 void te2DCanvasController::ShowAllItems()
 {
-	if (m_te2DCanvasToolBar->isDimensionShow()) {
+	if (m_te2DCanvasToolBar->isDimensionShow() == true) {
 		ShowAllMarkers();
 	}
-	if (m_te2DCanvasToolBar->isResultShow()) {
+	if (m_te2DCanvasToolBar->isResultShow() == true) {
 		ShowAllResults();
 	}
 	if (m_te2DCanvasToolBar->isLocalMaskShow()) {
@@ -168,14 +160,8 @@ void te2DCanvasController::ShowCurrentImages()
 	if (image.empty()) {
 		return;
 	}
-	cv::Mat median;
-	median.create(image.size(), CV_8UC3);
 	TeJetColorCode trans;
-	if (trans.cvt32F2BGR(teDataStorage::getInstance()->getCurrentInvalidPointThreshold(), teDataStorage::getInstance()->getCurrentValidPointThreshold(), image, median)) {
-		cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
-		te2DCanvasController::getInstance()->setImage(te::Image(median).clone());
-		cv::waitKey(0);
-	}
+	trans.dealWithCvt(image, -1);
 }
 
 void te2DCanvasController::ShowAllResults()

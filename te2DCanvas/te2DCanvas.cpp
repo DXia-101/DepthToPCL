@@ -1,6 +1,7 @@
 #include "te2DCanvas.h"
 #include <QMouseEvent>
 #include <QGraphicsPolygonItem>
+#include "teDataStorage.h"
 
 te2DCanvas::te2DCanvas(QWidget* parent)
     : te::GraphicsView(parent)
@@ -207,6 +208,7 @@ void te2DCanvas::DrawGraphics(const QList<QPolygonF>& region)
         emit sig_ClearCurrent2DCanvasMarkers();
     }
     te2DCanvasMarkingCompleted();
+    teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
 }
 
 void te2DCanvas::te2DCanvasMarkingCompleted()

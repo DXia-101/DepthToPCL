@@ -96,6 +96,9 @@ void teImageBrowserController::UpdateItem(int* pIndex, int len)
 void teImageBrowserController::SwitchImg(int pIndex, int len)
 {
     teDataStorage::getInstance()->setCurrentIndex(pIndex);
+    teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
+    teDataStorage::getInstance()->updateResultWidget(teDataStorage::getInstance()->getCurrentResultMarksNumber());
+    //mei ci tianjia tianjia biaoqian
     if (CurrentState == ThrD) {
         te3DCanvasController::getInstance()->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
         
@@ -113,15 +116,12 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
             qDebug() << "Failed to load the TIF image.";
             return;
         }
-        cv::Mat median;
-        median.create(image.size(), CV_8UC3);
+
+        emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
+
         TeJetColorCode trans;
-        if (trans.cvt32F2BGR(teDataStorage::getInstance()->getSelectInvalidPointThreshold(pIndex), teDataStorage::getInstance()->getSelectValidPointThreshold(pIndex), image, median)) {
-            cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
-            emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
-            te2DCanvasController::getInstance()->setImage(te::Image(median).clone());
-            cv::waitKey(0);
-        }
+        trans.dealWithCvt(image, pIndex);
+        
         emit sig_showAll2DItem();
     }
 }

@@ -177,6 +177,8 @@ void te3DCanvas::PolygonSelect(void* viewer_void)
         CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "marker" + "0";
         markerPCID.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<QString>{CloudId}));
     }
+
+    teDataStorage::getInstance()->updateMarkersNumber();
     
     viewer->addPointCloud(cloud_cliped, currentColor, CloudId.toStdString());
     emit sig_3DCanvasMarkingCompleted(cloud_cliped);
@@ -293,7 +295,8 @@ bool te3DCanvas::SetBackgroundColor(QColor color)
 bool te3DCanvas::CoordinateAxisRendering(QString curaxis)
 {
     if (!cloud->empty() && !curaxis.isEmpty()) {
-        pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> render(cloud, curaxis.toStdString());
+        pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> render(cloud,curaxis.toStdString());
+        render.getColor();
         viewer->updatePointCloud(cloud, render, "cloud");
         m_renderWindow->Render();
     }
