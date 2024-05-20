@@ -93,12 +93,11 @@ public:
     
 private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_NoOutliers;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_polygon;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cliped;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_Filter_out;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_marked;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr crossCloud;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Elevation_rendering;
 
     pcl::PointXYZ curP, lastP; //»­Ïß
     

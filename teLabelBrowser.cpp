@@ -34,21 +34,13 @@ void teLabelBrowser::InitInterface()
 	QStringList headerLabels;
 	headerLabels << u8"类别" << u8"标记" << u8"找到" << u8"匹配";
 	LabelWidget->setHorizontalHeaderLabels(headerLabels);
+	
 
 	LabelWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 	LabelWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	LabelWidget->verticalHeader()->setVisible(false);
 	LabelWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-	int Width = LabelWidget->width(); // 获取父窗口的宽度
-
-	int columnCount = LabelWidget->columnCount();
-	int columnWidth = Width / (columnCount + 5);
-
-	for (int column = 0; column < columnCount; ++column) {
-		LabelWidget->setColumnWidth(column, columnWidth);
-	}
-
+	LabelWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 	connect(LabelWidget, &QTableWidget::cellDoubleClicked, this, &teLabelBrowser::ColorSelect);
 	connect(LabelWidget, &QTableWidget::itemSelectionChanged, this, &teLabelBrowser::handleSelectionChanged);
 }

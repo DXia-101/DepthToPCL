@@ -26,12 +26,11 @@ te3DCanvas::~te3DCanvas()
 void te3DCanvas::PCL_Initalization()
 {
     cloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
-    cloud_NoOutliers = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_polygon = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_cliped = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_Filter_out = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_marked = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
-    crossCloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
+    cloud_Elevation_rendering = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
 
     m_renderer = vtkSmartPointer<vtkRenderer>::New();
     m_renderWindow = this->renderWindow();
@@ -294,12 +293,49 @@ bool te3DCanvas::SetBackgroundColor(QColor color)
 
 bool te3DCanvas::CoordinateAxisRendering(QString curaxis)
 {
-    if (!cloud->empty() && !curaxis.isEmpty()) {
-        pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> render(cloud,curaxis.toStdString());
-        render.getColor();
-        viewer->updatePointCloud(cloud, render, "cloud");
-        m_renderWindow->Render();
+    double Z_Max = axisset.maxPt.z;
+    double Z_Min = axisset.minPt.z;
+    double Z_Median1 = Z_Min + (Z_Max - Z_Min) / 3;
+    double Z_Median2 = Z_Median1 + (Z_Max - Z_Min) / 3;
+
+    for (int index = 0; index < cloud->points.size(); ++index)
+    {
+        if (cloud->points[index].z >= Z_Min && cloud->points[index].z < Z_Median1)
+        {
+            pcl::PointXYZRGB point;
+            point.x = cloud->points[index].x;
+            point.y = cloud->points[index].y;
+            point.z = cloud->points[index].z;
+            point.r = 128 - int(((Z_Median1 - cloud->points[index].z) / (Z_Median1 - Z_Min)) * 128);
+            point.g = 255 - int(((Z_Median1 - cloud->points[index].z) / (Z_Median1 - Z_Min)) * 255);
+            point.b = 0 + int(((Z_Median1 - cloud->points[index].z) / (Z_Median1 - Z_Min)) * 255);
+            cloud_Elevation_rendering->push_back(point);
+        }
+        if (cloud->points[index].z >= Z_Median1 && cloud->points[index].z < Z_Median2)
+        {
+            pcl::PointXYZRGB point;
+            point.x = cloud->points[index].x;
+            point.y = cloud->points[index].y;
+            point.z = cloud->points[index].z;
+            point.r = 255 - int(((Z_Median2 - cloud->points[index].z) / (Z_Median2 - Z_Median1)) * 128);
+            point.g = 255;
+            point.b = 0;
+            cloud_Elevation_rendering->push_back(point);
+        }
+        if (cloud->points[index].z >= Z_Median2 && cloud->points[index].z < Z_Max)
+        {
+            pcl::PointXYZRGB point;
+            point.x = cloud->points[index].x;
+            point.y = cloud->points[index].y;
+            point.z = cloud->points[index].z;
+            point.r = 255;
+            point.g = 255 - int(((cloud->points[index].z - Z_Median2) / (Z_Max - Z_Median2)) * 255);
+            point.b = 0;
+            cloud_Elevation_rendering->push_back(point);
+        }
     }
+    viewer->updatePointCloud(cloud_Elevation_rendering, "cloud");
+    m_renderWindow->Render();
     return true;
 }
 

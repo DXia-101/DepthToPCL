@@ -28,10 +28,10 @@ void Transfer_Function::cvMat2Cloud(double minHeight, double maxHeight, cv::Mat&
             point.x = static_cast<float>(x);
             point.y = -static_cast<float>(y);
             if (CV_MAT_DEPTH(imageIn.type()) == CV_16U) {
-                point.z = -static_cast<float>(imageIn.at<uint16_t>(y, x)) / 1000.0f;
+                point.z = static_cast<float>(imageIn.at<uint16_t>(y, x)) / 1000.0f;
             }
             else if (CV_MAT_DEPTH(imageIn.type() == CV_32F)) {
-                point.z = -imageIn.at<float>(y, x);
+                point.z = imageIn.at<float>(y, x);
             }
             if (point.z > minHeight && point.z < maxHeight) {
                 cloudOut->push_back(point);
