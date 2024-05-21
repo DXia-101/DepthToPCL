@@ -26,3 +26,8 @@ struct te3DCanvasMember {
 
     int cutParameter = 70;
 };
+
+enum ReRenderMode {
+    ReSetCamera,
+    NoSetCamera,
+};

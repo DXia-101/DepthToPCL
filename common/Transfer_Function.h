@@ -71,9 +71,9 @@ public:
 	/// <param name="originY">点云的原点的y坐标</param>
 	/// <param name="contour">提取的轮廓</param>
 	/// <param name="cloudOut">转换出的点云</param>
-	static void ExtractImage2Cloud(cv::Mat& imageIn, float originX, float originY, std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut);
+	static void ExtractImage2Cloud(cv::Mat& imageIn, float originX, float originY, std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudOut);
 
-	static void ExtractCloud2Cloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudIn, std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut);
+	static void ExtractCloud2Cloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudIn, std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudOut);
 
 	/// <summary>
 	/// 添加图片中在轮廓范围内的点到轮廓里

@@ -41,7 +41,8 @@ public:
 public:
     void MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
     void ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
-    void reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin);
+    void reRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin);
+    void reRenderingNoResetCamera(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin);
     struct AxisSet getAxisSet();
     std::vector<double> getCloudCentroid();
 protected:
@@ -73,7 +74,7 @@ public slots:
     bool LoadPointCloud(QString fileName);
     bool SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>::Ptr saveCloud);
 
-    void reRenderOriginCloud();
+    void reRenderOriginCloud(ReRenderMode mode);
 
     void ShowDimension(int arg);
     void ShowResult(int arg);
@@ -83,6 +84,8 @@ signals:
     void CloudChanged();
     void sig_CanvasreRender();
 
+private:
+    
 public:
     std::map<QString,std::vector<QString>> markerPCID;
     std::map<QString,std::vector<QString>> resultPCID;
@@ -92,12 +95,12 @@ public:
     vtkSmartPointer<vtkRenderer> m_Axes_renderer;
     
 private:
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_polygon;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cliped;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_Filter_out;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_marked;
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Elevation_rendering;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_marked;
+    
 
     pcl::PointXYZ curP, lastP; //»­Ïß
     

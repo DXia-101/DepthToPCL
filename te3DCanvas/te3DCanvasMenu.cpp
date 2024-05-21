@@ -27,7 +27,7 @@ void te3DCanvasMenu::on_ConfirmTransformationBtn_clicked()
 	int factor = ui->HeightCoefficientSpinBox->value();
 	emit sig_HeightTransform(factor);
 	emit sig_ConnectHeightTransForm();
-	emit sig_CoordinateAxisRender();
+//	emit sig_CoordinateAxisRender();
 }
 
 void te3DCanvasMenu::on_reductionBtn_clicked()

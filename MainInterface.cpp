@@ -224,8 +224,7 @@ void MainInterface::SetThreshold(QString filePath)
 
 void MainInterface::LoadTrainingImages()
 {
-	
-	ui->clearDatabaseBtn->setVisible(false);
+	//ui->clearDatabaseBtn->setVisible(false);
 	QStringList filepaths = QFileDialog::getOpenFileNames(nullptr, u8"Ñ¡ÔñÎÄ¼þ", "", "TIFF Files (*.tif *.tiff)");
 	teDataStorage::getInstance()->setCurrentLoadImageNum(filepaths.size());
 	teDataStorage::getInstance()->InitThreasholds(filepaths.size());

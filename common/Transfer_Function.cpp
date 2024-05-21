@@ -78,7 +78,7 @@ bool Transfer_Function::isPointInsideContour(int x, int y, std::vector<cv::Point
         return false;
 }
 
-void Transfer_Function::ExtractImage2Cloud(cv::Mat& imageIn, float originX,float originY , std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)
+void Transfer_Function::ExtractImage2Cloud(cv::Mat& imageIn, float originX,float originY , std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudOut)
 {
     cv::Rect boundingRect = cv::boundingRect(*contour);
 
@@ -92,7 +92,7 @@ void Transfer_Function::ExtractImage2Cloud(cv::Mat& imageIn, float originX,float
 
             if (distance >= 0)
             {
-                pcl::PointXYZ point;
+                pcl::PointXYZRGB point;
                 point.x = static_cast<float>(x) + originX;
                 point.y = static_cast<float>(y) + originY;
                 point.z = imageIn.at<float>(y, x);
@@ -103,7 +103,7 @@ void Transfer_Function::ExtractImage2Cloud(cv::Mat& imageIn, float originX,float
     }
 }
 
-void Transfer_Function::ExtractCloud2Cloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudIn, std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)
+void Transfer_Function::ExtractCloud2Cloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudIn, std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudOut)
 {
     cloudOut->clear();
 

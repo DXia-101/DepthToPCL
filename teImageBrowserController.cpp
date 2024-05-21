@@ -101,14 +101,10 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
     //mei ci tianjia tianjia biaoqian
     if (CurrentState == ThrD) {
         te3DCanvasController::getInstance()->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
-        
         te3DCanvasController::getInstance()->ShowAllItems();
-
-        emit te3DCanvasController::getInstance()->sig_HeightTransform();
-
-        te3DCanvasController::getInstance()->SetCentroid();
-
         te3DCanvasController::getInstance()->MaintainCoordinateAxis();
+        emit te3DCanvasController::getInstance()->sig_HeightTransform();
+        te3DCanvasController::getInstance()->SetCentroid();
     }
     else if (CurrentState == TwoD) {
         cv::Mat image = cv::imread(teDataStorage::getInstance()->getOriginImage()[pIndex], cv::IMREAD_UNCHANGED);

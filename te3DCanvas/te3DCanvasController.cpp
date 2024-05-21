@@ -121,8 +121,8 @@ void te3DCanvasController::showAllUI()
 	m_te3DCanvasMenu->show();
 	m_te3DCanvas->show();
 	m_te3DCanvas->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
-	emit sig_HeightTransform();
 	MaintainCoordinateAxis();
+	emit sig_HeightTransform();
 	m_te3DCanvas->setRotationCenter();
 	ShowAllItems();
 }
@@ -190,13 +190,13 @@ void te3DCanvasController::LoadPointCloud(QString fileName)
 {
 	m_te3DCanvas->LoadPointCloud(fileName);
 	MaintainCoordinateAxis();
-	m_te3DCanvas->reRenderOriginCloud();
+	m_te3DCanvas->reRenderOriginCloud(ReSetCamera);
 	m_te3DCanvas->setRotationCenter();
 }
 
 void te3DCanvasController::ReRenderOriginCloud()
 {
-	m_te3DCanvas->reRenderOriginCloud();
+	m_te3DCanvas->reRenderOriginCloud(ReSetCamera);
 }
 
 void te3DCanvasController::CurrentLabelChange(const QString& category, const QColor& color)

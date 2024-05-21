@@ -25,12 +25,12 @@ te3DCanvas::~te3DCanvas()
 
 void te3DCanvas::PCL_Initalization()
 {
-    cloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
+    cloud = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
     cloud_polygon = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_cliped = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
     cloud_Filter_out = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
-    cloud_marked = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
-    cloud_Elevation_rendering = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
+    cloud_marked = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
+    
 
     m_renderer = vtkSmartPointer<vtkRenderer>::New();
     m_renderWindow = this->renderWindow();
@@ -44,7 +44,7 @@ void te3DCanvas::PCL_Initalization()
     viewer->setBackgroundColor(0.0, 0.3, 0.4);
     viewer->addCoordinateSystem(1.0);
     this->update();
-    viewer->addPointCloud<pcl::PointXYZ>(cloud, "cloud");
+    viewer->addPointCloud<pcl::PointXYZRGB>(cloud, "cloud");
 
     currentCategory = "";
 }
@@ -142,7 +142,9 @@ void te3DCanvas::PolygonSelect(void* viewer_void)
     // 创建滤波器对象
     pcl::ProjectInliers<pcl::PointXYZ> projCloudIn;//建立投影对象
     projCloudIn.setModelType(pcl::SACMODEL_PLANE);//设置投影类型
-    projCloudIn.setInputCloud(cloud);//设置输入点云
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::copyPointCloud(*cloud ,*cloud_xyz);
+    projCloudIn.setInputCloud(cloud_xyz);//设置输入点云
     projCloudIn.setModelCoefficients(coefficients);//加载投影参数
     projCloudIn.filter(*cloudIn_Prj);//执行程序，并将结果保存
 
@@ -161,7 +163,7 @@ void te3DCanvas::PolygonSelect(void* viewer_void)
         ret = inOrNot1(cloud_polygon->points.size(), PloyXarr, PloyYarr, cloudIn_Prj->points[i].x, cloudIn_Prj->points[i].y);
         if (1 == ret)//表示在里面
         {
-            cloud_cliped->points.push_back(cloud->points[i]);
+            cloud_cliped->points.push_back(cloud_xyz->points[i]);
         }//表示在外面
     }
         
@@ -195,7 +197,7 @@ bool te3DCanvas::LoadPointCloud(QString fileName)
 
     if (fileName.endsWith("pcd"))
     {
-        if (pcl::io::loadPCDFile<pcl::PointXYZ>(fileName.toStdString(), *cloud) == -1)
+        if (pcl::io::loadPCDFile<pcl::PointXYZRGB>(fileName.toStdString(), *cloud) == -1)
         {
             qDebug() << "Couldn't read pcd file!\n";
             return false;
@@ -235,9 +237,12 @@ bool te3DCanvas::SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>
     return true;
 }
 
-void te3DCanvas::reRenderOriginCloud()
+void te3DCanvas::reRenderOriginCloud(ReRenderMode mode)
 {
-    reRendering(cloud);
+    if (mode == ReSetCamera)
+        reRendering(cloud);
+    else if (mode == NoSetCamera)
+        reRenderingNoResetCamera(cloud);
 }
 
 void te3DCanvas::ShowDimension(int arg)
@@ -281,7 +286,7 @@ void te3DCanvas::ShowResult(int arg)
 void te3DCanvas::ReductionPointCloud()
 {
     LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
-    reRenderOriginCloud();
+    reRenderOriginCloud(ReSetCamera);
 }
 
 bool te3DCanvas::SetBackgroundColor(QColor color)
@@ -297,6 +302,9 @@ bool te3DCanvas::CoordinateAxisRendering(QString curaxis)
     double Z_Min = axisset.minPt.z;
     double Z_Median1 = Z_Min + (Z_Max - Z_Min) / 3;
     double Z_Median2 = Z_Median1 + (Z_Max - Z_Min) / 3;
+
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Elevation_rendering;
+    cloud_Elevation_rendering = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
 
     for (int index = 0; index < cloud->points.size(); ++index)
     {
@@ -334,7 +342,9 @@ bool te3DCanvas::CoordinateAxisRendering(QString curaxis)
             cloud_Elevation_rendering->push_back(point);
         }
     }
-    viewer->updatePointCloud(cloud_Elevation_rendering, "cloud");
+    cloud->clear();
+    pcl::copyPointCloud(*cloud_Elevation_rendering, *cloud);
+    viewer->updatePointCloud(cloud, "cloud");
     m_renderWindow->Render();
     return true;
 }
@@ -344,12 +354,12 @@ bool te3DCanvas::PointCloudColorSet(QColor color)
     QColor temp;
     temp.setRgb(143, 153, 159, 255);
     if (!cloud->empty() && (color != temp)) {
-        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ>selected_color(cloud, color.redF() * 255, color.greenF() * 255, color.blueF() * 255);
+        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB>selected_color(cloud, color.redF() * 255, color.greenF() * 255, color.blueF() * 255);
         viewer->updatePointCloud(cloud, selected_color, "cloud");
         m_renderWindow->Render();
     }
     else {
-        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ>selected_color(cloud, 255, 255, 255);
+        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB>selected_color(cloud, 255, 255, 255);
         viewer->updatePointCloud(cloud, selected_color, "cloud");
         m_renderWindow->Render();
     }
@@ -381,7 +391,7 @@ void te3DCanvas::MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
     cloud_marked->points.clear();
     Transfer_Function::ExtractCloud2Cloud(cloud, &contour, cloud_marked);
 
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_marked, color.red(), color.green(), color.blue());
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> currentColor(cloud_marked, color.red(), color.green(), color.blue());
     QString CloudId;
     auto it = markerPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != markerPCID.end()) {
@@ -412,7 +422,7 @@ void te3DCanvas::ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
     cloud_marked->points.clear();
     Transfer_Function::ExtractCloud2Cloud(cloud, &contour, cloud_marked);
 
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> currentColor(cloud_marked, color.red(), color.green(), color.blue());
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> currentColor(cloud_marked, color.red(), color.green(), color.blue());
     QString CloudId;
     auto it = resultPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != resultPCID.end()) {
@@ -427,12 +437,12 @@ void te3DCanvas::ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
     m_renderWindow->Render();
 }
 
-void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
+void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin)
 {
     viewer->removeAllPointClouds();
     viewer->removeAllShapes();
     
-    viewer->addPointCloud<pcl::PointXYZ>(cloudin, "cloud");
+    viewer->addPointCloud<pcl::PointXYZRGB>(cloudin, "cloud");
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
     // 计算点云中心位置和对角线长度
     Eigen::Vector3f center((axisset.maxPt.x + axisset.minPt.x) / 2, (axisset.maxPt.y + axisset.minPt.y) / 2, (axisset.maxPt.z + axisset.minPt.z) / 2);
@@ -441,6 +451,20 @@ void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin)
 
     viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), center(1), center(2), 0, 0, 0); //耗时最多 2秒多
     //viewer->spinOnce();
+    m_renderWindow->Render();
+    setRotationCenter();
+    m_CustomInteractor->ResetData();
+    emit sig_CanvasreRender();
+}
+
+void te3DCanvas::reRenderingNoResetCamera(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin)
+{
+    viewer->removeAllPointClouds();
+    viewer->removeAllShapes();
+
+    viewer->addPointCloud<pcl::PointXYZRGB>(cloudin, "cloud");
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
+
     m_renderWindow->Render();
     setRotationCenter();
     m_CustomInteractor->ResetData();
@@ -463,7 +487,9 @@ void te3DCanvas::SetCoordinateSet()
 {
     pcl::PointXYZ min;
     pcl::PointXYZ max;
-    pcl::getMinMax3D(*cloud, min, max);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::copyPointCloud(*cloud, *cloud_xyz);
+    pcl::getMinMax3D(*cloud_xyz, min, max);
     int currentDisplayImageLength = max.x - min.x;
     int currentDisplayImageHeight = max.y - min.y;
     axisset = {
@@ -525,7 +551,9 @@ int te3DCanvas::inOrNot1(int poly_sides, double* poly_X, double* poly_Y, double 
 
 void te3DCanvas::AxisAlignedBoundingBox()
 {
-    feature_extractor.setInputCloud(cloud); //提供指向输入数据集的指针。
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::copyPointCloud(*cloud, *cloud_xyz);
+    feature_extractor.setInputCloud(cloud_xyz); //提供指向输入数据集的指针
     feature_extractor.compute();//启动所有特征的计算
 
     std::vector <float> moment_of_inertia;
@@ -543,7 +571,8 @@ void te3DCanvas::AxisAlignedBoundingBox()
     feature_extractor.getEigenVectors(major_vector, middle_vector, minor_vector);
     feature_extractor.getMassCenter(mass_center);
 
-    viewer->addPointCloud<pcl::PointXYZ>(cloud, "points");
+    viewer->addPointCloud<pcl::PointXYZRGB>(cloud, "points");
+
     viewer->addCube(min_point_AABB.x, max_point_AABB.x, min_point_AABB.y, max_point_AABB.y, min_point_AABB.z, max_point_AABB.z, 1.0, 1.0, 0.0, "AABB");
     viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, "AABB");
 
@@ -557,7 +586,9 @@ void te3DCanvas::AxisAlignedBoundingBox()
 
 void te3DCanvas::OrientedBoundingBox()
 {
-    feature_extractor.setInputCloud(cloud);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::copyPointCloud(*cloud, *cloud_xyz);
+    feature_extractor.setInputCloud(cloud_xyz);
     feature_extractor.compute();
 
     std::vector <float> moment_of_inertia;
@@ -577,7 +608,7 @@ void te3DCanvas::OrientedBoundingBox()
     feature_extractor.getEigenVectors(major_vector, middle_vector, minor_vector);
     feature_extractor.getMassCenter(mass_center);
 
-    viewer->addPointCloud<pcl::PointXYZ>(cloud, /*RandomColor, */ "points");
+    viewer->addPointCloud<pcl::PointXYZRGB>(cloud, "points");
 
     Eigen::Vector3f position(position_OBB.x, position_OBB.y, position_OBB.z);
     Eigen::Quaternionf quat(rotational_matrix_OBB);
@@ -631,7 +662,9 @@ void te3DCanvas::subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cl
 void te3DCanvas::PerspectiveToYaxis()
 {
     pcl::PointXYZ minPt, maxPt;
-    pcl::getMinMax3D(*cloud, minPt, maxPt);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::copyPointCloud(*cloud, *cloud_xyz);
+    pcl::getMinMax3D(*cloud_xyz, minPt, maxPt);
     Eigen::Vector3f center((maxPt.x + minPt.x) / 2, (maxPt.y + minPt.y) / 2, (maxPt.z + minPt.z) / 2);
     Eigen::Vector3f diff = maxPt.getVector3fMap() - minPt.getVector3fMap();
     float distance = diff.norm();
@@ -648,7 +681,9 @@ void te3DCanvas::PerspectiveToYaxis()
 void te3DCanvas::PerspectiveToXaxis()
 {
     pcl::PointXYZ minPt, maxPt;
-    pcl::getMinMax3D(*cloud, minPt, maxPt);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::copyPointCloud(*cloud, *cloud_xyz);
+    pcl::getMinMax3D(*cloud_xyz, minPt, maxPt);
     Eigen::Vector3f center((maxPt.x + minPt.x) / 2, (maxPt.y + minPt.y) / 2, (maxPt.z + minPt.z) / 2);
     Eigen::Vector3f diff = maxPt.getVector3fMap() - minPt.getVector3fMap();
     float distance = diff.norm();
@@ -665,7 +700,9 @@ void te3DCanvas::PerspectiveToXaxis()
 void te3DCanvas::PerspectiveToZaxis()
 {
     pcl::PointXYZ minPt, maxPt;
-    pcl::getMinMax3D(*cloud, minPt, maxPt);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::copyPointCloud(*cloud, *cloud_xyz);
+    pcl::getMinMax3D(*cloud_xyz, minPt, maxPt);
     Eigen::Vector3f center((maxPt.x + minPt.x) / 2, (maxPt.y + minPt.y) / 2, (maxPt.z + minPt.z) / 2);
     Eigen::Vector3f diff = maxPt.getVector3fMap() - minPt.getVector3fMap();
     float distance = diff.norm();
@@ -690,8 +727,10 @@ void te3DCanvas::GuassFilter(QString data1, QString data2, QString data3, QStrin
             QMessageBox::warning(this, "Warning", "参数格式输入错误");
             return;
         }
-        pcl_filter_guass(cloud, data1.toFloat(), data2.toFloat(), data3.toFloat(), data4.toFloat());
-        *cloud = *cloud_Filter_out;
+        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>());
+        pcl::copyPointCloud(*cloud,*cloud_xyz );
+        pcl_filter_guass(cloud_xyz, data1.toFloat(), data2.toFloat(), data3.toFloat(), data4.toFloat());
+        pcl::copyPointCloud(*cloud_Filter_out, *cloud);
 
         viewer->removeAllPointClouds();
         viewer->removeAllShapes();
@@ -731,8 +770,12 @@ void te3DCanvas::DirectFilter(QString data1, QString data2, QString data3, QStri
             QMessageBox::warning(this, "Warning", "参数格式输入错误");
             return;
         }
-        pcl_filter_direct(cloud, data1.toFloat(), data2.toFloat(), data3, data4.toFloat());
-        *cloud = *cloud_Filter_out;
+
+        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>());
+        pcl::copyPointCloud(*cloud, *cloud_xyz);
+        pcl_filter_direct(cloud_xyz, data1.toFloat(), data2.toFloat(), data3, data4.toFloat());
+        pcl::copyPointCloud(*cloud_Filter_out, *cloud);
+
         viewer->removeAllPointClouds();
         viewer->removeAllShapes();
         viewer->addPointCloud(cloud, "cloud");
@@ -749,11 +792,10 @@ void te3DCanvas::LabelChanged(const QString& content, const QColor& fontColor)
 
 void te3DCanvas::PointCloudHeightTransform(int factor)
 {
-    LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
-    for (int i = 0; i < cloud->size(); ++i) {
-        cloud->at(i).z *= factor;
+    for (auto& point : cloud->points) {
+        point.z = point.z * factor;
     }
-    reRendering(cloud->makeShared());
+    reRenderOriginCloud(ReSetCamera);
 }
 
 void te3DCanvas::te3DCanvasStartMarking()
