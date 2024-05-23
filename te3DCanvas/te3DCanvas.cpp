@@ -4,6 +4,7 @@
 #include <QWheelEvent>
 #include <QEvent>
 #include <QElapsedTimer>
+#include <QRegularExpression>
 
 #define DEBUG
 
@@ -12,6 +13,18 @@
 #endif
 #include "Transfer_Function.h"
 #include "teDataStorage.h"
+
+QString incrementNumber(const QString& input) {
+    QRegularExpression regex("(\\d+)");
+    QRegularExpressionMatch match = regex.match(input);
+    if (match.hasMatch()) {
+        QString numberStr = match.captured(1);
+        int number = numberStr.toInt();
+        number++;
+        return QString::number(number);
+    }
+    return QString();
+}
 
 te3DCanvas::te3DCanvas(QWidget *parent)
 	: QVTKOpenGLNativeWidget(parent)
@@ -237,9 +250,11 @@ void te3DCanvas::PolygonSelect(void* viewer_void)
 
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> currentColor(canvas->currentColor.red(), canvas->currentColor.green(), canvas->currentColor.blue());
     QString CloudId;
+    QString test = teDataStorage::getInstance()->getCurrentLabelCategory();
     auto it = canvas->markerPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != canvas->markerPCID.end()) {
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "marker" + QString::number(it->second.size());
+        QString count = incrementNumber(it->second.back());
+        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "marker" + count;
         it->second.push_back(CloudId);
     }
     else {
