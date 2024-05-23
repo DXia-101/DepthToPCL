@@ -67,7 +67,7 @@ void teImageBrowserWorkThread::run()
         if (!QFile::exists(QString::fromStdString(teDataStorage::getInstance()->getPointCloud()[pIndex[i]]))) {
             std::string imgPath = teDataStorage::getInstance()->getOriginImage()[pIndex[i]];
             cv::Mat image = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
-            pcl::PointCloud<pcl::PointXYZ>::Ptr mediancloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
+            pcl::PointCloud<pcl::PointXYZRGB>::Ptr mediancloud = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
 
             if (image.empty()) {
                 qDebug() << "Failed to load the TIF image.";
@@ -129,7 +129,7 @@ void teImageBrowserWorkThread::GenerateCurrentData()
     if (!QFile::exists(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()))) {
         std::string imgPath = teDataStorage::getInstance()->getCurrentOriginImage();
         cv::Mat image = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
-        pcl::PointCloud<pcl::PointXYZ>::Ptr mediancloud = (new pcl::PointCloud<pcl::PointXYZ>())->makeShared();
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr mediancloud = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
 
         if (image.empty()) {
             qDebug() << "Failed to load the TIF image.";

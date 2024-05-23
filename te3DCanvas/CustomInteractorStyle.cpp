@@ -75,6 +75,16 @@ void CustomInteractorStyle::rotateAroundAxis(double angle, std::vector<double>& 
 	point->at(2) = result.at<double>(2, 0);
 }
 
+std::vector<double>& CustomInteractorStyle::getXActor()
+{
+	return Actor_xAxis;
+}
+
+std::vector<double>& CustomInteractorStyle::getYActor()
+{
+	return Actor_yAxis;
+}
+
 void CustomInteractorStyle::OnMouseMove()
 {
 	if (!m_bLBtnDown) //没有按下鼠标左键
@@ -146,7 +156,7 @@ void CustomInteractorStyle::OnMouseMove()
 	m_pRotationTransform->RotateZ(zAngle);
 
 	m_pRotationTransform->Translate(-rotationCenter[0], -rotationCenter[1], -rotationCenter[2]);
-
+	
 	for (int i = 0; i < m_pSelectedActor.size(); ++i)
 	{
 		if (m_pSelectedActor[i] == nullptr) {
@@ -174,7 +184,8 @@ void CustomInteractorStyle::OnLeftButtonDown()
 	{
 		prop = propCollection->GetNextProp();
 		pActor = vtkProp3D::SafeDownCast(prop);
-		m_pSelectedActor.push_back(vtkActor::SafeDownCast(pActor));
+		if(pActor != nullptr)
+			m_pSelectedActor.push_back(vtkActor::SafeDownCast(pActor));
 		pickNum--;
 	}
 	this->Interactor->GetRenderWindow()->Render();

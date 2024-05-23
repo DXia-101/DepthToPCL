@@ -15,6 +15,10 @@ public:
 	//virtual void OnMouseWheelBackward()override;
 	//virtual void OnMiddleButtonDown()override;
 	//virtual void OnMiddleButtonUp()override;
+
+	std::vector<double>& getXActor();
+	std::vector<double>& getYActor();
+
 	virtual void OnMouseMove()override;
 	virtual void OnLeftButtonDown() override;
 	virtual void OnLeftButtonUp() override;
@@ -41,7 +45,7 @@ protected:
 
 	vtkSmartPointer<vtkAxesActor> axes_actor;
 	vtkSmartPointer<vtkTransform> axesTransform;
-
+public:
 	std::vector<vtkActor*> m_pSelectedActor = { nullptr };
 	vtkSmartPointer<vtkTransform> m_pRotationTransform = nullptr;
 private:

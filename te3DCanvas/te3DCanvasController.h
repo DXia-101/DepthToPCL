@@ -22,11 +22,10 @@ public:
 
 	void displayToolBarInWidget(QVBoxLayout* layout);
 	void displayCanvasInWidget(QStackedLayout* layout);
-	void SavePointCloud(QString filepath, pcl::PointCloud<pcl::PointXYZ>::Ptr pcr);
+	void SavePointCloud(QString filepath, pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcr);
 
 	QRect getGeometry();
 
-	void SetClassBCallback(teMouseCircle& classB);
 private slots:
 	void BackgroundColorSelect();
 	void CoordinateAxisSelect();
@@ -38,7 +37,7 @@ private slots:
 public slots:
 	void hideAllUI();
 	void showAllUI();
-	void add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+	void add3DAiInstance(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
 	void ShowAllItems();
 	void HegithTransForm();
 	void SaveHeightTransFromFactor(int factor);

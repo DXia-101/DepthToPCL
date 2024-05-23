@@ -83,7 +83,6 @@ void teLabelBrowser::saveTableWidget()
 		}
 		stream << "\n";
 	}
-
 	file.close();
 }
 

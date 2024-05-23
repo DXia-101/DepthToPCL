@@ -1,7 +1,7 @@
 #include "Transfer_Function.h"
 #include "Depth2RGB.h"
 
-void Transfer_Function::Cloud2cvMat(int width,int height,float originX,float originY, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudin, cv::Mat& imageout)
+void Transfer_Function::Cloud2cvMat(int width,int height,float originX,float originY, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin, cv::Mat& imageout)
 {
     if (!imageout.empty())
         imageout.release();
@@ -18,15 +18,15 @@ void Transfer_Function::Cloud2cvMat(int width,int height,float originX,float ori
     }
 }
 
-void Transfer_Function::cvMat2Cloud(double minHeight, double maxHeight, cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOut)
+void Transfer_Function::cvMat2Cloud(double minHeight, double maxHeight, cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudOut)
 {
     cloudOut->points.clear();
 
     for (int x = 0; x < imageIn.cols; ++x) {
         for (int y = 0; y < imageIn.rows; ++y) {
-            pcl::PointXYZ point;
+            pcl::PointXYZRGB point;
             point.x = static_cast<float>(x);
-            point.y = -static_cast<float>(y);
+            point.y = static_cast<float>(y);
             if (CV_MAT_DEPTH(imageIn.type()) == CV_16U) {
                 point.z = static_cast<float>(imageIn.at<uint16_t>(y, x)) / 1000.0f;
             }

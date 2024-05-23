@@ -34,16 +34,8 @@ MainInterface::MainInterface(QWidget *parent)
 	m_AiModelController = new AiModelController();
 	m_AiModelController->displayUIInWidget(ui->labelLayout);
 
-	m_mouseCircle = new teMouseCircle();
-	m_mouseCircle->show();
-	m_mouseCircle->receptiveFieldChange(m_AiModelController->getReceptiveField());
-	stacklayout->addWidget(m_mouseCircle);
-	stacklayout->setCurrentWidget(m_mouseCircle);
-	te3DCanvasController::getInstance()->SetClassBCallback(*m_mouseCircle);
-
 	InitStateMachine();
 	InitToolBar();
-	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_DisonnectHeightTransform, this, &MainInterface::ResetMouseRadius);
 	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ChangeCurrentState);
 	connect(this, &MainInterface::sig_setHeightCoefficientFactor, te3DCanvasController::getInstance(), &te3DCanvasController::sig_setHeightCoefficientFactor);
 
@@ -60,7 +52,6 @@ MainInterface::MainInterface(QWidget *parent)
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_DataChangeDuringTraining, m_SChart, &teTrainStatisticsChart::ReceiveData);
 	connect(m_AiModelController, &AiModelController::sig_isShowTSChart, m_SChart, &teTrainStatisticsChart::isShow);
 	connect(m_SChart, &teTrainStatisticsChart::sig_closeteTrainStatisticsChart, m_AiModelController, &AiModelController::sig_TSChartClose);
-	connect(m_AiModelController, &AiModelController::sig_receptiveFieldChange, m_mouseCircle, &teMouseCircle::receptiveFieldChange);
 
 	QAction* saveAction = new QAction(tr("Save"), this);
 	saveAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
@@ -71,7 +62,6 @@ MainInterface::MainInterface(QWidget *parent)
 MainInterface::~MainInterface()
 {
 	ClearAllCaches();
-	delete m_mouseCircle;
 	delete ui;
 }
 
@@ -83,11 +73,9 @@ void MainInterface::InitStateMachine()
 
 	connect(TwoDState, &QState::entered, te2DCanvasController::getInstance(), &te2DCanvasController::showAllUI);
 	connect(TwoDState, &QState::entered, this, &MainInterface::ChangeBtnTextTo2D);
-	connect(TwoDState, &QState::entered, this, &MainInterface::ResetMouseRadius);
 	connect(TwoDState, &QState::exited, te2DCanvasController::getInstance(), &te2DCanvasController::hideAllUI);
 	connect(ThrDState, &QState::entered, te3DCanvasController::getInstance(), &te3DCanvasController::showAllUI);
 	connect(ThrDState, &QState::entered, this, &MainInterface::ChangeBtnTextTo3D);
-	connect(ThrDState, &QState::entered, this, &MainInterface::ResetMouseRadius);
 	connect(ThrDState, &QState::exited, te3DCanvasController::getInstance(), &te3DCanvasController::hideAllUI);
 
 	TwoDState->addTransition(ui->convertBtn, &QPushButton::clicked, ThrDState);
@@ -188,11 +176,6 @@ void MainInterface::ChangeBtnTextTo2D()
 void MainInterface::ChangeBtnTextTo3D()
 {
 	ui->convertBtn->setText(u8"×ª»»µ½2D");
-}
-
-void MainInterface::ResetMouseRadius()
-{
-	m_mouseCircle->receptiveFieldChange(m_AiModelController->getReceptiveField());
 }
 
 void MainInterface::SetThreshold(QString filePath)

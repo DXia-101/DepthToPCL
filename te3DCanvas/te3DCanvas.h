@@ -6,11 +6,11 @@
 #include "teAiExTypes.h"
 #include "te3DCanvasMember.h"
 #include "CustomInteractorStyle.h"
-#include "teMouseCircle.h"
 
 #include <map>
 #include <vector>
 
+#define _Interactor_
 
 class te3DCanvas  : public QVTKOpenGLNativeWidget
 {
@@ -27,31 +27,26 @@ public:
     void PerspectiveToXaxis();
     void PerspectiveToZaxis();
 
-    void PolygonSelect(void* viewer_void);
-
-    void pcl_filter_guass(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float paraA, float paraB, float paraC, float paraD);
-    void pcl_filter_direct(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, float min, float max, QString axis, float is_save);
+    void pcl_filter_guass(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_in, float paraA, float paraB, float paraC, float paraD);
+    void pcl_filter_direct(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_in, float min, float max, QString axis, float is_save);
 
     vtkRenderWindow* getvtkRenderWindow();
     vtkSmartPointer<vtkRenderer> getvtkRenderer();
 
     void setRotationCenter();
-
-    void SetClassBCallback(teMouseCircle& classB);
 public:
     void MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
     void ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
-    void reRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin);
-    void reRenderingNoResetCamera(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin);
+    void reRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin, ReRenderMode mode);
     struct AxisSet getAxisSet();
     std::vector<double> getCloudCentroid();
 protected:
-    void mouseReleaseEvent(QMouseEvent* event) override;
+    void mousePressEvent(QMouseEvent* event);
+    static void getScreentPos(double* displayPos, double* world, void* viewer_void);
+    static int inOrNot1(int poly_sides, double* poly_X, double* poly_Y, double x, double y);
+    static void PolygonSelect(void* viewer_void);
 
-    void getScreentPos(double* displayPos, double* world, void* viewer_void);
-    int inOrNot1(int poly_sides, double* poly_X, double* poly_Y, double x, double y);
-    
-    void subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2);
+    void subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud2);
 
     void SetCoordinateSet();
     void VTKCoordinateAxis();
@@ -72,7 +67,7 @@ public slots:
     void te3DCanvasStartMarking();
 
     bool LoadPointCloud(QString fileName);
-    bool SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZ>::Ptr saveCloud);
+    bool SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZRGB>::Ptr saveCloud);
 
     void reRenderOriginCloud(ReRenderMode mode);
 
@@ -80,7 +75,7 @@ public slots:
     void ShowResult(int arg);
     void ReductionPointCloud();
 signals:
-    void sig_3DCanvasMarkingCompleted(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+    void sig_3DCanvasMarkingCompleted(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
     void CloudChanged();
     void sig_CanvasreRender();
 
@@ -94,28 +89,27 @@ public:
     vtkSmartPointer<vtkRenderer> m_renderer;
     vtkSmartPointer<vtkRenderer> m_Axes_renderer;
     
-private:
+public:
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_polygon;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cliped;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_Filter_out;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_polygon;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cliped;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Filter_out;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_marked;
-    
 
-    pcl::PointXYZ curP, lastP; //»­Ïß
-    
-    pcl::MomentOfInertiaEstimation<pcl::PointXYZ> feature_extractor;
+    pcl::PointXYZRGB curP, lastP; //»­Ïß
+
     pcl::visualization::PCLVisualizer::Ptr viewer;
 
+#ifdef _Interactor_
     CustomInteractorStyle* m_CustomInteractor;
-
+#endif
     Filter_Guass* dialog_Guass_filter;
     Filter_Direct* dialog_Direct_filter;
 
     vtkSmartPointer<vtkOrientationMarkerWidget> markerWidget;
     vtkSmartPointer<vtkAxesActor> axes_actor;
     
-private:
+public:
     struct AxisSet axisset;
     struct te3DCanvasMember m_member;
 

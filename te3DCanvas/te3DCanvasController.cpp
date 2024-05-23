@@ -93,7 +93,7 @@ void te3DCanvasController::displayCanvasInWidget(QStackedLayout* layout)
 	m_te3DCanvas->show();
 }
 
-void te3DCanvasController::SavePointCloud(QString filepath, pcl::PointCloud<pcl::PointXYZ>::Ptr pcr)
+void te3DCanvasController::SavePointCloud(QString filepath, pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcr)
 {
 	m_te3DCanvas->SavePointCloud(filepath, pcr);
 }
@@ -101,11 +101,6 @@ void te3DCanvasController::SavePointCloud(QString filepath, pcl::PointCloud<pcl:
 QRect te3DCanvasController::getGeometry()
 {
 	return m_te3DCanvas->geometry();
-}
-
-void te3DCanvasController::SetClassBCallback(teMouseCircle& classB)
-{
-	m_te3DCanvas->SetClassBCallback(classB);
 }
 
 void te3DCanvasController::hideAllUI()
@@ -127,7 +122,7 @@ void te3DCanvasController::showAllUI()
 	ShowAllItems();
 }
 
-void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
+void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 {
 	cv::Mat image(0, 0, CV_32F);
 

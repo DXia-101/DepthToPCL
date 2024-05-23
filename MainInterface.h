@@ -5,7 +5,6 @@
 
 #include "AiModelController.h"
 #include "teTrainStatisticsChart.h"
-#include "teMouseCircle.h"
 
 #include <QStateMachine>
 #include <QState>
@@ -35,7 +34,6 @@ private slots:
 	void on_clearDatabaseBtn_clicked();
 	void ChangeBtnTextTo2D();
 	void ChangeBtnTextTo3D();
-	void ResetMouseRadius();
 
 private:
 	void SetThreshold(QString filePath);
@@ -54,7 +52,6 @@ private:
 	QState* ThrDState;
 	AiModelController* m_AiModelController;
 	teTrainStatisticsChart* m_SChart;
-	teMouseCircle* m_mouseCircle;
 
 	bool HastheImageBeenLoaded = false;
 };
