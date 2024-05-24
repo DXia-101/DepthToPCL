@@ -48,11 +48,12 @@ bool te2DCanvasToolBar::isGlobalMaskShow()
 
 void te2DCanvasToolBar::on_redoButton_clicked()
 {
-	
+	emit sig_te2DCanvasRedo();
 }
 
 void te2DCanvasToolBar::on_undoButton_clicked()
 {
+	emit sig_te2DCanvasUndo();
 }
 
 void te2DCanvasToolBar::on_eraserButton_clicked()

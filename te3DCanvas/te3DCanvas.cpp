@@ -262,7 +262,7 @@ void te3DCanvas::PolygonSelect(void* viewer_void)
         canvas->markerPCID.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<QString>{CloudId}));
     }
     //pcl::transformPointCloud(*canvas->cloud_cliped, *canvas->cloud_cliped, transform);
-    //teDataStorage::getInstance()->updateMarkersNumber();
+    teDataStorage::getInstance()->updateMarkersNumber();
     canvas->viewer->addPointCloud(canvas->cloud_cliped, currentColor, CloudId.toStdString());
     emit canvas->sig_3DCanvasMarkingCompleted(canvas->cloud_cliped);
     canvas->m_renderWindow->Render();

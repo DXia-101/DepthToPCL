@@ -79,6 +79,7 @@ public:
 	bool updateTrainSampleMark(int index,te::SampleMark& samplemark);
 	bool updateResultSampleMark(int index,te::SampleMark& samplemark);
 	bool updateCurrentTrainSampleMark(te::SampleMark& samplemark);
+	bool clearCurrentTrainSampleMark();
 	bool updateCurrentResultSampleMark(te::SampleMark& samplemark);
 	bool updateShrinkageChart(int index,std::string& filepath);
 	bool updatePointCloud(int index,std::string& filepath);

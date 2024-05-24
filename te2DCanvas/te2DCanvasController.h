@@ -27,7 +27,7 @@ signals:
 public slots:
 	void hideAllUI();
 	void showAllUI();
-	void add2DAiInstance(te::ConnectedRegionGraphicsItem* polygonItem);
+	void add2DAiInstance(QList<te::GraphicsItem*> polygonItems);
 	void ShowFirstImage();
 	void ShowAllItems();
 	void ShowCurrentImages();

@@ -329,6 +329,7 @@ te::SampleMark teDataStorage::getCurrentResultSampleInfo()
 	return getSelectResultFormSampleMarkTable(currentIndex, "ResultSampleMark");
 }
 
+//返回当前TrainMark中所有标记的数量Map
 QMap<QString, int> teDataStorage::getCurrentTrainMarksNumber()
 {
 	te::SampleMark temp = getCurrentTrainSampleInfo();
@@ -392,6 +393,13 @@ bool teDataStorage::updateResultSampleMark(int index, te::SampleMark& samplemark
 bool teDataStorage::updateCurrentTrainSampleMark(te::SampleMark& samplemark)
 {
 	return ResourceTable->updateRecord(currentIndex + 1, { std::pair<te::StdU8String,te::SampleMark>("TrainSampleMark",samplemark) });
+}
+
+bool teDataStorage::clearCurrentTrainSampleMark()
+{
+	te::SampleMark sampleMark = teDataStorage::getInstance()->getCurrentTrainSampleInfo();
+	sampleMark.gtDataSet.clear();
+	return ResourceTable->updateRecord(currentIndex + 1, { std::pair < te::StdU8String,te::SampleMark>("TrainSampleMark",sampleMark) });
 }
 
 bool teDataStorage::updateCurrentResultSampleMark(te::SampleMark& samplemark)
@@ -515,9 +523,6 @@ void teDataStorage::LoadTrainingImages(const QStringList& filePaths)
 			insertOriginImage(filePath.toStdString());
 		}
 	}
-	//在这处理高度变换的相关逻辑
-
-
 	emit sig_teUpDataSet(filePaths.size(), 1,true);
 	emit sig_LoadTrainImagesComplete();
 }

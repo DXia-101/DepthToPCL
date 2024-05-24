@@ -44,7 +44,7 @@ public slots:
 	void ShowGlobalMask(int arg);
 
 signals:
-	void sig_PolygonMarkingCompleted(te::ConnectedRegionGraphicsItem* polygonItem);
+	void sig_PolygonMarkingCompleted(QList<te::GraphicsItem*> polygonItems);
 	void ReplaceToEraseState();
 	void ReplaceToDrawState();
 	void sig_ClearCurrent2DCanvasMarkers();

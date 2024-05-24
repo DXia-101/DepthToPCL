@@ -93,14 +93,14 @@ void te2DCanvas::StartMarked()
 void te2DCanvas::Redo()
 {
     itemMgr(0)->redoItems();
-    emit sig_ClearCurrent2DCanvasMarkers();
+    //emit sig_ClearCurrent2DCanvasMarkers();
     te2DCanvasMarkingCompleted();
 }
 
 void te2DCanvas::Undo()
 {
     itemMgr(0)->undoItems();
-    emit sig_ClearCurrent2DCanvasMarkers();
+    //emit sig_ClearCurrent2DCanvasMarkers();
     te2DCanvasMarkingCompleted();
 }
 
@@ -118,7 +118,7 @@ void te2DCanvas::MarkersShowInCanvas(te::AiInstance* instance, QString label, QC
     te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({}, label);
     polygonItem->setPolygonList(contours);
     polygonItem->setPen(QColor(Qt::black));
-    color.setAlpha(100);
+    color.setAlpha(80);
     polygonItem->setBrush(QBrush(color));
 
     //Ìí¼Ó¸Ãitem
@@ -208,13 +208,10 @@ void te2DCanvas::DrawGraphics(const QList<QPolygonF>& region)
         emit sig_ClearCurrent2DCanvasMarkers();
     }
     te2DCanvasMarkingCompleted();
-    teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
 }
 
 void te2DCanvas::te2DCanvasMarkingCompleted()
 {
-    for (te::GraphicsItem* item : this->itemMgr(0)->items()) {
-        te::ConnectedRegionGraphicsItem* polygonItem = dynamic_cast<te::ConnectedRegionGraphicsItem*>(item);
-        emit sig_PolygonMarkingCompleted(polygonItem);
-    }
+    emit sig_PolygonMarkingCompleted(this->itemMgr(0)->items());
+    teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
 }

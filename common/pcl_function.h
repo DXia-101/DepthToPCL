@@ -9,6 +9,7 @@
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkInteractorStyleTrackballActor.h>
 #include <vtkOrientationMarkerWidget.h>
+#include <vtkPlaneSource.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkSmartPointer.h>

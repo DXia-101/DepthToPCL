@@ -106,21 +106,25 @@ void te2DCanvasController::showAllUI()
 	ShowAllItems();
 }
 
-void te2DCanvasController::add2DAiInstance(te::ConnectedRegionGraphicsItem* polygonItem)
+void te2DCanvasController::add2DAiInstance(QList<te::GraphicsItem*> polygonItems)
 {
-	QList<QPolygonF> contours = polygonItem->polygonList();
-	te::AiInstance instance;
-	instance.name = polygonItem->label().toStdString();
-	te::PolygonF polygon;
-	te::PolygonF::PointType point;
-	for (const QPointF& polygonPoint : contours.front()) {
-		point.x = static_cast<float>(polygonPoint.x());
-		point.y = static_cast<float>(polygonPoint.y());
-		polygon.push_back(point);
-	}
-	instance.contour.polygons.push_back(polygon);
+	teDataStorage::getInstance()->clearCurrentTrainSampleMark();
 	te::SampleMark sampleMark = teDataStorage::getInstance()->getCurrentTrainSampleInfo();
-	sampleMark.gtDataSet.push_back(instance);
+	for (te::GraphicsItem* item : polygonItems) {
+		te::ConnectedRegionGraphicsItem* polygonItem = dynamic_cast<te::ConnectedRegionGraphicsItem*>(item);
+		QList<QPolygonF> contours = polygonItem->polygonList();
+		te::AiInstance instance;
+		instance.name = polygonItem->label().toStdString();
+		te::PolygonF polygon;
+		te::PolygonF::PointType point;
+		for (const QPointF& polygonPoint : contours.front()) {
+			point.x = static_cast<float>(polygonPoint.x());
+			point.y = static_cast<float>(polygonPoint.y());
+			polygon.push_back(point);
+		}
+		instance.contour.polygons.push_back(polygon);
+		sampleMark.gtDataSet.push_back(instance);
+	}
 	teDataStorage::getInstance()->updateCurrentTrainSampleMark(sampleMark);
 }
 
