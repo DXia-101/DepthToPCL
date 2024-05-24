@@ -14,8 +14,9 @@
 #include "Transfer_Function.h"
 #include "teDataStorage.h"
 
-QString incrementNumber(const QString& input) {
-    QRegularExpression regex("(\\d+)");
+QString incrementNumber(const QString& input) 
+{
+    QRegularExpression regex("(\\d+)$");
     QRegularExpressionMatch match = regex.match(input);
     if (match.hasMatch()) {
         QString numberStr = match.captured(1);
@@ -254,11 +255,11 @@ void te3DCanvas::PolygonSelect(void* viewer_void)
     auto it = canvas->markerPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != canvas->markerPCID.end()) {
         QString count = incrementNumber(it->second.back());
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "marker" + count;
+        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "marker" + count;
         it->second.push_back(CloudId);
     }
     else {
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "marker" + "0";
+        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "marker" + "0";
         canvas->markerPCID.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<QString>{CloudId}));
     }
     //pcl::transformPointCloud(*canvas->cloud_cliped, *canvas->cloud_cliped, transform);
@@ -475,11 +476,12 @@ void te3DCanvas::MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
     auto it = markerPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != markerPCID.end()) {
         QString count = incrementNumber(it->second.back());
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "marker" + count;
+        CloudId = QString::fromStdString(instance->name) + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "marker" + count;
+        qDebug() << "CloudID: " << CloudId;
         it->second.push_back(CloudId);
     }
     else {
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "marker" + "0";
+        CloudId = QString::fromStdString(instance->name) + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "marker" + "0";
         markerPCID.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<QString>{CloudId}));
     }
     viewer->addPointCloud(cloud_marked, currentColor, CloudId.toStdString());
@@ -507,11 +509,11 @@ void te3DCanvas::ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
     auto it = resultPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != resultPCID.end()) {
         QString count = incrementNumber(it->second.back());
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "result" + count;
+        CloudId = QString::fromStdString(instance->name) + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "result" + count;
         it->second.push_back(CloudId);
     }
     else {
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "result" + "0";
+        CloudId = QString::fromStdString(instance->name) + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "result" + "0";
         resultPCID.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<QString>{CloudId}));
     }
     viewer->addPointCloud(cloud_marked, currentColor, CloudId.toStdString());
