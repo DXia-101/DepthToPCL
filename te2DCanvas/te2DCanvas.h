@@ -37,6 +37,7 @@ public slots:
 	void Redo();
 	void Undo();
 	void ClearAll2DCanvasMarks();
+	void ClearAll2DCanvasResult();
 	void setImg(te::Image* img);
 	void ShowDimension(int arg);
 	void ShowResult(int arg);
@@ -47,7 +48,6 @@ signals:
 	void sig_PolygonMarkingCompleted(QList<te::GraphicsItem*> polygonItems);
 	void ReplaceToEraseState();
 	void ReplaceToDrawState();
-	void sig_ClearCurrent2DCanvasMarkers();
 
 private:
 	void InitStateMachine();

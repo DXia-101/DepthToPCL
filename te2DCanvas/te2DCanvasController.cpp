@@ -22,11 +22,11 @@ te2DCanvasController::te2DCanvasController(QObject *parent)
 	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_ShowResult, m_te2DCanvas, &te2DCanvas::ShowResult);
 	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_ShowLocalMask , m_te2DCanvas, &te2DCanvas::ShowLocalMask);
 	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_ShowGlobalMask, m_te2DCanvas, &te2DCanvas::ShowGlobalMask);
-	connect(this, &te2DCanvasController::sig_ClearAll2DCanvasMarks, m_te2DCanvas, &te2DCanvas::ClearAll2DCanvasMarks);
+	connect(this, &te2DCanvasController::sig_ClearAll2DCanvasSymbol, m_te2DCanvas, &te2DCanvas::ClearAll2DCanvasMarks);
+	connect(this, &te2DCanvasController::sig_ClearAll2DCanvasSymbol, m_te2DCanvas, &te2DCanvas::ClearAll2DCanvasResult);
 	connect(this, &te2DCanvasController::sig_StartMarking, m_te2DCanvas, &te2DCanvas::StartMarked);
 	connect(this, &te2DCanvasController::sig_StartMarking, this, &te2DCanvasController::ShowFirstImage);
 	connect(m_te2DCanvas, &te2DCanvas::sig_PolygonMarkingCompleted, this, &te2DCanvasController::add2DAiInstance);
-	connect(m_te2DCanvas, &te2DCanvas::sig_ClearCurrent2DCanvasMarkers, this, &te2DCanvasController::sig_ClearCurrentTrainGT);
 	
 }
 
@@ -92,7 +92,7 @@ void te2DCanvasController::ResetImage()
 		cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
 		cv::Mat heatmap;
 		cv::applyColorMap(median, heatmap, cv::COLORMAP_JET);
-		emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
+		emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasSymbol();
 		te2DCanvasController::getInstance()->setImage(te::Image(heatmap).clone());
 		cv::waitKey(0);
 	}
@@ -136,7 +136,7 @@ void te2DCanvasController::ShowFirstImage()
 	if (image.empty()) {
 		return;
 	}
-	emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
+	emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasSymbol();
 	TeJetColorCode trans;
 	trans.dealWithCvt(image, 0);
 	ShowAllItems();

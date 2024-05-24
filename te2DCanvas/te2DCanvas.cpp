@@ -25,6 +25,12 @@ void te2DCanvas::ClearAll2DCanvasMarks()
     this->itemMgr(0)->clearItems();
 }
 
+void te2DCanvas::ClearAll2DCanvasResult()
+{
+    this->itemMgr(1)->clearItems();
+}
+
+
 void te2DCanvas::setImg(te::Image* img)
 {
     setImage(*img);
@@ -93,14 +99,12 @@ void te2DCanvas::StartMarked()
 void te2DCanvas::Redo()
 {
     itemMgr(0)->redoItems();
-    //emit sig_ClearCurrent2DCanvasMarkers();
     te2DCanvasMarkingCompleted();
 }
 
 void te2DCanvas::Undo()
 {
     itemMgr(0)->undoItems();
-    //emit sig_ClearCurrent2DCanvasMarkers();
     te2DCanvasMarkingCompleted();
 }
 
@@ -205,7 +209,6 @@ void te2DCanvas::DrawGraphics(const QList<QPolygonF>& region)
     else if (EraseState->active()) {
         QList<QPolygonF> contours = polygonItem->polygonList();
         this->itemMgr(0)->eraseItems(contours);
-        emit sig_ClearCurrent2DCanvasMarkers();
     }
     te2DCanvasMarkingCompleted();
 }

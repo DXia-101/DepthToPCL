@@ -20,10 +20,9 @@ public:
 	void ResetImage();
 
 signals:
-	void sig_ClearAll2DCanvasMarks();
+	void sig_ClearAll2DCanvasSymbol();
 	void sig_StartMarking();
 	void sig_currentLabelChange(const QString& category, const QColor& color);
-	void sig_ClearCurrentTrainGT();
 public slots:
 	void hideAllUI();
 	void showAllUI();
