@@ -41,11 +41,11 @@ MainInterface::MainInterface(QWidget *parent)
 
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, teImageBrowserController::getInstance(), &teImageBrowserController::sig_teUpDataSet);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, te2DCanvasController::getInstance(),&te2DCanvasController::sig_StartMarking);
-	
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, te2DCanvasController::getInstance(), &te2DCanvasController::sig_currentLabelChange);
-	connect(te2DCanvasController::getInstance(), &te2DCanvasController::sig_ClearCurrentTrainGT,teDataStorage::getInstance(), &teDataStorage::clearCurrentMarkersGT);
 
-	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_showAll2DItem, te2DCanvasController::getInstance(), &te2DCanvasController::ShowAllItems);
+	connect(m_AiModelController, &AiModelController::sig_TestCompleted, teDataStorage::getInstance(), &teDataStorage::updateResultOperate);
+	connect(m_AiModelController, &AiModelController::sig_TestCompleted, te3DCanvasController::getInstance(), &te3DCanvasController::ShowAllItems);
+	connect(m_AiModelController, &AiModelController::sig_TestCompleted, te2DCanvasController::getInstance(), &te2DCanvasController::ShowAllItems);
 
 	m_SChart = new teTrainStatisticsChart();
 	m_SChart->hide();

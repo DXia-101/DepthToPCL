@@ -116,7 +116,7 @@ void AiModelInterface::InitTestConfig(te::TestParam* para)
 
 void AiModelInterface::StopTrain()
 {
-	//train_.stop();
+	train_.stop();
 }
 
 void AiModelInterface::run()
@@ -269,6 +269,9 @@ void AiModelInterface::testModel(std::vector<te::SampleInfo>& trainSamples)
 
 	status = infer_.setResultCallbackFunc(teAiInferResult);
 
+	if (!teDataStorage::getInstance()->clearAllTestSampleMark())
+		return;
+
 	for (size_t i = 0; i < trainSamples.size(); i++)
 	{
 		std::mutex lock;
@@ -283,34 +286,6 @@ void AiModelInterface::testModel(std::vector<te::SampleInfo>& trainSamples)
 		te::SampleMark samplemark;
 		samplemark.gtDataSet = m_InferResult;
 		teDataStorage::getInstance()->updateResultSampleMark(i, samplemark);
-
-
-	//	cv::Mat image = trainSamples[i].sampleData.imageMatrix[0].getCvMat();
-
-	//	for (int j = 0; j < m_InferResult.size(); j++)
-	//	{
-	//		auto& srcpoly = m_InferResult[j].contour.polygons;
-
-	//		std::vector<std::vector<cv::Point>> polygons;
-
-	//		for (int k = 0; k < srcpoly.size(); k++)
-	//		{
-	//			std::vector<cv::Point> intPoly;
-	//			for (int m = 0; m < srcpoly[k].size(); m++)
-	//			{
-	//				auto pt2f = srcpoly[k][m];
-	//				cv::Point pt2i((int)pt2f.x, (int)pt2f.y);
-	//				intPoly.push_back(pt2i);
-	//			}
-	//			polygons.push_back(intPoly);
-	//		}
-
-	//		//cv::fillPoly(image, polygons, { 0,255,0 });
-	//		cv::polylines(image, polygons, 1, { 0,255,0 });
-	//	}
-	//	cv::imwrite("result.bmp", image);
-	//	cv::imshow("result", image);
-	//	cv::waitKey(0);
 	}
 
 	emit sig_TestingCompleted();

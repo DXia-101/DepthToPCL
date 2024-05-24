@@ -67,7 +67,7 @@ void teDataStorage::displayUIInWidget(QVBoxLayout* layout)
 	m_teLabelBrowser = new teLabelBrowser();
 	layout->addWidget(m_teLabelBrowser);
 	m_teLabelBrowser->show();
-
+	teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
 	connect(m_teLabelBrowser, &teLabelBrowser::sig_currentRowSelected, this, &teDataStorage::currentRowChange);
 }
 
@@ -172,27 +172,9 @@ void teDataStorage::updateResultWidget(QMap<QString, int>& nameCounts)
 	}
 }
 
-void teDataStorage::updateMarkersNumber()
+void teDataStorage::updateResultOperate()
 {
-	for (int row = 0; row < m_teLabelBrowser->LabelWidget->rowCount(); ++row)
-	{
-		QTableWidgetItem* nameItem = m_teLabelBrowser->LabelWidget->item(row, 0);
-		if (nameItem)
-		{
-			QString name = nameItem->text();
-			if (name == currentCategory)
-			{
-				QTableWidgetItem* countItem = m_teLabelBrowser->LabelWidget->item(row, 2);
-				if (!countItem)
-				{
-					countItem = new QTableWidgetItem();
-					m_teLabelBrowser->LabelWidget->setItem(row, 2, countItem);
-				}
-				int count = countItem->data(Qt::DisplayRole).toInt();
-				countItem->setData(Qt::DisplayRole, count + 1);
-			}
-		}
-	}
+	updateTrainWidget(teDataStorage::getInstance()->getCurrentResultMarksNumber());
 }
 
 double teDataStorage::getSelectValidPointThreshold(int index)
@@ -402,6 +384,15 @@ bool teDataStorage::clearCurrentTrainSampleMark()
 	return ResourceTable->updateRecord(currentIndex + 1, { std::pair < te::StdU8String,te::SampleMark>("TrainSampleMark",sampleMark) });
 }
 
+bool teDataStorage::clearAllTestSampleMark()
+{
+	bool ret = true;
+	for (int i = 0; i < currentLoadImageNum; ++i) {
+		ret = ResourceTable->updateRecord(i + 1, { std::pair < te::StdU8String,te::SampleMark>("ResultSampleMark",te::SampleMark()) });
+	}
+	return ret;
+}
+
 bool teDataStorage::updateCurrentResultSampleMark(te::SampleMark& samplemark)
 {
 	return ResourceTable->updateRecord(currentIndex + 1, { std::pair<te::StdU8String,te::SampleMark>("ResultSampleMark",samplemark) });
@@ -532,11 +523,6 @@ void teDataStorage::currentRowChange(const QString& content, const QColor& fontC
 	currentCategory = content;
 	currentColor = fontColor;
 	emit sig_currentLabelChange(content, fontColor);
-}
-
-void teDataStorage::clearCurrentMarkersGT()
-{
-	ResourceTable->updateRecord(currentIndex + 1, { std::pair<te::StdU8String,te::SampleMark>("TrainSampleMark",te::SampleMark()) });
 }
 
 void teDataStorage::setCurrentIndex(int index)

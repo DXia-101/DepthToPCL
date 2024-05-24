@@ -34,13 +34,14 @@ void teLabelBrowser::InitInterface()
 	QStringList headerLabels;
 	headerLabels << u8"类别" << u8"标记" << u8"找到" << u8"匹配";
 	LabelWidget->setHorizontalHeaderLabels(headerLabels);
-	
 
 	LabelWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
 	LabelWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	LabelWidget->verticalHeader()->setVisible(false);
 	LabelWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	LabelWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+	LabelWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);//自适应
+	LabelWidget->setAlternatingRowColors(true);
+	LabelWidget->setPalette(QPalette(Qt::gray));
 	connect(LabelWidget, &QTableWidget::cellDoubleClicked, this, &teLabelBrowser::ColorSelect);
 	connect(LabelWidget, &QTableWidget::itemSelectionChanged, this, &teLabelBrowser::handleSelectionChanged);
 }
@@ -66,14 +67,11 @@ void teLabelBrowser::saveTableWidget()
 
 	for (int row = 0; row < rowCount; ++row)
 	{
-		for (int column = 0; column < columnCount; ++column)
+		QTableWidgetItem* item = LabelWidget->item(row, 0);
+		if (item)
 		{
-			QTableWidgetItem* item = LabelWidget->item(row, column);
-			if (item)
-			{
-				QString data = item->data(Qt::DisplayRole).toString();
-				stream << data << "\t";
-			}
+			QString data = item->data(Qt::DisplayRole).toString();
+			stream << data << "\t";
 		}
 
 		QTableWidgetItem* itemcolor = LabelWidget->item(row, 0);
@@ -127,12 +125,16 @@ void teLabelBrowser::loadTableWidget()
 		int row = LabelWidget->rowCount();
 		LabelWidget->insertRow(row);
 
+		QString data = items[0];
+		QTableWidgetItem* item = new QTableWidgetItem(data);
+		LabelWidget->setItem(row, 0, item);
+
 		int columnCount = items.size();
-		for (int column = 0; column < columnCount-1; ++column)
+		for (int column = 1; column < columnCount-1; ++column)
 		{
 			if (column < LabelWidget->columnCount())
 			{
-				QString data = items[column];
+				QString data = "0";
 				QTableWidgetItem* item = new QTableWidgetItem(data);
 				LabelWidget->setItem(row, column, item);
 			}

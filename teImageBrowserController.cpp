@@ -112,13 +112,10 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
             qDebug() << "Failed to load the TIF image.";
             return;
         }
-
-        emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasMarks();
-
+        emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasSymbol();
         TeJetColorCode trans;
         trans.dealWithCvt(image, pIndex);
-        
-        emit sig_showAll2DItem();
+        te2DCanvasController::getInstance()->ShowAllItems();
     }
 }
 

@@ -34,7 +34,7 @@ private slots:
 	void on_clearDatabaseBtn_clicked();
 	void ChangeBtnTextTo2D();
 	void ChangeBtnTextTo3D();
-
+	
 private:
 	void SetThreshold(QString filePath);
 	

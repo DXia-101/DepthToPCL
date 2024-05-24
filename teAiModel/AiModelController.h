@@ -29,7 +29,7 @@ signals:
 	void sig_TSChartClose();
 	void sig_receptiveFieldChange(int factor);
 	void sig_StopTrain();
-
+	void sig_TestCompleted();
 private:
 	teTrainParameter* m_teTrainPara;
 	teTestParameter* m_teTestPara;

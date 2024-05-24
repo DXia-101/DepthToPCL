@@ -79,12 +79,26 @@ public:
 	bool updateTrainSampleMark(int index,te::SampleMark& samplemark);
 	bool updateResultSampleMark(int index,te::SampleMark& samplemark);
 	bool updateCurrentTrainSampleMark(te::SampleMark& samplemark);
-	bool clearCurrentTrainSampleMark();
 	bool updateCurrentResultSampleMark(te::SampleMark& samplemark);
 	bool updateShrinkageChart(int index,std::string& filepath);
 	bool updatePointCloud(int index,std::string& filepath);
 	bool updateTrainGtFilePath(int index,std::string& filepath);
 	bool updateResultGtFilePath(int index,std::string& filepath);
+
+	/// <summary>
+	/// 更新标记浏览器中标记的数目
+	/// </summary>
+	/// <param name="nameCounts">各标记的数目</param>
+	void updateTrainWidget(QMap<QString, int>& nameCounts);
+	/// <summary>
+	/// 更新标记浏览器中测试标的数目
+	/// </summary>
+	/// <param name="nameCounts">各测试标的数目</param>
+	void updateResultWidget(QMap<QString, int>& nameCounts);
+
+
+	bool clearCurrentTrainSampleMark();
+	bool clearAllTestSampleMark();
 
 	bool DeleteCurrentPointCloudAndThumbnail();
 
@@ -102,6 +116,7 @@ public:
 	QColor FindContentColor(const QString& searchString);
 
 	void InitThreasholds(int size);
+
 	void InvalidPointThresholdsChange(double threshold);
 	void InvalidPointThresholdChange(double threshold);
 	double getSelectInvalidPointThreshold(int index);
@@ -111,10 +126,6 @@ public:
 	void ValidPointThresholdChange(double threshold);
 	double getSelectValidPointThreshold(int index);
 	double getCurrentValidPointThreshold();
-	
-	void updateTrainWidget(QMap<QString, int>& nameCounts);
-	void updateResultWidget(QMap<QString, int>& nameCounts);
-	void updateMarkersNumber();
 private:
 	std::string getSelectResultFormResourceTable(int index, std::string keyword);
 	std::vector<std::string> getResultFromResourceTable(std::string keyword);
@@ -126,8 +137,7 @@ public slots:
 	void setCurrentLoadImageNum(int num);
 	void LoadTrainingImages(const QStringList& filePaths);
 	void currentRowChange(const QString& content, const QColor& fontColor);
-	void clearCurrentMarkersGT();
-
+	void updateResultOperate();
 signals:
 	void sig_teUpDataSet(int iNum, int iLayerNum, bool bReset);
 	void sig_LoadTrainImagesComplete();

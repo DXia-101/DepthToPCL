@@ -262,10 +262,10 @@ void te3DCanvas::PolygonSelect(void* viewer_void)
         canvas->markerPCID.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<QString>{CloudId}));
     }
     //pcl::transformPointCloud(*canvas->cloud_cliped, *canvas->cloud_cliped, transform);
-    teDataStorage::getInstance()->updateMarkersNumber();
     canvas->viewer->addPointCloud(canvas->cloud_cliped, currentColor, CloudId.toStdString());
     emit canvas->sig_3DCanvasMarkingCompleted(canvas->cloud_cliped);
     canvas->m_renderWindow->Render();
+    teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
 }
 
 bool te3DCanvas::LoadPointCloud(QString fileName)
@@ -474,7 +474,8 @@ void te3DCanvas::MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
     QString CloudId;
     auto it = markerPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != markerPCID.end()) {
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "marker" + QString::number(it->second.size());
+        QString count = incrementNumber(it->second.back());
+        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "marker" + count;
         it->second.push_back(CloudId);
     }
     else {
@@ -505,7 +506,8 @@ void te3DCanvas::ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
     QString CloudId;
     auto it = resultPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != resultPCID.end()) {
-        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "result" + QString::number(it->second.size());
+        QString count = incrementNumber(it->second.back());
+        CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + "result" + count;
         it->second.push_back(CloudId);
     }
     else {

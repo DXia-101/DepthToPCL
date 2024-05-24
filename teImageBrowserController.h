@@ -28,7 +28,6 @@ private:
 	teImageBrowserWorkThread* worker;
 
 signals:
-	void sig_showAll2DItem();
 	void sig_ChangeCurrentState();
 	void sig_teUpDataSet(int iNum, int iLayerNum, bool bReset);
 	void sig_GenerateCurrentData();
