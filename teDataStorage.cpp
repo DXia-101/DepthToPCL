@@ -1,6 +1,7 @@
 #include "teDataStorage.h"
 #include <QFile>
 #include <QDir>
+#include <QDebug>
 
 teDataStorage::Garbo teDataStorage::tmp;
 

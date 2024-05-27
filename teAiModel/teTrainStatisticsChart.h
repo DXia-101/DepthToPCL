@@ -2,14 +2,16 @@
 
 #include <QWidget>
 #include <QCloseEvent>
+#include <QMouseEvent>
 #include "ui_teTrainStatisticsChart.h"
-#include "qcustomplot.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class teTrainStatisticsChartClass; };
 QT_END_NAMESPACE
 
 class QStatusBar;
+class QCustomPlot;
 
 class teTrainStatisticsChart : public QWidget
 {
@@ -38,7 +40,8 @@ protected:
 
 	void Show_Plot(QCustomPlot* customPlot, int iterationNum, float fAvgLossNum, float fPosAccNum);
 	void closeEvent(QCloseEvent* event) override;
-
+	void handlePositionToolTip(QMouseEvent* event);
+	bool eventFilter(QObject* watched, QEvent* event);
 signals:
 	void sig_closeteTrainStatisticsChart();
 

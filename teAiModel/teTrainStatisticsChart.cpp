@@ -1,6 +1,9 @@
 #include "teTrainStatisticsChart.h"
+
 #include <QStatusBar>
 #include <QTimer>
+#include <qcustomplot.h>
+#include <QToolTip>
 
 teTrainStatisticsChart::teTrainStatisticsChart(QWidget *parent)
 	: QWidget(parent)
@@ -10,6 +13,7 @@ teTrainStatisticsChart::teTrainStatisticsChart(QWidget *parent)
     customPlot = ui->ChartDisplayWidget;
     customBar = new QStatusBar();
     ui->statusLayout->addWidget(customBar);
+    customPlot->installEventFilter(this);
     
     QPlot_init(customPlot);
 
@@ -141,4 +145,85 @@ void teTrainStatisticsChart::closeEvent(QCloseEvent* event)
 {
     emit sig_closeteTrainStatisticsChart();
     event->accept();
+}
+
+void teTrainStatisticsChart::handlePositionToolTip(QMouseEvent* event)
+{
+    double dValueX = customPlot->xAxis->pixelToCoord(event->pos().x());
+    double dValueY = customPlot->yAxis->pixelToCoord(event->pos().y());
+
+    if (dValueX < customPlot->xAxis->range().lower || dValueX > customPlot->xAxis->range().upper
+        || dValueY < customPlot->yAxis->range().lower || dValueY > customPlot->yAxis->range().upper)
+        return;
+
+    double dRatioX = customPlot->xAxis->axisRect()->width() / (customPlot->xAxis->range().upper - customPlot->xAxis->range().lower);
+    double dRatioY = customPlot->yAxis->axisRect()->height() / (customPlot->yAxis->range().upper - customPlot->yAxis->range().lower);
+
+    for (QCPGraph* Graph : { iteration ,fAvgLoss ,fPosAcc })
+    {
+        if (!Graph->visible())
+            continue;
+
+        QSharedPointer<QCPGraphDataContainer> dataContainer = Graph->data();
+        if (dataContainer->at(dataContainer->size() - 1)->key < ((double)(2.0 / dRatioX) + dValueX))
+            continue;
+
+        QVector<double> vecValue;
+        QVector<double> vecKey;
+        //找到符合条件的x范围内的点（相差2个像素点以内）
+        int iIndex1 = Graph->findBegin(dValueX - (double)(2.0 / dRatioX));
+        int iIndex2 = Graph->findEnd((double)(2.0 / dRatioX) + dValueX);
+        for (int k = iIndex1; k <= iIndex2; k++)
+        {
+            vecKey.push_back(dataContainer->at(k)->key);
+            vecValue.push_back(dataContainer->at(k)->value);
+        }
+
+        double dFinalY = 0;
+        double dFinalX = 0;
+        double dy = qAbs(dValueY);
+        bool bExist = false;
+        for (int k = 0; k < vecValue.count(); k++)
+        {
+            if (qAbs(vecValue.at(k) - dValueY) * dRatioY > 2)
+                continue;
+
+            if (qAbs(vecValue.at(k) - dValueY) < dy)
+            {
+                dy = qAbs(vecValue.at(k) - dValueY);
+                dFinalY = vecValue.at(k);
+                dFinalX = vecKey.at(k);
+                bExist = true;
+            }
+        }
+        QString GraphName;
+        if (Graph == iteration)
+            GraphName = "iteration";
+        if (Graph == fAvgLoss)
+            GraphName = "fAvgLoss";
+        if (Graph == fPosAcc)
+            GraphName = "fPosAcc";
+        if (bExist)
+        {
+            QString strToolTip = QString("%1\nx=%2\ny=%3").arg(GraphName).arg(dFinalX).arg(dFinalY);
+            QToolTip::showText(cursor().pos(), strToolTip, customPlot);
+            return;
+        }
+    }
+
+    if (QToolTip::isVisible())
+        QToolTip::hideText();
+}
+
+bool teTrainStatisticsChart::eventFilter(QObject* watched, QEvent* event)
+{
+    if (watched == customPlot)
+    {
+        if (event->type() == QEvent::MouseMove)
+        {
+            QMouseEvent* pMouseEvent = (QMouseEvent*)event;
+            handlePositionToolTip(pMouseEvent);
+        }
+    }
+    return QWidget::eventFilter(watched, event);
 }
