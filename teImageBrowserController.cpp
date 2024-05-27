@@ -100,11 +100,39 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
     teDataStorage::getInstance()->updateResultWidget(teDataStorage::getInstance()->getCurrentResultMarksNumber());
     //mei ci tianjia tianjia biaoqian
     if (CurrentState == ThrD) {
+#ifdef _Reckon_by_Time_
+        timer.start();
+#endif
+
         te3DCanvasController::getInstance()->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
+#ifdef _Reckon_by_Time_
+        qint64 elapsed1 = timer.elapsed();
+        qDebug() << "LoadPointCloud took " << static_cast<double>(elapsed1) / 1000.0 << " seconds";
+#endif
+
         te3DCanvasController::getInstance()->ShowAllItems();
-        te3DCanvasController::getInstance()->MaintainCoordinateAxis();
+#ifdef _Reckon_by_Time_
+        qint64 elapsed2 = timer.elapsed() - elapsed1;
+        qDebug() << "ShowAllItems took " << static_cast<double>(elapsed2) / 1000.0 << " seconds";
+#endif
+//
+//        te3DCanvasController::getInstance()->MaintainCoordinateAxis();
+//#ifdef _Reckon_by_Time_
+//        qint64 elapsed3 = timer.elapsed() - elapsed2;
+//        qDebug() << "Render to Coordinate took " << static_cast<double>(elapsed3) / 1000.0 << " seconds";
+//#endif
+
         emit te3DCanvasController::getInstance()->sig_HeightTransform();
-        te3DCanvasController::getInstance()->SetCentroid();
+#ifdef _Reckon_by_Time_
+        qint64 elapsed3 = timer.elapsed() - elapsed2;
+        qDebug() << "HeightTransform took " << static_cast<double>(elapsed3) / 1000.0 << " seconds";
+#endif
+
+//        te3DCanvasController::getInstance()->SetCentroid();
+//#ifdef _Reckon_by_Time_
+//        qint64 elapsed4 = timer.elapsed() - elapsed3;
+//        qDebug() << "SetCentroid took " << static_cast<double>(elapsed4) / 1000.0 << " seconds";
+//#endif
     }
     else if (CurrentState == TwoD) {
         cv::Mat image = cv::imread(teDataStorage::getInstance()->getOriginImage()[pIndex], cv::IMREAD_UNCHANGED);

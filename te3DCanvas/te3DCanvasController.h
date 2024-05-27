@@ -44,7 +44,6 @@ public slots:
 	void SaveAxis(QString axis);
 	void MaintainCoordinateAxis();
 	void LoadPointCloud(QString fileName);
-	void ReRenderOriginCloud();
 	void CurrentLabelChange(const QString& category, const QColor& color);
 	void SetCentroid();
 
@@ -59,7 +58,6 @@ signals:
 	void sig_DirectFilter(QString data1, QString data2, QString data3, QString data4);
 	void sig_LabelChanged(const QString& content, const QColor& fontColor);
 
-	void sig_DisonnectHeightTransform();
 	void sig_MaintainCoordinateAxis();
 	void sig_setHeightCoefficientFactor(int factor);
 	void sig_HeightTransform();

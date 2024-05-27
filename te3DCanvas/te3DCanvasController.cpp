@@ -18,11 +18,11 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	m_te3DCanvas = new te3DCanvas();
 	m_te3DCanvasMenu = new te3DCanvasMenu();
 	m_te3DCanvasToolBar = new te3DCanvasToolBar();
-	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, m_te3DCanvas, &te3DCanvas::PointCloudHeightTransform);
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, m_te3DCanvas, &te3DCanvas::HeightTransform);
 	connect(this, &te3DCanvasController::sig_HeightTransform, m_te3DCanvasMenu, &te3DCanvasMenu::on_ConfirmTransformationBtn_clicked);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, this, &te3DCanvasController::SaveHeightTransFromFactor);
-	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_DisconnectHeightTransForm, this, &te3DCanvasController::sig_DisonnectHeightTransform);
-	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_DisconnectHeightTransForm, m_te3DCanvas, &te3DCanvas::ReductionPointCloud);
+
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_ReloadPointCloud, m_te3DCanvas, &te3DCanvas::ReductionPointCloud);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToXaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToXaxis);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToYaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToYaxis);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToZaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToZaxis);
@@ -44,7 +44,7 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	connect(this, &te3DCanvasController::sig_CoordinateAxis, m_te3DCanvas, &te3DCanvas::CoordinateAxisRendering);
 	
 	connect(m_te3DCanvas, &te3DCanvas::sig_3DCanvasMarkingCompleted, this, &te3DCanvasController::add3DAiInstance);	
-	connect(m_te3DCanvas, &te3DCanvas::sig_CanvasreRender, this, &te3DCanvasController::ShowAllItems);	
+	connect(m_te3DCanvas, &te3DCanvas::sig_ShowAllItems, this, &te3DCanvasController::ShowAllItems);	
 }
 
 te3DCanvasController::~te3DCanvasController()
@@ -116,10 +116,12 @@ void te3DCanvasController::showAllUI()
 	m_te3DCanvasMenu->show();
 	m_te3DCanvas->show();
 	m_te3DCanvas->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
+	m_te3DCanvas->SetCoordinateSet();
 	MaintainCoordinateAxis();
 	emit sig_HeightTransform();
 	m_te3DCanvas->setRotationCenter();
 	ShowAllItems();
+	m_te3DCanvas->AutomaticallyAdjustCamera();
 }
 
 void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
@@ -161,7 +163,7 @@ void te3DCanvasController::ShowAllItems()
 
 void te3DCanvasController::HegithTransForm()
 {
-	m_te3DCanvas->PointCloudHeightTransform(hegithTransFactor);
+	m_te3DCanvas->HeightTransform(hegithTransFactor);
 }
 
 void te3DCanvasController::SaveHeightTransFromFactor(int factor)
@@ -184,14 +186,11 @@ void te3DCanvasController::MaintainCoordinateAxis()
 void te3DCanvasController::LoadPointCloud(QString fileName)
 {
 	m_te3DCanvas->LoadPointCloud(fileName);
+	m_te3DCanvas->SetCoordinateSet();
 	MaintainCoordinateAxis();
 	m_te3DCanvas->reRenderOriginCloud(ReSetCamera);
-	m_te3DCanvas->setRotationCenter();
-}
-
-void te3DCanvasController::ReRenderOriginCloud()
-{
-	m_te3DCanvas->reRenderOriginCloud(ReSetCamera);
+	emit m_te3DCanvas->sig_ShowAllItems();
+	//m_te3DCanvas->setRotationCenter();
 }
 
 void te3DCanvasController::CurrentLabelChange(const QString& category, const QColor& color)

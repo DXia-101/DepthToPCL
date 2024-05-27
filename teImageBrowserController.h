@@ -5,6 +5,12 @@
 #include "teImageBrowserWorkThread.h"
 #include <QThread>
 
+#define _Reckon_by_Time_
+
+#ifdef _Reckon_by_Time_
+#include <QElapsedTimer>
+#endif
+
 class QVBoxLayout;
 class QThread;
 class teImageBrowserController  : public QObject
@@ -34,6 +40,10 @@ signals:
 
 private:
 	bool CurrentState;
+
+#ifdef _Reckon_by_Time_
+	QElapsedTimer timer;
+#endif
 
 private:
 	static teImageBrowserController* instance;

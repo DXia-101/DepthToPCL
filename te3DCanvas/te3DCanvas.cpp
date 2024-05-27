@@ -267,6 +267,7 @@ void te3DCanvas::PolygonSelect(void* viewer_void)
     emit canvas->sig_3DCanvasMarkingCompleted(canvas->cloud_cliped);
     canvas->m_renderWindow->Render();
     teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
+    canvas->viewer->removeAllShapes();
 }
 
 bool te3DCanvas::LoadPointCloud(QString fileName)
@@ -290,7 +291,7 @@ bool te3DCanvas::LoadPointCloud(QString fileName)
         QMessageBox::warning(this, "Warning", u8"点云读取格式错误！");
     }
 
-    SetCoordinateSet();
+    //SetCoordinateSet();
 }
 
 bool te3DCanvas::SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZRGB>::Ptr saveCloud)
@@ -367,6 +368,7 @@ void te3DCanvas::ReductionPointCloud()
 {
     LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
     reRenderOriginCloud(ReSetCamera);
+    emit sig_ShowAllItems();
 }
 
 bool te3DCanvas::SetBackgroundColor(QColor color)
@@ -523,20 +525,12 @@ void te3DCanvas::ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
 void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin,ReRenderMode mode)
 {
     viewer->removeAllPointClouds();
-    viewer->removeAllShapes();
     
     viewer->addPointCloud<pcl::PointXYZRGB>(cloudin, "cloud");
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
-    if (mode == ReSetCamera) {
-        // 计算点云中心位置和对角线长度
-        Eigen::Vector3f center((axisset.maxPt.x + axisset.minPt.x) / 2, (axisset.maxPt.y + axisset.minPt.y) / 2, (axisset.maxPt.z + axisset.minPt.z) / 2);
-        Eigen::Vector3f diff = axisset.maxPt.getVector3fMap() - axisset.minPt.getVector3fMap();
-        float distance = diff.norm();
+    if (mode == ReSetCamera)
+        AutomaticallyAdjustCamera();
 
-        viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), center(1), center(2), 0, 0, 0); //耗时最多 2秒多
-    }
-
-    //viewer->spinOnce();
     m_renderWindow->Render();
     setRotationCenter();
 
@@ -545,7 +539,6 @@ void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin,ReRe
 #endif
     
     SetCoordinateSet();
-    emit sig_CanvasreRender();
 }
 
 AxisSet te3DCanvas::getAxisSet()
@@ -816,12 +809,16 @@ void te3DCanvas::LabelChanged(const QString& content, const QColor& fontColor)
     currentColor = fontColor;
 }
 
-void te3DCanvas::PointCloudHeightTransform(int factor)
+void te3DCanvas::HeightTransform(int factor)
 {
     for (auto& point : cloud->points) {
         point.z = point.z * factor;
     }
-    reRenderOriginCloud(ReSetCamera);
+    viewer->updatePointCloud(cloud, "cloud");
+    m_renderWindow->Render();
+
+    SetCoordinateSet();
+    emit sig_ShowAllItems();
 }
 
 void te3DCanvas::te3DCanvasStartMarking()
@@ -864,4 +861,14 @@ void te3DCanvas::setRotationCenter()
 #ifdef _Interactor_
     m_CustomInteractor->setRotationCenter(getCloudCentroid()[0], getCloudCentroid()[1], getCloudCentroid()[2]);
 #endif
+}
+
+void te3DCanvas::AutomaticallyAdjustCamera()
+{
+    // 计算点云中心位置和对角线长度
+    Eigen::Vector3f center((axisset.maxPt.x + axisset.minPt.x) / 2, (axisset.maxPt.y + axisset.minPt.y) / 2, (axisset.maxPt.z + axisset.minPt.z) / 2);
+    Eigen::Vector3f diff = axisset.maxPt.getVector3fMap() - axisset.minPt.getVector3fMap();
+    float distance = diff.norm();
+
+    viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), center(1), center(2), 0, 0, 0); //耗时最多 2秒多
 }

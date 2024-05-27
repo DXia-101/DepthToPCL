@@ -22,17 +22,20 @@ bool te3DCanvasMenu::isResultShow()
 	return ui->showRSTcheckBox->isChecked();
 }
 
+int te3DCanvasMenu::getHeightFactor()
+{
+	return this->factor;
+}
+
 void te3DCanvasMenu::on_ConfirmTransformationBtn_clicked()
 {
-	int factor = ui->HeightCoefficientSpinBox->value();
-	emit sig_HeightTransform(factor);
-	emit sig_ConnectHeightTransForm();
-//	emit sig_CoordinateAxisRender();
+	this->factor = ui->HeightCoefficientSpinBox->value();
+	emit sig_HeightTransform(this->factor);
 }
 
 void te3DCanvasMenu::on_reductionBtn_clicked()
 {
-	emit sig_DisconnectHeightTransForm();
+	emit sig_ReloadPointCloud();
 }
 
 void te3DCanvasMenu::on_ViewYBtn_clicked()
@@ -75,5 +78,6 @@ void te3DCanvasMenu::on_showRSTcheckBox_stateChanged(int arg)
 
 void te3DCanvasMenu::setHeightCoefficientFactor(int factor)
 {
-	ui->HeightCoefficientSpinBox->setValue(factor);
+	this->factor = factor;
+	ui->HeightCoefficientSpinBox->setValue(this->factor);
 }

@@ -18,7 +18,7 @@ public:
 public:
 	bool isDimensionShow();
 	bool isResultShow();
-
+	int getHeightFactor();
 public slots:
 	void on_ConfirmTransformationBtn_clicked();
 	void on_reductionBtn_clicked();
@@ -41,9 +41,9 @@ signals:
 	void sig_StartMarking();
 	void sig_GtCheckStateChanged(int arg);
 	void sig_RSTCheckStateChanged(int arg);
-	void sig_ConnectHeightTransForm();
-	void sig_DisconnectHeightTransForm();
+	void sig_ReloadPointCloud();
 	void sig_CoordinateAxisRender();
 private:
 	Ui::te3DCanvasMenuClass *ui;
+	int factor;
 };

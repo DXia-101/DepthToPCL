@@ -34,6 +34,7 @@ public:
     vtkSmartPointer<vtkRenderer> getvtkRenderer();
 
     void setRotationCenter();
+    void AutomaticallyAdjustCamera();
 public:
     void MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
     void ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
@@ -47,9 +48,8 @@ protected:
     static void PolygonSelect(void* viewer_void);
 
     void subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud2);
-
-    void SetCoordinateSet();
     void VTKCoordinateAxis();
+
 public slots:
     bool SetBackgroundColor(QColor color);
     bool CoordinateAxisRendering(QString curaxis);
@@ -63,7 +63,7 @@ public slots:
     void DirectFilter(QString data1, QString data2, QString data3, QString data4);
     void LabelChanged(const QString& content, const QColor& fontColor);
 
-    void PointCloudHeightTransform(int factor);
+    void HeightTransform(int factor);
     void te3DCanvasStartMarking();
 
     bool LoadPointCloud(QString fileName);
@@ -74,10 +74,12 @@ public slots:
     void ShowDimension(int arg);
     void ShowResult(int arg);
     void ReductionPointCloud();
+
+    void SetCoordinateSet();
 signals:
     void sig_3DCanvasMarkingCompleted(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
     void CloudChanged();
-    void sig_CanvasreRender();
+    void sig_ShowAllItems();
 
 private:
     
