@@ -427,6 +427,7 @@ bool te3DCanvas::CoordinateAxisRendering(QString curaxis)
     cloud->clear();
     pcl::copyPointCloud(*cloud_Elevation_rendering, *cloud);
     viewer->updatePointCloud(cloud, "cloud");
+    AutomaticallyAdjustCamera();
     m_renderWindow->Render();
     return true;
 }
@@ -527,7 +528,7 @@ void te3DCanvas::reRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin,ReRe
     viewer->removeAllPointClouds();
     
     viewer->addPointCloud<pcl::PointXYZRGB>(cloudin, "cloud");
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 0.01, "cloud");
     if (mode == ReSetCamera)
         AutomaticallyAdjustCamera();
 
@@ -814,11 +815,7 @@ void te3DCanvas::HeightTransform(int factor)
     for (auto& point : cloud->points) {
         point.z = point.z * factor;
     }
-    viewer->updatePointCloud(cloud, "cloud");
-    m_renderWindow->Render();
-
-    SetCoordinateSet();
-    emit sig_ShowAllItems();
+    reRenderOriginCloud(ReSetCamera);
 }
 
 void te3DCanvas::te3DCanvasStartMarking()

@@ -61,7 +61,7 @@ MainInterface::MainInterface(QWidget *parent)
 
 MainInterface::~MainInterface()
 {
-	ClearAllCaches();
+	
 	delete ui;
 }
 
@@ -166,6 +166,7 @@ void MainInterface::on_ThresholdBtn_clicked()
 void MainInterface::on_clearDatabaseBtn_clicked()
 {
 	teDataStorage::getInstance()->DropAllTables();
+	ClearAllCaches();
 }
 
 void MainInterface::ChangeBtnTextTo2D()
