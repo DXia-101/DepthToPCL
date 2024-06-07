@@ -11,10 +11,6 @@ public:
 	vtkTypeMacro(CustomInteractorStyle, vtkInteractorStyleTrackballCamera);
 
 	void setRenderWindow(vtkRenderWindow* window, vtkSmartPointer<vtkRenderer> render, vtkSmartPointer<vtkAxesActor> axes);
-	//virtual void OnMouseWheelForward()override;
-	//virtual void OnMouseWheelBackward()override;
-	//virtual void OnMiddleButtonDown()override;
-	//virtual void OnMiddleButtonUp()override;
 
 	std::vector<double>& getXActor();
 	std::vector<double>& getYActor();

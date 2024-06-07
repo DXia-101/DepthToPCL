@@ -40,7 +40,6 @@ te3DCanvas::~te3DCanvas()
 void te3DCanvas::PCL_Initalization()
 {
     cloud = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
-    cloud_polygon = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
     cloud_cliped = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
     cloud_Filter_out = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
     cloud_marked = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
@@ -71,51 +70,12 @@ void te3DCanvas::mousePressEvent(QMouseEvent* event)
     if (event->button() == Qt::LeftButton)
     {
         if (m_member.isPickingMode) {
-            double world_point[3];
-            double displayPos[2];
-            displayPos[0] = double(event->pos().x()), displayPos[1] = double(this->height() - event->pos().y() - 1);
-            getScreentPos(displayPos, world_point, this);
-
-            curP = pcl::PointXYZRGB(world_point[0], world_point[1], world_point[2],255,255,255);
-            if (!m_member.flag)m_member.flag = true;
-            else {
-                char str1[512];
-                sprintf(str1, "line#%03d", m_member.line_id++);
-                viewer->addLine(lastP, curP, str1);
-            }
-            lastP = curP;
-            cloud_polygon->push_back(curP);
+            std::vector<double> displayPos(3);
+            displayPos[0] = double(event->pos().x());
+            displayPos[1] = double(this->height() - event->pos().y() - 1);
+            displayPos[2] = 0;
+            MarkerPointSet.push_back(displayPos);
         }
-    }
-}
-
-/**
- * @brief getScreentPos     屏幕坐标转换至世界坐标
- * @param displayPos        输入：屏幕坐标
- * @param world             输出：世界坐标
- * @param viewer_void       输入：pclViewer
- */
-void te3DCanvas::getScreentPos(double* displayPos, double* world, void* viewer_void)
-{
-    te3DCanvas* canvas = static_cast<te3DCanvas*> (viewer_void);
-    vtkRenderer* renderer{ canvas->viewer->getRendererCollection()->GetFirstRenderer() };
-    double fp[4], tmp1[4], eventFPpos[4];
-    renderer->GetActiveCamera()->GetFocalPoint(fp);
-    fp[3] = 0.0;
-    renderer->SetWorldPoint(fp);
-    renderer->WorldToDisplay();
-    renderer->GetDisplayPoint(tmp1);
-
-    tmp1[0] = displayPos[0];
-    tmp1[1] = displayPos[1];
-
-    renderer->SetDisplayPoint(tmp1);
-    renderer->DisplayToWorld();
-
-    renderer->GetWorldPoint(eventFPpos);
-    for (int i = 0; i < 3; i++)
-    {
-        world[i] = eventFPpos[i];
     }
 }
 
@@ -146,128 +106,56 @@ int te3DCanvas::inOrNot1(int poly_sides, double* poly_X, double* poly_Y, double 
 /// <summary>
 /// 不规则框选
 /// </summary>
-/// <param name="viewer_void"></param>
-void te3DCanvas::PolygonSelect(void* viewer_void)
+void te3DCanvas::PolygonSelect()
 {
-    te3DCanvas* canvas = static_cast<te3DCanvas*> (viewer_void);
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudIn_Prj(new pcl::PointCloud<pcl::PointXYZRGB>);//输入的点云
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudCiecle_result(new pcl::PointCloud<pcl::PointXYZRGB>);//绘制的线
-#ifdef _Interactor_
-    double A = canvas->m_CustomInteractor->getXActor()[1] * canvas->m_CustomInteractor->getYActor()[2] - canvas->m_CustomInteractor->getXActor()[2] * canvas->m_CustomInteractor->getYActor()[1];
-    double B = canvas->m_CustomInteractor->getXActor()[2] * canvas->m_CustomInteractor->getYActor()[0] - canvas->m_CustomInteractor->getXActor()[0] * canvas->m_CustomInteractor->getYActor()[2];
-    double C = canvas->m_CustomInteractor->getXActor()[0] * canvas->m_CustomInteractor->getYActor()[1] - canvas->m_CustomInteractor->getXActor()[1] * canvas->m_CustomInteractor->getYActor()[0];
+    double* FBRange = m_renderer->GetActiveCamera()->GetClippingRange();
 
-    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
-    coefficients->values.resize(4);
-    coefficients->values[0] = A;
-    coefficients->values[1] = B;
-    coefficients->values[2] = C;
-    coefficients->values[3] = 0;
-
-    pcl::ProjectInliers<pcl::PointXYZRGB> projCloudIn;
-    projCloudIn.setModelType(pcl::SACMODEL_PLANE);
-    projCloudIn.setInputCloud(canvas->cloud);
-    projCloudIn.setModelCoefficients(coefficients);
-    projCloudIn.filter(*cloudIn_Prj);
-
-    vtkSmartPointer<vtkMatrix4x4> vtk_matrix = canvas->m_CustomInteractor->m_pRotationTransform->GetMatrix();
-    Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
-    for (int i = 0; i < 4; i++)
+    double* PloyXarr = new double[MarkerPointSet.size()];
+    double* PloyYarr = new double[MarkerPointSet.size()];
+    for (int i = 0; i < MarkerPointSet.size(); ++i)
     {
-        for (int j = 0; j < 4; j++)
+        PloyXarr[i] = MarkerPointSet[i][0];
+        PloyYarr[i] = MarkerPointSet[i][1];
+    }
+    const auto& mat = m_renderer->GetActiveCamera()->GetCompositeProjectionTransformMatrix(m_renderer->GetTiledAspectRatio(), FBRange[0], FBRange[1]);
+    const auto& transmat = m_CustomInteractor->m_pRotationTransform->GetMatrix();
+
+    cloud_cliped->clear();
+    for (int i = 0; i < cloud->points.size(); ++i)
+    {
+        pcl::PointXYZRGB P3D = cloud->points.at(i);
+        double P2D[2];
+        WorldToScreen(&P3D, transmat, mat, P2D);
+        if (inOrNot1(MarkerPointSet.size(), PloyXarr, PloyYarr, P2D[0], P2D[1]))
         {
-            transform(i, j) = static_cast<float>(vtk_matrix->GetElement(i, j));
+            cloud_cliped->points.push_back(cloud->points.at(i));
         }
     }
-    pcl::transformPointCloud(*cloudIn_Prj, *cloudIn_Prj, transform);
-#else
-    double focal[3] = { 0 }; double pos[3] = { 0 };
-    vtkRenderer* renderer{ canvas->viewer->getRendererCollection()->GetFirstRenderer() };
-    renderer->GetActiveCamera()->GetFocalPoint(focal);
-    renderer->GetActiveCamera()->GetPosition(pos);
-    pcl::PointXYZ eyeLine1 = pcl::PointXYZ(focal[0] - pos[0], focal[1] - pos[1], focal[2] - pos[2]);
-    float mochang = sqrt(pow(eyeLine1.x, 2) + pow(eyeLine1.y, 2) + pow(eyeLine1.z, 2));
-    pcl::PointXYZ eyeLine = pcl::PointXYZ(eyeLine1.x / mochang, eyeLine1.y / mochang, eyeLine1.z / mochang);
-    
-    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
-    coefficients->values.resize(4);
-    coefficients->values[0] = eyeLine.x;
-    coefficients->values[1] = eyeLine.y;
-    coefficients->values[2] = eyeLine.z;
-    coefficients->values[3] = 0;
-#endif
-    double focal[3] = { 0 }; double pos[3] = { 0 };
-    vtkRenderer* renderer{ canvas->viewer->getRendererCollection()->GetFirstRenderer() };
-    renderer->GetActiveCamera()->GetFocalPoint(focal);
-    renderer->GetActiveCamera()->GetPosition(pos);
-    pcl::PointXYZ eyeLine1 = pcl::PointXYZ(focal[0] - pos[0], focal[1] - pos[1], focal[2] - pos[2]);
-    float mochang = sqrt(pow(eyeLine1.x, 2) + pow(eyeLine1.y, 2) + pow(eyeLine1.z, 2));
-    pcl::PointXYZ eyeLine = pcl::PointXYZ(eyeLine1.x / mochang, eyeLine1.y / mochang, eyeLine1.z / mochang);
 
-    pcl::ModelCoefficients::Ptr coefficients_r(new pcl::ModelCoefficients());
-    coefficients_r->values.resize(4);
-    coefficients_r->values[0] = eyeLine.x;
-    coefficients_r->values[1] = eyeLine.y;
-    coefficients_r->values[2] = eyeLine.z;
-    coefficients_r->values[3] = 0;
-
-    pcl::ProjectInliers<pcl::PointXYZRGB> proj;
-    proj.setModelType(pcl::SACMODEL_PLANE);
-    proj.setInputCloud(canvas->cloud_polygon);
-    proj.setModelCoefficients(coefficients_r);
-    proj.filter(*cloudCiecle_result);
-
-    //canvas->viewer->addPointCloud(cloudCiecle_result, "cloudCiecle_result");
-    //canvas->viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 0, 1, 0, "cloudCiecle_result");
-    //canvas->viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 40, "cloudCiecle_result");
-    //canvas->viewer->addPointCloud(cloudIn_Prj, "cloudIn_Prj");
-    //canvas->viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1, 0, 0, "cloudIn_Prj");
-    //canvas->viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 8, "cloudIn_Prj");
-    //canvas->viewer->getRenderWindow()->Render();
-
-    double* PloyXarr = new double[cloudCiecle_result->points.size()];
-    double* PloyYarr = new double[cloudCiecle_result->points.size()];
-    for (int i = 0; i < cloudCiecle_result->points.size(); ++i)
-    {
-        PloyXarr[i] = cloudCiecle_result->points[i].x;
-        PloyYarr[i] = cloudCiecle_result->points[i].y;
-    }
-
-    canvas->cloud_cliped->clear();
-    int ret = -1;
-    for (int i = 0; i < cloudIn_Prj->points.size(); i++)
-    {
-        ret = inOrNot1(canvas->cloud_polygon->points.size(), PloyXarr, PloyYarr, cloudIn_Prj->points[i].x, cloudIn_Prj->points[i].y);
-        if (1 == ret)//表示在里面
-        {
-            canvas->cloud_cliped->points.push_back(canvas->cloud->points[i]);
-        }//表示在外面
-    }
-    //canvas->viewer->removeAllPointClouds();
-    //canvas->cloud->clear();
-    //pcl::copyPointCloud(*canvas->cloud_cliped, *canvas->cloud);
-    //canvas->viewer->addPointCloud(canvas->cloud, "cloud");
-    //canvas->viewer->getRenderWindow()->Render();
-
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> currentColor(canvas->currentColor.red(), canvas->currentColor.green(), canvas->currentColor.blue());
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> currentColor(currentColor.red(), currentColor.green(), currentColor.blue());
     QString CloudId;
     QString test = teDataStorage::getInstance()->getCurrentLabelCategory();
-    auto it = canvas->markerPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
-    if (it != canvas->markerPCID.end()) {
+    auto it = markerPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
+    if (it != markerPCID.end()) {
         QString count = incrementNumber(it->second.back());
         CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "marker" + count;
         it->second.push_back(CloudId);
     }
     else {
         CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "marker" + "0";
-        canvas->markerPCID.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<QString>{CloudId}));
+        markerPCID.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<QString>{CloudId}));
     }
-    //pcl::transformPointCloud(*canvas->cloud_cliped, *canvas->cloud_cliped, transform);
-    canvas->viewer->addPointCloud(canvas->cloud_cliped, currentColor, CloudId.toStdString());
-    emit canvas->sig_3DCanvasMarkingCompleted(canvas->cloud_cliped);
-    canvas->m_renderWindow->Render();
+    viewer->addPointCloud(cloud_cliped, currentColor, CloudId.toStdString());
+
+    vtkSmartPointer<vtkPropCollection> propCollection = m_renderer->GetViewProps();
+    vtkProp3D* pActor = vtkProp3D::SafeDownCast(propCollection->GetLastProp());
+    pActor->SetUserTransform(m_CustomInteractor->m_pRotationTransform);
+
+    emit sig_3DCanvasMarkingCompleted(cloud_cliped);
+
+    m_renderWindow->Render();
     teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
-    canvas->viewer->removeAllShapes();
+    viewer->removeAllShapes();
 }
 
 bool te3DCanvas::LoadPointCloud(QString fileName)
@@ -597,6 +485,138 @@ void te3DCanvas::VTKCoordinateAxis()
     m_renderWindow->Render();
 }
 
+vtkSmartPointer<vtkPolyData> te3DCanvas::createPlane(const pcl::ModelCoefficients& coefficients, float scale[2])
+{
+    vtkSmartPointer<vtkPlaneSource> plane = vtkSmartPointer<vtkPlaneSource>::New();
+
+    plane->SetNormal(coefficients.values[0], coefficients.values[1], coefficients.values[2]);
+    double norm_sqr = coefficients.values[0] * coefficients.values[0]
+        + coefficients.values[1] * coefficients.values[1]
+        + coefficients.values[2] * coefficients.values[2];
+
+
+    plane->Push(-coefficients.values[3] / sqrt(norm_sqr));
+    plane->SetResolution(200, 200);
+    plane->Update();
+
+    double pt1[3], pt2[3], orig[3], center[3];
+    plane->GetPoint1(pt1);
+    plane->GetPoint2(pt2);
+    plane->GetOrigin(orig);
+    plane->GetCenter(center);
+
+    double _pt1[3], _pt2[3];
+    float scale1 = 3.0;
+    float scale2 = 3.0;
+    if (scale != nullptr)
+    {
+        scale1 = scale[0];
+        scale2 = scale[1];
+    }
+    for (int i = 0; i < 3; i++) {
+        _pt1[i] = scale1 * (pt1[i] - orig[i]);
+        _pt2[i] = scale2 * (pt2[i] - orig[i]);
+    }
+    for (int i = 0; i < 3; ++i)
+    {
+        pt1[i] = orig[i] + _pt1[i];
+        pt2[i] = orig[i] + _pt2[i];
+    }
+    plane->SetPoint1(pt1);
+    plane->SetPoint2(pt2);
+
+    plane->Update();
+    return (plane->GetOutput());
+}
+
+void te3DCanvas::WorldToScreen(pcl::PointXYZRGB* input3D, vtkMatrix4x4* mat, double* output2D)
+{
+    double view[4];
+    {
+        view[0] = static_cast<double>(mat->GetElement(0, 0) * input3D->x + mat->GetElement(0, 1) * input3D->y + mat->GetElement(0, 2) * input3D->z + mat->GetElement(0, 3));
+        view[1] = static_cast<double>(mat->GetElement(1, 0) * input3D->x + mat->GetElement(1, 1) * input3D->y + mat->GetElement(1, 2) * input3D->z + mat->GetElement(1, 3));
+        view[2] = static_cast<double>(mat->GetElement(2, 0) * input3D->x + mat->GetElement(2, 1) * input3D->y + mat->GetElement(2, 2) * input3D->z + mat->GetElement(2, 3));
+        view[3] = static_cast<double>(mat->GetElement(3, 0) * input3D->x + mat->GetElement(3, 1) * input3D->y + mat->GetElement(3, 2) * input3D->z + mat->GetElement(3, 3));
+    };
+
+    if (view[3] != 0.0)
+    {
+        input3D->x = view[0] / view[3];
+        input3D->y = view[1] / view[3];
+        input3D->z = view[2] / view[3];
+    }
+
+    if (m_renderer->GetVTKWindow())
+    {
+        double dx, dy;
+        int sizex, sizey;
+
+        const int* size = m_renderer->GetVTKWindow()->GetSize();
+        if (!size)
+        {
+            return;
+        }
+        sizex = size[0];
+        sizey = size[1];
+
+        dx = (input3D->x + 1.0) * (sizex * (m_renderer->GetViewport()[2] - m_renderer->GetViewport()[0])) / 2.0 +
+            sizex * m_renderer->GetViewport()[0];
+        dy = (input3D->y + 1.0) * (sizey * (m_renderer->GetViewport()[3] - m_renderer->GetViewport()[1])) / 2.0 +
+            sizey * m_renderer->GetViewport()[1];
+
+        output2D[0] = dx;
+        output2D[1] = dy;
+    }
+}
+
+void te3DCanvas::WorldToScreen(pcl::PointXYZRGB* input3D, vtkMatrix4x4* transform, vtkMatrix4x4* composit, double* output2D)
+{
+    double trans[4];
+    {
+        trans[0] = static_cast<double>(transform->GetElement(0, 0) * input3D->x + transform->GetElement(0, 1) * input3D->y + transform->GetElement(0, 2) * input3D->z + transform->GetElement(0, 3));
+        trans[1] = static_cast<double>(transform->GetElement(1, 0) * input3D->x + transform->GetElement(1, 1) * input3D->y + transform->GetElement(1, 2) * input3D->z + transform->GetElement(1, 3));
+        trans[2] = static_cast<double>(transform->GetElement(2, 0) * input3D->x + transform->GetElement(2, 1) * input3D->y + transform->GetElement(2, 2) * input3D->z + transform->GetElement(2, 3));
+        trans[3] = static_cast<double>(transform->GetElement(3, 0) * input3D->x + transform->GetElement(3, 1) * input3D->y + transform->GetElement(3, 2) * input3D->z + transform->GetElement(3, 3));
+    }
+
+    double view[4];
+    {
+        view[0] = static_cast<double>(composit->GetElement(0, 0) * trans[0] + composit->GetElement(0, 1) * trans[1] + composit->GetElement(0, 2) * trans[2] + composit->GetElement(0, 3));
+        view[1] = static_cast<double>(composit->GetElement(1, 0) * trans[0] + composit->GetElement(1, 1) * trans[1] + composit->GetElement(1, 2) * trans[2] + composit->GetElement(1, 3));
+        view[2] = static_cast<double>(composit->GetElement(2, 0) * trans[0] + composit->GetElement(2, 1) * trans[1] + composit->GetElement(2, 2) * trans[2] + composit->GetElement(2, 3));
+        view[3] = static_cast<double>(composit->GetElement(3, 0) * trans[0] + composit->GetElement(3, 1) * trans[1] + composit->GetElement(3, 2) * trans[2] + composit->GetElement(3, 3));
+    };
+
+    if (view[3] != 0.0)
+    {
+        input3D->x = view[0] / view[3];
+        input3D->y = view[1] / view[3];
+        input3D->z = view[2] / view[3];
+    }
+
+    if (m_renderer->GetVTKWindow())
+    {
+        double dx, dy;
+        int sizex, sizey;
+
+        const int* size = m_renderer->GetVTKWindow()->GetSize();
+        if (!size)
+        {
+            return;
+        }
+        sizex = size[0];
+        sizey = size[1];
+
+        dx = (input3D->x + 1.0) * (sizex * (m_renderer->GetViewport()[2] - m_renderer->GetViewport()[0])) / 2.0 +
+            sizex * m_renderer->GetViewport()[0];
+        dy = (input3D->y + 1.0) * (sizey * (m_renderer->GetViewport()[3] - m_renderer->GetViewport()[1])) / 2.0 +
+            sizey * m_renderer->GetViewport()[1];
+
+        output2D[0] = dx;
+        output2D[1] = dy;
+    }
+}
+
 void te3DCanvas::AxisAlignedBoundingBox()
 {
     pcl::PointXYZRGB min_point_AABB;
@@ -698,9 +718,9 @@ void te3DCanvas::PerspectiveToYaxis()
     float distance = diff.norm();
 
     if (m_member.PositiveAndNegative_Y_axis)
-        viewer->setCameraPosition(center(0), center(1), center(2) + distance, 0, center(1), 0, 1, 0, 0);
+        viewer->setCameraPosition(center(0), center(1) + distance, center(2) , center(0), center(1), center(2), 1, 0, 0);
     else
-        viewer->setCameraPosition(center(0), center(1), center(2) + distance, 0, center(1), 0, -1, 0, 0);
+        viewer->setCameraPosition(center(0), center(1) + distance, center(2) , center(0), center(1), center(2), -1, 0, 0);
     m_member.PositiveAndNegative_Y_axis = !m_member.PositiveAndNegative_Y_axis;
     viewer->updateCamera();
     viewer->spinOnce();
@@ -715,9 +735,9 @@ void te3DCanvas::PerspectiveToXaxis()
     float distance = diff.norm();
 
     if (m_member.PositiveAndNegative_X_axis)
-        viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), 0, 0, 0, 1, 0);
+        viewer->setCameraPosition(center(0) + distance, center(1), center(2) , center(0), center(1), center(2), 1, 0, 0);
     else
-        viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), 0, 0, 0, -1, 0);
+        viewer->setCameraPosition(center(0) + distance, center(1), center(2) , center(0), center(1), center(2), -1, 0, 0);
     m_member.PositiveAndNegative_X_axis = !m_member.PositiveAndNegative_X_axis;
     viewer->updateCamera();
     viewer->spinOnce();
@@ -823,11 +843,13 @@ void te3DCanvas::te3DCanvasStartMarking()
     m_member.isPickingMode = !m_member.isPickingMode;
     if (m_member.isPickingMode) {
         m_member.line_id++;
-        cloud_polygon->clear();
+        MarkerPointSet.clear();
         m_member.flag = false;
     }
     else {
-        PolygonSelect(this);
+        std::vector<double> lastPoint = MarkerPointSet.front();
+        MarkerPointSet.push_back(lastPoint);
+        PolygonSelect();
     }
 }
 

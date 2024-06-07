@@ -15,6 +15,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkInteractionStyleModule.h>
 #include <vtkInteractorStyle.h>
+#include <vtkPropPicker.h>
 #include <vtkAutoInit.h>
 #include <Eigen/Dense>
 

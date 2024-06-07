@@ -43,13 +43,15 @@ public:
     std::vector<double> getCloudCentroid();
 protected:
     void mousePressEvent(QMouseEvent* event);
-    static void getScreentPos(double* displayPos, double* world, void* viewer_void);
     static int inOrNot1(int poly_sides, double* poly_X, double* poly_Y, double x, double y);
-    static void PolygonSelect(void* viewer_void);
+    void PolygonSelect();
 
     void subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud2);
     void VTKCoordinateAxis();
+    vtkSmartPointer<vtkPolyData> createPlane(const pcl::ModelCoefficients& coefficients, float scale[2] = nullptr);
 
+    void WorldToScreen(pcl::PointXYZRGB* input3D, vtkMatrix4x4* mat, double* output2D);
+    void WorldToScreen(pcl::PointXYZRGB* input3D, vtkMatrix4x4* transform, vtkMatrix4x4* composit, double* output2D);
 public slots:
     bool SetBackgroundColor(QColor color);
     bool CoordinateAxisRendering(QString curaxis);
@@ -93,7 +95,6 @@ public:
     
 public:
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_polygon;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cliped;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Filter_out;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_marked;
@@ -111,6 +112,7 @@ public:
     vtkSmartPointer<vtkOrientationMarkerWidget> markerWidget;
     vtkSmartPointer<vtkAxesActor> axes_actor;
     
+    std::vector<std::vector<double>> MarkerPointSet;
 public:
     struct AxisSet axisset;
     struct te3DCanvasMember m_member;
