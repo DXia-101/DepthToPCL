@@ -18,7 +18,7 @@ MainInterface::MainInterface(QWidget *parent)
 {
 	ui->setupUi(this);
 	this->showMaximized();
-	QStackedLayout* stacklayout = new QStackedLayout();
+	stacklayout = new QStackedLayout();
 	ui->CanvasLayout->addLayout(stacklayout);
 	stacklayout->setStackingMode(QStackedLayout::StackAll);
 	te3DCanvasController::getInstance()->displayCanvasInWidget(stacklayout);
@@ -38,6 +38,8 @@ MainInterface::MainInterface(QWidget *parent)
 	InitToolBar();
 	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ChangeCurrentState);
 	connect(this, &MainInterface::sig_setHeightCoefficientFactor, te3DCanvasController::getInstance(), &te3DCanvasController::sig_setHeightCoefficientFactor);
+
+	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_ManagePolyLine, this, &MainInterface::ManagePolyLine);
 
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, teImageBrowserController::getInstance(), &teImageBrowserController::sig_teUpDataSet);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, te2DCanvasController::getInstance(),&te2DCanvasController::sig_StartMarking);
@@ -177,6 +179,11 @@ void MainInterface::ChangeBtnTextTo2D()
 void MainInterface::ChangeBtnTextTo3D()
 {
 	ui->convertBtn->setText(u8"×ª»»µ½2D");
+}
+
+void MainInterface::ManagePolyLine()
+{
+	te3DCanvasController::getInstance()->ManagePolyLine(stacklayout);
 }
 
 void MainInterface::SetThreshold(QString filePath)

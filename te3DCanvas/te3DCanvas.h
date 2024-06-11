@@ -42,7 +42,6 @@ public:
     struct AxisSet getAxisSet();
     std::vector<double> getCloudCentroid();
 protected:
-    void mousePressEvent(QMouseEvent* event);
     static int inOrNot1(int poly_sides, double* poly_X, double* poly_Y, double x, double y);
     void PolygonSelect();
 
@@ -66,7 +65,7 @@ public slots:
     void LabelChanged(const QString& content, const QColor& fontColor);
 
     void HeightTransform(int factor);
-    void te3DCanvasStartMarking();
+    void te3DCanvasStartMarking(QVector<QPointF>& pointlist);
 
     bool LoadPointCloud(QString fileName);
     bool SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZRGB>::Ptr saveCloud);
@@ -112,7 +111,7 @@ public:
     vtkSmartPointer<vtkOrientationMarkerWidget> markerWidget;
     vtkSmartPointer<vtkAxesActor> axes_actor;
     
-    std::vector<std::vector<double>> MarkerPointSet;
+    QVector<QPointF> MarkerPointSet;
 public:
     struct AxisSet axisset;
     struct te3DCanvasMember m_member;

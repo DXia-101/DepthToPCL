@@ -8,8 +8,8 @@ void Transfer_Function::Cloud2cvMat(int width,int height,float originX,float ori
     imageout.create(height, width, CV_32FC1);
 
     for (int i = 0; i < cloudin->size(); ++i) {
-        int x = static_cast<int>(cloudin->points[i].x-originX);
-        int y = static_cast<int>(cloudin->points[i].y-originY);
+        float x = static_cast<float>(cloudin->points[i].x-originX);
+        float y = static_cast<float>(cloudin->points[i].y-originY);
         float z = cloudin->points[i].z;
 
         if (x >= 0 && x < width && y >= 0 && y < height) {
@@ -128,7 +128,11 @@ void Transfer_Function::ExtractCloud2Cloud(pcl::PointCloud<pcl::PointXYZRGB>::Pt
 
         if (pointEigen.x() >= minX && pointEigen.x() <= maxX && pointEigen.y() >= minY && pointEigen.y() <= maxY)
         {
-            cloudOut->points.push_back(point);
+            cv::Point2f p(point.x, point.y);
+            if (cv::pointPolygonTest(*contour, p, false) >= 0)
+            {
+                cloudOut->push_back(point);
+            }
         }
     }
 

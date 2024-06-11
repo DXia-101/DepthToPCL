@@ -14,6 +14,8 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainInterfaceClass; };
 QT_END_NAMESPACE
 
+class QStackedLayout;
+
 class MainInterface : public QWidget
 {
 	Q_OBJECT
@@ -34,6 +36,7 @@ private slots:
 	void on_clearDatabaseBtn_clicked();
 	void ChangeBtnTextTo2D();
 	void ChangeBtnTextTo3D();
+	void ManagePolyLine();
 	
 private:
 	void SetThreshold(QString filePath);
@@ -52,6 +55,7 @@ private:
 	QState* ThrDState;
 	AiModelController* m_AiModelController;
 	teTrainStatisticsChart* m_SChart;
+	QStackedLayout* stacklayout;
 
 	bool HastheImageBeenLoaded = false;
 };

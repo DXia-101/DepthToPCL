@@ -61,23 +61,6 @@ void te3DCanvas::PCL_Initalization()
     currentCategory = "";
 }
 
-/// <summary>
-/// 不规则框选的鼠标画线
-/// </summary>
-/// <param name="event"></param>
-void te3DCanvas::mousePressEvent(QMouseEvent* event)
-{
-    if (event->button() == Qt::LeftButton)
-    {
-        if (m_member.isPickingMode) {
-            std::vector<double> displayPos(3);
-            displayPos[0] = double(event->pos().x());
-            displayPos[1] = double(this->height() - event->pos().y() - 1);
-            displayPos[2] = 0;
-            MarkerPointSet.push_back(displayPos);
-        }
-    }
-}
 
 /**
  * @brief inOrNot1
@@ -114,8 +97,8 @@ void te3DCanvas::PolygonSelect()
     double* PloyYarr = new double[MarkerPointSet.size()];
     for (int i = 0; i < MarkerPointSet.size(); ++i)
     {
-        PloyXarr[i] = MarkerPointSet[i][0];
-        PloyYarr[i] = MarkerPointSet[i][1];
+        PloyXarr[i] = MarkerPointSet[i].x();
+        PloyYarr[i] = MarkerPointSet[i].y();
     }
     const auto& mat = m_renderer->GetActiveCamera()->GetCompositeProjectionTransformMatrix(m_renderer->GetTiledAspectRatio(), FBRange[0], FBRange[1]);
     const auto& transmat = m_CustomInteractor->m_pRotationTransform->GetMatrix();
@@ -132,7 +115,7 @@ void te3DCanvas::PolygonSelect()
         }
     }
 
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> currentColor(currentColor.red(), currentColor.green(), currentColor.blue());
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> currentColor(cloud_cliped, currentColor.red(), currentColor.green(), currentColor.blue());
     QString CloudId;
     QString test = teDataStorage::getInstance()->getCurrentLabelCategory();
     auto it = markerPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
@@ -838,19 +821,16 @@ void te3DCanvas::HeightTransform(int factor)
     reRenderOriginCloud(ReSetCamera);
 }
 
-void te3DCanvas::te3DCanvasStartMarking()
+void te3DCanvas::te3DCanvasStartMarking(QVector<QPointF>& pointlist)
 {
-    m_member.isPickingMode = !m_member.isPickingMode;
-    if (m_member.isPickingMode) {
-        m_member.line_id++;
-        MarkerPointSet.clear();
-        m_member.flag = false;
+    MarkerPointSet.clear();
+    for (QPointF point : pointlist) {
+        QPointF p;
+        p.setX(point.x());
+        p.setY(this->height() - point.y() - 1);
+        MarkerPointSet.push_back(p);
     }
-    else {
-        std::vector<double> lastPoint = MarkerPointSet.front();
-        MarkerPointSet.push_back(lastPoint);
-        PolygonSelect();
-    }
+    PolygonSelect();
 }
 
 void te3DCanvas::pcl_filter_direct(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_in, float min, float max, QString axis, float is_save)

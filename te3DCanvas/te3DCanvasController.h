@@ -9,6 +9,7 @@
 #include "te3DCanvasPointCloudColorSelectDialog.h"
 #include "te3DCanvasCoordinateAxisRenderDialog.h"
 #include "PointCloud_PointSize_Set_Dialog.h"
+#include "te3DPolyLine.h"
 
 #include <QStackedLayout>
 
@@ -26,6 +27,7 @@ public:
 
 	QRect getGeometry();
 
+	void ManagePolyLine(QStackedLayout* layout);
 private slots:
 	void BackgroundColorSelect();
 	void CoordinateAxisSelect();
@@ -46,6 +48,7 @@ public slots:
 	void LoadPointCloud(QString fileName);
 	void CurrentLabelChange(const QString& category, const QColor& color);
 	void SetCentroid();
+	void StartDrawPolyLine();
 
 signals:
 	void sig_BackgroundColor(QColor color);
@@ -61,6 +64,8 @@ signals:
 	void sig_MaintainCoordinateAxis();
 	void sig_setHeightCoefficientFactor(int factor);
 	void sig_HeightTransform();
+
+	void sig_ManagePolyLine();
 private:
 	void ShowAllResults();
 	void ShowAllMarkers();
@@ -87,6 +92,7 @@ private:
 	te3DCanvas* m_te3DCanvas;
 	te3DCanvasMenu* m_te3DCanvasMenu;
 	te3DCanvasToolBar* m_te3DCanvasToolBar;
+	te3DPolyLine* m_te3DPolyLine;
 
 	te3DCanvasPointCloudColorSelectDialog* dialog_colorselect;
 	te3DCanvasCoordinateAxisRenderDialog* dialog_render;

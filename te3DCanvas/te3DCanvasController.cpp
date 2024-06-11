@@ -1,5 +1,6 @@
 #include "te3DCanvasController.h"
 #include <QVBoxLayout>
+#include <QStackedLayout>
 #include "Transfer_Function.h"
 #include "teDataStorage.h"
 #include "pcl_function.h"
@@ -18,6 +19,7 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	m_te3DCanvas = new te3DCanvas();
 	m_te3DCanvasMenu = new te3DCanvasMenu();
 	m_te3DCanvasToolBar = new te3DCanvasToolBar();
+	m_te3DPolyLine = new te3DPolyLine();
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, m_te3DCanvas, &te3DCanvas::HeightTransform);
 	connect(this, &te3DCanvasController::sig_HeightTransform, m_te3DCanvasMenu, &te3DCanvasMenu::on_ConfirmTransformationBtn_clicked);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_HeightTransform, this, &te3DCanvasController::SaveHeightTransFromFactor);
@@ -26,10 +28,10 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToXaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToXaxis);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToYaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToYaxis);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_PerspectiveToZaxis, m_te3DCanvas, &te3DCanvas::PerspectiveToZaxis);
-	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_StartMarking, m_te3DCanvas, &te3DCanvas::te3DCanvasStartMarking);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_GtCheckStateChanged, m_te3DCanvas,&te3DCanvas::ShowDimension);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_RSTCheckStateChanged, m_te3DCanvas,&te3DCanvas::ShowResult);
 	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_CoordinateAxisRender, this,&te3DCanvasController::MaintainCoordinateAxis);
+	connect(m_te3DCanvasMenu, &te3DCanvasMenu::sig_StartMarking, this, &te3DCanvasController::StartDrawPolyLine);
 	connect(this,&te3DCanvasController::sig_setHeightCoefficientFactor, m_te3DCanvasMenu, &te3DCanvasMenu::setHeightCoefficientFactor);
 
 	connect(m_te3DCanvasToolBar, &te3DCanvasToolBar::sig_BackgroundColorSetting, this, &te3DCanvasController::BackgroundColorSelect);
@@ -90,7 +92,9 @@ void te3DCanvasController::displayToolBarInWidget(QVBoxLayout* layout)
 void te3DCanvasController::displayCanvasInWidget(QStackedLayout* layout)
 {
 	layout->addWidget(m_te3DCanvas);
+	layout->addWidget(m_te3DPolyLine);
 	m_te3DCanvas->show();
+	m_te3DPolyLine->hide();
 }
 
 void te3DCanvasController::SavePointCloud(QString filepath, pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcr)
@@ -101,6 +105,16 @@ void te3DCanvasController::SavePointCloud(QString filepath, pcl::PointCloud<pcl:
 QRect te3DCanvasController::getGeometry()
 {
 	return m_te3DCanvas->geometry();
+}
+
+void te3DCanvasController::ManagePolyLine(QStackedLayout* layout)
+{
+	if (layout->currentWidget() == m_te3DPolyLine) {
+		layout->setCurrentWidget(m_te3DCanvas);
+	}
+	else {
+		layout->setCurrentWidget(m_te3DPolyLine);
+	}
 }
 
 void te3DCanvasController::hideAllUI()
@@ -193,6 +207,20 @@ void te3DCanvasController::CurrentLabelChange(const QString& category, const QCo
 void te3DCanvasController::SetCentroid()
 {
 	m_te3DCanvas->setRotationCenter();
+}
+
+void te3DCanvasController::StartDrawPolyLine()
+{
+	if (m_te3DPolyLine->isVisible()) {
+		m_te3DPolyLine->hide();
+		m_te3DCanvas->te3DCanvasStartMarking(m_te3DPolyLine->GetPointList());
+	}
+	else {
+		m_te3DPolyLine->show();
+		m_te3DPolyLine->SetDraw(true);
+	}
+
+	emit sig_ManagePolyLine();
 }
 
 void te3DCanvasController::ShowAllResults()
