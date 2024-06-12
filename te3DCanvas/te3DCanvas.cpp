@@ -437,8 +437,6 @@ void te3DCanvas::SetCoordinateSet()
     axisset = {
         currentDisplayImageLength,
         currentDisplayImageHeight,
-        min.x,
-        min.y,
         min,
         max,
     };

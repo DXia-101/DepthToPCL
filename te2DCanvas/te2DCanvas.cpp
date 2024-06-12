@@ -111,14 +111,21 @@ void te2DCanvas::Undo()
 void te2DCanvas::MarkersShowInCanvas(te::AiInstance* instance, QString label, QColor color)
 {
     QList<QPolygonF> contours;
-    QPolygonF polygonF;
-    QPointF point;
-    for (te::Point2f polygonPoint : instance->contour.polygons.front()) {
-        point.setX(static_cast<float>(polygonPoint.x));
-        point.setY(static_cast<float>(polygonPoint.y));
-        polygonF.append(point);
+    
+    for (int i = 0; i < instance->contour.polygons.size(); ++i) {
+        QPolygonF polygonF;
+        for (te::Point2f polygonPoint : instance->contour.polygons.at(i))
+        {
+            QPointF point;
+            point.setX(static_cast<float>(polygonPoint.x));
+            point.setY(static_cast<float>(polygonPoint.y));
+            polygonF.append(point);
+        }
+
+        contours.append(polygonF);
+
     }
-    contours.append(polygonF);
+
     te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({}, label);
     polygonItem->setPolygonList(contours);
     polygonItem->setPen(QColor(Qt::black));

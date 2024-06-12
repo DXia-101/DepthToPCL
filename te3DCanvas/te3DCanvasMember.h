@@ -4,8 +4,6 @@
 struct AxisSet {
     int curwidth;
     int curheight;
-    float OriginX;
-    float OriginY;
     pcl::PointXYZ minPt;
     pcl::PointXYZ maxPt;
 };

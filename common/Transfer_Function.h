@@ -24,11 +24,9 @@ public:
 	/// </summary>
 	/// <param name="width">转换后图像的宽度</param>
 	/// <param name="height">转换后图像的高度</param>
-	/// <param name="originX">点云的原点的x坐标</param>
-	/// <param name="originY">点云的原点的y坐标</param>
 	/// <param name="cloudin">待转换点云</param>
 	/// <param name="imageout">转换后的cv::Mat</param>
-	static void Cloud2cvMat(int width, int height, float originX, float originY, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin, cv::Mat& imageout);
+	static void Cloud2cvMat(int width, int height,pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin, cv::Mat& imageout);
 	
 	/// <summary>
 	/// cv::Mat 转为 点云
@@ -44,7 +42,16 @@ public:
 	/// </summary>
 	/// <param name="Matin">待查找的cv::Mat</param>
 	/// <param name="contours">找到的轮廓集</param>
-	static void cvMat2Contour(cv::Mat& Matin, std::vector<std::vector<cv::Point>>* contours);
+	static void cvMat2Contour(float minHeight, float maxHeight, cv::Mat& Matin, std::vector<std::vector<cv::Point>>* contours);
+
+	/// <summary>
+	/// 点云查找轮廓
+	/// </summary>
+	/// <param name="width">图像的宽度</param>
+	/// <param name="height">图像的高度</param>
+	/// <param name="cloudin">待查找点云</param>
+	/// <returns>找到的轮廓集</returns>
+	static std::vector<std::vector<cv::Point>> Cloud2Contour(int width, int height, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin);
 
 	/// <summary>
 	/// 提取轮廓覆盖的图像

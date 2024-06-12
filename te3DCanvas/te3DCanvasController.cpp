@@ -134,15 +134,10 @@ void te3DCanvasController::showAllUI()
 
 void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 {
-	cv::Mat image(0, 0, CV_32F);
-
-	Transfer_Function::Cloud2cvMat(m_te3DCanvas->getAxisSet().curwidth, m_te3DCanvas->getAxisSet().curheight, m_te3DCanvas->getAxisSet().OriginX, m_te3DCanvas->getAxisSet().OriginY, cloud, image);
-
 	te::AiInstance instance;
 	instance.name = teDataStorage::getInstance()->getCurrentLabelCategory().toStdString();
-	std::vector<std::vector<cv::Point>> contours;
-	Transfer_Function::cvMat2Contour(image, &contours);
-	//contours.erase(contours.begin());
+	std::vector<std::vector<cv::Point>> contours = Transfer_Function::Cloud2Contour(teDataStorage::getInstance()->getCurrentImageWidth(), teDataStorage::getInstance()->getCurrentImageHeight(), cloud);
+	
 	te::PolygonF polygon;
 	for (const std::vector<cv::Point>& contourPoints : contours) {
 		te::PolygonF::PointType point;
@@ -213,7 +208,10 @@ void te3DCanvasController::StartDrawPolyLine()
 {
 	if (m_te3DPolyLine->isVisible()) {
 		m_te3DPolyLine->hide();
-		m_te3DCanvas->te3DCanvasStartMarking(m_te3DPolyLine->GetPointList());
+		if (m_te3DPolyLine->GetPointList().size() > 2) 
+		{
+			m_te3DCanvas->te3DCanvasStartMarking(m_te3DPolyLine->GetPointList());
+		}
 	}
 	else {
 		m_te3DPolyLine->show();

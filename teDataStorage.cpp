@@ -2,6 +2,7 @@
 #include <QFile>
 #include <QDir>
 #include <QDebug>
+#include <opencv2/opencv.hpp>
 
 teDataStorage::Garbo teDataStorage::tmp;
 
@@ -339,6 +340,27 @@ QMap<QString, int> teDataStorage::getCurrentResultMarksNumber()
 	}
 
 	return nameCounts;
+}
+
+int teDataStorage::getCurrentImageWidth()
+{
+	std::cout << "getCurrentOriginImage(): " << getCurrentOriginImage() << std::endl;
+	cv::Mat image = cv::imread(getCurrentOriginImage(), cv::IMREAD_UNCHANGED);
+	if (image.empty()) {
+		std::cerr << "Error: Cloud not read the image." << std::endl;
+		return 0;
+	}
+	return image.cols;
+}
+
+int teDataStorage::getCurrentImageHeight()
+{
+	cv::Mat image = cv::imread(getCurrentOriginImage(), cv::IMREAD_UNCHANGED);
+	if (image.empty()) {
+		std::cerr << "Error: Cloud not read the image." << std::endl;
+		return 0;
+	}
+	return image.rows;
 }
 
 bool teDataStorage::insertOriginImage(std::string filepath)

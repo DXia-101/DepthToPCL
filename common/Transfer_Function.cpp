@@ -1,15 +1,17 @@
 #include "Transfer_Function.h"
 #include "Depth2RGB.h"
 
-void Transfer_Function::Cloud2cvMat(int width,int height,float originX,float originY, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin, cv::Mat& imageout)
+void Transfer_Function::Cloud2cvMat(int width,int height,pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin, cv::Mat& imageout)
 {
     if (!imageout.empty())
         imageout.release();
     imageout.create(height, width, CV_32FC1);
+    imageout = 0;
+    std::cout << "When the size of the point cloud is " << cloudin->points.size() << " in the Cloud2cvMat function" << std::endl;
 
     for (int i = 0; i < cloudin->size(); ++i) {
-        float x = static_cast<float>(cloudin->points[i].x-originX);
-        float y = static_cast<float>(cloudin->points[i].y-originY);
+        float x = static_cast<float>(cloudin->points[i].x);
+        float y = static_cast<float>(cloudin->points[i].y);
         float z = cloudin->points[i].z;
 
         if (x >= 0 && x < width && y >= 0 && y < height) {
@@ -40,18 +42,62 @@ void Transfer_Function::cvMat2Cloud(double minHeight, double maxHeight, cv::Mat&
     }
 }
 
-void Transfer_Function::cvMat2Contour(cv::Mat& Matin, std::vector<std::vector<cv::Point>>* contours)
+void Transfer_Function::cvMat2Contour(float minHeight, float maxHeight, cv::Mat& Matin, std::vector<std::vector<cv::Point>>* contours)
 {
     cv::Mat grayImg, binImg;
     TeJetColorCode trans;
     cv::Mat median;
     median.create(Matin.size(), CV_8UC3);
-    if (trans.cvt32F2BGR(Matin, median)) {
+    if (trans.cvt32F2BGR(minHeight, maxHeight,Matin, median)) {
         cv::cvtColor(median, grayImg, cv::COLOR_BGR2GRAY);
-        threshold(grayImg, binImg, 0, 255, cv::ThresholdTypes::THRESH_OTSU);
+        cv::Mat gry(450, 320, grayImg.type());
+
+        // 使用resize函数进行缩放  
+        cv::resize(grayImg, gry, cv::Size(320, 450), 0, 0, cv::INTER_LINEAR);
+
+        cv::imshow("grayImg", gry);
+        cv::waitKey();
+        //cv::imshow("grayImg", grayImg);
+        //cv::waitKey();
+        //cv::Canny(grayImg, binImg, 100, 150, 3);
+        threshold(grayImg, binImg, 0, 255, cv::ThresholdTypes::THRESH_TRIANGLE);
+        cv::Mat dst(450, 320, binImg.type());
+
+        // 使用resize函数进行缩放  
+        cv::resize(binImg, dst, cv::Size(320, 450), 0, 0, cv::INTER_LINEAR); 
+
+        cv::imshow("binImg", dst);
+        cv::waitKey();
         std::vector<cv::Vec4i> hierarchy;
-        findContours(binImg, *contours, hierarchy, cv::RetrievalModes::RETR_TREE, cv::CHAIN_APPROX_NONE);//会将整个图像的最外层轮廓算进去
+        findContours(binImg, *contours, hierarchy, cv::RetrievalModes::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
     }
+}
+
+std::vector<std::vector<cv::Point>> Transfer_Function::Cloud2Contour(int width, int height, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin)
+{
+    std::vector<std::vector<cv::Point>> contours;
+
+    cv::Mat image;
+    image.create(height, width, CV_8UC1);
+    image = 0;
+
+    for (int i = 0; i < cloudin->size(); ++i) {
+        float x = static_cast<float>(cloudin->points[i].x);
+        float y = static_cast<float>(cloudin->points[i].y);
+
+        if (x >= 0 && x < width && y >= 0 && y < height) {
+            image.at<uchar>(y, x) = 255;
+        }
+    }
+    //cv::Mat dst(450, 320, image.type());
+    //cv::resize(image, dst, cv::Size(320, 450), 0, 0, cv::INTER_LINEAR);
+    //cv::imshow("image", dst);
+    //
+    //cv::waitKey();
+    std::vector<cv::Vec4i> hierarchy;
+    findContours(image, contours, hierarchy, cv::RetrievalModes::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
+
+    return contours;
 }
 
 void Transfer_Function::ExtractImage(cv::Mat& Matin, std::vector<cv::Point>* contour, cv::Mat* extractedImages)

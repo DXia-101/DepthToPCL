@@ -73,6 +73,9 @@ public:
 	QMap<QString, int> getCurrentTrainMarksNumber();
 	QMap<QString, int> getCurrentResultMarksNumber();
 
+	int getCurrentImageWidth();
+	int getCurrentImageHeight();
+
 	bool insertOriginImage(std::string filepath);
 	bool insertGtFilePath(std::string filepath);
 
