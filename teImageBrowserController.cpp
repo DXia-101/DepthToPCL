@@ -37,7 +37,7 @@ teImageBrowserController::teImageBrowserController(QObject *parent)
     connect(ImageBrowser, &TeSampWidget::sig_UpDateItem, this, &teImageBrowserController::UpdateItem);
     connect(ImageBrowser, &TeSampWidget::sig_ItemActive, this, &teImageBrowserController::ItemActive);
     connect(this, &teImageBrowserController::sig_teUpDataSet,worker, &teImageBrowserWorkThread::teUpDataSet, Qt::QueuedConnection);
-    connect(this, &teImageBrowserController::sig_GenerateCurrentData, worker, &teImageBrowserWorkThread::GenerateCurrentData);
+    //connect(this, &teImageBrowserController::sig_GenerateCurrentData, worker, &teImageBrowserWorkThread::GenerateCurrentData);
 }
 
 teImageBrowserController::~teImageBrowserController()
@@ -117,7 +117,7 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
 void teImageBrowserController::ItemActive(int* pIndex, int len)
 {
     worker->setItemActive(pIndex, len);
-    worker->run();
+    worker->start();
 }
 
 void teImageBrowserController::ChangeCurrentState()

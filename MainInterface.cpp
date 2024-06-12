@@ -155,7 +155,7 @@ void MainInterface::on_ThresholdBtn_clicked()
 	teDataStorage::getInstance()->ValidPointThresholdChange(ui->ValidPointThresholdSpinBox->value());
 	teDataStorage::getInstance()->InvalidPointThresholdChange(ui->InvalidPointThresholdSpinBox->value());
 
-	emit teImageBrowserController::getInstance()->sig_GenerateCurrentData();
+	//emit teImageBrowserController::getInstance()->sig_GenerateCurrentData();
 
 	if (TwoDState->active()) {
 		te2DCanvasController::getInstance()->ShowCurrentImages();
