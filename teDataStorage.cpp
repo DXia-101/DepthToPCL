@@ -46,7 +46,8 @@ void teDataStorage::destroy()
 
 void teDataStorage::InitDatabase()
 {
-	db = te::Sqlite3DB::open("D:/teAi3D.db");
+	QString dir = QDir::currentPath() + "/workspace/teAi3D.db";
+	db = te::Sqlite3DB::open(dir.toStdString());
 
 	ResourceTable = db->createDataModel("Resource",
 		{
@@ -340,6 +341,11 @@ QMap<QString, int> teDataStorage::getCurrentResultMarksNumber()
 	}
 
 	return nameCounts;
+}
+
+QString teDataStorage::GetCurrentPath()
+{
+	return 	QDir::currentPath() + "/workspace/";
 }
 
 int teDataStorage::getCurrentImageWidth()

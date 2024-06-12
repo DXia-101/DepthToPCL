@@ -54,14 +54,14 @@ void teImageBrowserWorkThread::run()
                 }
                 cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
                 cv::resize(median, median, cv::Size(80, 80));
-                cv::imwrite(std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp", median);
-                teDataStorage::getInstance()->updateShrinkageChart(teDataStorage::getInstance()->getCurrentIndex(), std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp");
+                cv::imwrite(teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp", median);
+                teDataStorage::getInstance()->updateShrinkageChart(teDataStorage::getInstance()->getCurrentIndex(), teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp");
             }
             else {
                 te::Image img = te::Image::load(teDataStorage::getInstance()->getOriginImage()[pIndex[i]]).resize(te::Size(80, 80));
                 img.save(std::to_string(pIndex[i]) + "_thumb.bmp");
-                teDataStorage::getInstance()->updateShrinkageChart(pIndex[i], std::to_string(pIndex[i]) + "_thumb.bmp");
-                ImageBrowser->teUpdateThumb(pIndex[i], 0, QImage(QString::number(pIndex[i]) + "_thumb.bmp"), E_FORMAT_RGB);
+                teDataStorage::getInstance()->updateShrinkageChart(pIndex[i], teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(pIndex[i]) + "_thumb.bmp");
+                ImageBrowser->teUpdateThumb(pIndex[i], 0, QImage(teDataStorage::getInstance()->GetCurrentPath() + QString::number(pIndex[i]) + "_thumb.bmp"), E_FORMAT_RGB);
             }
         }
         if (!QFile::exists(QString::fromStdString(teDataStorage::getInstance()->getPointCloud()[pIndex[i]]))) {
@@ -74,8 +74,8 @@ void teImageBrowserWorkThread::run()
                 return;
             }
             Transfer_Function::cvMat2Cloud(teDataStorage::getInstance()->getSelectInvalidPointThreshold(pIndex[i]), teDataStorage::getInstance()->getSelectValidPointThreshold(pIndex[i]), image, mediancloud);
-            te3DCanvasController::getInstance()->SavePointCloud(QString::fromStdString(std::to_string(pIndex[i]) + "_thumb.pcd"), mediancloud);
-            teDataStorage::getInstance()->updatePointCloud(pIndex[i], std::to_string(pIndex[i]) + "_thumb.pcd");
+            te3DCanvasController::getInstance()->SavePointCloud(QString::fromStdString(teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(pIndex[i]) + "_thumb.pcd"), mediancloud);
+            teDataStorage::getInstance()->updatePointCloud(pIndex[i], teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(pIndex[i]) + "_thumb.pcd");
         }
     }
 }
@@ -116,14 +116,14 @@ void teImageBrowserWorkThread::GenerateCurrentData()
             }
             cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
             cv::resize(median, median, cv::Size(80, 80));
-            cv::imwrite(std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp", median);
+            cv::imwrite(teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp", median);
             teDataStorage::getInstance()->updateShrinkageChart(teDataStorage::getInstance()->getCurrentIndex(), std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp");
         }
         else {
             te::Image img = te::Image::load(teDataStorage::getInstance()->getCurrentOriginImage()).resize(te::Size(80, 80));
-            img.save(std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp");
-            teDataStorage::getInstance()->updateShrinkageChart(teDataStorage::getInstance()->getCurrentIndex(), std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp");
-            ImageBrowser->teUpdateThumb(teDataStorage::getInstance()->getCurrentIndex(), 0, QImage(teDataStorage::getInstance()->getCurrentIndex() + "_thumb.bmp"), E_FORMAT_RGB);
+            img.save(teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp");
+            teDataStorage::getInstance()->updateShrinkageChart(teDataStorage::getInstance()->getCurrentIndex(), teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp");
+            ImageBrowser->teUpdateThumb(teDataStorage::getInstance()->getCurrentIndex(), 0, QImage(teDataStorage::getInstance()->GetCurrentPath() + teDataStorage::getInstance()->getCurrentIndex() + "_thumb.bmp"), E_FORMAT_RGB);
         }
     }
     if (!QFile::exists(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()))) {
@@ -137,7 +137,7 @@ void teImageBrowserWorkThread::GenerateCurrentData()
         }
 
         Transfer_Function::cvMat2Cloud(teDataStorage::getInstance()->getCurrentInvalidPointThreshold(), teDataStorage::getInstance()->getCurrentValidPointThreshold(), image, mediancloud);
-        te3DCanvasController::getInstance()->SavePointCloud(QString::fromStdString(std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.pcd"), mediancloud);
-        teDataStorage::getInstance()->updatePointCloud(teDataStorage::getInstance()->getCurrentIndex(), std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.pcd");
+        te3DCanvasController::getInstance()->SavePointCloud(QString::fromStdString(teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.pcd"), mediancloud);
+        teDataStorage::getInstance()->updatePointCloud(teDataStorage::getInstance()->getCurrentIndex(), teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.pcd");
     }
 }

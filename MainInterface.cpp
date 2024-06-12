@@ -11,11 +11,16 @@
 #include <QFileDialog>
 #include <QStackedLayout>
 #include <QKeyEvent>
+#include <QDir>
 
 MainInterface::MainInterface(QWidget *parent)
 	: QWidget(parent)
 	, ui(new Ui::MainInterfaceClass())
 {
+	QDir currentDir(QDir::currentPath()); // 获取当前工作目录
+
+	currentDir.mkdir("workspace");
+
 	ui->setupUi(this);
 	this->showMaximized();
 	stacklayout = new QStackedLayout();

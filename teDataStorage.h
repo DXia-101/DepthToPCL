@@ -73,6 +73,8 @@ public:
 	QMap<QString, int> getCurrentTrainMarksNumber();
 	QMap<QString, int> getCurrentResultMarksNumber();
 
+	QString GetCurrentPath();
+
 	int getCurrentImageWidth();
 	int getCurrentImageHeight();
 
