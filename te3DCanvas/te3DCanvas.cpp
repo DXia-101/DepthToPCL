@@ -138,7 +138,6 @@ void te3DCanvas::PolygonSelect()
 
     m_renderWindow->Render();
     teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
-    viewer->removeAllShapes();
 }
 
 bool te3DCanvas::LoadPointCloud(QString fileName)

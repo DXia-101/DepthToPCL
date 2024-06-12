@@ -44,6 +44,7 @@ MainInterface::MainInterface(QWidget *parent)
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, teImageBrowserController::getInstance(), &teImageBrowserController::sig_teUpDataSet);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, te2DCanvasController::getInstance(),&te2DCanvasController::sig_StartMarking);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, te2DCanvasController::getInstance(), &te2DCanvasController::sig_currentLabelChange);
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, te3DCanvasController::getInstance(), &te3DCanvasController::CurrentLabelChange);
 
 	connect(m_AiModelController, &AiModelController::sig_TestCompleted, teDataStorage::getInstance(), &teDataStorage::updateResultOperate);
 	connect(m_AiModelController, &AiModelController::sig_TestCompleted, te3DCanvasController::getInstance(), &te3DCanvasController::ShowAllItems);
