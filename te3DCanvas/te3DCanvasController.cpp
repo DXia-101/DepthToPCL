@@ -203,6 +203,14 @@ void te3DCanvasController::LoadPointCloud(QString fileName)
 	ShowAllItems();
 }
 
+void te3DCanvasController::ReLoadGTAndRST()
+{
+	m_te3DCanvas->RemoveDimentsion();
+	m_te3DCanvas->RemoveResult();
+	//ShowAllItems();
+	m_te3DCanvas->m_renderer->GetRenderWindow()->Render();
+}
+
 void te3DCanvasController::CurrentLabelChange(const QString& category, const QColor& color)
 {
 	m_te3DCanvas->LabelChanged(category, color);

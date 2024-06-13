@@ -48,6 +48,7 @@ public slots:
 	void SaveAxis(QString axis);
 	void MaintainCoordinateAxis();
 	void LoadPointCloud(QString fileName);
+	void ReLoadGTAndRST();
 	void CurrentLabelChange(const QString& category, const QColor& color);
 	void SetCentroid();
 	void StartDrawPolyLine();

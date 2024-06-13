@@ -42,9 +42,9 @@ te3DCanvas::~te3DCanvas()
 void te3DCanvas::PCL_Initalization()
 {
     cloud = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
-    cloud_cliped = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
+    
     cloud_Filter_out = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
-    cloud_marked = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
+    
     
     m_renderer = vtkSmartPointer<vtkRenderer>::New();
     m_renderWindow = this->renderWindow();
@@ -105,7 +105,7 @@ void te3DCanvas::PolygonSelect()
     const auto& mat = m_renderer->GetActiveCamera()->GetCompositeProjectionTransformMatrix(m_renderer->GetTiledAspectRatio(), FBRange[0], FBRange[1]);
     const auto& transmat = m_CustomInteractor->m_pRotationTransform->GetMatrix();
 
-    cloud_cliped->clear();
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cliped = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
     for (int i = 0; i < cloud->points.size(); ++i)
     {
         pcl::PointXYZRGB P3D = cloud->points.at(i);
@@ -121,14 +121,17 @@ void te3DCanvas::PolygonSelect()
     QString CloudId;
     QString test = teDataStorage::getInstance()->getCurrentLabelCategory();
     auto it = markerPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
+    auto pct = resultPointCloud.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != markerPCID.end()) {
         QString count = incrementNumber(it->second.back());
         CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "marker" + count;
         it->second.push_back(CloudId);
+        pct->second.push_back(cloud_cliped);
     }
     else {
         CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "marker" + "0";
         markerPCID.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<QString>{CloudId}));
+        markerPointCloud.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>{cloud_cliped}));
     }
     viewer->addPointCloud(cloud_cliped, currentColor, CloudId.toStdString());
 
@@ -234,6 +237,36 @@ void te3DCanvas::ShowResult(int arg)
         }
     }
     m_renderWindow->Render();
+}
+
+void te3DCanvas::RemoveDimentsion()
+{
+    auto itStr = markerPCID.begin();
+    auto itPC = markerPointCloud.begin();
+    for (itStr, itPC; itStr != markerPCID.end(); ++itStr, ++itPC)
+    {
+        assert(itStr->first == itPC->first);
+        for (int i = 0; i < itStr->second.size(); ++i)
+        {
+            pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> currentColor(itPC->second.at(i), currentColor.red(), currentColor.green(), currentColor.blue());
+            viewer->updatePointCloud(itPC->second.at(i), currentColor, itStr->second.at(i).toStdString());
+        }
+    }
+}
+
+void te3DCanvas::RemoveResult()
+{
+    auto itStr = resultPCID.begin();
+    auto itPC = resultPointCloud.begin();
+    for (itStr, itPC; itStr != resultPCID.end(); ++itStr, ++itPC)
+    {
+        assert(itStr->first == itPC->first);
+        for (int i = 0; i < itStr->second.size(); ++i)
+        {
+            pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> currentColor(itPC->second.at(i), currentColor.red(), currentColor.green(), currentColor.blue());
+            viewer->updatePointCloud(itPC->second.at(i), currentColor, itStr->second.at(i).toStdString());
+        }
+    }
 }
 
 void te3DCanvas::ReductionPointCloud()
@@ -348,21 +381,25 @@ void te3DCanvas::MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
         contour.push_back(cv::Point(point.x, point.y));
     }
     cv::Mat extractImage;
-    cloud_marked->points.clear();
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_marked = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
+
     Transfer_Function::ExtractCloud2Cloud(cloud, &contour, cloud_marked);
 
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> currentColor(cloud_marked, color.red(), color.green(), color.blue());
     QString CloudId;
     auto it = markerPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
+    auto pct = markerPointCloud.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != markerPCID.end()) {
         QString count = incrementNumber(it->second.back());
         CloudId = QString::fromStdString(instance->name) + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "marker" + count;
         qDebug() << "CloudID: " << CloudId;
         it->second.push_back(CloudId);
+        pct->second.push_back(cloud_marked);
     }
     else {
         CloudId = QString::fromStdString(instance->name) + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "marker" + "0";
         markerPCID.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<QString>{CloudId}));
+        markerPointCloud.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>{cloud_marked}));
     }
     viewer->addPointCloud(cloud_marked, currentColor, CloudId.toStdString());
     m_renderWindow->Render();
@@ -381,20 +418,24 @@ void te3DCanvas::ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
         contour.push_back(cv::Point(point.x, point.y));
     }
     cv::Mat extractImage;
-    cloud_marked->points.clear();
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_marked = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
+
     Transfer_Function::ExtractCloud2Cloud(cloud, &contour, cloud_marked);
 
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> currentColor(cloud_marked, color.red(), color.green(), color.blue());
     QString CloudId;
     auto it = resultPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
+    auto pct = resultPointCloud.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != resultPCID.end()) {
         QString count = incrementNumber(it->second.back());
         CloudId = QString::fromStdString(instance->name) + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "result" + count;
         it->second.push_back(CloudId);
+        pct->second.push_back(cloud_marked);
     }
     else {
         CloudId = QString::fromStdString(instance->name) + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "result" + "0";
         resultPCID.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<QString>{CloudId}));
+        resultPointCloud.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>{cloud_marked}));
     }
     viewer->addPointCloud(cloud_marked, currentColor, CloudId.toStdString());
     m_renderWindow->Render();

@@ -74,6 +74,9 @@ public slots:
 
     void ShowDimension(int arg);
     void ShowResult(int arg);
+    void RemoveDimentsion();
+    void RemoveResult();
+
     void ReductionPointCloud();
 
     void SetCoordinateSet();
@@ -86,7 +89,10 @@ private:
     
 public:
     std::map<QString,std::vector<QString>> markerPCID;
-    std::map<QString,std::vector<QString>> resultPCID;
+    std::map<QString,std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>> markerPointCloud;
+    std::map<QString, std::vector<QString>> resultPCID;
+    std::map<QString,std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>> resultPointCloud;
+
 
     vtkRenderWindow* m_renderWindow;
     vtkSmartPointer<vtkRenderer> m_renderer;
@@ -94,9 +100,7 @@ public:
     
 public:
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cliped;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Filter_out;
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_marked;
 
     pcl::PointXYZRGB curP, lastP; //»­Ïß
 
