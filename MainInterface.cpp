@@ -167,6 +167,7 @@ void MainInterface::on_ThresholdBtn_clicked()
 		te2DCanvasController::getInstance()->showAllUI();
 	}
 	else if(ThrDState->active()) {
+		te3DCanvasController::getInstance()->NeedReload();
 		te3DCanvasController::getInstance()->showAllUI();
 	}
 }

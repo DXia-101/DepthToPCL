@@ -28,6 +28,8 @@ public:
 	QRect getGeometry();
 
 	void ManagePolyLine(QStackedLayout* layout);
+
+	void NeedReload();
 private slots:
 	void BackgroundColorSelect();
 	void CoordinateAxisSelect();
@@ -103,4 +105,5 @@ private:
 
 	int hegithTransFactor = 1;
 	QString axis = "z";
+	bool IsNeedReload = true;
 };

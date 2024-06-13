@@ -117,6 +117,11 @@ void te3DCanvasController::ManagePolyLine(QStackedLayout* layout)
 	}
 }
 
+void te3DCanvasController::NeedReload()
+{
+	IsNeedReload = true;
+}
+
 void te3DCanvasController::hideAllUI()
 {
 	m_te3DCanvasToolBar->hide();
@@ -129,7 +134,11 @@ void te3DCanvasController::showAllUI()
 	m_te3DCanvasToolBar->show();
 	m_te3DCanvasMenu->show();
 	m_te3DCanvas->show();
-	LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
+	if (IsNeedReload)
+	{
+		LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
+		IsNeedReload = false;
+	}
 }
 
 void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
