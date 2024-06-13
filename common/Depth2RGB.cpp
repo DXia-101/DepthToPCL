@@ -143,12 +143,12 @@ void TeJetColorCode::dealWithCvt(cv::Mat& image,const int& index)
 			}
 		}
 		else {
-			if (!cvt16Bit2BGR(teDataStorage::getInstance()->getCurrentInvalidPointThreshold(), teDataStorage::getInstance()->getCurrentValidPointThreshold(), image, median)) {
+			if (!cvt32F2BGR(teDataStorage::getInstance()->getCurrentInvalidPointThreshold(), teDataStorage::getInstance()->getCurrentValidPointThreshold(), image, median)) {
 				return;
 			}
 		}
 	}
-	cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
+	//cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
 	te2DCanvasController::getInstance()->setImage(te::Image(median).clone());
 	cv::waitKey(0);
 }

@@ -449,8 +449,8 @@ bool teDataStorage::updateResultGtFilePath(int index, std::string& filepath)
 
 bool teDataStorage::DeleteCurrentPointCloudAndThumbnail()
 {
-	bool ret = QFile::remove(QString::fromStdString(getSelectShrinkageChart(currentIndex)));
-	ret = QFile::remove(QString::fromStdString(getCurrentPointCloud()));
+	bool ret = QFile::remove(GetCurrentPath() + QString::fromStdString(getSelectShrinkageChart(currentIndex)));
+	ret = QFile::remove(GetCurrentPath() + QString::fromStdString(getCurrentPointCloud()));
 	return ret;
 }
 

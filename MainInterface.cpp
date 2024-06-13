@@ -128,7 +128,7 @@ void MainInterface::InitToolBar()
 
 void MainInterface::ClearAllCaches()
 {
-	QDir currentDir = QDir::current();
+	QDir currentDir = teDataStorage::getInstance()->GetCurrentPath();
 	QStringList filters;
 	filters << "*.pcd" << "*.bmp";
 	QFileInfoList fileList = currentDir.entryInfoList(filters, QDir::Files);
@@ -204,7 +204,7 @@ void MainInterface::SetThreshold(QString filePath)
 	double minValue, maxValue;
 	cv::minMaxLoc(image, &minValue, &maxValue);
 
-	minValue = -maxValue;
+	minValue = -(maxValue*0.8);
 
 	ui->ValidPointThresholdSpinBox->setValue(maxValue);
 	ui->InvalidPointThresholdSpinBox->setValue(minValue);
@@ -223,6 +223,7 @@ void MainInterface::LoadTrainingImages()
 {
 	//ui->clearDatabaseBtn->setVisible(false);
 	QStringList filepaths = QFileDialog::getOpenFileNames(nullptr, u8"Ñ¡ÔñÎÄ¼þ", "", "TIFF Files (*.tif *.tiff)");
+	teDataStorage::getInstance()->setCurrentIndex(0);
 	teDataStorage::getInstance()->setCurrentLoadImageNum(filepaths.size());
 	teDataStorage::getInstance()->InitThreasholds(filepaths.size());
 	if (!filepaths.isEmpty())

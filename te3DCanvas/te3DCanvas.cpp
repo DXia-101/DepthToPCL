@@ -6,6 +6,8 @@
 #include <QElapsedTimer>
 #include <QRegularExpression>
 
+#include "Depth2RGB.h"
+
 #define DEBUG
 
 #ifdef DEBUG
@@ -250,49 +252,54 @@ bool te3DCanvas::SetBackgroundColor(QColor color)
 
 bool te3DCanvas::CoordinateAxisRendering(QString curaxis)
 {
-    double Z_Max = axisset.maxPt.z;
-    double Z_Min = axisset.minPt.z;
-    double Z_Median1 = Z_Min + (Z_Max - Z_Min) / 3;
-    double Z_Median2 = Z_Median1 + (Z_Max - Z_Min) / 3;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Elevation_rendering(new pcl::PointCloud<pcl::PointXYZRGB>);
 
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Elevation_rendering;
-    cloud_Elevation_rendering = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
+    // 根据curaxis选择处理的坐标轴及其范围
+    double min, max;
+    if (curaxis == "z")
+    {
+        min = teDataStorage::getInstance()->getCurrentInvalidPointThreshold();
+        max = teDataStorage::getInstance()->getCurrentValidPointThreshold();
+    }
+    else if (curaxis == "x")
+    {
+        min = axisset.minPt.x;
+        max = axisset.maxPt.x;
+    }
+    else if (curaxis == "y")
+    {
+        min = axisset.minPt.y;
+        max = axisset.maxPt.y;
+    }
 
+    TeJetColorCode trans;
     for (int index = 0; index < cloud->points.size(); ++index)
     {
-        if (cloud->points[index].z >= Z_Min && cloud->points[index].z < Z_Median1)
+        double value = 0;
+        if (curaxis == "z")
         {
-            pcl::PointXYZRGB point;
-            point.x = cloud->points[index].x;
-            point.y = cloud->points[index].y;
-            point.z = cloud->points[index].z;
-            point.r = 128 - int(((Z_Median1 - cloud->points[index].z) / (Z_Median1 - Z_Min)) * 128);
-            point.g = 255 - int(((Z_Median1 - cloud->points[index].z) / (Z_Median1 - Z_Min)) * 255);
-            point.b = 0 + int(((Z_Median1 - cloud->points[index].z) / (Z_Median1 - Z_Min)) * 255);
-            cloud_Elevation_rendering->push_back(point);
+            value = cloud->points[index].z;
         }
-        if (cloud->points[index].z >= Z_Median1 && cloud->points[index].z < Z_Median2)
+        else if (curaxis == "x")
         {
-            pcl::PointXYZRGB point;
-            point.x = cloud->points[index].x;
-            point.y = cloud->points[index].y;
-            point.z = cloud->points[index].z;
-            point.r = 255 - int(((Z_Median2 - cloud->points[index].z) / (Z_Median2 - Z_Median1)) * 128);
-            point.g = 255;
-            point.b = 0;
-            cloud_Elevation_rendering->push_back(point);
+            value = cloud->points[index].x;
         }
-        if (cloud->points[index].z >= Z_Median2 && cloud->points[index].z < Z_Max)
+        else if (curaxis == "y")
         {
-            pcl::PointXYZRGB point;
-            point.x = cloud->points[index].x;
-            point.y = cloud->points[index].y;
-            point.z = cloud->points[index].z;
-            point.r = 255;
-            point.g = 255 - int(((cloud->points[index].z - Z_Median2) / (Z_Max - Z_Median2)) * 255);
-            point.b = 0;
-            cloud_Elevation_rendering->push_back(point);
+            value = cloud->points[index].y;
         }
+
+        pcl::PointXYZRGB point = cloud->points[index];
+
+        float absDepth = value > min ? value : min;
+        absDepth = absDepth < max ? absDepth : max;
+        float realDepth = max == min ? 0 : ((absDepth - min) / (max - min));
+        int iIndex = 1023 * realDepth;//将[0-1.0]之间的数据映射到[0-1024)之间
+        point.r = trans.m_pJetTab1024[iIndex].r;
+        point.g = trans.m_pJetTab1024[iIndex].g;
+        point.b = trans.m_pJetTab1024[iIndex].b;
+
+        cloud_Elevation_rendering->push_back(point);
     }
     cloud->clear();
     pcl::copyPointCloud(*cloud_Elevation_rendering, *cloud);
