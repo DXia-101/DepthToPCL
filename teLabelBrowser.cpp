@@ -281,6 +281,7 @@ void teLabelBrowser::ColorSelect()
 			
 		}
 	}
+	emit sig_ColorChanged();
 }
 
 

@@ -30,6 +30,7 @@ public slots:
 	void ShowFirstImage();
 	void ShowAllItems();
 	void ShowCurrentImages();
+	void ReLoadGTAndRST();
 
 private:
 	void ShowAllResults();

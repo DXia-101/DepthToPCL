@@ -205,8 +205,8 @@ void te3DCanvasController::LoadPointCloud(QString fileName)
 
 void te3DCanvasController::ReLoadGTAndRST()
 {
-	m_te3DCanvas->RemoveDimentsion();
-	m_te3DCanvas->RemoveResult();
+	m_te3DCanvas->UpdateDimentsion();
+	m_te3DCanvas->UpdateResult();
 	//ShowAllItems();
 	m_te3DCanvas->m_renderer->GetRenderWindow()->Render();
 }

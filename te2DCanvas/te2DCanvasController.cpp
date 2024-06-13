@@ -168,6 +168,13 @@ void te2DCanvasController::ShowCurrentImages()
 	trans.dealWithCvt(image, -1);
 }
 
+void te2DCanvasController::ReLoadGTAndRST()
+{
+	m_te2DCanvas->RemoveDimentsion();
+	m_te2DCanvas->RemoveResult();
+	ShowAllItems();
+}
+
 void te2DCanvasController::ShowAllResults()
 {
 	te::SampleMark samplemark = teDataStorage::getInstance()->getCurrentResultSampleInfo();

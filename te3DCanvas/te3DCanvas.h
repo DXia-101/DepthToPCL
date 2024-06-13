@@ -74,8 +74,8 @@ public slots:
 
     void ShowDimension(int arg);
     void ShowResult(int arg);
-    void RemoveDimentsion();
-    void RemoveResult();
+    void UpdateDimentsion();
+    void UpdateResult();
 
     void ReductionPointCloud();
 

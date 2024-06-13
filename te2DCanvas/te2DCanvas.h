@@ -28,6 +28,10 @@ public:
 
 	void te2DCanvasMarkingCompleted();
 
+public:
+	void RemoveDimentsion();
+	void RemoveResult();
+
 public slots:
 	void MarkersShowInCanvas(te::AiInstance* instance, QString label, QColor color);
 	void ResultsShowInCanvas(te::AiInstance* instance, QString label, QColor color);

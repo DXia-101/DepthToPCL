@@ -239,7 +239,7 @@ void te3DCanvas::ShowResult(int arg)
     m_renderWindow->Render();
 }
 
-void te3DCanvas::RemoveDimentsion()
+void te3DCanvas::UpdateDimentsion()
 {
     auto itStr = markerPCID.begin();
     auto itPC = markerPointCloud.begin();
@@ -254,7 +254,7 @@ void te3DCanvas::RemoveDimentsion()
     }
 }
 
-void te3DCanvas::RemoveResult()
+void te3DCanvas::UpdateResult()
 {
     auto itStr = resultPCID.begin();
     auto itPC = resultPointCloud.begin();

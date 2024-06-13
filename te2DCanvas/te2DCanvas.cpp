@@ -225,3 +225,13 @@ void te2DCanvas::te2DCanvasMarkingCompleted()
     emit sig_PolygonMarkingCompleted(this->itemMgr(0)->items());
     teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
 }
+
+void te2DCanvas::RemoveDimentsion()
+{
+    this->itemMgr(0)->clearItems();
+}
+
+void te2DCanvas::RemoveResult()
+{
+    this->itemMgr(1)->clearItems();
+}

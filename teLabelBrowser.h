@@ -31,6 +31,7 @@ public:
 
 signals:
 	void sig_currentRowSelected(const QString& content, const QColor& fontColor);
+	void sig_ColorChanged();
 
 protected slots:
 	void on_addLabelButton_clicked();

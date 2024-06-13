@@ -148,6 +148,7 @@ signals:
 	void sig_LoadTrainImagesComplete();
 	void sig_currentLabelChange(const QString& content, const QColor& fontColor);
 	void sig_DataChangeDuringTraining(int iteration, float fAvgLoss, float fPosAcc);
+	void sig_ColorChanged();
 
 private:
 

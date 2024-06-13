@@ -72,6 +72,7 @@ void teDataStorage::displayUIInWidget(QVBoxLayout* layout)
 	m_teLabelBrowser->show();
 	teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
 	connect(m_teLabelBrowser, &teLabelBrowser::sig_currentRowSelected, this, &teDataStorage::currentRowChange);
+	connect(m_teLabelBrowser, &teLabelBrowser::sig_ColorChanged, this, &teDataStorage::sig_ColorChanged);
 }
 
 int teDataStorage::getCurrentIndex()
