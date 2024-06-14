@@ -129,7 +129,7 @@ void te2DCanvas::MarkersShowInCanvas(te::AiInstance* instance, QString label, QC
     te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({}, label);
     polygonItem->setPolygonList(contours);
     polygonItem->setPen(QColor(Qt::black));
-    color.setAlpha(80);
+    //color.setAlpha(80);
     polygonItem->setBrush(QBrush(color));
 
     //添加该item
@@ -150,7 +150,7 @@ void te2DCanvas::ResultsShowInCanvas(te::AiInstance* instance, QString label, QC
     te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({}, label);
     polygonItem->setPolygonList(contours);
     polygonItem->setPen(QColor(Qt::black));
-    color.setAlpha(80);
+    //color.setAlpha(80);
     polygonItem->setBrush(QBrush(color));
 
     //添加该item

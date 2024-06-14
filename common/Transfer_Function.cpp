@@ -11,7 +11,7 @@ void Transfer_Function::Cloud2cvMat(int width,int height,pcl::PointCloud<pcl::Po
 
     for (int i = 0; i < cloudin->size(); ++i) {
         float x = static_cast<float>(cloudin->points[i].x);
-        float y = static_cast<float>(cloudin->points[i].y);
+        float y = static_cast<float>(-cloudin->points[i].y);
         float z = cloudin->points[i].z;
 
         if (x >= 0 && x < width && y >= 0 && y < height) {
@@ -28,7 +28,7 @@ void Transfer_Function::cvMat2Cloud(double minHeight, double maxHeight, cv::Mat&
         for (int y = 0; y < imageIn.rows; ++y) {
             pcl::PointXYZRGB point;
             point.x = static_cast<float>(x);
-            point.y = static_cast<float>(y);
+            point.y = static_cast<float>(-y);
             if (CV_MAT_DEPTH(imageIn.type()) == CV_16U) {
                 point.z = static_cast<float>(imageIn.at<uint16_t>(y, x)) / 1000.0f;
             }
@@ -83,7 +83,7 @@ std::vector<std::vector<cv::Point>> Transfer_Function::Cloud2Contour(int width, 
 
     for (int i = 0; i < cloudin->size(); ++i) {
         float x = static_cast<float>(cloudin->points[i].x);
-        float y = static_cast<float>(cloudin->points[i].y);
+        float y = static_cast<float>(-cloudin->points[i].y);
 
         if (x >= 0 && x < width && y >= 0 && y < height) {
             image.at<uchar>(y, x) = 255;
