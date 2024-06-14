@@ -229,6 +229,7 @@ void MainInterface::LoadTrainingImages()
 	teDataStorage::getInstance()->setCurrentIndex(0);
 	teDataStorage::getInstance()->setCurrentLoadImageNum(filepaths.size());
 	teDataStorage::getInstance()->InitThreasholds(filepaths.size());
+	te3DCanvasController::getInstance()->NeedReload();
 	if (!filepaths.isEmpty())
 	{
 		if (ui->AutomaticCheckBox->isChecked()) {

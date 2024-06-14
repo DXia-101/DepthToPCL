@@ -106,5 +106,5 @@ private:
 
 	int hegithTransFactor = 1;
 	QString axis = "z";
-	bool IsNeedReload = true;
+	bool IsNeedReload = false;
 };
