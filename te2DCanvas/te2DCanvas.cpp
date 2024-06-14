@@ -205,7 +205,7 @@ void te2DCanvas::DrawLineGraphics(const QList<QPolygonF>& polyline)
 void te2DCanvas::DrawGraphics(const QList<QPolygonF>& region)
 {
     te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem(region, currentCategory);
-    currentColor.setAlpha(100);
+    //currentColor.setAlpha(100);
     polygonItem->setPen(QColor(currentColor));
     polygonItem->setBrush(QBrush(currentColor));
 

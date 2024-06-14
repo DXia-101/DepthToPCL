@@ -126,6 +126,7 @@ void te2DCanvasController::add2DAiInstance(QList<te::GraphicsItem*> polygonItems
 		sampleMark.gtDataSet.push_back(instance);
 	}
 	teDataStorage::getInstance()->updateCurrentTrainSampleMark(sampleMark);
+	emit teDataStorage::getInstance()->sig_updateCurrentTrainSampleMark();
 }
 
 void te2DCanvasController::ShowFirstImage()

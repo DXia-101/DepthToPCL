@@ -4,19 +4,31 @@
 #include <vtkActor.h>
 #include <vtkAutoInit.h>
 #include <vtkAxesActor.h>
+#include <vtkArrowSource.h>
+#include <vtkAppendPolyData.h>
 #include <vtkCamera.h>
+#include <vtkCellArray.h>
+#include <vtkCubeSource.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkInteractorStyleTrackballActor.h>
+#include <vtkInteractionStyleModule.h>
+#include <vtkInteractorStyle.h>
+#include <vtkLineSource.h>
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkPlaneSource.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkPropPicker.h>
+#include <vtkProperty.h>
+#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkSmartPointer.h>
-#include <vtkInteractionStyleModule.h>
-#include <vtkInteractorStyle.h>
-#include <vtkPropPicker.h>
-#include <vtkAutoInit.h>
+#include <vtkTransform.h>
+#include <vtkTransformPolyDataFilter.h>
+
 #include <Eigen/Dense>
 
 #include <QVTKOpenGLNativeWidget.h>

@@ -11,6 +11,7 @@
 #include "PointCloud_PointSize_Set_Dialog.h"
 #include "te3DPolyLine.h"
 
+
 #include <QStackedLayout>
 
 class te3DCanvasController  : public QObject
@@ -69,7 +70,7 @@ signals:
 	void sig_HeightTransform();
 
 	void sig_ManagePolyLine();
-private:
+public:
 	void ShowAllResults();
 	void ShowAllMarkers();
 

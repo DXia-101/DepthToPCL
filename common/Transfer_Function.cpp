@@ -164,17 +164,19 @@ void Transfer_Function::ExtractCloud2Cloud(pcl::PointCloud<pcl::PointXYZRGB>::Pt
         maxX = std::max(maxX, point.x);
         maxY = std::max(maxY, point.y);
     }
+    //std::cout << minX << " " << minY << " " << maxX << " " << maxY << std::endl;
 
     for (const auto& point : cloudIn->points)
     {
-        Eigen::Vector3f pointEigen(point.x, point.y, point.z);
+        Eigen::Vector3f pointEigen(point.x, -point.y, point.z);
 
         //Eigen::Vector3f pointProjected = pointEigen;
         pointEigen.z() = 0.0;
+        //std::cout << pointEigen.x() << " " << pointEigen.y() << " " << pointEigen.z() << std::endl;
 
         if (pointEigen.x() >= minX && pointEigen.x() <= maxX && pointEigen.y() >= minY && pointEigen.y() <= maxY)
         {
-            cv::Point2f p(point.x, point.y);
+            cv::Point2f p(point.x, -point.y);
             if (cv::pointPolygonTest(*contour, p, false) >= 0)
             {
                 cloudOut->push_back(point);

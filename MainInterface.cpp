@@ -52,6 +52,7 @@ MainInterface::MainInterface(QWidget *parent)
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, te3DCanvasController::getInstance(), &te3DCanvasController::CurrentLabelChange);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_ColorChanged, te3DCanvasController::getInstance(), &te3DCanvasController::ReLoadGTAndRST);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_ColorChanged, te2DCanvasController::getInstance(), &te2DCanvasController::ReLoadGTAndRST);
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_updateCurrentTrainSampleMark, te3DCanvasController::getInstance(), &te3DCanvasController::ShowAllMarkers);
 
 	connect(m_AiModelController, &AiModelController::sig_TestCompleted, teDataStorage::getInstance(), &teDataStorage::updateResultOperate);
 	connect(m_AiModelController, &AiModelController::sig_TestCompleted, te3DCanvasController::getInstance(), &te3DCanvasController::ShowAllItems);

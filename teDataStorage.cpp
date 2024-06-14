@@ -404,7 +404,9 @@ bool teDataStorage::updateResultSampleMark(int index, te::SampleMark& samplemark
 
 bool teDataStorage::updateCurrentTrainSampleMark(te::SampleMark& samplemark)
 {
-	return ResourceTable->updateRecord(currentIndex + 1, { std::pair<te::StdU8String,te::SampleMark>("TrainSampleMark",samplemark) });
+	bool ret = ResourceTable->updateRecord(currentIndex + 1, { std::pair<te::StdU8String,te::SampleMark>("TrainSampleMark",samplemark) });
+	
+	return ret;
 }
 
 bool teDataStorage::clearCurrentTrainSampleMark()
