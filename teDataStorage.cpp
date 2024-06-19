@@ -12,6 +12,8 @@ teDataStorage::teDataStorage(QObject *parent)
 	: QObject(parent)
 {
 	InitDatabase();
+	currentIndex = 0;
+	currentLoadImageNum = 0;
 }
 
 teDataStorage::~teDataStorage()

@@ -19,7 +19,6 @@ public:
 
 public slots:
 	void teUpDataSet(int iNum, int iLayerNum, bool bReset);
-	void GenerateCurrentData();
 
 private:
 	TeSampWidget* ImageBrowser;

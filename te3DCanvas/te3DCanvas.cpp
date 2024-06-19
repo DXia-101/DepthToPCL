@@ -271,9 +271,12 @@ void te3DCanvas::UpdateResult()
 
 void te3DCanvas::ReductionPointCloud()
 {
-    LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
-    reRenderOriginCloud(ReSetCamera);
-    emit sig_ShowAllItems();
+    if (teDataStorage::getInstance()->getCurrentLoadImageNum() != 0)
+    {
+        LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
+        reRenderOriginCloud(ReSetCamera);
+        emit sig_ShowAllItems();
+    }
 }
 
 bool te3DCanvas::SetBackgroundColor(QColor color)
@@ -739,53 +742,56 @@ void te3DCanvas::subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr
 
 void te3DCanvas::PerspectiveToYaxis()
 {
-    pcl::PointXYZRGB minPt, maxPt;
-    pcl::getMinMax3D(*cloud, minPt, maxPt);
-    Eigen::Vector3f center((maxPt.x + minPt.x) / 2, (maxPt.y + minPt.y) / 2, (maxPt.z + minPt.z) / 2);
-    Eigen::Vector3f diff = maxPt.getVector3fMap() - minPt.getVector3fMap();
-    float distance = diff.norm();
+    if (teDataStorage::getInstance()->getCurrentLoadImageNum() != 0)
+    {
+        Eigen::Vector3f center((axisset.maxPt.x + axisset.minPt.x) / 2, (axisset.maxPt.y + axisset.minPt.y) / 2, (axisset.maxPt.z + axisset.minPt.z) / 2);
+        Eigen::Vector3f diff = axisset.maxPt.getVector3fMap() - axisset.minPt.getVector3fMap();
+        float distance = diff.norm();
 
-    if (m_member.PositiveAndNegative_Y_axis)
-        viewer->setCameraPosition(center(0), center(1) + distance, center(2) , center(0), center(1), center(2), 1, 0, 0);
-    else
-        viewer->setCameraPosition(center(0), center(1) + distance, center(2) , center(0), center(1), center(2), -1, 0, 0);
-    m_member.PositiveAndNegative_Y_axis = !m_member.PositiveAndNegative_Y_axis;
-    viewer->updateCamera();
-    viewer->spinOnce();
+        if (m_member.PositiveAndNegative_Y_axis)
+            viewer->setCameraPosition(center(0), center(1) + distance, center(2), center(0), center(1), center(2), 1, 0, 0);
+        else
+            viewer->setCameraPosition(center(0), center(1) + distance, center(2), center(0), center(1), center(2), -1, 0, 0);
+        m_member.PositiveAndNegative_Y_axis = !m_member.PositiveAndNegative_Y_axis;
+        viewer->updateCamera();
+        viewer->spinOnce();
+    }
 }
 
 void te3DCanvas::PerspectiveToXaxis()
 {
-    pcl::PointXYZRGB minPt, maxPt;
-    pcl::getMinMax3D(*cloud, minPt, maxPt);
-    Eigen::Vector3f center((maxPt.x + minPt.x) / 2, (maxPt.y + minPt.y) / 2, (maxPt.z + minPt.z) / 2);
-    Eigen::Vector3f diff = maxPt.getVector3fMap() - minPt.getVector3fMap();
-    float distance = diff.norm();
+    if (teDataStorage::getInstance()->getCurrentLoadImageNum() != 0)
+    {
+        Eigen::Vector3f center((axisset.maxPt.x + axisset.minPt.x) / 2, (axisset.maxPt.y + axisset.minPt.y) / 2, (axisset.maxPt.z + axisset.minPt.z) / 2);
+        Eigen::Vector3f diff = axisset.maxPt.getVector3fMap() - axisset.minPt.getVector3fMap();
+        float distance = diff.norm();
 
-    if (m_member.PositiveAndNegative_X_axis)
-        viewer->setCameraPosition(center(0) + distance, center(1), center(2) , center(0), center(1), center(2), 1, 0, 0);
-    else
-        viewer->setCameraPosition(center(0) + distance, center(1), center(2) , center(0), center(1), center(2), -1, 0, 0);
-    m_member.PositiveAndNegative_X_axis = !m_member.PositiveAndNegative_X_axis;
-    viewer->updateCamera();
-    viewer->spinOnce();
+        if (m_member.PositiveAndNegative_X_axis)
+            viewer->setCameraPosition(center(0) + distance, center(1), center(2), center(0), center(1), center(2), 1, 0, 0);
+        else
+            viewer->setCameraPosition(center(0) + distance, center(1), center(2), center(0), center(1), center(2), -1, 0, 0);
+        m_member.PositiveAndNegative_X_axis = !m_member.PositiveAndNegative_X_axis;
+        viewer->updateCamera();
+        viewer->spinOnce();
+    }
 }
 
 void te3DCanvas::PerspectiveToZaxis()
 {
-    pcl::PointXYZRGB minPt, maxPt;
-    pcl::getMinMax3D(*cloud, minPt, maxPt);
-    Eigen::Vector3f center((maxPt.x + minPt.x) / 2, (maxPt.y + minPt.y) / 2, (maxPt.z + minPt.z) / 2);
-    Eigen::Vector3f diff = maxPt.getVector3fMap() - minPt.getVector3fMap();
-    float distance = diff.norm();
+    if (teDataStorage::getInstance()->getCurrentLoadImageNum() != 0)
+    {
+        Eigen::Vector3f center((axisset.maxPt.x + axisset.minPt.x) / 2, (axisset.maxPt.y + axisset.minPt.y) / 2, (axisset.maxPt.z + axisset.minPt.z) / 2);
+        Eigen::Vector3f diff = axisset.maxPt.getVector3fMap() - axisset.minPt.getVector3fMap();
+        float distance = diff.norm();
 
-    if (m_member.PositiveAndNegative_Z_axis)
-        viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), center(1), center(2), 1, 0, 0);
-    else
-        viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), center(1), center(2), -1, 0, 0);
-    m_member.PositiveAndNegative_Z_axis = !m_member.PositiveAndNegative_Z_axis;
-    viewer->updateCamera();
-    viewer->spinOnce();
+        if (m_member.PositiveAndNegative_Z_axis)
+            viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), center(1), center(2), 1, 0, 0);
+        else
+            viewer->setCameraPosition(center(0), center(1), center(2) + distance, center(0), center(1), center(2), -1, 0, 0);
+        m_member.PositiveAndNegative_Z_axis = !m_member.PositiveAndNegative_Z_axis;
+        viewer->updateCamera();
+        viewer->spinOnce();
+    }
 }
 
 void te3DCanvas::GuassFilter(QString data1, QString data2, QString data3, QString data4)
@@ -860,10 +866,13 @@ void te3DCanvas::LabelChanged(const QString& content, const QColor& fontColor)
 
 void te3DCanvas::HeightTransform(int factor)
 {
-    for (auto& point : cloud->points) {
-        point.z = point.z * factor;
+    if (factor != 1) 
+    {
+        for (auto& point : cloud->points) {
+            point.z = point.z * factor;
+        }
+        reRenderOriginCloud(ReSetCamera);
     }
-    reRenderOriginCloud(ReSetCamera);
 }
 
 void te3DCanvas::te3DCanvasStartMarking(QVector<QPointF>& pointlist)
