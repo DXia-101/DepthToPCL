@@ -93,6 +93,10 @@ int te3DCanvas::inOrNot1(int poly_sides, double* poly_X, double* poly_Y, double 
 /// </summary>
 void te3DCanvas::PolygonSelect()
 {
+    if (cloud->empty()) {
+        QMessageBox::warning(this, "Warning", u8"无点云输入");
+        return;
+    }
     double* FBRange = m_renderer->GetActiveCamera()->GetClippingRange();
 
     double* PloyXarr = new double[MarkerPointSet.size()];
@@ -288,6 +292,10 @@ bool te3DCanvas::SetBackgroundColor(QColor color)
 
 bool te3DCanvas::CoordinateAxisRendering(QString curaxis)
 {
+    if (cloud->empty()) {
+        QMessageBox::warning(this, "Warning", u8"无点云输入");
+        return false;
+    }
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Elevation_rendering(new pcl::PointCloud<pcl::PointXYZRGB>);
 
     // 根据curaxis选择处理的坐标轴及其范围
@@ -347,6 +355,10 @@ bool te3DCanvas::CoordinateAxisRendering(QString curaxis)
 
 bool te3DCanvas::PointCloudColorSet(QColor color)
 {
+    if (cloud->empty()) {
+        QMessageBox::warning(this, "Warning", u8"无点云输入");
+        return false;
+    }
     QColor temp;
     temp.setRgb(143, 153, 159, 255);
     if (!cloud->empty() && (color != temp)) {
@@ -364,6 +376,10 @@ bool te3DCanvas::PointCloudColorSet(QColor color)
 
 bool te3DCanvas::PointCloudPointSizeSet(int point_size)
 {
+    if (cloud->empty()) {
+        QMessageBox::warning(this, "Warning", u8"无点云输入");
+        return false;
+    }
     for (int i = 0; i < 1; ++i) {
         viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size, "cloud");
     }
@@ -650,6 +666,10 @@ void te3DCanvas::WorldToScreen(pcl::PointXYZRGB* input3D, vtkMatrix4x4* transfor
 
 void te3DCanvas::AxisAlignedBoundingBox()
 {
+    if (cloud->empty()) {
+        QMessageBox::warning(this, "Warning", u8"无点云输入");
+        return;
+    }
     pcl::PointXYZRGB min_point_AABB;
     pcl::PointXYZRGB max_point_AABB;
 
@@ -668,6 +688,10 @@ void te3DCanvas::AxisAlignedBoundingBox()
 
 void te3DCanvas::OrientedBoundingBox()
 {
+    if (cloud->empty()) {
+        QMessageBox::warning(this, "Warning", u8"无点云输入");
+        return;
+    }
     pcl::MomentOfInertiaEstimation<pcl::PointXYZ> feature_extractor;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>());
     pcl::copyPointCloud(*cloud, *cloud_xyz);
@@ -797,7 +821,7 @@ void te3DCanvas::PerspectiveToZaxis()
 void te3DCanvas::GuassFilter(QString data1, QString data2, QString data3, QString data4)
 {
     if (cloud->empty()) {
-        QMessageBox::warning(this, "Warning", "无点云输入");
+        QMessageBox::warning(this, "Warning", u8"无点云输入");
         return;
     }
     else {
@@ -838,7 +862,7 @@ void te3DCanvas::pcl_filter_guass(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_i
 void te3DCanvas::DirectFilter(QString data1, QString data2, QString data3, QString data4)
 {
     if (cloud->empty()) {
-        QMessageBox::warning(this, "Warning", "无点云输入");
+        QMessageBox::warning(this, "Warning", u8"无点云输入");
         return;
     }
     else {
@@ -866,7 +890,7 @@ void te3DCanvas::LabelChanged(const QString& content, const QColor& fontColor)
 
 void te3DCanvas::HeightTransform(int factor)
 {
-    if (factor != 1) 
+    if (factor != 1 && !cloud->empty())
     {
         for (auto& point : cloud->points) {
             point.z = point.z * factor;

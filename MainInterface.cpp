@@ -158,20 +158,23 @@ void MainInterface::on_ValidPointThresholdSpinBox_valueChanged(double arg)
 
 void MainInterface::on_ThresholdBtn_clicked()
 {
-	teDataStorage::getInstance()->DeleteCurrentPointCloudAndThumbnail();
+	if (teDataStorage::getInstance()->getCurrentLoadImageNum() != 0)
+	{
+		teDataStorage::getInstance()->DeleteCurrentPointCloudAndThumbnail();
 
-	teDataStorage::getInstance()->ValidPointThresholdChange(ui->ValidPointThresholdSpinBox->value());
-	teDataStorage::getInstance()->InvalidPointThresholdChange(ui->InvalidPointThresholdSpinBox->value());
+		teDataStorage::getInstance()->ValidPointThresholdChange(ui->ValidPointThresholdSpinBox->value());
+		teDataStorage::getInstance()->InvalidPointThresholdChange(ui->InvalidPointThresholdSpinBox->value());
 
-	//emit teImageBrowserController::getInstance()->sig_GenerateCurrentData();
+		//emit teImageBrowserController::getInstance()->sig_GenerateCurrentData();
 
-	if (TwoDState->active()) {
-		te2DCanvasController::getInstance()->ShowCurrentImages();
-		te2DCanvasController::getInstance()->showAllUI();
-	}
-	else if(ThrDState->active()) {
-		te3DCanvasController::getInstance()->NeedReload();
-		te3DCanvasController::getInstance()->showAllUI();
+		if (TwoDState->active()) {
+			te2DCanvasController::getInstance()->ShowCurrentImages();
+			te2DCanvasController::getInstance()->showAllUI();
+		}
+		else if (ThrDState->active()) {
+			te3DCanvasController::getInstance()->NeedReload();
+			te3DCanvasController::getInstance()->showAllUI();
+		}
 	}
 }
 
