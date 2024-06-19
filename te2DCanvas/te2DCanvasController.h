@@ -58,5 +58,5 @@ private:
 
 	te2DCanvas* m_te2DCanvas;
 	te2DCanvasToolBar* m_te2DCanvasToolBar;
-	bool IsNeedReload = true;
+	bool IsNeedReload = false;
 };
