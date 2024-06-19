@@ -40,8 +40,6 @@ public slots:
 	void StartMarked();
 	void Redo();
 	void Undo();
-	void ClearAll2DCanvasMarks();
-	void ClearAll2DCanvasResult();
 	void setImg(te::Image* img);
 	void ShowDimension(int arg);
 	void ShowResult(int arg);
@@ -55,7 +53,6 @@ signals:
 
 private:
 	void InitStateMachine();
-
 	void DrawPolygonGraphics(const QPolygonF& polygon);
 	void DrawRectGraphics(const QRectF& rect);
 	void DrawLineGraphics(const QList<QPolygonF>& polyline);

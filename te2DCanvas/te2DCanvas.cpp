@@ -20,17 +20,6 @@ te2DCanvas::~te2DCanvas()
     
 }
 
-void te2DCanvas::ClearAll2DCanvasMarks()
-{
-    this->itemMgr(0)->clearItems();
-}
-
-void te2DCanvas::ClearAll2DCanvasResult()
-{
-    this->itemMgr(1)->clearItems();
-}
-
-
 void te2DCanvas::setImg(te::Image* img)
 {
     setImage(*img);
@@ -121,9 +110,7 @@ void te2DCanvas::MarkersShowInCanvas(te::AiInstance* instance, QString label, QC
             point.setY(static_cast<float>(polygonPoint.y));
             polygonF.append(point);
         }
-
         contours.append(polygonF);
-
     }
 
     te::ConnectedRegionGraphicsItem* polygonItem = new te::ConnectedRegionGraphicsItem({}, label);

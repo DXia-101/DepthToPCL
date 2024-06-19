@@ -17,7 +17,6 @@ public:
 	void displayToolBarInWidget(QVBoxLayout* layout);
 	void displayCanvasInWidget(QStackedLayout* layout);
 	void setImage(const te::Image& img, bool resetView = true);
-	void ResetImage();
 
 signals:
 	void sig_ClearAll2DCanvasSymbol();
