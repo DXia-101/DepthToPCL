@@ -60,12 +60,12 @@ void te3DCanvasToolBar::InitInterface()
     connect(AxisAlignedBounding, &QAction::triggered, this, &te3DCanvasToolBar::sig_AABBSurrounding);
     connect(OrientedBounding, &QAction::triggered, this, &te3DCanvasToolBar::sig_OBBSurrounding);
 
-    QMenu* Filter_menu = new QMenu("滤波", menu_bar);
+    QMenu* Filter_menu = new QMenu("工具", menu_bar);
 
     QAction* Gaussian_filter = new QAction("高斯滤波");
-    QAction* Direct_filter = new QAction("直通滤波");
+    QAction* Direct_filter = new QAction("Cross Section");
 
-    Filter_menu->addAction(Gaussian_filter);
+    //Filter_menu->addAction(Gaussian_filter);
     Filter_menu->addAction(Direct_filter);
 
     menu_bar->addMenu(Filter_menu);
