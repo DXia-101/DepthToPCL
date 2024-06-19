@@ -142,7 +142,7 @@ void te3DCanvas::PolygonSelect()
     vtkSmartPointer<vtkPropCollection> propCollection = m_renderer->GetViewProps();
     vtkProp3D* pActor = vtkProp3D::SafeDownCast(propCollection->GetLastProp());
     pActor->SetUserTransform(m_CustomInteractor->m_pRotationTransform);
-
+    //subtractTargetPointcloud(cloud, cloud_cliped);
     emit sig_3DCanvasMarkingCompleted(cloud_cliped);
 
     m_renderWindow->Render();

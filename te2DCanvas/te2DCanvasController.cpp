@@ -95,10 +95,11 @@ void te2DCanvasController::showAllUI()
 		ShowAllItems();
 		IsNeedReload = false;
 	}
-	else 
+	else if(!IsFirstShow)
 	{
 		ShowAllItems();
 	}
+	IsFirstShow = false;
 }
 
 void te2DCanvasController::add2DAiInstance(QList<te::GraphicsItem*> polygonItems)
