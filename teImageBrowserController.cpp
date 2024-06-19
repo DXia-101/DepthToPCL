@@ -105,6 +105,7 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
     teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
     teDataStorage::getInstance()->updateResultWidget(teDataStorage::getInstance()->getCurrentResultMarksNumber());
     te3DCanvasController::getInstance()->NeedReload();
+    te2DCanvasController::getInstance()->NeedReload();
     if (CurrentState == ThrD) {
         te3DCanvasController::getInstance()->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
     }

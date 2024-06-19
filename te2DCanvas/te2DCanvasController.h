@@ -31,6 +31,7 @@ public slots:
 	void ShowAllItems();
 	void ShowCurrentImages();
 	void ReLoadGTAndRST();
+	void NeedReload();
 
 private:
 	void ShowAllResults();
@@ -57,4 +58,5 @@ private:
 
 	te2DCanvas* m_te2DCanvas;
 	te2DCanvasToolBar* m_te2DCanvasToolBar;
+	bool IsNeedReload = true;
 };

@@ -222,6 +222,7 @@ bool teLabelBrowser::checkFirstColumn(const QString& searchString)
 
 QColor teLabelBrowser::getFontColorByFirstColumnValue(const QString& searchString)
 {
+	int size = LabelWidget->rowCount();
 	for (int row = 0; row < LabelWidget->rowCount(); ++row) {
 		QTableWidgetItem* item = LabelWidget->item(row, 0);
 

@@ -5,6 +5,7 @@
 
 #include "AiModelController.h"
 #include "teTrainStatisticsChart.h"
+#include "teLabelBrowser.h"
 
 #include <QStateMachine>
 #include <QState>
@@ -56,6 +57,7 @@ private:
 	AiModelController* m_AiModelController;
 	teTrainStatisticsChart* m_SChart;
 	QStackedLayout* stacklayout;
+	teLabelBrowser* m_teLabelBrowser;
 
 	bool HastheImageBeenLoaded = false;
 };

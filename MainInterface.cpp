@@ -22,25 +22,26 @@ MainInterface::MainInterface(QWidget *parent)
 	currentDir.mkdir("workspace");
 
 	ui->setupUi(this);
-	this->showMaximized();
+	
 	stacklayout = new QStackedLayout();
 	ui->CanvasLayout->addLayout(stacklayout);
 	stacklayout->setStackingMode(QStackedLayout::StackAll);
+	teDataStorage::getInstance()->displayUIInWidget(ui->labelLayout);
+	teImageBrowserController::getInstance()->displayUIInWidget(ui->browserLayout);
 	te3DCanvasController::getInstance()->displayCanvasInWidget(stacklayout);
 	te2DCanvasController::getInstance()->displayCanvasInWidget(stacklayout);
 	te3DCanvasController::getInstance()->displayToolBarInWidget(ui->CanvasToolBarLayout);
 	te2DCanvasController::getInstance()->displayToolBarInWidget(ui->CanvasToolBarLayout);
-	te3DCanvasController::getInstance()->hideAllUI();
-	
-	te2DCanvasController::getInstance()->showAllUI();
-	teDataStorage::getInstance()->displayUIInWidget(ui->labelLayout);
-	teImageBrowserController::getInstance()->displayUIInWidget(ui->browserLayout);
-
 	m_AiModelController = new AiModelController();
 	m_AiModelController->displayUIInWidget(ui->labelLayout);
 
 	InitStateMachine();
 	InitToolBar();
+	
+	te3DCanvasController::getInstance()->hideAllUI();
+	
+	te2DCanvasController::getInstance()->showAllUI();
+	this->showMaximized();
 	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ChangeCurrentState);
 	connect(this, &MainInterface::sig_setHeightCoefficientFactor, te3DCanvasController::getInstance(), &te3DCanvasController::sig_setHeightCoefficientFactor);
 
@@ -169,6 +170,7 @@ void MainInterface::on_ThresholdBtn_clicked()
 
 		if (TwoDState->active()) {
 			te2DCanvasController::getInstance()->ShowCurrentImages();
+			te2DCanvasController::getInstance()->NeedReload();
 			te2DCanvasController::getInstance()->showAllUI();
 		}
 		else if (ThrDState->active()) {

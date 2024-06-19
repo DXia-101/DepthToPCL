@@ -103,7 +103,15 @@ void te2DCanvasController::showAllUI()
 {
 	m_te2DCanvasToolBar->show();
 	m_te2DCanvas->show();
-	ShowAllItems();
+	if (IsNeedReload) 
+	{
+		ResetImage();
+		IsNeedReload = false;
+	}
+	else 
+	{
+		ShowAllItems();
+	}
 }
 
 void te2DCanvasController::add2DAiInstance(QList<te::GraphicsItem*> polygonItems)
@@ -174,6 +182,11 @@ void te2DCanvasController::ReLoadGTAndRST()
 	m_te2DCanvas->RemoveDimentsion();
 	m_te2DCanvas->RemoveResult();
 	ShowAllItems();
+}
+
+void te2DCanvasController::NeedReload()
+{
+	IsNeedReload = true;
 }
 
 void te2DCanvasController::ShowAllResults()
