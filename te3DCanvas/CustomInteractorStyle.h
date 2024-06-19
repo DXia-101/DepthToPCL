@@ -18,6 +18,8 @@ public:
 	virtual void OnMouseMove()override;
 	virtual void OnLeftButtonDown() override;
 	virtual void OnLeftButtonUp() override;
+	virtual void OnRightButtonDown() override;
+	virtual void OnRightButtonUp() override;
 	void setRotationCenter(double x,double y,double z);
 
 	using CallbackFunction = std::function<void()>;

@@ -201,6 +201,14 @@ void CustomInteractorStyle::OnLeftButtonUp()
 	vtkInteractorStyleTrackballCamera::OnLeftButtonUp();
 }
 
+void CustomInteractorStyle::OnRightButtonDown()
+{
+}
+
+void CustomInteractorStyle::OnRightButtonUp()
+{
+}
+
 void CustomInteractorStyle::setRotationCenter(double x, double y, double z)
 {
 	rotationCenter[0] = x;
