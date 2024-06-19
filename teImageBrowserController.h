@@ -27,11 +27,12 @@ public slots:
 	void ChangeCurrentState();
 	void UpdateItem(int* pIndex, int len);
 	void SwitchImg(int pIndex, int len);
-	void ItemActive(int* pIndex, int len);
+	void teUpDataSet(int iNum, int iLayerNum, bool bReset);
 
 private:
 	TeSampWidget* ImageBrowser;
 	teImageBrowserWorkThread* worker;
+	QThread* thread;
 
 signals:
 	void sig_ChangeCurrentState();

@@ -895,8 +895,8 @@ void te3DCanvas::HeightTransform(int factor)
         for (auto& point : cloud->points) {
             point.z = point.z * factor;
         }
-        reRenderOriginCloud(ReSetCamera);
     }
+    reRenderOriginCloud(ReSetCamera);
 }
 
 void te3DCanvas::te3DCanvasStartMarking(QVector<QPointF>& pointlist)

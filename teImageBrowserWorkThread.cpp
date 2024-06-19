@@ -14,8 +14,8 @@
 #include <QFileInfo>
 #include <QDebug>
 
-teImageBrowserWorkThread::teImageBrowserWorkThread(QThread*parent)
-	: QThread(parent)
+teImageBrowserWorkThread::teImageBrowserWorkThread(QObject*parent)
+	: QObject(parent)
 {
     GTShowFlag = false;
     RSTShowFlag = false;
@@ -29,7 +29,7 @@ void teImageBrowserWorkThread::setImageBrowser(TeSampWidget * browser)
     ImageBrowser = browser;
 }
 
-void teImageBrowserWorkThread::run()
+void teImageBrowserWorkThread::ItemActive(int* pIndex, int len)
 {
     for (int i = 0; i < len; i++) {
         if (!QFile::exists(QString::fromStdString(teDataStorage::getInstance()->getShrinkageChart()[pIndex[i]]))) {
@@ -52,7 +52,6 @@ void teImageBrowserWorkThread::run()
                 else if (CV_MAT_DEPTH(image.type() == CV_32F)) {
                     if (!trans.cvt32F2BGR(teDataStorage::getInstance()->getCurrentInvalidPointThreshold(), teDataStorage::getInstance()->getCurrentValidPointThreshold(), image, median)) { return; }
                 }
-                cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
                 cv::resize(median, median, cv::Size(80, 80));
                 cv::imwrite(teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp", median);
                 teDataStorage::getInstance()->updateShrinkageChart(teDataStorage::getInstance()->getCurrentIndex(), teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(teDataStorage::getInstance()->getCurrentIndex()) + "_thumb.bmp");
@@ -78,15 +77,4 @@ void teImageBrowserWorkThread::run()
             teDataStorage::getInstance()->updatePointCloud(pIndex[i], teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(pIndex[i]) + "_thumb.pcd");
         }
     }
-}
-
-void teImageBrowserWorkThread::setItemActive(int* pIndex, int len)
-{
-    this->pIndex = pIndex;
-    this->len = len;
-}
-
-void teImageBrowserWorkThread::teUpDataSet(int iNum, int iLayerNum, bool bReset)
-{
-    ImageBrowser->teUpDateSet(iNum, iLayerNum, bReset);
 }

@@ -13,6 +13,7 @@
 #include <QFileInfo>BlockingQueuedConnection
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QThread>
 
 #define DEBUG
 
@@ -26,18 +27,24 @@ constexpr bool ThrD = true;
 teImageBrowserController::teImageBrowserController(QObject *parent)
 	: QObject(parent)
 {
+    CurrentState = TwoD;
 	ImageBrowser = new TeSampWidget();
+    thread = new QThread();
     worker = new teImageBrowserWorkThread();
     worker->setImageBrowser(ImageBrowser);
-        
-    CurrentState = TwoD;
+    worker->moveToThread(thread);
+    
+    connect(thread, &QThread::finished, worker, &QObject::deleteLater);
+    connect(worker, &QObject::destroyed, thread, &QThread::quit);
+    connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
     connect(ImageBrowser, &TeSampWidget::sig_SwitchImg, this, &teImageBrowserController::SwitchImg, Qt::DirectConnection);
     connect(this, &teImageBrowserController::sig_ChangeCurrentState, this, &teImageBrowserController::ChangeCurrentState);
     connect(ImageBrowser, &TeSampWidget::sig_UpDateItem, this, &teImageBrowserController::UpdateItem);
-    connect(ImageBrowser, &TeSampWidget::sig_ItemActive, this, &teImageBrowserController::ItemActive);
-    connect(this, &teImageBrowserController::sig_teUpDataSet,worker, &teImageBrowserWorkThread::teUpDataSet, Qt::QueuedConnection);
-    //connect(this, &teImageBrowserController::sig_GenerateCurrentData, worker, &teImageBrowserWorkThread::GenerateCurrentData);
+    connect(ImageBrowser, &TeSampWidget::sig_ItemActive, worker, &teImageBrowserWorkThread::ItemActive);
+    connect(this, &teImageBrowserController::sig_teUpDataSet, this, &teImageBrowserController::teUpDataSet);
+    
+    thread->start();
 }
 
 teImageBrowserController::~teImageBrowserController()
@@ -92,7 +99,6 @@ void teImageBrowserController::UpdateItem(int* pIndex, int len)
     }
 }
 
-
 void teImageBrowserController::SwitchImg(int pIndex, int len)
 {
     teDataStorage::getInstance()->setCurrentIndex(pIndex);
@@ -115,10 +121,9 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
     }
 }
 
-void teImageBrowserController::ItemActive(int* pIndex, int len)
+void teImageBrowserController::teUpDataSet(int iNum, int iLayerNum, bool bReset)
 {
-    worker->setItemActive(pIndex, len);
-    worker->start();
+    ImageBrowser->teUpDateSet(iNum, iLayerNum, bReset);
 }
 
 void teImageBrowserController::ChangeCurrentState()
