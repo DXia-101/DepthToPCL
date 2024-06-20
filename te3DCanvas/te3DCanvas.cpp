@@ -423,6 +423,10 @@ void te3DCanvas::MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
         markerPointCloud.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>{cloud_marked}));
     }
     viewer->addPointCloud(cloud_marked, currentColor, CloudId.toStdString());
+
+    vtkSmartPointer<vtkPropCollection> propCollection = m_renderer->GetViewProps();
+    vtkProp3D* pActor = vtkProp3D::SafeDownCast(propCollection->GetLastProp());
+    pActor->SetUserTransform(m_CustomInteractor->m_pRotationTransform);
     m_renderWindow->Render();
 }
 
@@ -459,6 +463,11 @@ void te3DCanvas::ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
         resultPointCloud.insert(std::make_pair(teDataStorage::getInstance()->getCurrentLabelCategory(), std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>{cloud_marked}));
     }
     viewer->addPointCloud(cloud_marked, currentColor, CloudId.toStdString());
+
+    vtkSmartPointer<vtkPropCollection> propCollection = m_renderer->GetViewProps();
+    vtkProp3D* pActor = vtkProp3D::SafeDownCast(propCollection->GetLastProp());
+    pActor->SetUserTransform(m_CustomInteractor->m_pRotationTransform);
+
     m_renderWindow->Render();
 }
 
