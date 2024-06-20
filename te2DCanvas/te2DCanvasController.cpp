@@ -95,7 +95,7 @@ void te2DCanvasController::showAllUI()
 		ShowAllItems();
 		IsNeedReload = false;
 	}
-	else if(!IsFirstShow)
+	else if(IsFirstShow != true)
 	{
 		ShowAllItems();
 	}

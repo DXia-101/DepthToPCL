@@ -72,7 +72,7 @@ void teDataStorage::displayUIInWidget(QVBoxLayout* layout)
 	m_teLabelBrowser = new teLabelBrowser();
 	layout->addWidget(m_teLabelBrowser);
 	m_teLabelBrowser->show();
-	teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
+	//teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
 	connect(m_teLabelBrowser, &teLabelBrowser::sig_currentRowSelected, this, &teDataStorage::currentRowChange);
 	connect(m_teLabelBrowser, &teLabelBrowser::sig_ColorChanged, this, &teDataStorage::sig_ColorChanged);
 }
@@ -143,6 +143,17 @@ void teDataStorage::updateTrainWidget(QMap<QString, int>& nameCounts)
 			if (nameCounts.contains(name))
 			{
 				int count = nameCounts.value(name);
+				QTableWidgetItem* countItem = m_teLabelBrowser->LabelWidget->item(row, 1);
+				if (!countItem)
+				{
+					countItem = new QTableWidgetItem();
+					m_teLabelBrowser->LabelWidget->setItem(row, 1, countItem);
+				}
+				countItem->setData(Qt::DisplayRole, count);
+			}
+			else if (nameCounts.size() == 0 || !(nameCounts.contains(name)))
+			{
+				int count = 0;
 				QTableWidgetItem* countItem = m_teLabelBrowser->LabelWidget->item(row, 1);
 				if (!countItem)
 				{

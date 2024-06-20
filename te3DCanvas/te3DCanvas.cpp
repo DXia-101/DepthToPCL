@@ -120,12 +120,14 @@ void te3DCanvas::PolygonSelect()
             cloud_cliped->points.push_back(cloud->points.at(i));
         }
     }
+    if (cloud_cliped->points.size() == 0)
+        return;
 
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> currentColor(cloud_cliped, currentColor.red(), currentColor.green(), currentColor.blue());
     QString CloudId;
     QString test = teDataStorage::getInstance()->getCurrentLabelCategory();
     auto it = markerPCID.find(teDataStorage::getInstance()->getCurrentLabelCategory());
-    auto pct = resultPointCloud.find(teDataStorage::getInstance()->getCurrentLabelCategory());
+    auto pct = markerPointCloud.find(teDataStorage::getInstance()->getCurrentLabelCategory());
     if (it != markerPCID.end()) {
         QString count = incrementNumber(it->second.back());
         CloudId = teDataStorage::getInstance()->getCurrentLabelCategory() + QString::number(teDataStorage::getInstance()->getCurrentIndex()) + "marker" + count;

@@ -39,8 +39,6 @@ MainInterface::MainInterface(QWidget *parent)
 	InitToolBar();
 	
 	te3DCanvasController::getInstance()->hideAllUI();
-	
-	te2DCanvasController::getInstance()->showAllUI();
 	this->showMaximized();
 	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ChangeCurrentState);
 	connect(this, &MainInterface::sig_setHeightCoefficientFactor, te3DCanvasController::getInstance(), &te3DCanvasController::sig_setHeightCoefficientFactor);

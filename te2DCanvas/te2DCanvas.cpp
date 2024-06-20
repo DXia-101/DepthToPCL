@@ -174,6 +174,8 @@ void te2DCanvas::InitStateMachine()
 
 void te2DCanvas::DrawPolygonGraphics(const QPolygonF& polygon)
 {
+    if (polygon.size() < 4)
+        return;
     DrawGraphics({ polygon });
 }
 
