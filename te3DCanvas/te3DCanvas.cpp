@@ -689,6 +689,10 @@ void te3DCanvas::AxisAlignedBoundingBox()
     viewer->addCube(min_point_AABB.x, max_point_AABB.x, min_point_AABB.y, max_point_AABB.y, min_point_AABB.z, max_point_AABB.z, 1.0, 1.0, 0.0, "AABB");
     viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, "AABB");
 
+    vtkSmartPointer<vtkPropCollection> propCollection = m_renderer->GetViewProps();
+    vtkProp3D* pActor = vtkProp3D::SafeDownCast(propCollection->GetLastProp());
+    pActor->SetUserTransform(m_CustomInteractor->m_pRotationTransform);
+
     m_renderWindow->Render();
 
     while (!viewer->wasStopped())
@@ -730,6 +734,11 @@ void te3DCanvas::OrientedBoundingBox()
     Eigen::Quaternionf quat(rotational_matrix_OBB);
     viewer->addCube(position, quat, max_point_OBB.x - min_point_OBB.x, max_point_OBB.y - min_point_OBB.y, max_point_OBB.z - min_point_OBB.z, "OBB");
     viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, "OBB");
+    
+    vtkSmartPointer<vtkPropCollection> propCollection = m_renderer->GetViewProps();
+    vtkProp3D* pActor = vtkProp3D::SafeDownCast(propCollection->GetLastProp());
+    pActor->SetUserTransform(m_CustomInteractor->m_pRotationTransform);
+
     m_renderWindow->Render();
 
     while (!viewer->wasStopped())

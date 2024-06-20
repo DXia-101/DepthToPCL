@@ -75,6 +75,21 @@ void CustomInteractorStyle::rotateAroundAxis(double angle, std::vector<double>& 
 	point->at(2) = result.at<double>(2, 0);
 }
 
+void CustomInteractorStyle::rotateByQuaternion(double angle, std::vector<double>& axis, vtkSmartPointer<vtkTransform>& transform)
+{
+	Quaternion q = Quaternion::fromAxisAngle(axis, angle);
+	std::vector<std::vector<double>> mat = q.toMatrix();
+
+	vtkSmartPointer<vtkMatrix4x4> vtkMat = vtkSmartPointer<vtkMatrix4x4>::New();
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			vtkMat->SetElement(i, j, mat[i][j]);
+		}
+	}
+
+	transform->Concatenate(vtkMat);
+}
+
 std::vector<double>& CustomInteractorStyle::getXActor()
 {
 	return Actor_xAxis;
@@ -84,7 +99,7 @@ std::vector<double>& CustomInteractorStyle::getYActor()
 {
 	return Actor_yAxis;
 }
-
+#ifndef _CC_
 void CustomInteractorStyle::OnMouseMove()
 {
 	if (!m_bLBtnDown) //没有按下鼠标左键
@@ -169,7 +184,67 @@ void CustomInteractorStyle::OnMouseMove()
 	m_renderer->ResetCameraClippingRange();
 	this->Interactor->GetRenderWindow()->Render();
 }
+#else
+void CustomInteractorStyle::OnMouseMove()
+{
+	if (!m_bLBtnDown) // 没有按下鼠标左键
+	{
+		vtkInteractorStyleTrackballCamera::OnMouseMove();
+		return;
+	}
 
+	int X = this->Interactor->GetEventPosition()[0];
+	int Y = this->Interactor->GetEventPosition()[1];
+	double deltX = (X - m_nOldMousePosX) * 0.1;
+	double deltY = (Y - m_nOldMousePosY) * 0.1;
+
+	// 获取当前相机的视图方向
+	vtkSmartPointer<vtkCamera> camera = m_renderer->GetActiveCamera();
+	double viewUp[3];
+	camera->GetViewUp(viewUp);
+	double focalPoint[3];
+	camera->GetFocalPoint(focalPoint);
+	double position[3];
+	camera->GetPosition(position);
+
+	double viewDirection[3];
+	for (int i = 0; i < 3; ++i)
+	{
+		viewDirection[i] = focalPoint[i] - position[i];
+	}
+	vtkMath::Normalize(viewDirection);
+
+	// 计算左右翻转的轴（与视图方向和viewUp向量垂直）
+	double rightAxis[3];
+	vtkMath::Cross(viewDirection, viewUp, rightAxis);
+	vtkMath::Normalize(rightAxis);
+
+	if (!m_pRotationTransform)
+	{
+		m_pRotationTransform = vtkSmartPointer<vtkTransform>::New();
+		m_pRotationTransform->Identity();
+	}
+
+	// 处理前后翻转（绕右轴旋转）
+	rotateByQuaternion(-deltY, std::vector<double>{rightAxis[0], rightAxis[1], rightAxis[2]}, m_pRotationTransform);
+
+	// 处理左右翻转（绕viewUp轴旋转）
+	rotateByQuaternion(deltX, std::vector<double>{viewUp[0], viewUp[1], viewUp[2]}, m_pRotationTransform);
+
+	for (int i = 0; i < m_pSelectedActor.size(); ++i)
+	{
+		if (m_pSelectedActor[i] == nullptr) {
+			continue;
+		}
+		m_pSelectedActor[i]->SetUserTransform(m_pRotationTransform);
+	}
+
+	m_nOldMousePosX = X;
+	m_nOldMousePosY = Y;
+	m_renderer->ResetCameraClippingRange();
+	this->Interactor->GetRenderWindow()->Render();
+}
+#endif
 void CustomInteractorStyle::OnLeftButtonDown()
 {
 	m_bLBtnDown = true;
