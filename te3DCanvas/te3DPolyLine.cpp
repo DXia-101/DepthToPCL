@@ -65,6 +65,12 @@ void te3DPolyLine::paintEvent(QPaintEvent* e)
             QLineF line(QPointF(pointList.back().x(), pointList.back().y()), mapFromGlobal(QCursor::pos()));
             lines.push_back(line);
         }
+        if (pointList.size() > 1)
+        {
+            QLineF line(QPointF(pointList.front().x(), pointList.front().y()), mapFromGlobal(QCursor::pos()));
+            lines.push_back(line);
+        }
+
         painter.drawLines(lines);
     }
     else if (!bDraw && bOverDraw)
