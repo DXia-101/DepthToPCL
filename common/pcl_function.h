@@ -15,6 +15,7 @@
 #include <vtkInteractionStyleModule.h>
 #include <vtkInteractorStyle.h>
 #include <vtkLineSource.h>
+#include <vtkMath.h>
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkPlaneSource.h>
 #include <vtkPoints.h>
@@ -22,6 +23,7 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkPropPicker.h>
 #include <vtkProperty.h>
+#include <vtkQuaternion.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>

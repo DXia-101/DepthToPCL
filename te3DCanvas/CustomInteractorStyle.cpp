@@ -51,28 +51,60 @@ void CustomInteractorStyle::setRenderWindow(vtkRenderWindow* window, vtkSmartPoi
 //	vtkInteractorStyleTrackballCamera::OnMiddleButtonUp();
 //}
 
-void CustomInteractorStyle::rotateAroundAxis(double angle, std::vector<double>& axis, std::vector<double>* point)
+void CustomInteractorStyle::rotateAroundAxis(double dx, double dy, std::vector<double>* xAxis, std::vector<double>* yAxis)
 {
-	cv::Point3d OutPoint = cv::Point3d(0, 0, 0);
-	mat = cv::Mat();
-	RotateAroundAxis(cv::Point3d(point->at(0), point->at(1), point->at(2)), cv::Point3d(0, 0, 0),
-		cv::Vec3d(axis.at(0), axis.at(1), axis.at(2)), cv::saturate_cast<double>(angle * CV_PI / 180.0),
-		OutPoint, mat);
+	if ((dx != 0 || dy != 0))
+	{
+		double delta = pow((dx * dx + dy * dy), 0.5) * 0.1;
 
-	mat = mat(cv::Rect(0, 0, 3, 3));
-	cv::invert(mat, submatrix);
-	cv::Mat matrix1_mat(3, 1, CV_64F);
+		std::cout << "dx: " << dx << " dy: " << dy << " angle:" << delta * (M_PI / 180.0) << std::endl;
+		std::cout << std::endl;
+		cv::Point3d OutPoint = cv::Point3d(0, 0, 0);
+		std::vector<double> baseAxis = {
+			dx * xAxis->at(0) + dy * yAxis->at(0),
+			dx * xAxis->at(1) + dy * yAxis->at(1),
+			dx * xAxis->at(2) + dy * yAxis->at(2)
+		};
+		std::vector<double> zAxis = {
+			(xAxis->at(1) * yAxis->at(2) - xAxis->at(2) * yAxis->at(1)),
+			(xAxis->at(2) * yAxis->at(0) - xAxis->at(0) * yAxis->at(2)),
+			(xAxis->at(0) * yAxis->at(1) - xAxis->at(1) * yAxis->at(0))
+		};
+		std::vector<double> rotateAxis = {
+			(zAxis.at(1) * baseAxis.at(2) - zAxis.at(2) * baseAxis.at(1)),
+			(zAxis.at(2) * baseAxis.at(0) - zAxis.at(0) * baseAxis.at(2)),
+			(zAxis.at(0) * baseAxis.at(1) - zAxis.at(1) * baseAxis.at(0))
+		};
+		mat = cv::Mat();
+		RotateAroundAxis(cv::Point3d(yAxis->at(0), yAxis->at(1), yAxis->at(2)), cv::Point3d(0, 0, 0),
+			cv::Vec3d(rotateAxis.at(0), rotateAxis.at(1), rotateAxis.at(2)), delta * (M_PI / 180.0),
+			OutPoint, mat);
 
-	matrix1_mat.at<double>(0, 0) = point->at(0);
-	matrix1_mat.at<double>(1, 0) = point->at(1);
-	matrix1_mat.at<double>(2, 0) = point->at(2);
+		mat = mat(cv::Rect(0, 0, 3, 3));
+		cv::invert(mat, submatrix);
+		cv::Mat matrix1_mat(3, 1, CV_64F);
 
-	cv::Mat result;
-	result = submatrix * matrix1_mat;
+		matrix1_mat.at<double>(0, 0) = yAxis->at(0);
+		matrix1_mat.at<double>(1, 0) = yAxis->at(1);
+		matrix1_mat.at<double>(2, 0) = yAxis->at(2);
 
-	point->at(0) = result.at<double>(0, 0);
-	point->at(1) = result.at<double>(1, 0);
-	point->at(2) = result.at<double>(2, 0);
+		cv::Mat result;
+		result = submatrix * matrix1_mat;
+
+		yAxis->at(0) = result.at<double>(0, 0);
+		yAxis->at(1) = result.at<double>(1, 0);
+		yAxis->at(2) = result.at<double>(2, 0);
+
+		matrix1_mat.at<double>(0, 0) = xAxis->at(0);
+		matrix1_mat.at<double>(1, 0) = xAxis->at(1);
+		matrix1_mat.at<double>(2, 0) = xAxis->at(2);
+
+		result = submatrix * matrix1_mat;
+
+		xAxis->at(0) = result.at<double>(0, 0);
+		xAxis->at(1) = result.at<double>(1, 0);
+		xAxis->at(2) = result.at<double>(2, 0);
+	}
 }
 
 void CustomInteractorStyle::rotateByQuaternion(double angle, std::vector<double>& axis, vtkSmartPointer<vtkTransform>& transform)
@@ -110,12 +142,17 @@ void CustomInteractorStyle::OnMouseMove()
 	
 	int X = this->Interactor->GetEventPosition()[0];
 	int Y = this->Interactor->GetEventPosition()[1];
-	double deltX = (X - m_nOldMousePosX)*0.1;
-	double deltY = (Y - m_nOldMousePosY)*0.1;
-	if (abs(deltX) > 10 || abs(deltY) > 10)
+	double deltX = (X - m_nOldMousePosX);
+	double deltY = (Y - m_nOldMousePosY);
+	rotateAroundAxis(deltX, deltY, &Actor_xAxis, &Actor_yAxis);
+	vtkSmartPointer<vtkMatrix4x4> AxesMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+
+	for (int i = 0; i < 3; ++i)
 	{
-		m_nOldMousePosX = X;
-		m_nOldMousePosY = Y;
+		for (int j = 0; j < 3; ++j)
+		{
+			AxesMatrix->SetElement(i, j, mat.at<double>(i, j));
+		}
 	}
 
 	if (axes_actor != nullptr)
@@ -125,23 +162,9 @@ void CustomInteractorStyle::OnMouseMove()
 			axesTransform = vtkSmartPointer<vtkTransform>::New();
 			axesTransform->Identity();
 		}
-		double xAngle, yAngle, zAngle;
-
 		double* axesCenter = axes_actor->GetCenter();
 		axesTransform->Translate(axesCenter[0], axesCenter[1], axesCenter[2]);
-
-		rotateAroundAxis(-deltY,Axes_xAxis ,&Axes_yAxis);
-		teCalcEulerAngle(mat, E_ORDER_XYZ, &xAngle, &yAngle, &zAngle);
-		axesTransform->RotateX(xAngle);
-		axesTransform->RotateY(yAngle);
-		axesTransform->RotateZ(zAngle);
-		
-		rotateAroundAxis(deltX,Axes_yAxis, &Axes_xAxis);
-		teCalcEulerAngle(mat, E_ORDER_XYZ, &xAngle, &yAngle, &zAngle);
-		axesTransform->RotateX(xAngle);
-		axesTransform->RotateY(yAngle);
-		axesTransform->RotateZ(zAngle);
-		
+		axesTransform->Concatenate(AxesMatrix);
 		axesTransform->Translate(-axesCenter[0], -axesCenter[1], -axesCenter[2]);
 		axes_actor->SetUserTransform(axesTransform);
 	}
@@ -153,23 +176,7 @@ void CustomInteractorStyle::OnMouseMove()
 	}
 
 	m_pRotationTransform->Translate(rotationCenter[0], rotationCenter[1], rotationCenter[2]);
-
-	double xAngle, yAngle, zAngle;
-
-	rotateAroundAxis(-deltY, Actor_xAxis, &Actor_yAxis);
-	teCalcEulerAngle(mat, E_ORDER_XYZ, &xAngle, &yAngle, &zAngle);
-
-	m_pRotationTransform->RotateX(xAngle);
-	m_pRotationTransform->RotateY(yAngle);
-	m_pRotationTransform->RotateZ(zAngle);
-
-	rotateAroundAxis(deltX, Actor_yAxis, &Actor_xAxis);
-	teCalcEulerAngle(mat, E_ORDER_XYZ, &xAngle, &yAngle, &zAngle);
-
-	m_pRotationTransform->RotateX(xAngle);
-	m_pRotationTransform->RotateY(yAngle);
-	m_pRotationTransform->RotateZ(zAngle);
-
+	m_pRotationTransform->Concatenate(AxesMatrix);
 	m_pRotationTransform->Translate(-rotationCenter[0], -rotationCenter[1], -rotationCenter[2]);
 	
 	for (int i = 0; i < m_pSelectedActor.size(); ++i)
@@ -245,6 +252,7 @@ void CustomInteractorStyle::OnMouseMove()
 	this->Interactor->GetRenderWindow()->Render();
 }
 #endif
+
 void CustomInteractorStyle::OnLeftButtonDown()
 {
 	m_bLBtnDown = true;
