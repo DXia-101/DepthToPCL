@@ -56,9 +56,6 @@ void CustomInteractorStyle::rotateAroundAxis(double dx, double dy, std::vector<d
 	if ((dx != 0 || dy != 0))
 	{
 		double delta = pow((dx * dx + dy * dy), 0.5) * 0.1;
-
-		std::cout << "dx: " << dx << " dy: " << dy << " angle:" << delta * (M_PI / 180.0) << std::endl;
-		std::cout << std::endl;
 		cv::Point3d OutPoint = cv::Point3d(0, 0, 0);
 		std::vector<double> baseAxis = {
 			dx * xAxis->at(0) + dy * yAxis->at(0),

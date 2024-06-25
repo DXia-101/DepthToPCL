@@ -4,8 +4,6 @@
 #include "Depth2RGB.h"
 #include "teImage.h"
 
-#include "te3DCanvasController.h"
-#include "te2DCanvasController.h"
 #include "teDataStorage.h"
 
 #include <QSettings>
@@ -27,6 +25,33 @@ teImageBrowserWorkThread::~teImageBrowserWorkThread()
 void teImageBrowserWorkThread::setImageBrowser(TeSampWidget * browser)
 {
     ImageBrowser = browser;
+}
+
+bool teImageBrowserWorkThread::SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZRGB>::Ptr saveCloud)
+{
+    if (saveCloud->empty()) {
+        return false;
+    }
+    else {
+        if (fileName.isEmpty()) {
+            return false;
+        }
+        int return_status;
+        if (fileName.endsWith(".pcd", Qt::CaseInsensitive))
+            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(), *saveCloud);
+        else if (fileName.endsWith(".ply", Qt::CaseInsensitive))
+            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(), *saveCloud);
+        else {
+            fileName.append(".pcd");
+            return_status = pcl::io::savePCDFileBinary(fileName.toStdString(), *saveCloud);
+        }
+        if (return_status != 0) {
+            QString errorinfo = QString::fromStdString("Error writing point cloud" + fileName.toStdString());
+            qDebug() << errorinfo;
+            return false;
+        }
+    }
+    return true;
 }
 
 void teImageBrowserWorkThread::ItemActive(int* pIndex, int len)
@@ -73,7 +98,7 @@ void teImageBrowserWorkThread::ItemActive(int* pIndex, int len)
                 return;
             }
             Transfer_Function::cvMat2Cloud(teDataStorage::getInstance()->getSelectInvalidPointThreshold(pIndex[i]), teDataStorage::getInstance()->getSelectValidPointThreshold(pIndex[i]), image, mediancloud);
-            te3DCanvasController::getInstance()->SavePointCloud(QString::fromStdString(teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(pIndex[i]) + "_thumb.pcd"), mediancloud);
+            SavePointCloud(QString::fromStdString(teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(pIndex[i]) + "_thumb.pcd"), mediancloud);
             teDataStorage::getInstance()->updatePointCloud(pIndex[i], teDataStorage::getInstance()->GetCurrentPath().toStdString() + std::to_string(pIndex[i]) + "_thumb.pcd");
         }
     }

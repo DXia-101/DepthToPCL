@@ -19,8 +19,8 @@ class te3DCanvasController  : public QObject
 	Q_OBJECT
 
 public:
-	static te3DCanvasController* getInstance();
-	static void destroy();
+	te3DCanvasController(QObject* parent = nullptr);
+	~te3DCanvasController();
 
 	void displayToolBarInWidget(QVBoxLayout* layout);
 	void displayCanvasInWidget(QStackedLayout* layout);
@@ -76,22 +76,6 @@ public:
 
 private:
 	static te3DCanvasController* instance;
-
-	te3DCanvasController(QObject* parent = nullptr);
-	~te3DCanvasController();
-	te3DCanvasController(const te3DCanvasController&);
-	te3DCanvasController& operator=(const te3DCanvasController&);
-
-	class Garbo
-	{
-	public:
-		~Garbo()
-		{
-			te3DCanvasController::destroy();
-		}
-	};
-
-	static Garbo tmp;
 
 	te3DCanvas* m_te3DCanvas;
 	te3DCanvasMenu* m_te3DCanvasMenu;

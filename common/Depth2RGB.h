@@ -2,6 +2,7 @@
 #define _DEPTH2RGB_H_
 
 #include <opencv2/opencv.hpp>
+#include "teImage.h"
 
 struct TeBGR
 {
@@ -24,7 +25,7 @@ public:
 	bool cvt32F2BGR(float minHeight, float maxHeight, cv::Mat& obj32FC1, cv::Mat& objBGR);
 	bool cvt32F2BGR(cv::Mat& obj32FC1, cv::Mat& objBGR);
 
-	void dealWithCvt(cv::Mat& image,const int& index);
+	te::Image dealWithCvt(cv::Mat& image,const int& index);
 private:
 	void teBuildJetTab();
 

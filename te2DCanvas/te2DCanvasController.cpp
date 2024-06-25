@@ -3,10 +3,6 @@
 #include "teDataStorage.h"
 #include "Depth2RGB.h"
 
-te2DCanvasController::Garbo te2DCanvasController::tmp;
-
-te2DCanvasController* te2DCanvasController::instance = nullptr;
-
 te2DCanvasController::te2DCanvasController(QObject *parent)
 	: QObject(parent)
 {
@@ -32,34 +28,6 @@ te2DCanvasController::te2DCanvasController(QObject *parent)
 
 te2DCanvasController::~te2DCanvasController()
 {}
-
-te2DCanvasController::te2DCanvasController(const te2DCanvasController&)
-{
-	
-}
-
-te2DCanvasController& te2DCanvasController::operator=(const te2DCanvasController&)
-{
-	return *this;
-}
-
-te2DCanvasController* te2DCanvasController::getInstance()
-{
-	if (!instance)
-	{
-		te2DCanvasController* pInstance = new te2DCanvasController();
-		instance = pInstance;
-	}
-	return instance;
-}
-
-void te2DCanvasController::destroy()
-{
-	if (NULL != te2DCanvasController::instance) {
-		delete te2DCanvasController::instance;
-		te2DCanvasController::instance = NULL;
-	}
-}
 
 void te2DCanvasController::displayToolBarInWidget(QVBoxLayout* layout)
 {
@@ -91,7 +59,7 @@ void te2DCanvasController::showAllUI()
 		m_te2DCanvas->RemoveDimentsion();
 		m_te2DCanvas->RemoveResult();
 		TeJetColorCode trans;
-		trans.dealWithCvt(image, teDataStorage::getInstance()->getCurrentIndex());
+		m_te2DCanvas->setImage(trans.dealWithCvt(image, teDataStorage::getInstance()->getCurrentIndex()));
 		ShowAllItems();
 		IsNeedReload = false;
 	}
@@ -133,9 +101,9 @@ void te2DCanvasController::ShowFirstImage()
 	if (image.empty()) {
 		return;
 	}
-	emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasSymbol();
+	emit sig_ClearAll2DCanvasSymbol();
 	TeJetColorCode trans;
-	trans.dealWithCvt(image, 0);
+	m_te2DCanvas->setImage(trans.dealWithCvt(image, 0));
 	ShowAllItems();
 }
 
@@ -162,7 +130,7 @@ void te2DCanvasController::ShowCurrentImages()
 		return;
 	}
 	TeJetColorCode trans;
-	trans.dealWithCvt(image, -1);
+	m_te2DCanvas->setImage(trans.dealWithCvt(image, -1));
 }
 
 void te2DCanvasController::ReLoadGTAndRST()
@@ -175,6 +143,11 @@ void te2DCanvasController::ReLoadGTAndRST()
 void te2DCanvasController::NeedReload()
 {
 	IsNeedReload = true;
+}
+
+void te2DCanvasController::slotSetImage(te::Image* img)
+{
+	setImage(*img);
 }
 
 void te2DCanvasController::ShowAllResults()

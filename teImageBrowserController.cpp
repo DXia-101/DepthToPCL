@@ -2,9 +2,7 @@
 #include "Transfer_Function.h"
 #include "pcl_function.h"
 #include "Depth2RGB.h"
-#include "teImage.h"
-#include "te3DCanvasController.h"
-#include "te2DCanvasController.h"
+
 #include "teDataStorage.h"
 
 #include <QSettings>
@@ -104,10 +102,9 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
     teDataStorage::getInstance()->setCurrentIndex(pIndex);
     teDataStorage::getInstance()->updateTrainWidget(teDataStorage::getInstance()->getCurrentTrainMarksNumber());
     teDataStorage::getInstance()->updateResultWidget(teDataStorage::getInstance()->getCurrentResultMarksNumber());
-    te3DCanvasController::getInstance()->NeedReload();
-    te2DCanvasController::getInstance()->NeedReload();
+    emit sig_NeedReload();
     if (CurrentState == ThrD) {
-        te3DCanvasController::getInstance()->LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
+        emit sig_LoadPointCloud(QString::fromStdString(teDataStorage::getInstance()->getCurrentPointCloud()));
     }
     else if (CurrentState == TwoD) {
         cv::Mat image = cv::imread(teDataStorage::getInstance()->getOriginImage()[pIndex], cv::IMREAD_UNCHANGED);
@@ -115,10 +112,11 @@ void teImageBrowserController::SwitchImg(int pIndex, int len)
             qDebug() << "Failed to load the TIF image.";
             return;
         }
-        emit te2DCanvasController::getInstance()->sig_ClearAll2DCanvasSymbol();
+        emit sig_ClearAll2DCanvasSymbol();
         TeJetColorCode trans;
-        trans.dealWithCvt(image, pIndex);
-        te2DCanvasController::getInstance()->ShowAllItems();
+        te::Image img = trans.dealWithCvt(image, pIndex);
+        emit sig_SetImage(&img);
+        emit sig_ShowAllItems();
     }
 }
 

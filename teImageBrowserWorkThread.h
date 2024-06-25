@@ -14,6 +14,7 @@ public:
 
 public:
 	void setImageBrowser(TeSampWidget* browser);
+    bool SavePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZRGB>::Ptr saveCloud);
 
 public slots:
 	void ItemActive(int* pIndex, int len);

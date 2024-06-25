@@ -3,19 +3,18 @@
 #include <QWidget>
 #include "ui_MainInterface.h"
 
-#include "AiModelController.h"
-#include "teTrainStatisticsChart.h"
-#include "teLabelBrowser.h"
-
-#include <QStateMachine>
-#include <QState>
-#include <QEvent>
-
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainInterfaceClass; };
 QT_END_NAMESPACE
 
 class QStackedLayout;
+class te2DCanvasController;
+class te3DCanvasController;
+class AiModelController;
+class teTrainStatisticsChart;
+class teLabelBrowser;
+class QStateMachine;
+class QState;
 
 class MainInterface : public QWidget
 {
@@ -58,6 +57,8 @@ private:
 	teTrainStatisticsChart* m_SChart;
 	QStackedLayout* stacklayout;
 	teLabelBrowser* m_teLabelBrowser;
+	te2DCanvasController* m_te2DController;
+	te3DCanvasController* m_te3DController;
 
 	bool HastheImageBeenLoaded = false;
 };

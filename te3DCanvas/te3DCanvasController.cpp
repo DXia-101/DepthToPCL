@@ -8,11 +8,6 @@
 #include <QTime>
 #include <QDebug>
 
-
-te3DCanvasController::Garbo te3DCanvasController::tmp;
-
-te3DCanvasController* te3DCanvasController::instance = nullptr;
-
 te3DCanvasController::te3DCanvasController(QObject *parent)
 	: QObject(parent)
 {
@@ -51,34 +46,6 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 
 te3DCanvasController::~te3DCanvasController()
 {
-}
-
-te3DCanvasController::te3DCanvasController(const te3DCanvasController&)
-{
-
-}
-
-te3DCanvasController& te3DCanvasController::operator=(const te3DCanvasController&)
-{
-	return *this;
-}
-
-te3DCanvasController* te3DCanvasController::getInstance()
-{
-	if (!instance)
-	{
-		te3DCanvasController* pInstance = new te3DCanvasController();
-		instance = pInstance;
-	}
-	return instance;
-}
-
-void te3DCanvasController::destroy()
-{
-	if (NULL != te3DCanvasController::instance) {
-		delete te3DCanvasController::instance;
-		te3DCanvasController::instance = NULL;
-	}
 }
 
 void te3DCanvasController::displayToolBarInWidget(QVBoxLayout* layout)

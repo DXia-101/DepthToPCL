@@ -2,7 +2,6 @@
 #include "Depth2RGB.h"
 #include "pcl_function.h"
 #include "teDataStorage.h"
-#include "te2DCanvasController.h"
 
 TeJetColorCode::TeJetColorCode()
 {
@@ -119,19 +118,20 @@ bool TeJetColorCode::cvt32F2BGR(cv::Mat& obj32FC1, cv::Mat& objBGR)
 	return true;
 }
 
-void TeJetColorCode::dealWithCvt(cv::Mat& image,const int& index)
+te::Image TeJetColorCode::dealWithCvt(cv::Mat& image,const int& index)
 {
 	cv::Mat median;
+	te::Image res;
 	median.create(image.size(), CV_8UC3);
 	if (CV_MAT_DEPTH(image.type()) == CV_16U) {
 		if (index >= 0) {
 			if (!cvt16Bit2BGR(teDataStorage::getInstance()->getSelectInvalidPointThreshold(index), teDataStorage::getInstance()->getSelectValidPointThreshold(index), image, median)) {
-				return;
+				return res;
 			}
 		}
 		else {
 			if (!cvt16Bit2BGR(teDataStorage::getInstance()->getCurrentInvalidPointThreshold(), teDataStorage::getInstance()->getCurrentValidPointThreshold(), image, median)) {
-				return;
+				return res;
 			}
 		}
 
@@ -139,18 +139,20 @@ void TeJetColorCode::dealWithCvt(cv::Mat& image,const int& index)
 	else if (CV_MAT_DEPTH(image.type() == CV_32F)) {
 		if (index >= 0) {
 			if (!cvt32F2BGR(teDataStorage::getInstance()->getSelectInvalidPointThreshold(index), teDataStorage::getInstance()->getSelectValidPointThreshold(index), image, median)) {
-				return;
+				return res;
 			}
 		}
 		else {
 			if (!cvt32F2BGR(teDataStorage::getInstance()->getCurrentInvalidPointThreshold(), teDataStorage::getInstance()->getCurrentValidPointThreshold(), image, median)) {
-				return;
+				return res;
 			}
 		}
 	}
 	//cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
-	te2DCanvasController::getInstance()->setImage(te::Image(median).clone());
+
 	cv::waitKey(0);
+
+	return te::Image(median).clone();
 }
 
 void TeJetColorCode::teBuildJetTab()

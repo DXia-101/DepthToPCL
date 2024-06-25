@@ -3,6 +3,9 @@
 #include "te2DCanvasController.h"
 #include "teImageBrowserController.h"
 #include "teDataStorage.h"
+#include "AiModelController.h"
+#include "teTrainStatisticsChart.h"
+#include "teLabelBrowser.h"
 
 #include <QMenuBar>
 #include <QMenu>
@@ -12,6 +15,9 @@
 #include <QStackedLayout>
 #include <QKeyEvent>
 #include <QDir>
+#include <QStateMachine>
+#include <QState>
+#include <QEvent>
 
 MainInterface::MainInterface(QWidget *parent)
 	: QWidget(parent)
@@ -28,34 +34,46 @@ MainInterface::MainInterface(QWidget *parent)
 	stacklayout->setStackingMode(QStackedLayout::StackAll);
 	teDataStorage::getInstance()->displayUIInWidget(ui->labelLayout);
 	teImageBrowserController::getInstance()->displayUIInWidget(ui->browserLayout);
-	te3DCanvasController::getInstance()->displayCanvasInWidget(stacklayout);
-	te2DCanvasController::getInstance()->displayCanvasInWidget(stacklayout);
-	te3DCanvasController::getInstance()->displayToolBarInWidget(ui->CanvasToolBarLayout);
-	te2DCanvasController::getInstance()->displayToolBarInWidget(ui->CanvasToolBarLayout);
+
+	m_te3DController = new te3DCanvasController();
+	m_te2DController = new te2DCanvasController();
+
+	m_te3DController->displayCanvasInWidget(stacklayout);
+	m_te2DController->displayCanvasInWidget(stacklayout);
+	m_te3DController->displayToolBarInWidget(ui->CanvasToolBarLayout);
+	m_te2DController->displayToolBarInWidget(ui->CanvasToolBarLayout);
 	m_AiModelController = new AiModelController();
 	m_AiModelController->displayUIInWidget(ui->labelLayout);
 
 	InitStateMachine();
 	InitToolBar();
 	
-	te3DCanvasController::getInstance()->hideAllUI();
+	m_te3DController->hideAllUI();
 	this->showMaximized();
 	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ChangeCurrentState);
-	connect(this, &MainInterface::sig_setHeightCoefficientFactor, te3DCanvasController::getInstance(), &te3DCanvasController::sig_setHeightCoefficientFactor);
+	connect(this, &MainInterface::sig_setHeightCoefficientFactor, m_te3DController, &te3DCanvasController::sig_setHeightCoefficientFactor);
 
-	connect(te3DCanvasController::getInstance(), &te3DCanvasController::sig_ManagePolyLine, this, &MainInterface::ManagePolyLine);
+	connect(m_te3DController, &te3DCanvasController::sig_ManagePolyLine, this, &MainInterface::ManagePolyLine);
 
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, teImageBrowserController::getInstance(), &teImageBrowserController::sig_teUpDataSet);
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, te2DCanvasController::getInstance(),&te2DCanvasController::sig_StartMarking);
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, te2DCanvasController::getInstance(), &te2DCanvasController::sig_currentLabelChange);
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, te3DCanvasController::getInstance(), &te3DCanvasController::CurrentLabelChange);
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_ColorChanged, te3DCanvasController::getInstance(), &te3DCanvasController::ReLoadGTAndRST);
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_ColorChanged, te2DCanvasController::getInstance(), &te2DCanvasController::ReLoadGTAndRST);
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_updateCurrentTrainSampleMark, te3DCanvasController::getInstance(), &te3DCanvasController::ShowAllMarkers);
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, m_te2DController,&te2DCanvasController::sig_StartMarking);
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, m_te2DController, &te2DCanvasController::sig_currentLabelChange);
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, m_te3DController, &te3DCanvasController::CurrentLabelChange);
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_ColorChanged, m_te3DController, &te3DCanvasController::ReLoadGTAndRST);
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_ColorChanged, m_te2DController, &te2DCanvasController::ReLoadGTAndRST);
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_updateCurrentTrainSampleMark, m_te3DController, &te3DCanvasController::ShowAllMarkers);
 
 	connect(m_AiModelController, &AiModelController::sig_TestCompleted, teDataStorage::getInstance(), &teDataStorage::updateResultOperate);
-	connect(m_AiModelController, &AiModelController::sig_TestCompleted, te3DCanvasController::getInstance(), &te3DCanvasController::ShowAllItems);
-	connect(m_AiModelController, &AiModelController::sig_TestCompleted, te2DCanvasController::getInstance(), &te2DCanvasController::ShowAllItems);
+	connect(m_AiModelController, &AiModelController::sig_TestCompleted, m_te3DController, &te3DCanvasController::ShowAllItems);
+	connect(m_AiModelController, &AiModelController::sig_TestCompleted, m_te2DController, &te2DCanvasController::ShowAllItems);
+
+	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_NeedReload, m_te3DController, &te3DCanvasController::NeedReload);
+	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_NeedReload, m_te2DController, &te2DCanvasController::NeedReload);
+	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_LoadPointCloud, m_te3DController, &te3DCanvasController::LoadPointCloud);
+	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_ClearAll2DCanvasSymbol, m_te2DController, &te2DCanvasController::sig_ClearAll2DCanvasSymbol);
+	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_ShowAllItems, m_te2DController, &te2DCanvasController::ShowAllItems);
+	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_SetImage, m_te2DController, &te2DCanvasController::slotSetImage);
+
 
 	m_SChart = new teTrainStatisticsChart();
 	m_SChart->hide();
@@ -81,12 +99,12 @@ void MainInterface::InitStateMachine()
     TwoDState = new QState(m_pStateMachine);
     ThrDState = new QState(m_pStateMachine);
 
-	connect(TwoDState, &QState::entered, te2DCanvasController::getInstance(), &te2DCanvasController::showAllUI);
+	connect(TwoDState, &QState::entered, m_te2DController, &te2DCanvasController::showAllUI);
 	connect(TwoDState, &QState::entered, this, &MainInterface::ChangeBtnTextTo2D);
-	connect(TwoDState, &QState::exited, te2DCanvasController::getInstance(), &te2DCanvasController::hideAllUI);
-	connect(ThrDState, &QState::entered, te3DCanvasController::getInstance(), &te3DCanvasController::showAllUI);
+	connect(TwoDState, &QState::exited, m_te2DController, &te2DCanvasController::hideAllUI);
+	connect(ThrDState, &QState::entered, m_te3DController, &te3DCanvasController::showAllUI);
 	connect(ThrDState, &QState::entered, this, &MainInterface::ChangeBtnTextTo3D);
-	connect(ThrDState, &QState::exited, te3DCanvasController::getInstance(), &te3DCanvasController::hideAllUI);
+	connect(ThrDState, &QState::exited, m_te3DController, &te3DCanvasController::hideAllUI);
 
 	TwoDState->addTransition(ui->convertBtn, &QPushButton::clicked, ThrDState);
 	ThrDState->addTransition(ui->convertBtn, &QPushButton::clicked, TwoDState);
@@ -167,13 +185,13 @@ void MainInterface::on_ThresholdBtn_clicked()
 		//emit teImageBrowserController::getInstance()->sig_GenerateCurrentData();
 
 		if (TwoDState->active()) {
-			te2DCanvasController::getInstance()->ShowCurrentImages();
-			te2DCanvasController::getInstance()->NeedReload();
-			te2DCanvasController::getInstance()->showAllUI();
+			m_te2DController->ShowCurrentImages();
+			m_te2DController->NeedReload();
+			m_te2DController->showAllUI();
 		}
 		else if (ThrDState->active()) {
-			te3DCanvasController::getInstance()->NeedReload();
-			te3DCanvasController::getInstance()->showAllUI();
+			m_te3DController->NeedReload();
+			m_te3DController->showAllUI();
 		}
 	}
 }
@@ -196,7 +214,7 @@ void MainInterface::ChangeBtnTextTo3D()
 
 void MainInterface::ManagePolyLine()
 {
-	te3DCanvasController::getInstance()->ManagePolyLine(stacklayout);
+	m_te3DController->ManagePolyLine(stacklayout);
 }
 
 void MainInterface::SetThreshold(QString filePath)
@@ -233,7 +251,7 @@ void MainInterface::LoadTrainingImages()
 	teDataStorage::getInstance()->setCurrentIndex(0);
 	teDataStorage::getInstance()->setCurrentLoadImageNum(filepaths.size());
 	teDataStorage::getInstance()->InitThreasholds(filepaths.size());
-	te3DCanvasController::getInstance()->NeedReload();
+	m_te3DController->NeedReload();
 	if (!filepaths.isEmpty())
 	{
 		if (ui->AutomaticCheckBox->isChecked()) {

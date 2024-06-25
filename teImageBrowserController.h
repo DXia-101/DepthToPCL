@@ -3,6 +3,7 @@
 #include <QObject>
 #include "tesampwidget.h"
 #include "teImageBrowserWorkThread.h"
+#include "teImage.h"
 #include <QThread>
 
 #define _Reckon_by_Time_
@@ -13,6 +14,7 @@
 
 class QVBoxLayout;
 class QThread;
+
 class teImageBrowserController  : public QObject
 {
 	Q_OBJECT
@@ -38,6 +40,11 @@ signals:
 	void sig_ChangeCurrentState();
 	void sig_teUpDataSet(int iNum, int iLayerNum, bool bReset);
 	void sig_GenerateCurrentData();
+	void sig_NeedReload();
+	void sig_LoadPointCloud(QString);
+	void sig_ClearAll2DCanvasSymbol();
+	void sig_ShowAllItems();
+	void sig_SetImage(te::Image*);
 
 private:
 	bool CurrentState;
