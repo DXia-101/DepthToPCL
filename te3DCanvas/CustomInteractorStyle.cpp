@@ -21,36 +21,6 @@ void CustomInteractorStyle::setRenderWindow(vtkRenderWindow* window, vtkSmartPoi
 	axes_actor = axes;
 }
 
-//void CustomInteractorStyle::OnMouseWheelForward() 
-//{
-//	if (Zoomflag) {
-//		Dolly(1.12);
-//	}
-//	else {
-//		vtkInteractorStyleTrackballCamera::OnMouseWheelForward();
-//	}
-//}
-//
-//void CustomInteractorStyle::OnMouseWheelBackward() 
-//{
-//	if (Zoomflag) {
-//		Dolly(0.88);
-//	}
-//	else {
-//		vtkInteractorStyleTrackballCamera::OnMouseWheelBackward();
-//	}
-//}
-//
-//void CustomInteractorStyle::OnMiddleButtonDown()
-//{
-//	vtkInteractorStyleTrackballCamera::OnMiddleButtonDown();
-//}
-//
-//void CustomInteractorStyle::OnMiddleButtonUp()
-//{
-//	vtkInteractorStyleTrackballCamera::OnMiddleButtonUp();
-//}
-
 void CustomInteractorStyle::rotateAroundAxis(double dx, double dy, std::vector<double>* xAxis, std::vector<double>* yAxis)
 {
 	if ((dx != 0 || dy != 0))
@@ -104,30 +74,6 @@ void CustomInteractorStyle::rotateAroundAxis(double dx, double dy, std::vector<d
 	}
 }
 
-void CustomInteractorStyle::rotateByQuaternion(double angle, std::vector<double>& axis, vtkSmartPointer<vtkTransform>& transform)
-{
-	Quaternion q = Quaternion::fromAxisAngle(axis, angle);
-	std::vector<std::vector<double>> mat = q.toMatrix();
-
-	vtkSmartPointer<vtkMatrix4x4> vtkMat = vtkSmartPointer<vtkMatrix4x4>::New();
-	for (int i = 0; i < 4; ++i) {
-		for (int j = 0; j < 4; ++j) {
-			vtkMat->SetElement(i, j, mat[i][j]);
-		}
-	}
-
-	transform->Concatenate(vtkMat);
-}
-
-std::vector<double>& CustomInteractorStyle::getXActor()
-{
-	return Actor_xAxis;
-}
-
-std::vector<double>& CustomInteractorStyle::getYActor()
-{
-	return Actor_yAxis;
-}
 #ifndef _CC_
 void CustomInteractorStyle::OnMouseMove()
 {
@@ -319,7 +265,6 @@ void CustomInteractorStyle::Dolly(double factor)
 	{
 		cam->SetPosition(initialPosition);
 		cam->SetFocalPoint(oldFocalPoint);
-		TriggerCallback();
 	}
 	m_renderer->ResetCameraClippingRange();
 	m_rendererwindow->Render();
@@ -416,19 +361,6 @@ void CustomInteractorStyle::TranslateCamera(vtkRenderer* renderer, int toX, int 
 	cam->GetPosition(viewPoint);
 	cam->SetFocalPoint(motionVector[0] + viewFocus[0], motionVector[1] + viewFocus[1], motionVector[2] + viewFocus[2]);
 	cam->SetPosition(motionVector[0] + viewPoint[0], motionVector[1] + viewPoint[1], motionVector[2] + viewPoint[2]);
-}
-
-void CustomInteractorStyle::SetCallback(CallbackFunction callback)
-{
-	callback_ = callback;
-}
-
-void CustomInteractorStyle::TriggerCallback()
-{
-	if (callback_)
-	{
-		callback_();
-	}
 }
 
 void CustomInteractorStyle::ResetData()

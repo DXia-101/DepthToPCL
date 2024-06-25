@@ -36,8 +36,8 @@
 #include "teRapidjsonObjectTree.h"
 #include "teTimer.h"
 
-#include "TrainParam.h"
-#include "TestParam.h"
+#include "TrainParamRegister.h"
+#include "TestParamRegister.h"
 
 using namespace te;
 
@@ -70,8 +70,8 @@ protected:
 public slots:
 	void trainModel(std::vector<te::SampleInfo>& trainSamples);
 	void testModel(std::vector<te::SampleInfo>& trainSamples);
-	void InitTrainConfig(te::TrainParam* para);
-	void InitTestConfig(te::TestParam* para);
+	void InitTrainConfig(te::TrainParamRegister* para);
+	void InitTestConfig(te::TestParamRegister* para);
 	void StopTrain();
 
 signals:

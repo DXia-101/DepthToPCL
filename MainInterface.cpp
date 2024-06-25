@@ -5,7 +5,6 @@
 #include "teDataStorage.h"
 #include "AiModelController.h"
 #include "teTrainStatisticsChart.h"
-#include "teLabelBrowser.h"
 
 #include <QMenuBar>
 #include <QMenu>
@@ -181,7 +180,6 @@ void MainInterface::on_ThresholdBtn_clicked()
 		teDataStorage::getInstance()->ValidPointThresholdChange(ui->ValidPointThresholdSpinBox->value());
 		teDataStorage::getInstance()->InvalidPointThresholdChange(ui->InvalidPointThresholdSpinBox->value());
 
-		//emit m_teIBController->sig_GenerateCurrentData();
 
 		if (TwoDState->active()) {
 			m_te2DController->ShowCurrentImages();
@@ -232,6 +230,7 @@ void MainInterface::SetThreshold(QString filePath)
 
 	ui->ValidPointThresholdSpinBox->setValue(maxValue);
 	ui->InvalidPointThresholdSpinBox->setValue(minValue);
+
 
 	int factor = maxValue - minValue;
 	if (factor >= 1 && factor < 255) {

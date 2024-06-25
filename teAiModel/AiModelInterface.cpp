@@ -77,7 +77,7 @@ void AiModelInterface::ParameterSettings(const char* modelpath) {
 	memcpy(const_cast<char*>(modelPath), modelpath, strlen(modelpath) + 1);
 }
 
-void AiModelInterface::InitTrainConfig(te::TrainParam* para)
+void AiModelInterface::InitTrainConfig(te::TrainParamRegister* para)
 {
 	ToolType toolType = ToolType::E_PixelDetect_Tool;
 
@@ -103,7 +103,7 @@ void AiModelInterface::InitTrainConfig(te::TrainParam* para)
 	DeviceID = para->DeviceID;
 }
 
-void AiModelInterface::InitTestConfig(te::TestParam* para)
+void AiModelInterface::InitTestConfig(te::TestParamRegister* para)
 {
 	status = infer_.setMaxBatchSize(para->maxbatchsize);
 	status = infer_.setBatchSize(para->batchsize);

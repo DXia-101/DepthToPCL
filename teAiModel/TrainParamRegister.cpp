@@ -1,4 +1,4 @@
-#include "TrainParam.h"
+#include "TrainParamRegister.h"
 #include "teObjectTreeWidget.h"
 #include "teObjectTreeWidgetItem.h"
 
@@ -22,24 +22,24 @@ RTTR_REGISTRATION
 	TE_REGISTER_PROPERTY(ImageDesc, channel)
 	TE_REGISTER_END
 
-	TE_REGISTER_TYPE(TrainParam)
+	TE_REGISTER_TYPE(TrainParamRegister)
 	TE_REGISTER_TYPE_CONSTRUCTOR()
-	TE_REGISTER_PROPERTY(TrainParam, TrainBatchSize)
-	TE_REGISTER_PROPERTY(TrainParam, PatchWidth)
-	TE_REGISTER_PROPERTY(TrainParam, PatchHeight)
-	TE_REGISTER_PROPERTY(TrainParam, receptiveField)
-	TE_REGISTER_PROPERTY(TrainParam, trainIterCnt)
-	TE_REGISTER_PROPERTY(TrainParam, saveFrequency)
-	TE_REGISTER_PROPERTY(TrainParam, eLocateType)
-	TE_REGISTER_PROPERTY(TrainParam, DeviceID)
-	TE_REGISTER_PROPERTY(TrainParam, AutomaticStop)
-	TE_REGISTER_PROPERTY(TrainParam, locateSide)
-	TE_REGISTER_PROPERTY(TrainParam, sampleDesc)
-	TE_REGISTER_PROPERTY(TrainParam, netName)
+	TE_REGISTER_PROPERTY(TrainParamRegister, TrainBatchSize)
+	TE_REGISTER_PROPERTY(TrainParamRegister, PatchWidth)
+	TE_REGISTER_PROPERTY(TrainParamRegister, PatchHeight)
+	TE_REGISTER_PROPERTY(TrainParamRegister, receptiveField)
+	TE_REGISTER_PROPERTY(TrainParamRegister, trainIterCnt)
+	TE_REGISTER_PROPERTY(TrainParamRegister, saveFrequency)
+	TE_REGISTER_PROPERTY(TrainParamRegister, eLocateType)
+	TE_REGISTER_PROPERTY(TrainParamRegister, DeviceID)
+	TE_REGISTER_PROPERTY(TrainParamRegister, AutomaticStop)
+	TE_REGISTER_PROPERTY(TrainParamRegister, locateSide)
+	TE_REGISTER_PROPERTY(TrainParamRegister, sampleDesc)
+	TE_REGISTER_PROPERTY(TrainParamRegister, netName)
 	TE_REGISTER_END
 }
 
-TrainParam::TrainParam()
+TrainParamRegister::TrainParamRegister()
 {
 	TrainBatchSize = 6;
 	PatchWidth = 0;

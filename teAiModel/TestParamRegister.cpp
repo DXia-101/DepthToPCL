@@ -1,4 +1,4 @@
-#include "TestParam.h"
+#include "TestParamRegister.h"
 
 TE_BEGIN_NAMESPACE
 
@@ -31,17 +31,17 @@ RTTR_REGISTRATION
 	TE_REGISTER_PROPERTY(DeviceInfo, deviceID)
 	TE_REGISTER_END
 
-	TE_REGISTER_TYPE(TestParam)
+	TE_REGISTER_TYPE(TestParamRegister)
 	TE_REGISTER_TYPE_CONSTRUCTOR()
-	TE_REGISTER_PROPERTY(TestParam, maxbatchsize)
-	TE_REGISTER_PROPERTY(TestParam, batchsize)
-	TE_REGISTER_PROPERTY(TestParam, contourdesc)
-	TE_REGISTER_PROPERTY(TestParam, deviceinfo)
-	TE_REGISTER_PROPERTY(TestParam, precision)
+	TE_REGISTER_PROPERTY(TestParamRegister, maxbatchsize)
+	TE_REGISTER_PROPERTY(TestParamRegister, batchsize)
+	TE_REGISTER_PROPERTY(TestParamRegister, contourdesc)
+	TE_REGISTER_PROPERTY(TestParamRegister, deviceinfo)
+	TE_REGISTER_PROPERTY(TestParamRegister, precision)
 	TE_REGISTER_END
 }
 
-TestParam::TestParam()
+TestParamRegister::TestParamRegister()
 {
 	maxbatchsize = 1;
 	batchsize = 1;

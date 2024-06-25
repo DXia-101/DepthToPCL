@@ -1,11 +1,11 @@
-#include "teTrainParameter.h"
+#include "teTrainParameterDisplay.h"
 #include "teRapidjsonObjectTree.h"
 
 #include<QDebug>
 
-teTrainParameter::teTrainParameter(QWidget *parent)
+teTrainParameterDisplay::teTrainParameterDisplay(QWidget *parent)
 	: QWidget(parent)
-	, ui(new Ui::teTrainParameterClass())
+	, ui(new Ui::teTrainParameterDisplayClass())
 {
 	ui->setupUi(this);
 
@@ -22,7 +22,7 @@ teTrainParameter::teTrainParameter(QWidget *parent)
 		}
 	});
 
-	te::TrainParam param;
+	te::TrainParamRegister param;
 	te::deserializeJsonFromIFStream("./TrainParaconfig.ini", &param);
 	
 	ui->treeView->writeObject_t(param);
@@ -30,31 +30,31 @@ teTrainParameter::teTrainParameter(QWidget *parent)
 	ui->treeView->setExpandedRecursive(true);
 }
 
-teTrainParameter::~teTrainParameter()
+teTrainParameterDisplay::~teTrainParameterDisplay()
 {
 	delete ui;
 }
 
-void teTrainParameter::SaveteTrainParameter()
+void teTrainParameterDisplay::SaveteTrainParameter()
 {
-	te::TrainParam param;
+	te::TrainParamRegister param;
 	ui->treeView->readObject_t(&param);
 
 	te::serializeJsonToOFStream("./TrainParaconfig.ini", param);
 	ui->treeView->checkItemChange();
 }
 
-void teTrainParameter::on_TrainingCurveCBox_stateChanged(int arg)
+void teTrainParameterDisplay::on_TrainingCurveCBox_stateChanged(int arg)
 {
 	emit sig_ShowTrainStatisticsChart(arg);
 }
 
-void teTrainParameter::teTrainStatisticsChartClose()
+void teTrainParameterDisplay::teTrainStatisticsChartClose()
 {
 	ui->TrainingCurveCBox->setChecked(false);
 }
 
-void teTrainParameter::getTrainParam(te::TrainParam* train)
+void teTrainParameterDisplay::getTrainParam(te::TrainParamRegister* train)
 {
 	ui->treeView->readObject_t(train);
 }

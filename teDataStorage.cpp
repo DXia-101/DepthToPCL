@@ -122,6 +122,10 @@ double teDataStorage::getCurrentInvalidPointThreshold()
 	return InvalidPointThresholds[currentIndex];
 }
 
+void teDataStorage::addInvalidPointThreshold(double threshold)
+{
+}
+
 double teDataStorage::getSelectInvalidPointThreshold(int index)
 {
 	return InvalidPointThresholds[index];
@@ -130,6 +134,10 @@ double teDataStorage::getSelectInvalidPointThreshold(int index)
 double teDataStorage::getCurrentValidPointThreshold()
 {
 	return ValidPointThresholds[currentIndex];
+}
+
+void teDataStorage::addValidPointThreshold(double threshold)
+{
 }
 
 void teDataStorage::updateTrainWidget(QMap<QString, int>& nameCounts)
@@ -364,7 +372,6 @@ QString teDataStorage::GetCurrentPath()
 
 int teDataStorage::getCurrentImageWidth()
 {
-	std::cout << "getCurrentOriginImage(): " << getCurrentOriginImage() << std::endl;
 	cv::Mat image = cv::imread(getCurrentOriginImage(), cv::IMREAD_UNCHANGED);
 	if (image.empty()) {
 		std::cerr << "Error: Cloud not read the image." << std::endl;

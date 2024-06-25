@@ -148,8 +148,6 @@ te::Image TeJetColorCode::dealWithCvt(cv::Mat& image,const int& index)
 			}
 		}
 	}
-	//cv::cvtColor(median, median, cv::COLOR_BGR2RGB);
-
 	cv::waitKey(0);
 
 	return te::Image(median).clone();

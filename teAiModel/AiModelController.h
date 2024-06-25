@@ -2,8 +2,8 @@
 
 #include <QObject>
 #include "AiModelInterface.h"
-#include "teTrainParameter.h"
-#include "teTestParameter.h"
+#include "teTrainParameterDisplay.h"
+#include "teTestParameterDisplay.h"
 
 class QVBoxLayout;
 
@@ -31,7 +31,7 @@ signals:
 	void sig_StopTrain();
 	void sig_TestCompleted();
 private:
-	teTrainParameter* m_teTrainPara;
-	teTestParameter* m_teTestPara;
+	teTrainParameterDisplay* m_teTrainPara;
+	teTestParameterDisplay* m_teTestPara;
 	AiModelInterface* m_AiModel;
 };

@@ -126,11 +126,13 @@ public:
 	void InvalidPointThresholdChange(double threshold);
 	double getSelectInvalidPointThreshold(int index);
 	double getCurrentInvalidPointThreshold();
+	void addInvalidPointThreshold(double threshold);
 
 	void ValidPointThresholdsChange(double threshold);
 	void ValidPointThresholdChange(double threshold);
 	double getSelectValidPointThreshold(int index);
 	double getCurrentValidPointThreshold();
+	void addValidPointThreshold(double threshold);
 private:
 	std::string getSelectResultFormResourceTable(int index, std::string keyword);
 	std::vector<std::string> getResultFromResourceTable(std::string keyword);

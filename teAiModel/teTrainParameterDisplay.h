@@ -2,21 +2,21 @@
 
 #include <QWidget>
 #include <QComboBox>
-#include "ui_teTrainParameter.h"
+#include "ui_teTrainParameterDisplay.h"
 
-#include "TrainParam.h"
+#include "TrainParamRegister.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class teTrainParameterClass; };
+namespace Ui { class teTrainParameterDisplayClass; };
 QT_END_NAMESPACE
 
-class teTrainParameter : public QWidget
+class teTrainParameterDisplay : public QWidget
 {
 	Q_OBJECT
 
 public:
-	teTrainParameter(QWidget *parent = nullptr);
-	~teTrainParameter();
+	teTrainParameterDisplay(QWidget *parent = nullptr);
+	~teTrainParameterDisplay();
 
 public slots:
 	void SaveteTrainParameter();
@@ -28,8 +28,8 @@ signals:
 	void sig_receptiveFieldChange(int factor);
 
 public:
-	void getTrainParam(te::TrainParam* train);
+	void getTrainParam(te::TrainParamRegister* train);
 
 private:
-	Ui::teTrainParameterClass *ui;
+	Ui::teTrainParameterDisplayClass *ui;
 };

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>teTrainParameterClass</class>
- <widget class="QWidget" name="teTrainParameterClass">
+ <class>teTrainParameterDisplayClass</class>
+ <widget class="QWidget" name="teTrainParameterDisplayClass">
   <property name="geometry">
    <rect>
     <x>0</x>

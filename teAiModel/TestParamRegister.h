@@ -11,10 +11,10 @@
 
 TE_BEGIN_NAMESPACE
 
-class TestParam
+class TestParamRegister
 {
 public:
-	TestParam();
+	TestParamRegister();
 
 public:
 	int maxbatchsize;

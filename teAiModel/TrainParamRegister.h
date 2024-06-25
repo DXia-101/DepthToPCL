@@ -11,10 +11,10 @@
 
 TE_BEGIN_NAMESPACE
 
-class TrainParam
+class TrainParamRegister
 {
 public:
-	TrainParam();
+	TrainParamRegister();
 
 public:
 	int TrainBatchSize;
