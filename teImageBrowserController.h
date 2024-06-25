@@ -20,8 +20,8 @@ class teImageBrowserController  : public QObject
 	Q_OBJECT
 
 public:
-	static teImageBrowserController* getInstance();
-	static void destroy();
+	teImageBrowserController(QObject* parent = nullptr);
+	~teImageBrowserController();
 
 	void displayUIInWidget(QVBoxLayout* layout);
 
@@ -30,11 +30,6 @@ public slots:
 	void UpdateItem(int* pIndex, int len);
 	void SwitchImg(int pIndex, int len);
 	void teUpDataSet(int iNum, int iLayerNum, bool bReset);
-
-private:
-	TeSampWidget* ImageBrowser;
-	teImageBrowserWorkThread* worker;
-	QThread* thread;
 
 signals:
 	void sig_ChangeCurrentState();
@@ -47,28 +42,13 @@ signals:
 	void sig_SetImage(te::Image*);
 
 private:
+	TeSampWidget* ImageBrowser;
+	teImageBrowserWorkThread* worker;
+	QThread* thread;
+
 	bool CurrentState;
 
 #ifdef _Reckon_by_Time_
 	QElapsedTimer timer;
 #endif
-
-private:
-	static teImageBrowserController* instance;
-
-	teImageBrowserController(QObject* parent = nullptr);
-	~teImageBrowserController();
-	teImageBrowserController(const teImageBrowserController&);
-	teImageBrowserController& operator=(const teImageBrowserController&);
-
-	class Garbo
-	{
-	public:
-		~Garbo()
-		{
-			teImageBrowserController::destroy();
-		}
-	};
-
-	static Garbo tmp;
 };

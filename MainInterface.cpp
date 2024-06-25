@@ -33,7 +33,8 @@ MainInterface::MainInterface(QWidget *parent)
 	ui->CanvasLayout->addLayout(stacklayout);
 	stacklayout->setStackingMode(QStackedLayout::StackAll);
 	teDataStorage::getInstance()->displayUIInWidget(ui->labelLayout);
-	teImageBrowserController::getInstance()->displayUIInWidget(ui->browserLayout);
+	m_teIBController = new teImageBrowserController();
+	m_teIBController->displayUIInWidget(ui->browserLayout);
 
 	m_te3DController = new te3DCanvasController();
 	m_te2DController = new te2DCanvasController();
@@ -50,12 +51,12 @@ MainInterface::MainInterface(QWidget *parent)
 	
 	m_te3DController->hideAllUI();
 	this->showMaximized();
-	connect(ui->convertBtn, &QPushButton::clicked, teImageBrowserController::getInstance(), &teImageBrowserController::sig_ChangeCurrentState);
+	connect(ui->convertBtn, &QPushButton::clicked, m_teIBController, &teImageBrowserController::sig_ChangeCurrentState);
 	connect(this, &MainInterface::sig_setHeightCoefficientFactor, m_te3DController, &te3DCanvasController::sig_setHeightCoefficientFactor);
 
 	connect(m_te3DController, &te3DCanvasController::sig_ManagePolyLine, this, &MainInterface::ManagePolyLine);
 
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, teImageBrowserController::getInstance(), &teImageBrowserController::sig_teUpDataSet);
+	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, m_teIBController, &teImageBrowserController::sig_teUpDataSet);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, m_te2DController,&te2DCanvasController::sig_StartMarking);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, m_te2DController, &te2DCanvasController::sig_currentLabelChange);
 	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, m_te3DController, &te3DCanvasController::CurrentLabelChange);
@@ -67,13 +68,12 @@ MainInterface::MainInterface(QWidget *parent)
 	connect(m_AiModelController, &AiModelController::sig_TestCompleted, m_te3DController, &te3DCanvasController::ShowAllItems);
 	connect(m_AiModelController, &AiModelController::sig_TestCompleted, m_te2DController, &te2DCanvasController::ShowAllItems);
 
-	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_NeedReload, m_te3DController, &te3DCanvasController::NeedReload);
-	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_NeedReload, m_te2DController, &te2DCanvasController::NeedReload);
-	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_LoadPointCloud, m_te3DController, &te3DCanvasController::LoadPointCloud);
-	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_ClearAll2DCanvasSymbol, m_te2DController, &te2DCanvasController::sig_ClearAll2DCanvasSymbol);
-	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_ShowAllItems, m_te2DController, &te2DCanvasController::ShowAllItems);
-	connect(teImageBrowserController::getInstance(), &teImageBrowserController::sig_SetImage, m_te2DController, &te2DCanvasController::slotSetImage);
-
+	connect(m_teIBController, &teImageBrowserController::sig_NeedReload, m_te3DController, &te3DCanvasController::NeedReload);
+	connect(m_teIBController, &teImageBrowserController::sig_NeedReload, m_te2DController, &te2DCanvasController::NeedReload);
+	connect(m_teIBController, &teImageBrowserController::sig_LoadPointCloud, m_te3DController, &te3DCanvasController::LoadPointCloud);
+	connect(m_teIBController, &teImageBrowserController::sig_ClearAll2DCanvasSymbol, m_te2DController, &te2DCanvasController::sig_ClearAll2DCanvasSymbol);
+	connect(m_teIBController, &teImageBrowserController::sig_ShowAllItems, m_te2DController, &te2DCanvasController::ShowAllItems);
+	connect(m_teIBController, &teImageBrowserController::sig_SetImage, m_te2DController, &te2DCanvasController::slotSetImage);
 
 	m_SChart = new teTrainStatisticsChart();
 	m_SChart->hide();
@@ -89,7 +89,6 @@ MainInterface::MainInterface(QWidget *parent)
 
 MainInterface::~MainInterface()
 {
-	
 	delete ui;
 }
 
@@ -182,7 +181,7 @@ void MainInterface::on_ThresholdBtn_clicked()
 		teDataStorage::getInstance()->ValidPointThresholdChange(ui->ValidPointThresholdSpinBox->value());
 		teDataStorage::getInstance()->InvalidPointThresholdChange(ui->InvalidPointThresholdSpinBox->value());
 
-		//emit teImageBrowserController::getInstance()->sig_GenerateCurrentData();
+		//emit m_teIBController->sig_GenerateCurrentData();
 
 		if (TwoDState->active()) {
 			m_te2DController->ShowCurrentImages();
@@ -246,7 +245,6 @@ void MainInterface::SetThreshold(QString filePath)
 
 void MainInterface::LoadTrainingImages()
 {
-	//ui->clearDatabaseBtn->setVisible(false);
 	QStringList filepaths = QFileDialog::getOpenFileNames(nullptr, u8"Ñ¡ÔñÎÄ¼þ", "", "TIFF Files (*.tif *.tiff)");
 	teDataStorage::getInstance()->setCurrentIndex(0);
 	teDataStorage::getInstance()->setCurrentLoadImageNum(filepaths.size());

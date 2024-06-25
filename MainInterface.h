@@ -12,6 +12,7 @@ class te2DCanvasController;
 class te3DCanvasController;
 class AiModelController;
 class teTrainStatisticsChart;
+class teImageBrowserController;
 class teLabelBrowser;
 class QStateMachine;
 class QState;
@@ -59,6 +60,7 @@ private:
 	teLabelBrowser* m_teLabelBrowser;
 	te2DCanvasController* m_te2DController;
 	te3DCanvasController* m_te3DController;
+	teImageBrowserController* m_teIBController;
 
 	bool HastheImageBeenLoaded = false;
 };

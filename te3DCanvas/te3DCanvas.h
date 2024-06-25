@@ -82,11 +82,8 @@ public slots:
     void SetCoordinateSet();
 signals:
     void sig_3DCanvasMarkingCompleted(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
-    void CloudChanged();
     void sig_ShowAllItems();
 
-private:
-    
 public:
     std::map<QString,std::vector<QString>> markerPCID;
     std::map<QString,std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr>> markerPointCloud;
@@ -101,8 +98,6 @@ public:
 public:
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Filter_out;
-
-    pcl::PointXYZRGB curP, lastP; //»­Ïß
 
     pcl::visualization::PCLVisualizer::Ptr viewer;
 

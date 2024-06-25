@@ -811,9 +811,9 @@ void te3DCanvas::PerspectiveToXaxis()
         float distance = diff.norm();
 
         if (m_member.PositiveAndNegative_X_axis)
-            viewer->setCameraPosition(center(0) + distance, center(1), center(2), center(0), center(1), center(2), 1, 0, 0);
+            viewer->setCameraPosition(center(0) + distance, center(1), center(2), center(0), center(1), center(2), 0, 1, 0);
         else
-            viewer->setCameraPosition(center(0) + distance, center(1), center(2), center(0), center(1), center(2), -1, 0, 0);
+            viewer->setCameraPosition(center(0) + distance, center(1), center(2), center(0), center(1), center(2), 0, -1, 0);
         m_member.PositiveAndNegative_X_axis = !m_member.PositiveAndNegative_X_axis;
         viewer->updateCamera();
         viewer->spinOnce();

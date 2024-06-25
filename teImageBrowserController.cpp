@@ -8,16 +8,12 @@
 #include <QSettings>
 #include <QDir>
 #include <QVBoxLayout>
-#include <QFileInfo>BlockingQueuedConnection
+#include <QFileInfo>
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QThread>
 
 #define DEBUG
-
-teImageBrowserController::Garbo teImageBrowserController::tmp;
-
-teImageBrowserController* teImageBrowserController::instance = nullptr;
 
 constexpr bool TwoD = false;
 constexpr bool ThrD = true;
@@ -36,7 +32,7 @@ teImageBrowserController::teImageBrowserController(QObject *parent)
     connect(worker, &QObject::destroyed, thread, &QThread::quit);
     connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 
-    connect(ImageBrowser, &TeSampWidget::sig_SwitchImg, this, &teImageBrowserController::SwitchImg, Qt::DirectConnection);
+    connect(ImageBrowser, &TeSampWidget::sig_SwitchImg, this, &teImageBrowserController::SwitchImg);
     connect(this, &teImageBrowserController::sig_ChangeCurrentState, this, &teImageBrowserController::ChangeCurrentState);
     connect(ImageBrowser, &TeSampWidget::sig_UpDateItem, this, &teImageBrowserController::UpdateItem);
     connect(ImageBrowser, &TeSampWidget::sig_ItemActive, worker, &teImageBrowserWorkThread::ItemActive);
@@ -47,34 +43,6 @@ teImageBrowserController::teImageBrowserController(QObject *parent)
 
 teImageBrowserController::~teImageBrowserController()
 {}
-
-teImageBrowserController::teImageBrowserController(const teImageBrowserController&)
-{
-    
-}
-
-teImageBrowserController& teImageBrowserController::operator=(const teImageBrowserController&)
-{
-    return *this;
-}
-
-teImageBrowserController* teImageBrowserController::getInstance()
-{
-    if (!instance)
-    {
-        teImageBrowserController* pInstance = new teImageBrowserController();
-        instance = pInstance;
-    }
-    return instance;
-}
-
-void teImageBrowserController::destroy()
-{
-    if (NULL != teImageBrowserController::instance) {
-        delete teImageBrowserController::instance;
-        teImageBrowserController::instance = NULL;
-    }
-}
 
 void teImageBrowserController::displayUIInWidget(QVBoxLayout * layout)
 {
