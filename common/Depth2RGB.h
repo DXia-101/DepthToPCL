@@ -25,7 +25,7 @@ public:
 	bool cvt32F2BGR(float minHeight, float maxHeight, cv::Mat& obj32FC1, cv::Mat& objBGR);
 	bool cvt32F2BGR(cv::Mat& obj32FC1, cv::Mat& objBGR);
 
-	te::Image dealWithCvt(cv::Mat& image,const int& index);
+	te::Image dealWithCvt(cv::Mat& image, const double& InvalThreshold, const double& ValThreshold);
 private:
 	void teBuildJetTab();
 

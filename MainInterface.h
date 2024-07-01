@@ -2,7 +2,7 @@
 
 #include <QWidget>
 #include "ui_MainInterface.h"
-
+#include "pcl_function.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainInterfaceClass; };
 QT_END_NAMESPACE
@@ -10,11 +10,12 @@ QT_END_NAMESPACE
 class QStackedLayout;
 class te2DCanvasController;
 class te3DCanvasController;
-class AiModelController;
-class teTrainStatisticsChart;
-class teImageBrowserController;
+class teAlgorithmController;
+class teDataBrowserController;
 class QStateMachine;
 class QState;
+class teAiModel;
+class teLabelBrowser;
 
 class MainInterface : public QWidget
 {
@@ -37,7 +38,13 @@ private slots:
 	void ChangeBtnTextTo2D();
 	void ChangeBtnTextTo3D();
 	void ManagePolyLine();
-	
+	void labelChange(const QString & category, const QColor & fontColor);
+	void ColorChange(const QColor& fontColor);
+	void updateResultOperate();
+	void IndexChanged();
+	void updateTrainWidget();
+	void updateResultWidget();
+
 private:
 	void SetThreshold(QString filePath);
 	
@@ -48,17 +55,23 @@ signals:
 	void sig_LoadTrainingImages(const QStringList& filePaths);
 	void sig_SaveParameter();
 	void sig_setHeightCoefficientFactor(int factor);
+	void sig_teUpDataSet(int iNum, int iLayerNum, bool bReset);
+	void sig_LoadTrainImagesComplete();
+	void sig_ColorChanged();
+	void sig_CurrentStateChanged(const QString& category, const QColor& fontColor, const int& index, const double& valThreshold, const double& invalThreshold);
 
 private:
 	QStateMachine* m_pStateMachine;
 	QState* TwoDState;
 	QState* ThrDState;
-	AiModelController* m_AiModelController;
-	teTrainStatisticsChart* m_SChart;
 	QStackedLayout* stacklayout;
+	teAiModel* m_teAiModel;
+	teAlgorithmController* m_teAlgorithmController;
+	teDataBrowserController* m_teIBController;
 	te2DCanvasController* m_te2DController;
 	te3DCanvasController* m_te3DController;
-	teImageBrowserController* m_teIBController;
+	teLabelBrowser* m_teLabelBrowser;
 
 	bool HastheImageBeenLoaded = false;
+	struct currentState m_curstate;
 };

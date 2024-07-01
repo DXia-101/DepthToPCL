@@ -1,10 +1,11 @@
 #include "MainInterface.h"
 #include "te3DCanvasController.h"
 #include "te2DCanvasController.h"
-#include "teImageBrowserController.h"
-#include "teDataStorage.h"
-#include "AiModelController.h"
-#include "teTrainStatisticsChart.h"
+#include "teDataBrowserController.h"
+#include "teAiModel.h"
+#include "teAi3DStorage.h"
+#include "teAlgorithmController.h"
+#include "teLabelBrowser.h"
 
 #include <QMenuBar>
 #include <QMenu>
@@ -17,6 +18,8 @@
 #include <QStateMachine>
 #include <QState>
 #include <QEvent>
+#include <QPushButton>
+#include <QMessageBox>
 
 MainInterface::MainInterface(QWidget *parent)
 	: QWidget(parent)
@@ -31,59 +34,79 @@ MainInterface::MainInterface(QWidget *parent)
 	stacklayout = new QStackedLayout();
 	ui->CanvasLayout->addLayout(stacklayout);
 	stacklayout->setStackingMode(QStackedLayout::StackAll);
-	teDataStorage::getInstance()->displayUIInWidget(ui->labelLayout);
-	m_teIBController = new teImageBrowserController();
+
+	auto dbStore = std::make_unique<teAi3DStorage>();
+	m_teAiModel = new teAiModel(std::move(dbStore));
+
+	m_teIBController = new teDataBrowserController();
 	m_teIBController->displayUIInWidget(ui->browserLayout);
+	m_teIBController->setteAiModel(m_teAiModel);
+
+	m_teLabelBrowser = new teLabelBrowser();
+	m_teLabelBrowser->displayUIInWidget(ui->labelLayout);
 
 	m_te3DController = new te3DCanvasController();
+	m_te3DController->setteAiModel(m_teAiModel);
+	m_te3DController->setteLabelBrowser(m_teLabelBrowser);
+
 	m_te2DController = new te2DCanvasController();
+	m_te2DController->setteAiModel(m_teAiModel);
+	m_te2DController->setteLabelBrowser(m_teLabelBrowser);
 
 	m_te3DController->displayCanvasInWidget(stacklayout);
 	m_te2DController->displayCanvasInWidget(stacklayout);
 	m_te3DController->displayToolBarInWidget(ui->CanvasToolBarLayout);
 	m_te2DController->displayToolBarInWidget(ui->CanvasToolBarLayout);
-	m_AiModelController = new AiModelController();
-	m_AiModelController->displayUIInWidget(ui->labelLayout);
+	m_teAlgorithmController = new teAlgorithmController();
+	m_teAlgorithmController->displayUIInWidget(ui->labelLayout);
+	m_teAlgorithmController->setteAiModel(m_teAiModel);
 
 	InitStateMachine();
 	InitToolBar();
 	
 	m_te3DController->hideAllUI();
 	this->showMaximized();
-	connect(ui->convertBtn, &QPushButton::clicked, m_teIBController, &teImageBrowserController::sig_ChangeCurrentState);
+	connect(ui->convertBtn, &QPushButton::clicked, m_teIBController, &teDataBrowserController::sig_ChangeCurrentState);
+	connect(this, &MainInterface::sig_teUpDataSet, m_teIBController, &teDataBrowserController::sig_teUpDataSet);
+	connect(this, &MainInterface::sig_LoadTrainImagesComplete, m_te2DController, &te2DCanvasController::sig_ShowFirstImage);
 	connect(this, &MainInterface::sig_setHeightCoefficientFactor, m_te3DController, &te3DCanvasController::sig_setHeightCoefficientFactor);
+	connect(this, &MainInterface::sig_ColorChanged, m_te3DController, &te3DCanvasController::ReLoadGTAndRST);
+	connect(this, &MainInterface::sig_ColorChanged, m_te2DController, &te2DCanvasController::ReLoadGTAndRST);
+	connect(this, &MainInterface::sig_CurrentStateChanged, m_te3DController, &te3DCanvasController::sig_CurrentStateChanged);
+	connect(this, &MainInterface::sig_CurrentStateChanged, m_te2DController, &te2DCanvasController::sig_CurrentStateChanged);
+
+	connect(m_teLabelBrowser, &teLabelBrowser::sig_currentRowSelected, this, &MainInterface::labelChange);
+	connect(m_teLabelBrowser, &teLabelBrowser::sig_ColorChanged, this, &MainInterface::ColorChange);
+	connect(m_teLabelBrowser, &teLabelBrowser::sig_StartMark, m_te2DController, &te2DCanvasController::sig_StartMark);
 
 	connect(m_te3DController, &te3DCanvasController::sig_ManagePolyLine, this, &MainInterface::ManagePolyLine);
+	connect(m_te3DController, &te3DCanvasController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
+	connect(m_te2DController, &te2DCanvasController::sig_updateTrainWidget, m_te3DController, &te3DCanvasController::ShowAllMarkers);
+	connect(m_te2DController, &te2DCanvasController::sig_updateTrainWidget,this, &MainInterface::updateTrainWidget);
 
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_teUpDataSet, m_teIBController, &teImageBrowserController::sig_teUpDataSet);
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_LoadTrainImagesComplete, m_te2DController,&te2DCanvasController::sig_StartMarking);
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, m_te2DController, &te2DCanvasController::sig_currentLabelChange);
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_currentLabelChange, m_te3DController, &te3DCanvasController::CurrentLabelChange);
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_ColorChanged, m_te3DController, &te3DCanvasController::ReLoadGTAndRST);
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_ColorChanged, m_te2DController, &te2DCanvasController::ReLoadGTAndRST);
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_updateCurrentTrainSampleMark, m_te3DController, &te3DCanvasController::ShowAllMarkers);
+	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, this, &MainInterface::updateResultOperate);
+	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, m_te3DController, &te3DCanvasController::ShowAllItems);
+	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, m_te2DController, &te2DCanvasController::ShowAllItems);
 
-	connect(m_AiModelController, &AiModelController::sig_TestCompleted, teDataStorage::getInstance(), &teDataStorage::updateResultOperate);
-	connect(m_AiModelController, &AiModelController::sig_TestCompleted, m_te3DController, &te3DCanvasController::ShowAllItems);
-	connect(m_AiModelController, &AiModelController::sig_TestCompleted, m_te2DController, &te2DCanvasController::ShowAllItems);
-
-	connect(m_teIBController, &teImageBrowserController::sig_NeedReload, m_te3DController, &te3DCanvasController::NeedReload);
-	connect(m_teIBController, &teImageBrowserController::sig_NeedReload, m_te2DController, &te2DCanvasController::NeedReload);
-	connect(m_teIBController, &teImageBrowserController::sig_LoadPointCloud, m_te3DController, &te3DCanvasController::LoadPointCloud);
-	connect(m_teIBController, &teImageBrowserController::sig_ClearAll2DCanvasSymbol, m_te2DController, &te2DCanvasController::sig_ClearAll2DCanvasSymbol);
-	connect(m_teIBController, &teImageBrowserController::sig_ShowAllItems, m_te2DController, &te2DCanvasController::ShowAllItems);
-	connect(m_teIBController, &teImageBrowserController::sig_SetImage, m_te2DController, &te2DCanvasController::slotSetImage);
-
-	m_SChart = new teTrainStatisticsChart();
-	m_SChart->hide();
-	connect(teDataStorage::getInstance(), &teDataStorage::sig_DataChangeDuringTraining, m_SChart, &teTrainStatisticsChart::ReceiveData);
-	connect(m_AiModelController, &AiModelController::sig_isShowTSChart, m_SChart, &teTrainStatisticsChart::isShow);
-	connect(m_SChart, &teTrainStatisticsChart::sig_closeteTrainStatisticsChart, m_AiModelController, &AiModelController::sig_TSChartClose);
+	connect(m_teIBController, &teDataBrowserController::sig_IndexChanged, this, &MainInterface::IndexChanged);
+	connect(m_teIBController, &teDataBrowserController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
+	connect(m_teIBController, &teDataBrowserController::sig_updateResultWidget, this, &MainInterface::updateResultWidget);
+	connect(m_teIBController, &teDataBrowserController::sig_NeedReload, m_te3DController, &te3DCanvasController::NeedReload);
+	connect(m_teIBController, &teDataBrowserController::sig_NeedReload, m_te2DController, &te2DCanvasController::NeedReload);
+	connect(m_teIBController, &teDataBrowserController::sig_LoadPointCloud, m_te3DController, &te3DCanvasController::LoadPointCloud);
+	connect(m_teIBController, &teDataBrowserController::sig_LoadOriginImage, m_te2DController, &te2DCanvasController::LoadOriginImage);
 
 	QAction* saveAction = new QAction(tr("Save"), this);
 	saveAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
 	connect(saveAction, &QAction::triggered, this, &MainInterface::sig_SaveParameter);
 	addAction(saveAction);
+
+	m_curstate.currentCategory = "";
+	m_curstate.currentColor = Qt::black;
+	m_curstate.currentIndex = 0;
+	m_curstate.currentValidPointThreshold = 0.0;
+	m_curstate.currentInvalidPointThreshold = 0.0;
+	emit sig_CurrentStateChanged(m_curstate.currentCategory, m_curstate.currentColor, m_curstate.currentIndex, m_curstate.currentValidPointThreshold, m_curstate.currentInvalidPointThreshold);
 }
 
 MainInterface::~MainInterface()
@@ -131,55 +154,47 @@ void MainInterface::InitToolBar()
 	QAction* Stop_Train = new QAction(u8"停止训练");
 	QAction* Start_Test = new QAction(u8"开始测试");
 
-	
 	Train_menu->addAction(Start_Train);
 	Train_menu->addAction(Start_Test);
 	menu_bar->addMenu(Train_menu);
 
 	connect(Load_Images, &QAction::triggered, this, &MainInterface::LoadTrainingImages);
-	connect(this, &MainInterface::sig_LoadTrainingImages, teDataStorage::getInstance(), &teDataStorage::LoadTrainingImages);
-	connect(Start_Train, &QAction::triggered, m_AiModelController, &AiModelController::sig_PrepareTrain);
-	connect(Stop_Train, &QAction::triggered, m_AiModelController, &AiModelController::sig_StopTrain);
-	connect(Start_Test, &QAction::triggered, m_AiModelController, &AiModelController::sig_PrepareTest);
-	connect(this, &MainInterface::sig_SaveParameter, m_AiModelController, &AiModelController::sig_SaveParameter);
+	connect(Start_Train, &QAction::triggered, m_teAlgorithmController, &teAlgorithmController::sig_PrepareTrain);
+	connect(Stop_Train, &QAction::triggered, m_teAlgorithmController, &teAlgorithmController::sig_StopTrain);
+	connect(Start_Test, &QAction::triggered, m_teAlgorithmController, &teAlgorithmController::sig_PrepareTest);
+	connect(this, &MainInterface::sig_SaveParameter, m_teAlgorithmController, &teAlgorithmController::sig_SaveParameter);
 }
 
 void MainInterface::ClearAllCaches()
 {
-	QDir currentDir = teDataStorage::getInstance()->GetCurrentPath();
-	QStringList filters;
-	filters << "*.pcd" << "*.bmp";
-	QFileInfoList fileList = currentDir.entryInfoList(filters, QDir::Files);
-
-	foreach(QFileInfo fileInfo, fileList) {
-		QString filePath = fileInfo.absoluteFilePath();
-		currentDir.remove(filePath);
-	}
+	if (!m_teAiModel->clearAllPointCloud())
+		std::cerr << "clearAllPointCloud fail" << std::endl;
+	if (!m_teAiModel->clearAllThumbnail())
+		std::cerr << "clearAllThumbnail fail" << std::endl;
 }
 
 void MainInterface::on_InvalidPointThresholdSpinBox_valueChanged(double arg)
 {
 	if (!HastheImageBeenLoaded) {
-		teDataStorage::getInstance()->InvalidPointThresholdsChange(arg);
+		m_teAiModel->InvalidPointThresholdsChange(arg);
 	}
 }
 
 void MainInterface::on_ValidPointThresholdSpinBox_valueChanged(double arg)
 {
 	if (!HastheImageBeenLoaded) {
-		teDataStorage::getInstance()->ValidPointThresholdsChange(arg);
+		m_teAiModel->ValidPointThresholdsChange(arg);
 	}
 }
 
 void MainInterface::on_ThresholdBtn_clicked()
 {
-	if (teDataStorage::getInstance()->getCurrentLoadImageNum() != 0)
+	if (m_teAiModel->getCurrentLoadImageNum() != 0)
 	{
-		teDataStorage::getInstance()->DeleteCurrentPointCloudAndThumbnail();
+		m_teAiModel->clearCurrentPointCloudAndThumbnail();
 
-		teDataStorage::getInstance()->ValidPointThresholdChange(ui->ValidPointThresholdSpinBox->value());
-		teDataStorage::getInstance()->InvalidPointThresholdChange(ui->InvalidPointThresholdSpinBox->value());
-
+		m_teAiModel->ValidPointThresholdChange(ui->ValidPointThresholdSpinBox->value());
+		m_teAiModel->InvalidPointThresholdChange(ui->InvalidPointThresholdSpinBox->value());
 
 		if (TwoDState->active()) {
 			m_te2DController->ShowCurrentImages();
@@ -195,7 +210,7 @@ void MainInterface::on_ThresholdBtn_clicked()
 
 void MainInterface::on_clearDatabaseBtn_clicked()
 {
-	teDataStorage::getInstance()->DropAllTables();
+	m_teAiModel->DropAllTables();
 	ClearAllCaches();
 }
 
@@ -211,7 +226,54 @@ void MainInterface::ChangeBtnTextTo3D()
 
 void MainInterface::ManagePolyLine()
 {
+	if (m_curstate.currentCategory == "") 
+	{
+		QMessageBox::information(nullptr, u8"提示", u8"请先选择一个标签！", QMessageBox::Ok);
+		emit m_te3DController->sig_MarkerButtonRecovery();
+		return;
+	}
 	m_te3DController->ManagePolyLine(stacklayout);
+}
+
+void MainInterface::labelChange(const QString& category, const QColor& fontColor)
+{
+	m_curstate.currentCategory = category;
+	m_curstate.currentColor = fontColor;
+	emit sig_CurrentStateChanged(m_curstate.currentCategory, m_curstate.currentColor, m_curstate.currentIndex, m_curstate.currentValidPointThreshold, m_curstate.currentInvalidPointThreshold);
+}
+
+void MainInterface::ColorChange(const QColor& fontColor)
+{
+	m_curstate.currentColor = fontColor;
+	emit sig_CurrentStateChanged(m_curstate.currentCategory, m_curstate.currentColor, m_curstate.currentIndex, m_curstate.currentValidPointThreshold, m_curstate.currentInvalidPointThreshold);
+}
+
+void MainInterface::updateResultOperate()
+{
+	m_teLabelBrowser->updateTrainWidget(&m_teAiModel->getCurrentResultMarksNumber());
+}
+
+void MainInterface::IndexChanged()
+{
+	m_curstate.currentIndex = m_teAiModel->getCurrentIndex();
+
+	m_curstate.currentValidPointThreshold = m_teAiModel->getCurrentValidPointThreshold();
+	m_curstate.currentInvalidPointThreshold = m_teAiModel->getCurrentInvalidPointThreshold();
+
+	ui->ValidPointThresholdSpinBox->setValue(m_curstate.currentValidPointThreshold);
+	ui->InvalidPointThresholdSpinBox->setValue(m_curstate.currentInvalidPointThreshold);
+
+	emit sig_CurrentStateChanged(m_curstate.currentCategory, m_curstate.currentColor, m_curstate.currentIndex, m_curstate.currentValidPointThreshold, m_curstate.currentInvalidPointThreshold);
+}
+
+void MainInterface::updateTrainWidget()
+{
+	m_teLabelBrowser->updateTrainWidget(&m_teAiModel->getCurrentTrainMarksNumber());
+}
+
+void MainInterface::updateResultWidget()
+{
+	m_teLabelBrowser->updateResultWidget(&m_teAiModel->getCurrentResultMarksNumber());
 }
 
 void MainInterface::SetThreshold(QString filePath)
@@ -231,6 +293,11 @@ void MainInterface::SetThreshold(QString filePath)
 	ui->ValidPointThresholdSpinBox->setValue(maxValue);
 	ui->InvalidPointThresholdSpinBox->setValue(minValue);
 
+	m_curstate.currentValidPointThreshold = maxValue;
+	m_curstate.currentInvalidPointThreshold = minValue;
+	emit sig_CurrentStateChanged(m_curstate.currentCategory, m_curstate.currentColor, m_curstate.currentIndex, m_curstate.currentValidPointThreshold, m_curstate.currentInvalidPointThreshold);
+	m_teAiModel->addInvalidPointThreshold(m_curstate.currentIndex,minValue);
+	m_teAiModel->addValidPointThreshold(m_curstate.currentIndex,maxValue);
 
 	int factor = maxValue - minValue;
 	if (factor >= 1 && factor < 255) {
@@ -245,9 +312,8 @@ void MainInterface::SetThreshold(QString filePath)
 void MainInterface::LoadTrainingImages()
 {
 	QStringList filepaths = QFileDialog::getOpenFileNames(nullptr, u8"选择文件", "", "TIFF Files (*.tif *.tiff)");
-	teDataStorage::getInstance()->setCurrentIndex(0);
-	teDataStorage::getInstance()->setCurrentLoadImageNum(filepaths.size());
-	teDataStorage::getInstance()->InitThreasholds(filepaths.size());
+	m_teAiModel->setCurrentIndex(0);
+	m_teAiModel->InitThreasholds(filepaths.size());
 	m_te3DController->NeedReload();
 	if (!filepaths.isEmpty())
 	{
@@ -255,6 +321,8 @@ void MainInterface::LoadTrainingImages()
 			SetThreshold(filepaths[0]);
 		}
 		HastheImageBeenLoaded = true;
-		emit sig_LoadTrainingImages(filepaths);
+		m_teAiModel->LoadTrainingImages(filepaths);
+		emit sig_teUpDataSet(filepaths.size(), 1, true);
+		emit sig_LoadTrainImagesComplete();
 	}
 }
