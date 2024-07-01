@@ -61,11 +61,14 @@ bool teDataBrowserWorkThread::SavePointCloud(QString fileName, pcl::PointCloud<p
 
 void teDataBrowserWorkThread::ItemActive(int* pIndex, int len)
 {
-    for (int i = 0; i < len; i++) {
-        if (!QFile::exists(QString::fromStdString(m_teAiModel->getShrinkageChart()[pIndex[i]]))) {
+    for (int i = 0; i < len; i++) 
+    {
+        if (!QFile::exists(QString::fromStdString(m_teAiModel->getShrinkageChart()[pIndex[i]]))) 
+        {
             QFileInfo fileInfo(QString::fromStdString(m_teAiModel->getOriginImage()[pIndex[i]]));
             QString suffix = fileInfo.suffix().toLower();
-            if ((suffix == "tif" || suffix == "tiff")) {
+            if ((suffix == "tif" || suffix == "tiff")) 
+            {
                 std::string imgPath = m_teAiModel->getOriginImage()[pIndex[i]];
                 cv::Mat image = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
 
@@ -90,22 +93,26 @@ void teDataBrowserWorkThread::ItemActive(int* pIndex, int len)
                     if (!trans.cvt32F2BGR(m_teAiModel->getCurrentInvalidPointThreshold(), m_teAiModel->getCurrentValidPointThreshold(), image, median)) { return; }
                 }
                 cv::resize(median, median, cv::Size(80, 80));
+
                 cv::imwrite(m_teAiModel->GetCurrentPath().toStdString() + std::to_string(m_teAiModel->getCurrentIndex()) + "_thumb.bmp", median);
                 m_teAiModel->updateShrinkageChart(m_teAiModel->getCurrentIndex(), m_teAiModel->GetCurrentPath().toStdString() + std::to_string(m_teAiModel->getCurrentIndex()) + "_thumb.bmp");
             }
-            else {
+            else 
+            {
                 te::Image img = te::Image::load(m_teAiModel->getOriginImage()[pIndex[i]]).resize(te::Size(80, 80));
                 img.save(std::to_string(pIndex[i]) + "_thumb.bmp");
                 m_teAiModel->updateShrinkageChart(pIndex[i], m_teAiModel->GetCurrentPath().toStdString() + std::to_string(pIndex[i]) + "_thumb.bmp");
                 ImageBrowser->teUpdateThumb(pIndex[i], 0, QImage(m_teAiModel->GetCurrentPath() + QString::number(pIndex[i]) + "_thumb.bmp"), E_FORMAT_RGB);
             }
         }
-        if (!QFile::exists(QString::fromStdString(m_teAiModel->getPointCloud()[pIndex[i]]))) {
+        if (!QFile::exists(QString::fromStdString(m_teAiModel->getPointCloud()[pIndex[i]]))) 
+        {
             std::string imgPath = m_teAiModel->getOriginImage()[pIndex[i]];
             cv::Mat image = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr mediancloud = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
 
-            if (image.empty()) {
+            if (image.empty()) 
+            {
                 qDebug() << "Failed to load the TIF image.";
                 return;
             }

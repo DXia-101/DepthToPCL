@@ -169,7 +169,7 @@ bool teAi3DStorage::clearAllPointCloud()
 	bool res = false;
 	foreach(QFileInfo fileInfo, fileList) {
 		QString filePath = fileInfo.absoluteFilePath();
-		currentDir.remove(filePath);
+		res = currentDir.remove(filePath);
 		if (!res)
 			return res;
 	}
