@@ -63,13 +63,19 @@ void teDataBrowserWorkThread::ItemActive(int* pIndex, int len)
 {
     for (int i = 0; i < len; i++) 
     {
-        if (!QFile::exists(QString::fromStdString(m_teAiModel->getShrinkageChart()[pIndex[i]]))) 
+        int index = pIndex[i];
+        QString ShrinkageChartPath = QString::fromStdString(m_teAiModel->GetCurrentPath().toStdString() + std::to_string(index) + "_thumb.bmp");
+        QFileInfo ShrinkageChartInfo(ShrinkageChartPath);
+        QString PointCloudPath = QString::fromStdString(m_teAiModel->GetCurrentPath().toStdString() + std::to_string(index) + "_thumb.pcd");
+        QFileInfo PointCloudInfo(PointCloudPath);
+
+        if (!(ShrinkageChartInfo.exists() && ShrinkageChartInfo.isFile()))
         {
-            QFileInfo fileInfo(QString::fromStdString(m_teAiModel->getOriginImage()[pIndex[i]]));
+            QFileInfo fileInfo(QString::fromStdString(m_teAiModel->getOriginImage()[index]));
             QString suffix = fileInfo.suffix().toLower();
             if ((suffix == "tif" || suffix == "tiff")) 
             {
-                std::string imgPath = m_teAiModel->getOriginImage()[pIndex[i]];
+                std::string imgPath = m_teAiModel->getOriginImage()[index];
                 cv::Mat image = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
 
                 if (image.empty() || (image.type() != CV_32FC1 && image.type() != CV_16UC1)) {
@@ -80,8 +86,8 @@ void teDataBrowserWorkThread::ItemActive(int* pIndex, int len)
                 cv::minMaxLoc(image, &minValue, &maxValue);
                 minValue = -(maxValue * 0.8);
 
-                m_teAiModel->addInvalidPointThreshold(pIndex[i],minValue);
-                m_teAiModel->addValidPointThreshold(pIndex[i],maxValue);
+                m_teAiModel->addInvalidPointThreshold(index,minValue);
+                m_teAiModel->addValidPointThreshold(index,maxValue);
 
                 cv::Mat median;
                 median.create(image.size(), CV_8UC3);
@@ -94,20 +100,13 @@ void teDataBrowserWorkThread::ItemActive(int* pIndex, int len)
                 }
                 cv::resize(median, median, cv::Size(80, 80));
 
-                cv::imwrite(m_teAiModel->GetCurrentPath().toStdString() + std::to_string(m_teAiModel->getCurrentIndex()) + "_thumb.bmp", median);
-                m_teAiModel->updateShrinkageChart(m_teAiModel->getCurrentIndex(), m_teAiModel->GetCurrentPath().toStdString() + std::to_string(m_teAiModel->getCurrentIndex()) + "_thumb.bmp");
-            }
-            else 
-            {
-                te::Image img = te::Image::load(m_teAiModel->getOriginImage()[pIndex[i]]).resize(te::Size(80, 80));
-                img.save(std::to_string(pIndex[i]) + "_thumb.bmp");
-                m_teAiModel->updateShrinkageChart(pIndex[i], m_teAiModel->GetCurrentPath().toStdString() + std::to_string(pIndex[i]) + "_thumb.bmp");
-                ImageBrowser->teUpdateThumb(pIndex[i], 0, QImage(m_teAiModel->GetCurrentPath() + QString::number(pIndex[i]) + "_thumb.bmp"), E_FORMAT_RGB);
+                cv::imwrite(ShrinkageChartPath.toStdString(), median);
+                m_teAiModel->updateShrinkageChart(m_teAiModel->getCurrentIndex(), ShrinkageChartPath.toStdString());
             }
         }
-        if (!QFile::exists(QString::fromStdString(m_teAiModel->getPointCloud()[pIndex[i]]))) 
+        if (!(PointCloudInfo.exists() && PointCloudInfo.isFile()))
         {
-            std::string imgPath = m_teAiModel->getOriginImage()[pIndex[i]];
+            std::string imgPath = m_teAiModel->getOriginImage()[index];
             cv::Mat image = cv::imread(imgPath, cv::IMREAD_UNCHANGED);
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr mediancloud = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
 
@@ -116,9 +115,9 @@ void teDataBrowserWorkThread::ItemActive(int* pIndex, int len)
                 qDebug() << "Failed to load the TIF image.";
                 return;
             }
-            Transfer_Function::cvMat2Cloud(m_teAiModel->getSelectInvalidPointThreshold(pIndex[i]), m_teAiModel->getSelectValidPointThreshold(pIndex[i]), image, mediancloud);
-            SavePointCloud(QString::fromStdString(m_teAiModel->GetCurrentPath().toStdString() + std::to_string(pIndex[i]) + "_thumb.pcd"), mediancloud);
-            m_teAiModel->updatePointCloud(pIndex[i], m_teAiModel->GetCurrentPath().toStdString() + std::to_string(pIndex[i]) + "_thumb.pcd");
+            Transfer_Function::cvMat2Cloud(m_teAiModel->getSelectInvalidPointThreshold(index), m_teAiModel->getSelectValidPointThreshold(index), image, mediancloud);
+            SavePointCloud(PointCloudPath, mediancloud);
+            m_teAiModel->updatePointCloud(index, PointCloudPath.toStdString());
         }
     }
 }
