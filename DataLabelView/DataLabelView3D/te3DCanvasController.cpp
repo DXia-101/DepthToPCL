@@ -202,7 +202,7 @@ void te3DCanvasController::ShowAllResults()
 {
 	cv::Mat image = cv::imread(m_teAiModel->getCurrentOriginImage(), cv::IMREAD_UNCHANGED);
 	te::SampleMark samplemark = m_teAiModel->getCurrentResultSampleInfo();
-	m_te3DCanvas->ClearmarkerPCID();
+	m_te3DCanvas->ClearresultPCID();
 	for (te::AiInstance instance : samplemark.gtDataSet) {
 		m_te3DCanvas->ResultsShowInCanvas(&instance, image, m_teLabelBrowser->getFontColorByFirstColumnValue(QString::fromStdString(instance.name)));
 	}
@@ -212,7 +212,7 @@ void te3DCanvasController::ShowAllMarkers()
 {
 	cv::Mat image = cv::imread(m_teAiModel->getCurrentOriginImage(), cv::IMREAD_UNCHANGED);
 	te::SampleMark samplemark = m_teAiModel->getCurrentTrainSampleInfo();
-	m_te3DCanvas->ClearresultPCID();
+	m_te3DCanvas->ClearmarkerPCID();
 	for (te::AiInstance instance : samplemark.gtDataSet) {
 		m_te3DCanvas->MarkersShowInCanvas(&instance, image, m_teLabelBrowser->getFontColorByFirstColumnValue(QString::fromStdString(instance.name)));
 	}

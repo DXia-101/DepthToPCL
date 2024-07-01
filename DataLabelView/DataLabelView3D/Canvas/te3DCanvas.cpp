@@ -433,7 +433,6 @@ void te3DCanvas::MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image,
     if (it != markerPCID.end()) {
         QString count = incrementNumber(it->second.back());
         CloudId = QString::fromStdString(instance->name) + QString::number(m_curstate.currentIndex) + "marker" + count;
-        qDebug() << "CloudID: " << CloudId;
         it->second.push_back(CloudId);
         pct->second.push_back(cloud_marked);
     }
