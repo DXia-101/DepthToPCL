@@ -18,8 +18,6 @@
 #include <process.h>
 #include <windows.h>
 
-#include <QThread>
-
 #undef min
 #undef max
 #else
@@ -45,19 +43,14 @@ using namespace te;
 typedef std::vector<std::vector<std::vector<cv::Point>>> Contours;
 typedef std::vector<std::vector<std::vector<std::vector<cv::Point>>>> ContoursSet;
 
-enum RunMode {
-	trainMode,
-	testMode,
-};
-
 class teAiModel;
 
-class teAlgorithmInterface : public QThread
+class teAlgorithmInterface : public QObject
 {
 	Q_OBJECT
 
 public:
-	teAlgorithmInterface(QThread* parent = nullptr);
+	teAlgorithmInterface(QObject* parent = nullptr);
 	~teAlgorithmInterface();
 
 	static int teException(void* pParam, AiStatus eStatus);
@@ -69,23 +62,20 @@ public:
 	void ParameterSettings(const char* modelpath);
 
 	void setteAiModel(teAiModel*);
-protected:
-	void run();
-
 public slots:
 	void trainModel(std::vector<te::SampleInfo>& trainSamples);
 	void testModel(std::vector<te::SampleInfo>& trainSamples);
 	void InitTrainConfig(te::TrainParamRegister* para);
 	void InitTestConfig(te::TestParamRegister* para);
 	void StopTrain();
+	void StartTrain();
+	void StartTest();
 
 signals:
 	void sig_TestingCompleted();
 
 private:
-	RunMode mode = trainMode;
 	const char* modelPath;
-
 	teAiModel* m_teAiModel;
 
 public:

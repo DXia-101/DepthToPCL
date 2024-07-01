@@ -6,8 +6,8 @@
 #include "teAiExtypes.h"
 #include "teTrainStatisticsChart.h"
 
-teAlgorithmInterface::teAlgorithmInterface(QThread* parent)
-	: QThread(parent)
+teAlgorithmInterface::teAlgorithmInterface(QObject* parent)
+	: QObject(parent)
 {
 	config.sampleDesc.resize(1);
 }
@@ -37,8 +37,6 @@ void teAlgorithmInterface::teTrainStateCallBack(AiStatus status, TrainState& sta
 		cv->notify_all();
 	}
 
-	//printf("iter: %d  loss: %f  pacc: %f\n", stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
-	//emit DataUpdate(stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
 	teTrainStatisticsChart::getInstance()->ReceiveData(stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
 
 	if (stateinfo.fProgress > 0.999999f)
@@ -62,13 +60,11 @@ void teAlgorithmInterface::teAiInferResult(AiResult& inferResult, te::DynamicMat
 
 void teAlgorithmInterface::TrainParameterSettings(const char* modelpath)
 {
-	this->mode = trainMode;
 	ParameterSettings(modelpath);
 }
 
 void teAlgorithmInterface::TestParameterSettings(const char* modelpath)
 {
-	this->mode = testMode;
 	ParameterSettings(modelpath);
 }
 
@@ -125,93 +121,24 @@ void teAlgorithmInterface::StopTrain()
 	train_.stop();
 }
 
-void teAlgorithmInterface::run()
+void teAlgorithmInterface::StartTrain()
 {
-	if (mode == trainMode) {
-		std::vector<te::SampleInfo> m_Trainsamples;
-		m_teAiModel->getTrainSamples(&m_Trainsamples);
-		trainModel(m_Trainsamples);
-	}
-	else if (mode == testMode) {
-		std::vector<te::SampleInfo> m_Resultsamples;
-		m_teAiModel->getTrainSamples(&m_Resultsamples);
-		testModel(m_Resultsamples);
-	}
+	std::vector<te::SampleInfo> m_Trainsamples;
+	m_teAiModel->getTrainSamples(&m_Trainsamples);
+	trainModel(m_Trainsamples);
+}
+
+void teAlgorithmInterface::StartTest()
+{
+	std::vector<te::SampleInfo> m_Resultsamples;
+	m_teAiModel->getTrainSamples(&m_Resultsamples);
+	testModel(m_Resultsamples);
 }
 
 void teAlgorithmInterface::trainModel(std::vector<te::SampleInfo>& trainSamples)
 {
 	std::condition_variable cv;
 	AiStatus status;
-	/*auto gauss = std::make_shared<GaussianTransform>();
-	gauss->mean.resize(1);
-	gauss->mean[0].start = 0.00f;
-	gauss->mean[0].end = 0.00f;
-	gauss->variance.resize(1);
-	gauss->variance[0].start = 0.00f;
-	gauss->variance[0].end = 5.00f;
-	config.augmentHandle->algorithmProcess.push_back(gauss);
-
-	auto angle = std::make_shared<RandomAngleTransform>();
-	angle->ranges.resize(1);
-	angle->ranges[0].start = -180;
-	angle->ranges[0].end = 180;
-	config.augmentHandle->algorithmProcess.push_back(angle);
-
-	auto saltpepper = std::make_shared<SaltAndPepperTransform>();
-	saltpepper->ratio.resize(1);
-	saltpepper->ratio[0].start = 0.00f;
-	saltpepper->ratio[0].end = 0.03f;
-	config.augmentHandle->algorithmProcess.push_back(saltpepper);
-
-	auto brictr = std::make_shared<BrightContrastTransform>();
-	brictr->bright.resize(1);
-	brictr->bright[0].start = 0.95f;
-	brictr->bright[0].end = 1.05f;
-	brictr->contrast.resize(1);
-	brictr->contrast[0].start = 0.95f;
-	brictr->contrast[0].end = 1.05f;
-	config.augmentHandle->algorithmProcess.push_back(brictr);
-
-	auto satur = std::make_shared<SaturationTransform>();
-	satur->saturation.resize(1);
-	satur->saturation[0].start = 0.00f;
-	satur->saturation[0].end = 10.0f;
-	config.augmentHandle->algorithmProcess.push_back(satur);
-
-	auto hue = std::make_shared<HueTransform>();
-	hue->hue.resize(1);
-	hue->hue[0].start = 0.00f;
-	hue->hue[0].end = 10.0f;
-	config.augmentHandle->algorithmProcess.push_back(hue);
-
-	auto defini = std::make_shared<DefinitionTransform>();
-	defini->percent.resize(1);
-	defini->percent[0].start = 0.00f;
-	defini->percent[0].end = 0.05f;
-	config.augmentHandle->algorithmProcess.push_back(defini);
-
-	auto translat = std::make_shared<RandomTranslateTransform>();
-	translat->transx.resize(1);
-	translat->transx[0].start = -2;
-	translat->transx[0].end = 2;
-	translat->transy.resize(1);
-	translat->transy[0].start = -2;
-	translat->transy[0].end = 2;
-	config.augmentHandle->algorithmProcess.push_back(translat);
-
-	auto scale = std::make_shared<RandomScaleTransform>();
-	scale->xRatio.resize(1);
-	scale->xRatio[0].start = 0.95f;
-	scale->xRatio[0].end = 1.05f;
-	scale->yRatio.resize(1);
-	scale->yRatio[0].start = 0.95f;
-	scale->yRatio[0].end = 1.05f;
-	config.augmentHandle->algorithmProcess.push_back(scale);
-
-	auto flip = std::make_shared<RandomFlipTransform>();
-	flip->flipmode = te::TeFlipMode::E_BOTH_FLIP;
-	config.augmentHandle->algorithmProcess.push_back(flip);*/
 	std::string initInfo;
 
 	train_.setDeviceInfo({ E_GPU, DeviceID });

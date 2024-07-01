@@ -118,16 +118,18 @@ void te2DCanvasController::ShowFirstImage()
 
 void te2DCanvasController::ShowAllItems()
 {
-	if (m_te2DCanvasToolBar->isDimensionShow() == true) {
-		ShowAllMarkers();
+	ShowAllMarkers();
+	ShowAllResults();
+	if (m_te2DCanvasToolBar->isDimensionShow() == false) {
+		m_te2DCanvas->ShowDimension(0);
 	}
-	if (m_te2DCanvasToolBar->isResultShow() == true) {
-		ShowAllResults();
+	if (m_te2DCanvasToolBar->isResultShow() == false) {
+		m_te2DCanvas->ShowResult(0);
 	}
-	if (m_te2DCanvasToolBar->isLocalMaskShow()) {
+	if (m_te2DCanvasToolBar->isLocalMaskShow() == false) {
 
 	}
-	if (m_te2DCanvasToolBar->isGlobalMaskShow()) {
+	if (m_te2DCanvasToolBar->isGlobalMaskShow() == false) {
 
 	}
 }
