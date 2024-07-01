@@ -246,6 +246,7 @@ void MainInterface::ColorChange(const QColor& fontColor)
 {
 	m_curstate.currentColor = fontColor;
 	emit sig_CurrentStateChanged(m_curstate.currentCategory, m_curstate.currentColor, m_curstate.currentIndex, m_curstate.currentValidPointThreshold, m_curstate.currentInvalidPointThreshold);
+	emit sig_ColorChanged();
 }
 
 void MainInterface::updateResultOperate()

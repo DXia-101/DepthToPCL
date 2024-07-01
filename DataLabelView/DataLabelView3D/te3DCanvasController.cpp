@@ -168,7 +168,7 @@ void te3DCanvasController::ReLoadGTAndRST()
 	m_te3DCanvas->UpdateDimentsion();
 	m_te3DCanvas->UpdateResult();
 	//ShowAllItems();
-	m_te3DCanvas->getvtkRenderer()->GetRenderWindow()->Render();
+	m_te3DCanvas->getvtkRenderWindow()->Render();
 }
 
 void te3DCanvasController::SetCentroid()
