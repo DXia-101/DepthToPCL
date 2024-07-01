@@ -145,11 +145,13 @@ void te3DCanvasController::add3DAiInstance(pcl::PointCloud<pcl::PointXYZRGB>::Pt
 
 void te3DCanvasController::ShowAllItems()
 {
-	if (m_te3DCanvasMenu->isDimensionShow()) {
-		ShowAllMarkers();
+	ShowAllMarkers();
+	ShowAllResults();
+	if (m_te3DCanvasMenu->isDimensionShow() == false) {
+		m_te3DCanvas->ShowDimension(0);
 	}
-	if (m_te3DCanvasMenu->isResultShow()) {
-		ShowAllResults();
+	if (m_te3DCanvasMenu->isResultShow() == false) {
+		m_te3DCanvas->ShowResult(0);
 	}
 }
 
