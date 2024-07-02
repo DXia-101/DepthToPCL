@@ -58,12 +58,13 @@ void teLabelBrowser::SendCurrentItemInfo(QTableWidgetItem* item)
 	if (item) {
 		QString content = item->text();
 		QColor fontColor = item->foreground().color();
-		emit sig_currentRowSelected(content, fontColor);
+		
 		if(!isStartMark)
 		{
 			emit sig_StartMark();
 			isStartMark = true;
 		}
+		emit sig_currentRowSelected(content, fontColor);
 	}
 }
 

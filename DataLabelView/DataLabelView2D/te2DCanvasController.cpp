@@ -112,7 +112,8 @@ void te2DCanvasController::ShowFirstImage()
 	m_te2DCanvas->RemoveDimentsion();
 	m_te2DCanvas->RemoveResult();
 	TeJetColorCode trans;
-	m_te2DCanvas->setImage(trans.dealWithCvt(image,m_teAiModel->getCurrentInvalidPointThreshold(), m_teAiModel->getCurrentValidPointThreshold()));
+	setImage(trans.dealWithCvt(image,m_teAiModel->getCurrentInvalidPointThreshold(), m_teAiModel->getCurrentValidPointThreshold()));
+	cv::waitKey(0);
 	ShowAllItems();
 }
 
