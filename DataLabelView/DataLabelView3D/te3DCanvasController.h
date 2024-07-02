@@ -49,6 +49,7 @@ signals:
 	void sig_MarkerButtonRecovery();
 	void sig_updateTrainWidget();
 	void sig_ReLoadGTAndRST();
+	void sig_MarkerComplete();
 
 public:
 	void ShowAllResults();

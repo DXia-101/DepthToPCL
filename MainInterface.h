@@ -45,6 +45,7 @@ private slots:
 	void IndexChanged();
 	void updateTrainWidget();
 	void updateResultWidget();
+	void SetreceptiveFieldCurrrentWidget();
 
 private:
 	void SetThreshold(QString filePath);

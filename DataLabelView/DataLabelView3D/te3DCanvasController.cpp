@@ -90,6 +90,7 @@ void te3DCanvasController::ManagePolyLine(QStackedLayout* layout)
 {
 	if (layout->currentWidget() == m_te3DPolyLine) {
 		layout->setCurrentWidget(m_te3DCanvas);
+		emit sig_MarkerComplete();
 	}
 	else {
 		layout->setCurrentWidget(m_te3DPolyLine);

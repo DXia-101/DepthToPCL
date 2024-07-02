@@ -90,6 +90,8 @@ MainInterface::MainInterface(QWidget *parent)
 	connect(m_te3DController, &te3DCanvasController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
 	connect(m_te3DController, &te3DCanvasController::sig_ReLoadGTAndRST, this, &MainInterface::ResetMouseRadius);
 	connect(m_te3DController, &te3DCanvasController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
+	connect(m_te3DController, &te3DCanvasController::sig_MarkerComplete, this, &MainInterface::SetreceptiveFieldCurrrentWidget);
+
 	connect(m_te2DController, &te2DCanvasController::sig_updateTrainWidget, m_te3DController, &te3DCanvasController::ShowAllMarkers);
 	connect(m_te2DController, &te2DCanvasController::sig_eraseMarkers, m_te3DController, &te3DCanvasController::ShowAllMarkers);
 	connect(m_te2DController, &te2DCanvasController::sig_updateTrainWidget,this, &MainInterface::updateTrainWidget);
@@ -287,6 +289,11 @@ void MainInterface::updateTrainWidget()
 void MainInterface::updateResultWidget()
 {
 	m_teLabelBrowser->updateResultWidget(&m_teAiModel->getCurrentResultMarksNumber());
+}
+
+void MainInterface::SetreceptiveFieldCurrrentWidget()
+{
+	stacklayout->setCurrentWidget(m_teMouseCircle);
 }
 
 void MainInterface::SetThreshold(QString filePath)
