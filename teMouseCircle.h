@@ -1,8 +1,11 @@
 #pragma once
 
 #include <QWidget>
-#include <QMouseEvent>
-#include <QWheelEvent>
+
+class QMouseEvent;
+class QWheelEvent;
+class QStateMachine;
+class QState;
 
 class teMouseCircle  : public QWidget
 {
@@ -12,6 +15,7 @@ public:
 	teMouseCircle(QWidget *parent = nullptr);
 	~teMouseCircle();
 
+	void InitStateMachine();
 public:
 	void restitution();
 
@@ -28,9 +32,19 @@ protected:
 
 public slots:
 	void receptiveFieldChange(int factor);
+
+signals:
+	void sig_enterThrD();
+	void sig_enterTwoD();
+
 private:
 	QPointF centerPoint;
-	float radius;
+	float ThrDradius;
+	float TwoDradius;
 	bool MaxState;
 	bool circleVisible;
+
+	QStateMachine* m_pStateMachine;
+	QState* TwoDState;
+	QState* ThrDState;
 };

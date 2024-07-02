@@ -2,6 +2,10 @@
 #include <QPainter>
 #include <QApplication>
 #include <QPen>
+#include <QStateMachine>
+#include <QState>
+#include <QMouseEvent>
+#include <QWheelEvent>
 
 QTransform getZoomMat(const QPoint& center, double dRatio)
 {
@@ -57,8 +61,26 @@ teMouseCircle::teMouseCircle(QWidget *parent)
     setAttribute(Qt::WA_TranslucentBackground);
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
     installEventFilter(this);
-    radius = 10.0;
+    ThrDradius = 10.0;
+    TwoDradius = 10.0;
     MaxState = false;
+    InitStateMachine();
+}
+
+void teMouseCircle::InitStateMachine()
+{
+    m_pStateMachine = new QStateMachine();
+    TwoDState = new QState(m_pStateMachine);
+    ThrDState = new QState(m_pStateMachine);
+
+    TwoDState->addTransition(this, &teMouseCircle::sig_enterThrD, ThrDState);
+    ThrDState->addTransition(this, &teMouseCircle::sig_enterTwoD, TwoDState);
+
+    m_pStateMachine->addState(TwoDState);
+    m_pStateMachine->addState(ThrDState);
+
+    m_pStateMachine->setInitialState(TwoDState);
+    m_pStateMachine->start();
 }
 
 teMouseCircle::~teMouseCircle()
@@ -89,7 +111,10 @@ void teMouseCircle::paintEvent(QPaintEvent * event)
 
         painter.setPen(pen);
         painter.setBrush(Qt::NoBrush);
-        painter.drawEllipse(centerPoint, radius, radius);
+        if(ThrDState->active())
+            painter.drawEllipse(centerPoint, ThrDradius, ThrDradius);
+        else if (TwoDState->active())
+            painter.drawEllipse(centerPoint, TwoDradius, TwoDradius);
         update();
     }
 }
@@ -120,20 +145,41 @@ void teMouseCircle::wheelEvent(QWheelEvent* event)
         if (event->modifiers() == Qt::NoModifier) {
             int iDelta = event->delta();
             double dZoomRatio = 1.0 + iDelta / 1000.0;
-            if ((radius * dZoomRatio) <= 1)
+            if (ThrDState->active())
             {
-                MaxState = false;
-                radius = 1.0;
-            }
-            else {
-                if (!MaxState) {
-                    radius *= dZoomRatio;
-                }
-                else if (dZoomRatio <= 1) {
+                if ((ThrDradius * dZoomRatio) <= 1)
+                {
                     MaxState = false;
-                    radius *= dZoomRatio;
+                    ThrDradius = 1.0;
                 }
+                else {
+                    if (!MaxState) {
+                        ThrDradius *= dZoomRatio;
+                    }
+                    else if (dZoomRatio <= 1) {
+                        MaxState = false;
+                        ThrDradius *= dZoomRatio;
+                    }
 
+                }
+            }
+            else if (TwoDState->active())
+            {
+                if ((TwoDradius * dZoomRatio) <= 1)
+                {
+                    MaxState = false;
+                    TwoDradius = 1.0;
+                }
+                else {
+                    if (!MaxState) {
+                        TwoDradius *= dZoomRatio;
+                    }
+                    else if (dZoomRatio <= 1) {
+                        MaxState = false;
+                        TwoDradius *= dZoomRatio;
+                    }
+
+                }
             }
         }
         update();
@@ -188,5 +234,6 @@ void teMouseCircle::transWheelEvents(QWheelEvent* event)
 
 void teMouseCircle::receptiveFieldChange(int factor)
 {
-    radius = static_cast<float>(factor);
+    ThrDradius = static_cast<float>(factor);
+    TwoDradius = static_cast<float>(factor);
 }

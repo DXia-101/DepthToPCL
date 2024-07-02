@@ -153,12 +153,16 @@ void te2DCanvas::ResultsShowInCanvas(te::AiInstance* instance, QString label, QC
 
 void te2DCanvas::ShapeSelect(QString shape)
 {
-    if (shape.compare(QString::fromLocal8Bit("多边形")) == 0) {
+       if (shape.compare(QString::fromLocal8Bit("多边形")) == 0) 
+    {
         this->setCurrentBrush(1);    
     }
-    else if (shape.compare(QString::fromLocal8Bit("矩形")) == 0) {
+    else if (shape.compare(QString::fromLocal8Bit("矩形")) == 0) 
+    {
         this->setCurrentBrush(0);
-    }else if (shape.compare(QString::fromLocal8Bit("折线")) == 0) {
+    }
+    else if (shape.compare(QString::fromLocal8Bit("折线")) == 0) 
+    {
         this->setCurrentBrush(2);
     }
 }

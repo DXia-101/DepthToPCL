@@ -63,6 +63,8 @@ signals:
 	void sig_LoadTrainImagesComplete();
 	void sig_ColorChanged();
 	void sig_CurrentStateChanged(const QString& category, const QColor& fontColor, const int& index, const double& valThreshold, const double& invalThreshold);
+	void sig_enterThrD();
+	void sig_enterTwoD();
 
 private:
 	QStateMachine* m_pStateMachine;

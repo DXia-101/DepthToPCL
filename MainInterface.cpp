@@ -81,6 +81,8 @@ MainInterface::MainInterface(QWidget *parent)
 	connect(this, &MainInterface::sig_ColorChanged, m_te2DController, &te2DCanvasController::ReLoadGTAndRST);
 	connect(this, &MainInterface::sig_CurrentStateChanged, m_te3DController, &te3DCanvasController::sig_CurrentStateChanged);
 	connect(this, &MainInterface::sig_CurrentStateChanged, m_te2DController, &te2DCanvasController::sig_CurrentStateChanged);
+	connect(this, &MainInterface::sig_enterThrD, m_teMouseCircle, &teMouseCircle::sig_enterThrD);
+	connect(this, &MainInterface::sig_enterTwoD, m_teMouseCircle, &teMouseCircle::sig_enterTwoD);
 
 	connect(m_teLabelBrowser, &teLabelBrowser::sig_currentRowSelected, this, &MainInterface::labelChange);
 	connect(m_teLabelBrowser, &teLabelBrowser::sig_ColorChanged, this, &MainInterface::ColorChange);
@@ -102,6 +104,7 @@ MainInterface::MainInterface(QWidget *parent)
 	connect(m_teAlgorithmController, &teAlgorithmController::sig_receptiveFieldChange, m_teMouseCircle, &teMouseCircle::receptiveFieldChange);
 
 	connect(m_teIBController, &teDataBrowserController::sig_IndexChanged, this, &MainInterface::IndexChanged);
+	connect(m_teIBController, &teDataBrowserController::sig_IndexChanged, this, &MainInterface::ResetMouseRadius);
 	connect(m_teIBController, &teDataBrowserController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
 	connect(m_teIBController, &teDataBrowserController::sig_updateResultWidget, this, &MainInterface::updateResultWidget);
 	connect(m_teIBController, &teDataBrowserController::sig_NeedReload, m_te3DController, &te3DCanvasController::NeedReload);
@@ -135,9 +138,11 @@ void MainInterface::InitStateMachine()
     ThrDState = new QState(m_pStateMachine);
 
 	connect(TwoDState, &QState::entered, m_te2DController, &te2DCanvasController::showAllUI);
+	connect(TwoDState, &QState::entered, this, &MainInterface::sig_enterTwoD);
 	connect(TwoDState, &QState::entered, this, &MainInterface::ChangeBtnTextTo2D);
 	connect(TwoDState, &QState::exited, m_te2DController, &te2DCanvasController::hideAllUI);
 	connect(ThrDState, &QState::entered, m_te3DController, &te3DCanvasController::showAllUI);
+	connect(ThrDState, &QState::entered, this, &MainInterface::sig_enterThrD);
 	connect(ThrDState, &QState::entered, this, &MainInterface::ChangeBtnTextTo3D);
 	connect(ThrDState, &QState::exited, m_te3DController, &te3DCanvasController::hideAllUI);
 
