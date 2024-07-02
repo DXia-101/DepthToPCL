@@ -18,7 +18,7 @@
 #include <QState>
 
 
-class te2DCanvas  : public te::GraphicsView
+class te2DCanvas : public te::GraphicsView
 {
 	Q_OBJECT
 

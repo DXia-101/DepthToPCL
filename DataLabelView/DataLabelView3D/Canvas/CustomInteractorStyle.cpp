@@ -74,6 +74,15 @@ void CustomInteractorStyle::rotateAroundAxis(double dx, double dy, std::vector<d
 	}
 }
 
+void CustomInteractorStyle::OnMouseWheelForward() 
+{
+	Dolly(1.0 + 120.0 / 1000.0);
+}
+void CustomInteractorStyle::OnMouseWheelBackward() 
+{
+	Dolly(1.0 - 120.0 / 1000.0);
+}
+
 #ifndef _CC_
 void CustomInteractorStyle::OnMouseMove()
 {

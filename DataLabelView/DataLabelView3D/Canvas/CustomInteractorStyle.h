@@ -14,6 +14,8 @@ public:
 
 	void setRenderWindow(vtkRenderWindow* window, vtkSmartPointer<vtkRenderer> render, vtkSmartPointer<vtkAxesActor> axes);
 
+	virtual void OnMouseWheelForward()override;
+	virtual void OnMouseWheelBackward()override;
 	virtual void OnMouseMove()override;
 	virtual void OnLeftButtonDown() override;
 	virtual void OnLeftButtonUp() override;
@@ -44,7 +46,6 @@ private:
 	CustomInteractorStyle(const CustomInteractorStyle&) = delete;
 	void operator=(const CustomInteractorStyle&) = delete;
 
-	bool Zoomflag = false;
 	bool m_bLBtnDown = false;
 
 	int m_nOldMousePosX;
