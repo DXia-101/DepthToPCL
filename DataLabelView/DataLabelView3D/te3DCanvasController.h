@@ -48,6 +48,7 @@ signals:
 	void sig_CurrentStateChanged(const QString& category, const QColor& fontColor, const int& index, const double& valThreshold, const double& invalThreshold);
 	void sig_MarkerButtonRecovery();
 	void sig_updateTrainWidget();
+	void sig_ReLoadGTAndRST();
 
 public:
 	void ShowAllResults();

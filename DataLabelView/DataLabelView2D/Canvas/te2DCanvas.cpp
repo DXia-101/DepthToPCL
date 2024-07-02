@@ -169,8 +169,8 @@ void te2DCanvas::InitStateMachine()
     DrawState = new QState(m_pStateMachine);
     EraseState = new QState(m_pStateMachine);
 
-    DrawState->addTransition(this, SIGNAL(ReplaceToEraseState()), EraseState);
-    EraseState->addTransition(this, SIGNAL(ReplaceToDrawState()), DrawState);
+    DrawState->addTransition(this, SIGNAL(sig_ReplaceToEraseState()), EraseState);
+    EraseState->addTransition(this, SIGNAL(sig_ReplaceToDrawState()), DrawState);
 
     m_pStateMachine->addState(DrawState);
     m_pStateMachine->addState(EraseState);
@@ -212,6 +212,7 @@ void te2DCanvas::DrawGraphics(const QList<QPolygonF>& region)
     else if (EraseState->active()) {
         QList<QPolygonF> contours = polygonItem->polygonList();
         this->itemMgr(0)->eraseItems(contours);
+        emit sig_eraseMarkers();
     }
     te2DCanvasMarkingCompleted();
 }

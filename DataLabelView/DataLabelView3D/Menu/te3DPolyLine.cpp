@@ -26,7 +26,7 @@ void te3DPolyLine::SetDraw(bool bDraw)
 	bLeftClick = false;
 	bOverDraw = true;
 	pointList.clear();
-	update();
+	this->update();
 }
 
 QVector<QPointF>& te3DPolyLine::GetPointList()
@@ -102,7 +102,12 @@ void te3DPolyLine::mousePressEvent(QMouseEvent* e)
         }
         else if (e->button() == Qt::RightButton)
         {
-            if (pointList.size() > 0)
+            if(pointList.size() < 3)
+            {
+                SetDraw(true);
+                return;
+            }
+            if (pointList.size() > 2)
             {
                 pointList.push_back(pointList[0]);
             }
@@ -110,7 +115,7 @@ void te3DPolyLine::mousePressEvent(QMouseEvent* e)
             bLeftClick = false;
             bOverDraw = true;
             this->update();
-            sig_DrawOver();
+            emit sig_DrawOver();
         }
     }
 }

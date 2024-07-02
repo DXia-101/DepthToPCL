@@ -6,6 +6,7 @@
 #include "teAi3DStorage.h"
 #include "teAlgorithmController.h"
 #include "teLabelBrowser.h"
+#include "teMouseCircle.h"
 
 #include <QMenuBar>
 #include <QMenu>
@@ -61,6 +62,12 @@ MainInterface::MainInterface(QWidget *parent)
 	m_teAlgorithmController->displayUIInWidget(ui->labelLayout);
 	m_teAlgorithmController->setteAiModel(m_teAiModel);
 
+	m_teMouseCircle = new teMouseCircle();
+	m_teMouseCircle->show();
+	ResetMouseRadius();
+	stacklayout->addWidget(m_teMouseCircle);
+	stacklayout->setCurrentWidget(m_teMouseCircle);
+
 	InitStateMachine();
 	InitToolBar();
 	
@@ -81,12 +88,16 @@ MainInterface::MainInterface(QWidget *parent)
 
 	connect(m_te3DController, &te3DCanvasController::sig_ManagePolyLine, this, &MainInterface::ManagePolyLine);
 	connect(m_te3DController, &te3DCanvasController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
+	connect(m_te3DController, &te3DCanvasController::sig_ReLoadGTAndRST, this, &MainInterface::ResetMouseRadius);
+	connect(m_te3DController, &te3DCanvasController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
 	connect(m_te2DController, &te2DCanvasController::sig_updateTrainWidget, m_te3DController, &te3DCanvasController::ShowAllMarkers);
+	connect(m_te2DController, &te2DCanvasController::sig_eraseMarkers, m_te3DController, &te3DCanvasController::ShowAllMarkers);
 	connect(m_te2DController, &te2DCanvasController::sig_updateTrainWidget,this, &MainInterface::updateTrainWidget);
 
 	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, this, &MainInterface::updateResultOperate);
 	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, m_te3DController, &te3DCanvasController::ShowAllItems);
 	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, m_te2DController, &te2DCanvasController::ShowAllItems);
+	connect(m_teAlgorithmController, &teAlgorithmController::sig_receptiveFieldChange, m_teMouseCircle, &teMouseCircle::receptiveFieldChange);
 
 	connect(m_teIBController, &teDataBrowserController::sig_IndexChanged, this, &MainInterface::IndexChanged);
 	connect(m_teIBController, &teDataBrowserController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
@@ -111,6 +122,7 @@ MainInterface::MainInterface(QWidget *parent)
 
 MainInterface::~MainInterface()
 {
+	delete m_teMouseCircle;
 	delete ui;
 }
 
@@ -326,4 +338,9 @@ void MainInterface::LoadTrainingImages()
 		emit sig_teUpDataSet(filepaths.size(), 1, true);
 		emit sig_LoadTrainImagesComplete();
 	}
+}
+
+void MainInterface::ResetMouseRadius()
+{
+	m_teMouseCircle->receptiveFieldChange(m_teAlgorithmController->getReceptiveField());
 }

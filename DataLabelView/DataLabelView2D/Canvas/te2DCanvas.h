@@ -48,9 +48,10 @@ public slots:
 
 signals:
 	void sig_PolygonMarkingCompleted(QList<te::GraphicsItem*> polygonItems);
-	void ReplaceToEraseState();
-	void ReplaceToDrawState();
+	void sig_ReplaceToEraseState();
+	void sig_ReplaceToDrawState();
 	void sig_updateTrainWidget();
+	void sig_eraseMarkers();
 
 private:
 	void InitStateMachine();

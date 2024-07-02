@@ -29,6 +29,7 @@ signals:
 
 	void sig_StartMark();
 	void sig_updateTrainWidget();
+	void sig_eraseMarkers();
 
 public slots:
 	void hideAllUI();

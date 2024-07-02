@@ -16,6 +16,7 @@ class QStateMachine;
 class QState;
 class teAiModel;
 class teLabelBrowser;
+class teMouseCircle;
 
 class MainInterface : public QWidget
 {
@@ -47,6 +48,8 @@ private slots:
 
 private:
 	void SetThreshold(QString filePath);
+
+	void ResetMouseRadius();
 	
 private:
 	Ui::MainInterfaceClass *ui;
@@ -71,6 +74,7 @@ private:
 	te2DCanvasController* m_te2DController;
 	te3DCanvasController* m_te3DController;
 	teLabelBrowser* m_teLabelBrowser;
+	teMouseCircle* m_teMouseCircle;
 
 	bool HastheImageBeenLoaded = false;
 	struct currentState m_curstate;

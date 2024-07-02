@@ -180,7 +180,7 @@ void te3DCanvasController::StartDrawPolyLine()
 {
 	if (m_te3DPolyLine->isVisible()) {
 		m_te3DPolyLine->hide();
-		if (m_te3DPolyLine->GetPointList().size() > 2) 
+		if (m_te3DPolyLine->GetPointList().size() > 3) 
 		{
 			m_te3DCanvas->te3DCanvasStartMarking(m_te3DPolyLine->GetPointList());
 		}
@@ -196,6 +196,7 @@ void te3DCanvasController::StartDrawPolyLine()
 void te3DCanvasController::ReloadPointCloud()
 {
 	m_te3DCanvas->ReductionPointCloud(QString::fromStdString(m_teAiModel->getCurrentPointCloud()));
+	emit sig_ReLoadGTAndRST();
 }
 
 void te3DCanvasController::ShowAllResults()

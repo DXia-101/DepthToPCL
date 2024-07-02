@@ -289,6 +289,26 @@ void te3DCanvas::UpdateResult()
     }
 }
 
+void te3DCanvas::ClearDimentsion()
+{
+    for (const auto& pair : markerPCID) {
+        for (const QString& id : pair.second) {
+            viewer->removePointCloud(id.toStdString());
+        }
+    }
+    m_renderWindow->Render();
+}
+
+void te3DCanvas::ClearResult()
+{
+    for (const auto& pair : resultPCID) {
+        for (const QString& id : pair.second) {
+            viewer->removePointCloud(id.toStdString());
+        }
+    }
+    m_renderWindow->Render();
+}
+
 void te3DCanvas::ReductionPointCloud(QString fileName)
 {
     LoadPointCloud(fileName);
@@ -523,12 +543,16 @@ std::vector<double> te3DCanvas::getCloudCentroid()
 
 void te3DCanvas::ClearmarkerPCID()
 {
+    ClearDimentsion();
     markerPCID.clear();
+    markerPointCloud.clear();
 }
 
 void te3DCanvas::ClearresultPCID()
 {
+    ClearResult();
     resultPCID.clear();
+    resultPointCloud.clear();
 }
 
 void te3DCanvas::SetCoordinateSet()

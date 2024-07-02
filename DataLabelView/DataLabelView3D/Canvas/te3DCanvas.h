@@ -78,6 +78,8 @@ public slots:
     void ShowResult(int arg);
     void UpdateDimentsion();
     void UpdateResult();
+    void ClearDimentsion();
+    void ClearResult();
 
     void ReductionPointCloud(QString fileName);
     void SetCoordinateSet();
