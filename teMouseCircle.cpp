@@ -6,6 +6,7 @@
 #include <QState>
 #include <QMouseEvent>
 #include <QWheelEvent>
+#include <iostream>
 
 QTransform getZoomMat(const QPoint& center, double dRatio)
 {
@@ -63,6 +64,7 @@ teMouseCircle::teMouseCircle(QWidget *parent)
     installEventFilter(this);
     ThrDradius = 10.0;
     TwoDradius = 10.0;
+    ReduceTimes = -1;
     MaxState = false;
     InitStateMachine();
 }
@@ -144,23 +146,33 @@ void teMouseCircle::wheelEvent(QWheelEvent* event)
         transWheelEvents(event);
         if (event->modifiers() == Qt::NoModifier) {
             int iDelta = event->delta();
-            double dZoomRatio = 1.0 + iDelta / 1000.0;
+            double delta = 1.0;
+            if (iDelta < 0)
+                delta = 0.88;
+            else
+                delta = 1.12;
+            double dZoomRatio = delta;
             if (ThrDState->active())
             {
                 if ((ThrDradius * dZoomRatio) <= 1)
                 {
                     MaxState = false;
-                    ThrDradius = 1.0;
+                    ThrDradius = ThrDradius;
+                    ReduceTimes++;
                 }
                 else {
-                    if (!MaxState) {
-                        ThrDradius *= dZoomRatio;
+                    if (ReduceTimes > 0) {
+                        ReduceTimes--;
                     }
-                    else if (dZoomRatio <= 1) {
-                        MaxState = false;
-                        ThrDradius *= dZoomRatio;
+                    else {
+                        if (!MaxState) {
+                            ThrDradius *= dZoomRatio;
+                        }
+                        else if (dZoomRatio <= 1) {
+                            MaxState = false;
+                            ThrDradius *= dZoomRatio;
+                        }
                     }
-
                 }
             }
             else if (TwoDState->active())
@@ -168,7 +180,7 @@ void teMouseCircle::wheelEvent(QWheelEvent* event)
                 if ((TwoDradius * dZoomRatio) <= 1)
                 {
                     MaxState = false;
-                    TwoDradius = 1.0;
+                    TwoDradius = ThrDradius;
                 }
                 else {
                     if (!MaxState) {
@@ -236,4 +248,5 @@ void teMouseCircle::receptiveFieldChange(int factor)
 {
     ThrDradius = static_cast<float>(factor);
     TwoDradius = static_cast<float>(factor);
+    ReduceTimes = -1;
 }

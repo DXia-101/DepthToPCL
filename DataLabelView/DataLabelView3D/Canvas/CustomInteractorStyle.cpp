@@ -14,11 +14,32 @@
 #include <cmath>
 vtkStandardNewMacro(CustomInteractorStyle);
 
+CustomInteractorStyle::CustomInteractorStyle()
+{
+	this->InteractionProp = nullptr;
+}
+
+CustomInteractorStyle::~CustomInteractorStyle()
+{
+}
+
 void CustomInteractorStyle::setRenderWindow(vtkRenderWindow* window, vtkSmartPointer<vtkRenderer> render, vtkSmartPointer<vtkAxesActor> axes)
 {
 	m_rendererwindow = window;
 	m_renderer = render;
 	axes_actor = axes;
+}
+
+void CustomInteractorStyle::ResetData()
+{
+	Actor_xAxis = { 1.0,0.0,0.0 };
+	Actor_yAxis = { 0.0,1.0,0.0 };
+	Axes_xAxis = { 1.0,0.0,0.0 };
+	Axes_yAxis = { 0.0,1.0,0.0 };
+	m_pRotationTransform = vtkSmartPointer<vtkTransform>::New();
+	m_pRotationTransform->Identity();
+	axesTransform = vtkSmartPointer<vtkTransform>::New();
+	axesTransform->Identity();
 }
 
 void CustomInteractorStyle::rotateAroundAxis(double dx, double dy, std::vector<double>* xAxis, std::vector<double>* yAxis)
@@ -72,15 +93,6 @@ void CustomInteractorStyle::rotateAroundAxis(double dx, double dy, std::vector<d
 		xAxis->at(1) = result.at<double>(1, 0);
 		xAxis->at(2) = result.at<double>(2, 0);
 	}
-}
-
-void CustomInteractorStyle::OnMouseWheelForward() 
-{
-	Dolly(1.0 + 120.0 / 1000.0);
-}
-void CustomInteractorStyle::OnMouseWheelBackward() 
-{
-	Dolly(1.0 - 120.0 / 1000.0);
 }
 
 #ifndef _CC_
@@ -251,13 +263,14 @@ void CustomInteractorStyle::setRotationCenter(double x, double y, double z)
 	rotationCenter[2] = z;
 }
 
-CustomInteractorStyle::CustomInteractorStyle()
+void CustomInteractorStyle::OnMouseWheelForward()
 {
-	this->InteractionProp = nullptr;
+	Dolly(1.12);
 }
 
-CustomInteractorStyle::~CustomInteractorStyle()
+void CustomInteractorStyle::OnMouseWheelBackward()
 {
+	Dolly(0.88);
 }
 
 void CustomInteractorStyle::Dolly(double factor)
@@ -295,91 +308,32 @@ bool CustomInteractorStyle::IsCameraOutOfBounds(vtkCamera* camera)
 void CustomInteractorStyle::DollyToPosition(double fact, int* position, vtkRenderer* renderer)
 {
 	vtkCamera* cam = renderer->GetActiveCamera();
-	if (cam->GetParallelProjection())
-	{
-		int x0 = 0, y0 = 0, x1 = 0, y1 = 0;
-		// 相对于光标缩放
-		int* aSize = renderer->GetRenderWindow()->GetSize();
-		int w = aSize[0];
-		int h = aSize[1];
-		x0 = w / 2;
-		y0 = h / 2;
-		x1 = position[0];
-		y1 = position[1];
-		TranslateCamera(renderer, x0, y0, x1, y1);
-		cam->SetParallelScale(cam->GetParallelScale() / fact);
-		TranslateCamera(renderer, x1, y1, x0, y0);
-	}
-	else
-	{
-		// 相对于光标位置进行缩放
-		double viewFocus[4], originalViewFocus[3], cameraPos[3], newCameraPos[3];
-		double newFocalPoint[4], norm[3];
 
-		// 将焦点移动到光标位置
-		cam->GetPosition(cameraPos);
-		cam->GetFocalPoint(viewFocus);
-		cam->GetFocalPoint(originalViewFocus);
-		cam->GetViewPlaneNormal(norm);
+	// 相对于光标位置进行缩放
+	double viewFocus[4], originalViewFocus[3], cameraPos[3], newCameraPos[3];
+	double medianFocus[4];
 
-		CustomInteractorStyle::ComputeWorldToDisplay(
-			renderer, viewFocus[0], viewFocus[1], viewFocus[2], viewFocus);
-
-		CustomInteractorStyle::ComputeDisplayToWorld(
-			renderer, double(position[0]), double(position[1]), viewFocus[2], newFocalPoint);
-
-		cam->SetFocalPoint(newFocalPoint);
-
-		// 沿投影方向移入/移出相机
-		cam->Dolly(fact);
-
-		// 寻找新的焦点
-		cam->GetPosition(newCameraPos);
-
-		double newPoint[3];
-		newPoint[0] = originalViewFocus[0] + newCameraPos[0] - cameraPos[0];
-		newPoint[1] = originalViewFocus[1] + newCameraPos[1] - cameraPos[1];
-		newPoint[2] = originalViewFocus[2] + newCameraPos[2] - cameraPos[2];
-
-		cam->SetFocalPoint(newPoint);
-	}
-}
-
-void CustomInteractorStyle::TranslateCamera(vtkRenderer* renderer, int toX, int toY, int fromX, int fromY)
-{
-	vtkCamera* cam = renderer->GetActiveCamera();
-	double viewFocus[4], focalDepth, viewPoint[3];
-	double newPickPoint[4], oldPickPoint[4], motionVector[3];
+	// 将焦点移动到光标位置
+	cam->GetPosition(cameraPos);
 	cam->GetFocalPoint(viewFocus);
+	cam->GetFocalPoint(originalViewFocus);
 
 	CustomInteractorStyle::ComputeWorldToDisplay(
 		renderer, viewFocus[0], viewFocus[1], viewFocus[2], viewFocus);
-	focalDepth = viewFocus[2];
 
 	CustomInteractorStyle::ComputeDisplayToWorld(
-		renderer, double(toX), double(toY), focalDepth, newPickPoint);
-	CustomInteractorStyle::ComputeDisplayToWorld(
-		renderer, double(fromX), double(fromY), focalDepth, oldPickPoint);
+		renderer, double(position[0]), double(position[1]), viewFocus[2], medianFocus);
 
-	//摄像机运动反向
-	motionVector[0] = oldPickPoint[0] - newPickPoint[0];
-	motionVector[1] = oldPickPoint[1] - newPickPoint[1];
-	motionVector[2] = oldPickPoint[2] - newPickPoint[2];
+	cam->SetFocalPoint(medianFocus);
 
-	cam->GetFocalPoint(viewFocus);
-	cam->GetPosition(viewPoint);
-	cam->SetFocalPoint(motionVector[0] + viewFocus[0], motionVector[1] + viewFocus[1], motionVector[2] + viewFocus[2]);
-	cam->SetPosition(motionVector[0] + viewPoint[0], motionVector[1] + viewPoint[1], motionVector[2] + viewPoint[2]);
-}
+	cam->Dolly(fact);
 
-void CustomInteractorStyle::ResetData()
-{
-	Actor_xAxis = { 1.0,0.0,0.0 };
-	Actor_yAxis = { 0.0,1.0,0.0 };
-	Axes_xAxis = { 1.0,0.0,0.0 };
-	Axes_yAxis = { 0.0,1.0,0.0 };
-	m_pRotationTransform = vtkSmartPointer<vtkTransform>::New();
-	m_pRotationTransform->Identity();
-	axesTransform = vtkSmartPointer<vtkTransform>::New();
-	axesTransform->Identity();
+	cam->GetPosition(newCameraPos);
+
+	double newFocus[3];
+	newFocus[0] = originalViewFocus[0] + newCameraPos[0] - cameraPos[0];
+	newFocus[1] = originalViewFocus[1] + newCameraPos[1] - cameraPos[1];
+	newFocus[2] = originalViewFocus[2];
+
+	cam->SetFocalPoint(newFocus);
 }

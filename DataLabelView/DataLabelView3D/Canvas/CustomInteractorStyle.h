@@ -31,7 +31,6 @@ protected:
 	void Dolly(double factor);
 	bool IsCameraOutOfBounds(vtkCamera* camera);
 	void DollyToPosition(double fact, int* position, vtkRenderer* renderer);
-	void TranslateCamera(vtkRenderer* renderer, int toX, int toY, int fromX, int fromY);
 	void rotateAroundAxis(double dx, double dy, std::vector<double>* xAxis, std::vector<double>* yAxis);
 	
 	vtkRenderWindow* m_rendererwindow;

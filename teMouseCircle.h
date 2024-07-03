@@ -43,6 +43,7 @@ private:
 	float TwoDradius;
 	bool MaxState;
 	bool circleVisible;
+	int ReduceTimes;
 
 	QStateMachine* m_pStateMachine;
 	QState* TwoDState;
