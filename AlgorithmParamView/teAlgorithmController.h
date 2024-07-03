@@ -31,7 +31,7 @@ signals:
 	void sig_PrepareTest();
 	void sig_isShowTSChart(int arg);
 	void sig_TSChartClose();
-	void sig_receptiveFieldChange(int factor);
+	void sig_receptiveFieldChange(double factor);
 	void sig_StopTrain();
 	void sig_TestCompleted();
 	void sig_StartTrain();

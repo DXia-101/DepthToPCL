@@ -64,7 +64,7 @@ MainInterface::MainInterface(QWidget *parent)
 
 	m_teMouseCircle = new teMouseCircle();
 	m_teMouseCircle->show();
-	ResetMouseRadius();
+	
 	stacklayout->addWidget(m_teMouseCircle);
 	stacklayout->setCurrentWidget(m_teMouseCircle);
 
@@ -98,11 +98,13 @@ MainInterface::MainInterface(QWidget *parent)
 	connect(m_te2DController, &te2DCanvasController::sig_updateTrainWidget, m_te3DController, &te3DCanvasController::ShowAllMarkers);
 	connect(m_te2DController, &te2DCanvasController::sig_eraseMarkers, m_te3DController, &te3DCanvasController::ShowAllMarkers);
 	connect(m_te2DController, &te2DCanvasController::sig_updateTrainWidget,this, &MainInterface::updateTrainWidget);
+	connect(m_te2DController, &te2DCanvasController::sig_ShowFirstImage,this, &MainInterface::ResetMouseRadius);
 
 	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, this, &MainInterface::updateResultOperate);
 	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, m_te3DController, &te3DCanvasController::ShowAllItems);
 	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, m_te2DController, &te2DCanvasController::ShowAllItems);
-	connect(m_teAlgorithmController, &teAlgorithmController::sig_receptiveFieldChange, m_teMouseCircle, &teMouseCircle::receptiveFieldChange);
+	connect(m_teAlgorithmController, &teAlgorithmController::sig_receptiveFieldChange, m_te2DController, &te2DCanvasController::receptiveFieldChange);
+	connect(m_te2DController, &te2DCanvasController::sig_receptiveFieldChange, m_teMouseCircle, &teMouseCircle::receptiveFieldChange);
 
 	connect(m_teIBController, &teDataBrowserController::sig_IndexChanged, this, &MainInterface::IndexChanged);
 	connect(m_teIBController, &teDataBrowserController::sig_IndexChanged, this, &MainInterface::ResetMouseRadius);
@@ -355,5 +357,5 @@ void MainInterface::LoadTrainingImages()
 
 void MainInterface::ResetMouseRadius()
 {
-	m_teMouseCircle->receptiveFieldChange(m_teAlgorithmController->getReceptiveField());
+	m_te2DController->receptiveFieldChange(m_teAlgorithmController->getReceptiveField());
 }

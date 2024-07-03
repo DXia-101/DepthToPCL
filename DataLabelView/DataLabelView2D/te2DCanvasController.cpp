@@ -177,6 +177,12 @@ void te2DCanvasController::LoadOriginImage(QString imagepath)
 	ShowAllItems();
 }
 
+void te2DCanvasController::receptiveFieldChange(double factor)
+{
+	factor *= m_te2DCanvas->GetScale();
+	emit sig_receptiveFieldChange(factor);
+}
+
 void te2DCanvasController::ShowAllResults()
 {
 	te::SampleMark samplemark = m_teAiModel->getCurrentResultSampleInfo();

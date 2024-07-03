@@ -19,7 +19,7 @@ teTrainParameterDisplay::teTrainParameterDisplay(QWidget *parent)
 			int value = 0;
 			ui->treeView->readObject_t(&value, pItem);
 
-			emit sig_receptiveFieldChange(value);
+			emit sig_receptiveFieldChange(static_cast<double>(value));
 		}
 	});
 

@@ -46,11 +46,11 @@ private slots:
 	void updateTrainWidget();
 	void updateResultWidget();
 	void SetreceptiveFieldCurrrentWidget();
+	void ResetMouseRadius();
 
 private:
 	void SetThreshold(QString filePath);
 	void SetClassBCallback(teMouseCircle& classB);
-	void ResetMouseRadius();
 	
 private:
 	Ui::MainInterfaceClass *ui;

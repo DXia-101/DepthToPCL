@@ -236,3 +236,9 @@ void te2DCanvas::RemoveResult()
 {
     this->itemMgr(1)->clearItems();
 }
+
+double te2DCanvas::GetScale()
+{
+    QTransform matrix = matROIToView();
+    return matrix.m11();
+}

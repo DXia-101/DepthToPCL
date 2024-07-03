@@ -26,7 +26,7 @@ public:
 signals:
 	void sig_ShowFirstImage();
 	void sig_CurrentStateChanged(const QString& category, const QColor& fontColor, const int& index, const double& valThreshold, const double& invalThreshold);
-
+	void sig_receptiveFieldChange(double factor);
 	void sig_StartMark();
 	void sig_updateTrainWidget();
 	void sig_eraseMarkers();
@@ -42,6 +42,7 @@ public slots:
 	void NeedReload();
 	void slotSetImage(te::Image*);
 	void LoadOriginImage(QString);
+	void receptiveFieldChange(double factor);
 
 private:
 	void ShowAllResults();

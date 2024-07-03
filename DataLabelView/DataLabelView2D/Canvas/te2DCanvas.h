@@ -31,6 +31,7 @@ public:
 public:
 	void RemoveDimentsion();
 	void RemoveResult();
+	double GetScale();
 
 public slots:
 	void MarkersShowInCanvas(te::AiInstance* instance, QString label, QColor color);

@@ -31,7 +31,7 @@ protected:
 	void transWheelEvents(QWheelEvent* event);
 
 public slots:
-	void receptiveFieldChange(int factor);
+	void receptiveFieldChange(double factor);
 	void OutOfBounds();
 
 signals:

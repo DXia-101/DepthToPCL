@@ -250,9 +250,10 @@ void teMouseCircle::OutOfBounds()
     update();
 }
 
-void teMouseCircle::receptiveFieldChange(int factor)
+void teMouseCircle::receptiveFieldChange(double factor)
 {
     ThrDradius = static_cast<float>(factor);
     TwoDradius = static_cast<float>(factor);
     ReduceTimes = -1;
+    update();
 }
