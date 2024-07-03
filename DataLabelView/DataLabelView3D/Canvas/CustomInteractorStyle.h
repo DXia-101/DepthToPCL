@@ -23,6 +23,12 @@ public:
 	virtual void OnRightButtonUp() override;
 	void setRotationCenter(double x,double y,double z);
 
+	using CallbackFunction = std::function<void()>;
+
+	void SetCallback(CallbackFunction callback);
+
+	void TriggerCallback();
+
 	void ResetData();
 protected:
 	CustomInteractorStyle();
@@ -44,6 +50,8 @@ public:
 private:
 	CustomInteractorStyle(const CustomInteractorStyle&) = delete;
 	void operator=(const CustomInteractorStyle&) = delete;
+
+	CallbackFunction callback_;
 
 	bool m_bLBtnDown = false;
 

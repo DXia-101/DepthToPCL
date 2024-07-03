@@ -148,9 +148,9 @@ void teMouseCircle::wheelEvent(QWheelEvent* event)
             int iDelta = event->delta();
             double delta = 1.0;
             if (iDelta < 0)
-                delta = 0.88;
+                delta = 0.80;
             else
-                delta = 1.12;
+                delta = 1.25;
             double dZoomRatio = delta;
             if (ThrDState->active())
             {
@@ -242,6 +242,12 @@ void teMouseCircle::transWheelEvents(QWheelEvent* event)
 
         this->setAttribute(Qt::WA_TransparentForMouseEvents, false);
     }
+}
+
+void teMouseCircle::OutOfBounds()
+{
+    ThrDradius *= 0.80;
+    update();
 }
 
 void teMouseCircle::receptiveFieldChange(int factor)

@@ -32,6 +32,7 @@ protected:
 
 public slots:
 	void receptiveFieldChange(int factor);
+	void OutOfBounds();
 
 signals:
 	void sig_enterThrD();
@@ -39,8 +40,8 @@ signals:
 
 private:
 	QPointF centerPoint;
-	float ThrDradius;
-	float TwoDradius;
+	double ThrDradius;
+	double TwoDradius;
 	bool MaxState;
 	bool circleVisible;
 	int ReduceTimes;

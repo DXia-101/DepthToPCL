@@ -49,7 +49,7 @@ private slots:
 
 private:
 	void SetThreshold(QString filePath);
-
+	void SetClassBCallback(teMouseCircle& classB);
 	void ResetMouseRadius();
 	
 private:

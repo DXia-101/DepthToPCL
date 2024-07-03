@@ -65,6 +65,7 @@ void te3DCanvas::VTKCoordinateAxis()
     m_CustomInteractor->setRenderWindow(m_renderWindow, m_renderer, axes_actor);
     m_renderWindow->GetInteractor()->SetInteractorStyle(m_CustomInteractor);
 #endif
+    SetClassBCallback(*this);
 
     markerWidget = vtkSmartPointer<vtkOrientationMarkerWidget>::New();
     markerWidget->SetOrientationMarker(axes_actor);
@@ -985,6 +986,17 @@ vtkRenderWindow* te3DCanvas::getvtkRenderWindow()
 vtkSmartPointer<vtkRenderer> te3DCanvas::getvtkRenderer()
 {
     return vtkSmartPointer<vtkRenderer>();
+}
+
+void te3DCanvas::SetClassBCallback(te3DCanvas& classB)
+{
+    m_CustomInteractor->SetCallback
+    (
+        [&classB]()
+        {
+            classB.sig_OutOfBounds();
+        }
+    );
 }
 
 void te3DCanvas::setRotationCenter()

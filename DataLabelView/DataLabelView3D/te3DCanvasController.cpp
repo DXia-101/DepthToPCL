@@ -40,6 +40,7 @@ te3DCanvasController::te3DCanvasController(QObject *parent)
 	
 	connect(m_te3DCanvas, &te3DCanvas::sig_3DCanvasMarkingCompleted, this, &te3DCanvasController::add3DAiInstance);	
 	connect(m_te3DCanvas, &te3DCanvas::sig_ShowAllItems, this, &te3DCanvasController::ShowAllItems);
+	connect(m_te3DCanvas, &te3DCanvas::sig_OutOfBounds, this, &te3DCanvasController::sig_OutOfBounds);
 
 	connect(this, &te3DCanvasController::sig_setHeightCoefficientFactor, m_te3DCanvasMenu, &te3DCanvasMenu::setHeightCoefficientFactor);
 	connect(this, &te3DCanvasController::sig_CurrentStateChanged, m_te3DCanvas, &te3DCanvas::CurrentStateChanged);

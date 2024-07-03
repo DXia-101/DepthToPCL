@@ -263,14 +263,27 @@ void CustomInteractorStyle::setRotationCenter(double x, double y, double z)
 	rotationCenter[2] = z;
 }
 
+void CustomInteractorStyle::SetCallback(CallbackFunction callback)
+{
+	callback_ = callback;
+}
+
+void CustomInteractorStyle::TriggerCallback()
+{
+	if (callback_)
+	{
+		callback_();
+	}
+}
+
 void CustomInteractorStyle::OnMouseWheelForward()
 {
-	Dolly(1.12);
+	Dolly(1.25);
 }
 
 void CustomInteractorStyle::OnMouseWheelBackward()
 {
-	Dolly(0.88);
+	Dolly(0.80);
 }
 
 void CustomInteractorStyle::Dolly(double factor)
@@ -287,6 +300,7 @@ void CustomInteractorStyle::Dolly(double factor)
 	{
 		cam->SetPosition(initialPosition);
 		cam->SetFocalPoint(oldFocalPoint);
+		TriggerCallback();
 	}
 	m_renderer->ResetCameraClippingRange();
 	m_rendererwindow->Render();

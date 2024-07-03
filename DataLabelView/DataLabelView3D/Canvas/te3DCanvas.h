@@ -33,6 +33,8 @@ public:
 
     vtkRenderWindow* getvtkRenderWindow();
     vtkSmartPointer<vtkRenderer> getvtkRenderer();
+
+    void SetClassBCallback(te3DCanvas& classB);
 public:
     void MarkersShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
     void ResultsShowInCanvas(te::AiInstance* instance, cv::Mat& m_image, QColor color);
@@ -86,6 +88,7 @@ public slots:
 signals:
     void sig_3DCanvasMarkingCompleted(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
     void sig_ShowAllItems();
+    void sig_OutOfBounds();
 
 private:
     std::map<QString,std::vector<QString>> markerPCID;

@@ -50,6 +50,7 @@ signals:
 	void sig_updateTrainWidget();
 	void sig_ReLoadGTAndRST();
 	void sig_MarkerComplete();
+	void sig_OutOfBounds();
 
 public:
 	void ShowAllResults();
