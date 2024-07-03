@@ -30,6 +30,7 @@ signals:
 	void sig_StartMark();
 	void sig_updateTrainWidget();
 	void sig_eraseMarkers();
+	void sig_AfterFirstImageShow();
 
 public slots:
 	void hideAllUI();

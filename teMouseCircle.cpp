@@ -66,6 +66,7 @@ teMouseCircle::teMouseCircle(QWidget *parent)
     TwoDradius = 10.0;
     ReduceTimes = -1;
     MaxState = false;
+    circleVisible = true;
     InitStateMachine();
 }
 

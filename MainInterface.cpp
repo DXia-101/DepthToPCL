@@ -68,6 +68,7 @@ MainInterface::MainInterface(QWidget *parent)
 	stacklayout->addWidget(m_teMouseCircle);
 	stacklayout->setCurrentWidget(m_teMouseCircle);
 
+
 	InitStateMachine();
 	InitToolBar();
 	
@@ -98,7 +99,7 @@ MainInterface::MainInterface(QWidget *parent)
 	connect(m_te2DController, &te2DCanvasController::sig_updateTrainWidget, m_te3DController, &te3DCanvasController::ShowAllMarkers);
 	connect(m_te2DController, &te2DCanvasController::sig_eraseMarkers, m_te3DController, &te3DCanvasController::ShowAllMarkers);
 	connect(m_te2DController, &te2DCanvasController::sig_updateTrainWidget,this, &MainInterface::updateTrainWidget);
-	connect(m_te2DController, &te2DCanvasController::sig_ShowFirstImage,this, &MainInterface::ResetMouseRadius);
+	connect(m_te2DController, &te2DCanvasController::sig_AfterFirstImageShow,this, &MainInterface::ResetMouseRadius);
 
 	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, this, &MainInterface::updateResultOperate);
 	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, m_te3DController, &te3DCanvasController::ShowAllItems);

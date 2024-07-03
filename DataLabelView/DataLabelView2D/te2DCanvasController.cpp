@@ -114,6 +114,7 @@ void te2DCanvasController::ShowFirstImage()
 	TeJetColorCode trans;
 	setImage(trans.dealWithCvt(image,m_teAiModel->getCurrentInvalidPointThreshold(), m_teAiModel->getCurrentValidPointThreshold()));
 	cv::waitKey(0);
+	emit sig_AfterFirstImageShow();
 	ShowAllItems();
 }
 
@@ -174,6 +175,7 @@ void te2DCanvasController::LoadOriginImage(QString imagepath)
 	TeJetColorCode trans;
 	setImage(trans.dealWithCvt(image, m_teAiModel->getCurrentInvalidPointThreshold(), m_teAiModel->getCurrentValidPointThreshold()));
 	cv::waitKey(0);
+	emit sig_AfterFirstImageShow();
 	ShowAllItems();
 }
 
