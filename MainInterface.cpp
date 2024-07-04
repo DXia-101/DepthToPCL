@@ -73,46 +73,8 @@ MainInterface::MainInterface(QWidget *parent)
 	
 	m_te3DController->hideAllUI();
 	this->showMaximized();
-	connect(ui->convertBtn, &QPushButton::clicked, m_teIBController, &teDataBrowserController::sig_ChangeCurrentState);
-	connect(this, &MainInterface::sig_teUpDataSet, m_teIBController, &teDataBrowserController::sig_teUpDataSet);
-	connect(this, &MainInterface::sig_setHeightCoefficientFactor, m_te3DController, &te3DCanvasController::sig_setHeightCoefficientFactor);
-	connect(this, &MainInterface::sig_ColorChanged, m_te3DController, &te3DCanvasController::ReLoadGTAndRST);
-	connect(this, &MainInterface::sig_CurrentStateChanged, m_te3DController, &te3DCanvasController::sig_CurrentStateChanged);
-	connect(this, &MainInterface::sig_ColorChanged, m_te2DController, &te2DCanvasController::ReLoadGTAndRST);
-	connect(this, &MainInterface::sig_CurrentStateChanged, m_te2DController, &te2DCanvasController::sig_CurrentStateChanged);
-	connect(this, &MainInterface::sig_enterThrD, m_teMouseCircle, &teMouseCircle::sig_enterThrD);
-	connect(this, &MainInterface::sig_enterTwoD, m_teMouseCircle, &teMouseCircle::sig_enterTwoD);
 
-	connect(m_teLabelBrowser, &teLabelBrowser::sig_currentRowSelected, this, &MainInterface::labelChange);
-	connect(m_teLabelBrowser, &teLabelBrowser::sig_ColorChanged, this, &MainInterface::ColorChange);
-	connect(m_teLabelBrowser, &teLabelBrowser::sig_StartMark, m_te2DController, &te2DCanvasController::sig_StartMark);
-
-	connect(m_te3DController, &te3DCanvasController::sig_ManagePolyLine, this, &MainInterface::ManagePolyLine);
-	connect(m_te3DController, &te3DCanvasController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
-	connect(m_te3DController, &te3DCanvasController::sig_ReLoadGTAndRST, this, &MainInterface::ResetMouseRadius);
-	connect(m_te3DController, &te3DCanvasController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
-	connect(m_te3DController, &te3DCanvasController::sig_MarkerComplete, this, &MainInterface::SetreceptiveFieldCurrrentWidget);
-	connect(m_te3DController, &te3DCanvasController::sig_OutOfBounds, m_teMouseCircle, &teMouseCircle::OutOfBounds);
-
-	connect(m_te2DController, &te2DCanvasController::sig_updateTrainWidget, m_te3DController, &te3DCanvasController::ShowAllMarkers);
-	connect(m_te2DController, &te2DCanvasController::sig_eraseMarkers, m_te3DController, &te3DCanvasController::ShowAllMarkers);
-	connect(m_te2DController, &te2DCanvasController::sig_updateTrainWidget,this, &MainInterface::updateTrainWidget);
-	connect(m_te2DController, &te2DCanvasController::sig_ResetMouseRadius,this, &MainInterface::ResetMouseRadius);
-
-	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, this, &MainInterface::updateResultOperate);
-	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, m_te3DController, &te3DCanvasController::ShowAllItems);
-	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, m_te2DController, &te2DCanvasController::ShowAllItems);
-	connect(m_teAlgorithmController, &teAlgorithmController::sig_receptiveFieldChange, m_te2DController, &te2DCanvasController::receptiveFieldChange);
-	connect(m_te2DController, &te2DCanvasController::sig_receptiveFieldChange, m_teMouseCircle, &teMouseCircle::receptiveFieldChange);
-
-	connect(m_teIBController, &teDataBrowserController::sig_IndexChanged, this, &MainInterface::IndexChanged);
-	connect(m_teIBController, &teDataBrowserController::sig_IndexChanged, this, &MainInterface::ResetMouseRadius);
-	connect(m_teIBController, &teDataBrowserController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
-	connect(m_teIBController, &teDataBrowserController::sig_updateResultWidget, this, &MainInterface::updateResultWidget);
-	connect(m_teIBController, &teDataBrowserController::sig_NeedReload, m_te3DController, &te3DCanvasController::NeedReload);
-	connect(m_teIBController, &teDataBrowserController::sig_NeedReload, m_te2DController, &te2DCanvasController::NeedReload);
-	connect(m_teIBController, &teDataBrowserController::sig_LoadPointCloud, m_te3DController, &te3DCanvasController::LoadPointCloud);
-	connect(m_teIBController, &teDataBrowserController::sig_LoadOriginImage, m_te2DController, &te2DCanvasController::LoadOriginImage);
+	InitializeSignalSlotConnection();
 
 	QAction* saveAction = new QAction(tr("Save"), this);
 	saveAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
@@ -186,6 +148,50 @@ void MainInterface::InitToolBar()
 	connect(this, &MainInterface::sig_SaveParameter, m_teAlgorithmController, &teAlgorithmController::sig_SaveParameter);
 }
 
+void MainInterface::InitializeSignalSlotConnection()
+{
+	connect(ui->convertBtn, &QPushButton::clicked, m_teIBController, &teDataBrowserController::sig_ChangeCurrentState);
+	connect(this, &MainInterface::sig_teUpDataSet, m_teIBController, &teDataBrowserController::sig_teUpDataSet);
+	connect(this, &MainInterface::sig_setHeightCoefficientFactor, m_te3DController, &te3DCanvasController::sig_setHeightCoefficientFactor);
+	connect(this, &MainInterface::sig_ColorChanged, m_te3DController, &te3DCanvasController::ReLoadGTAndRST);
+	connect(this, &MainInterface::sig_CurrentStateChanged, m_te3DController, &te3DCanvasController::sig_CurrentStateChanged);
+	connect(this, &MainInterface::sig_ColorChanged, m_te2DController, &te2DCanvasController::ReLoadGTAndRST);
+	connect(this, &MainInterface::sig_CurrentStateChanged, m_te2DController, &te2DCanvasController::sig_CurrentStateChanged);
+	connect(this, &MainInterface::sig_enterThrD, m_teMouseCircle, &teMouseCircle::sig_enterThrD);
+	connect(this, &MainInterface::sig_enterTwoD, m_teMouseCircle, &teMouseCircle::sig_enterTwoD);
+
+	connect(m_teLabelBrowser, &teLabelBrowser::sig_currentRowSelected, this, &MainInterface::labelChange);
+	connect(m_teLabelBrowser, &teLabelBrowser::sig_ColorChanged, this, &MainInterface::ColorChange);
+	connect(m_teLabelBrowser, &teLabelBrowser::sig_StartMark, m_te2DController, &te2DCanvasController::sig_StartMark);
+
+	connect(m_te3DController, &te3DCanvasController::sig_ManagePolyLine, this, &MainInterface::ManagePolyLine);
+	connect(m_te3DController, &te3DCanvasController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
+	connect(m_te3DController, &te3DCanvasController::sig_ReLoadGTAndRST, this, &MainInterface::ResetMouseRadius);
+	connect(m_te3DController, &te3DCanvasController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
+	connect(m_te3DController, &te3DCanvasController::sig_MarkerComplete, this, &MainInterface::SetreceptiveFieldCurrrentWidget);
+	connect(m_te3DController, &te3DCanvasController::sig_OutOfBounds, m_teMouseCircle, &teMouseCircle::OutOfBounds);
+
+	connect(m_te2DController, &te2DCanvasController::sig_updateTrainWidget, m_te3DController, &te3DCanvasController::ShowAllMarkers);
+	connect(m_te2DController, &te2DCanvasController::sig_eraseMarkers, m_te3DController, &te3DCanvasController::ShowAllMarkers);
+	connect(m_te2DController, &te2DCanvasController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
+	connect(m_te2DController, &te2DCanvasController::sig_ResetMouseRadius, this, &MainInterface::ResetMouseRadius);
+
+	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, this, &MainInterface::updateResultOperate);
+	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, m_te3DController, &te3DCanvasController::ShowAllItems);
+	connect(m_teAlgorithmController, &teAlgorithmController::sig_TestCompleted, m_te2DController, &te2DCanvasController::ShowAllItems);
+	connect(m_teAlgorithmController, &teAlgorithmController::sig_receptiveFieldChange, m_te2DController, &te2DCanvasController::receptiveFieldChange);
+	connect(m_te2DController, &te2DCanvasController::sig_receptiveFieldChange, m_teMouseCircle, &teMouseCircle::receptiveFieldChange);
+
+	connect(m_teIBController, &teDataBrowserController::sig_IndexChanged, this, &MainInterface::IndexChanged);
+	connect(m_teIBController, &teDataBrowserController::sig_IndexChanged, this, &MainInterface::ResetMouseRadius);
+	connect(m_teIBController, &teDataBrowserController::sig_updateTrainWidget, this, &MainInterface::updateTrainWidget);
+	connect(m_teIBController, &teDataBrowserController::sig_updateResultWidget, this, &MainInterface::updateResultWidget);
+	connect(m_teIBController, &teDataBrowserController::sig_NeedReload, m_te3DController, &te3DCanvasController::NeedReload);
+	connect(m_teIBController, &teDataBrowserController::sig_NeedReload, m_te2DController, &te2DCanvasController::NeedReload);
+	connect(m_teIBController, &teDataBrowserController::sig_LoadPointCloud, m_te3DController, &te3DCanvasController::LoadPointCloud);
+	connect(m_teIBController, &teDataBrowserController::sig_LoadOriginImage, m_te2DController, &te2DCanvasController::LoadOriginImage);
+}
+
 void MainInterface::ClearAllCaches()
 {
 	if (!m_teAiModel->clearAllPointCloud())
@@ -219,11 +225,9 @@ void MainInterface::on_ThresholdBtn_clicked()
 
 		if (TwoDState->active()) {
 			m_te2DController->NeedReload();
-			m_te2DController->showAllUI();
 		}
 		else if (ThrDState->active()) {
 			m_te3DController->NeedReload();
-			m_te3DController->showAllUI();
 		}
 	}
 }

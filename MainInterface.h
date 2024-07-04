@@ -30,6 +30,7 @@ public:
 	void InitToolBar();
 	void ClearAllCaches();
 
+	void InitializeSignalSlotConnection();
 private slots:
 	void LoadTrainingImages();
 	void on_InvalidPointThresholdSpinBox_valueChanged(double arg);

@@ -60,8 +60,11 @@ void te2DCanvasController::showAllUI()
 {
 	m_te2DCanvasToolBar->show();
 	m_te2DCanvas->show();
+
 	if (IsNeedReload) 
 	{
+		m_te2DCanvas->RemoveDimentsion();
+		m_te2DCanvas->RemoveResult();
 		ShowCurrentImages();
 		ShowAllItems();
 		IsNeedReload = false;
