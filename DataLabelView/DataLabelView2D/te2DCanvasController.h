@@ -24,7 +24,6 @@ public:
 	void setteLabelBrowser(teLabelBrowser* browser);
 	
 signals:
-	void sig_ShowFirstImage();
 	void sig_CurrentStateChanged(const QString& category, const QColor& fontColor, const int& index, const double& valThreshold, const double& invalThreshold);
 	void sig_receptiveFieldChange(double factor);
 	void sig_StartMark();
@@ -36,7 +35,6 @@ public slots:
 	void hideAllUI();
 	void showAllUI();
 	void add2DAiInstance(QList<te::GraphicsItem*> polygonItems);
-	void ShowFirstImage();
 	void ShowAllItems();
 	void ShowCurrentImages();
 	void ReLoadGTAndRST();

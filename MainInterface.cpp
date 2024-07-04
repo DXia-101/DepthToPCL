@@ -75,11 +75,10 @@ MainInterface::MainInterface(QWidget *parent)
 	this->showMaximized();
 	connect(ui->convertBtn, &QPushButton::clicked, m_teIBController, &teDataBrowserController::sig_ChangeCurrentState);
 	connect(this, &MainInterface::sig_teUpDataSet, m_teIBController, &teDataBrowserController::sig_teUpDataSet);
-	connect(this, &MainInterface::sig_LoadTrainImagesComplete, m_te2DController, &te2DCanvasController::sig_ShowFirstImage);
 	connect(this, &MainInterface::sig_setHeightCoefficientFactor, m_te3DController, &te3DCanvasController::sig_setHeightCoefficientFactor);
 	connect(this, &MainInterface::sig_ColorChanged, m_te3DController, &te3DCanvasController::ReLoadGTAndRST);
-	connect(this, &MainInterface::sig_ColorChanged, m_te2DController, &te2DCanvasController::ReLoadGTAndRST);
 	connect(this, &MainInterface::sig_CurrentStateChanged, m_te3DController, &te3DCanvasController::sig_CurrentStateChanged);
+	connect(this, &MainInterface::sig_ColorChanged, m_te2DController, &te2DCanvasController::ReLoadGTAndRST);
 	connect(this, &MainInterface::sig_CurrentStateChanged, m_te2DController, &te2DCanvasController::sig_CurrentStateChanged);
 	connect(this, &MainInterface::sig_enterThrD, m_teMouseCircle, &teMouseCircle::sig_enterThrD);
 	connect(this, &MainInterface::sig_enterTwoD, m_teMouseCircle, &teMouseCircle::sig_enterTwoD);
@@ -219,7 +218,6 @@ void MainInterface::on_ThresholdBtn_clicked()
 		m_teAiModel->InvalidPointThresholdChange(ui->InvalidPointThresholdSpinBox->value());
 
 		if (TwoDState->active()) {
-			m_te2DController->ShowCurrentImages();
 			m_te2DController->NeedReload();
 			m_te2DController->showAllUI();
 		}
@@ -351,7 +349,6 @@ void MainInterface::LoadTrainingImages()
 		HastheImageBeenLoaded = true;
 		m_teAiModel->LoadTrainingImages(filepaths);
 		emit sig_teUpDataSet(filepaths.size(), 1, true);
-		emit sig_LoadTrainImagesComplete();
 	}
 }
 

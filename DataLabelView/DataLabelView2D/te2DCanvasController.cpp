@@ -20,7 +20,6 @@ te2DCanvasController::te2DCanvasController(QObject *parent)
 	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_ShowLocalMask , m_te2DCanvas, &te2DCanvas::ShowLocalMask);
 	connect(m_te2DCanvasToolBar, &te2DCanvasToolBar::sig_ShowGlobalMask, m_te2DCanvas, &te2DCanvas::ShowGlobalMask);
 	connect(this, &te2DCanvasController::sig_StartMark, m_te2DCanvas, &te2DCanvas::StartMarked);
-	connect(this, &te2DCanvasController::sig_ShowFirstImage, this, &te2DCanvasController::ShowFirstImage);
 	connect(this, &te2DCanvasController::sig_CurrentStateChanged, m_te2DCanvas, &te2DCanvas::CurrentStateChanged);
 	connect(m_te2DCanvas, &te2DCanvas::sig_PolygonMarkingCompleted, this, &te2DCanvasController::add2DAiInstance);
 	
@@ -63,14 +62,7 @@ void te2DCanvasController::showAllUI()
 	m_te2DCanvas->show();
 	if (IsNeedReload) 
 	{
-		cv::Mat image = cv::imread(m_teAiModel->getCurrentOriginImage(), cv::IMREAD_UNCHANGED);
-		if (image.empty()) {
-			return;
-		}
-		m_te2DCanvas->RemoveDimentsion();
-		m_te2DCanvas->RemoveResult();
-		TeJetColorCode trans;
-		m_te2DCanvas->setImage(trans.dealWithCvt(image, m_teAiModel->getCurrentInvalidPointThreshold(),m_teAiModel->getCurrentValidPointThreshold()));
+		ShowCurrentImages();
 		ShowAllItems();
 		IsNeedReload = false;
 	}
@@ -104,20 +96,6 @@ void te2DCanvasController::add2DAiInstance(QList<te::GraphicsItem*> polygonItems
 	emit sig_updateTrainWidget();
 }
 
-void te2DCanvasController::ShowFirstImage()
-{
-	cv::Mat image = cv::imread(m_teAiModel->getSelectOriginImage(0),cv::IMREAD_UNCHANGED);
-	if (image.empty()) {
-		return;
-	}
-	m_te2DCanvas->RemoveDimentsion();
-	m_te2DCanvas->RemoveResult();
-	TeJetColorCode trans;
-	setImage(trans.dealWithCvt(image,m_teAiModel->getCurrentInvalidPointThreshold(), m_teAiModel->getCurrentValidPointThreshold()));
-	cv::waitKey(0);
-	ShowAllItems();
-}
-
 void te2DCanvasController::ShowAllItems()
 {
 	ShowAllMarkers();
@@ -144,6 +122,7 @@ void te2DCanvasController::ShowCurrentImages()
 	}
 	TeJetColorCode trans;
 	m_te2DCanvas->setImage(trans.dealWithCvt(image, m_teAiModel->getCurrentInvalidPointThreshold(), m_teAiModel->getCurrentValidPointThreshold()));
+	cv::waitKey(0);
 }
 
 void te2DCanvasController::ReLoadGTAndRST()
@@ -165,17 +144,9 @@ void te2DCanvasController::slotSetImage(te::Image* img)
 
 void te2DCanvasController::LoadOriginImage(QString imagepath)
 {
-	cv::Mat image = cv::imread(imagepath.toStdString(), cv::IMREAD_UNCHANGED);
-	if (image.empty()) {
-		std::cerr << "Failed to load the TIF image."<<std::endl;
-		return;
-	}
 	m_te2DCanvas->RemoveDimentsion();
 	m_te2DCanvas->RemoveResult();
-	
-	TeJetColorCode trans;
-	setImage(trans.dealWithCvt(image, m_teAiModel->getCurrentInvalidPointThreshold(), m_teAiModel->getCurrentValidPointThreshold()));
-	cv::waitKey(0);
+	ShowCurrentImages();
 	ShowAllItems();
 }
 
