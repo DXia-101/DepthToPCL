@@ -44,6 +44,7 @@ void te2DCanvasController::displayCanvasInWidget(QStackedLayout* layout)
 void te2DCanvasController::setImage(const te::Image& img, bool resetView)
 {
 	m_te2DCanvas->setImage(img, resetView);
+	emit sig_ResetMouseRadius();
 }
 
 void te2DCanvasController::setteAiModel(teAiModel* aiModel)
@@ -114,7 +115,6 @@ void te2DCanvasController::ShowFirstImage()
 	TeJetColorCode trans;
 	setImage(trans.dealWithCvt(image,m_teAiModel->getCurrentInvalidPointThreshold(), m_teAiModel->getCurrentValidPointThreshold()));
 	cv::waitKey(0);
-	emit sig_AfterFirstImageShow();
 	ShowAllItems();
 }
 
@@ -172,10 +172,10 @@ void te2DCanvasController::LoadOriginImage(QString imagepath)
 	}
 	m_te2DCanvas->RemoveDimentsion();
 	m_te2DCanvas->RemoveResult();
+	
 	TeJetColorCode trans;
 	setImage(trans.dealWithCvt(image, m_teAiModel->getCurrentInvalidPointThreshold(), m_teAiModel->getCurrentValidPointThreshold()));
 	cv::waitKey(0);
-	emit sig_AfterFirstImageShow();
 	ShowAllItems();
 }
 
