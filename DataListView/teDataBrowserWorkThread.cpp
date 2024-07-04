@@ -12,11 +12,19 @@
 #include <QFileInfo>
 #include <QDebug>
 
+#ifdef _CC_
+constexpr bool TwoD = false;
+constexpr bool ThrD = true;
+#endif
+
 teDataBrowserWorkThread::teDataBrowserWorkThread(QObject*parent)
 	: QObject(parent)
 {
     GTShowFlag = false;
     RSTShowFlag = false;
+#ifndef _CC_
+    CurrentState = TwoD;
+#endif
 }
 
 teDataBrowserWorkThread::~teDataBrowserWorkThread()
@@ -121,3 +129,44 @@ void teDataBrowserWorkThread::ItemActive(int* pIndex, int len)
         }
     }
 }
+#ifdef _CC_
+
+void teDataBrowserWorkThread::UpdateItem(int* pIndex, int len)
+{
+    for (int i = 0; i < len; i++) {
+        int index = pIndex[i];
+        cv::Mat image = cv::imread(m_teAiModel->getOriginImage()[index], cv::IMREAD_UNCHANGED);
+        if (!image.empty()) {
+            QSize imageSize(image.cols, image.rows);
+
+            QFileInfo fileInfo(QString::fromStdString(m_teAiModel->getOriginImage()[pIndex[i]]));
+            QString fileName = fileInfo.fileName();
+
+            ImageBrowser->teUpDateImg(pIndex[i], { QString::fromStdString(m_teAiModel->getShrinkageChart()[pIndex[i]]) }, imageSize, fileName);
+        }
+    }
+}
+#else 
+void teDataBrowserWorkThread::SwitchImg(int pIndex, int len)
+{
+    m_teAiModel->setCurrentIndex(pIndex);
+    emit sig_IndexChanged();
+    emit sig_updateTrainWidget();
+    emit sig_updateResultWidget();
+    emit sig_NeedReload();
+    if (CurrentState == ThrD) 
+    {
+        emit sig_LoadPointCloud(QString::fromStdString(m_teAiModel->getCurrentPointCloud()));
+    }
+    else if (CurrentState == TwoD) 
+    {
+        emit sig_LoadOriginImage(QString::fromStdString(m_teAiModel->getCurrentOriginImage()));
+    }
+}
+
+void teDataBrowserWorkThread::ChangeCurrentState()
+{
+    CurrentState = !CurrentState;
+}
+
+#endif

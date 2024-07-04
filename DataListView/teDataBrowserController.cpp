@@ -22,6 +22,7 @@ teDataBrowserController::teDataBrowserController(QObject *parent)
 {
     CurrentState = TwoD;
 	ImageBrowser = new TeSampWidget();
+    
     thread = new QThread();
     worker = new teDataBrowserWorkThread();
     worker->setImageBrowser(ImageBrowser);
@@ -30,12 +31,31 @@ teDataBrowserController::teDataBrowserController(QObject *parent)
     connect(thread, &QThread::finished, worker, &QObject::deleteLater);
     connect(worker, &QObject::destroyed, thread, &QThread::quit);
     connect(thread, &QThread::finished, thread, &QObject::deleteLater);
-
+#ifndef _CC_
     connect(ImageBrowser, &TeSampWidget::sig_SwitchImg, this, &teDataBrowserController::SwitchImg);
     connect(this, &teDataBrowserController::sig_ChangeCurrentState, this, &teDataBrowserController::ChangeCurrentState);
     connect(ImageBrowser, &TeSampWidget::sig_UpDateItem, this, &teDataBrowserController::UpdateItem);
     connect(ImageBrowser, &TeSampWidget::sig_ItemActive, worker, &teDataBrowserWorkThread::ItemActive);
     connect(this, &teDataBrowserController::sig_teUpDataSet, this, &teDataBrowserController::teUpDataSet);
+#else
+    connect(ImageBrowser, &TeSampWidget::sig_SwitchImg, this, &teDataBrowserController::SwitchImg);
+    connect(this, &teDataBrowserController::sig_ChangeCurrentState, this, &teDataBrowserController::ChangeCurrentState);
+    connect(ImageBrowser, &TeSampWidget::sig_UpDateItem, worker, &teDataBrowserWorkThread::UpdateItem);
+    connect(ImageBrowser, &TeSampWidget::sig_ItemActive, worker, &teDataBrowserWorkThread::ItemActive);
+    connect(this, &teDataBrowserController::sig_teUpDataSet, this, &teDataBrowserController::teUpDataSet);
+
+#endif
+
+#ifndef _CC_
+    connect(ImageBrowser, &TeSampWidget::sig_SwitchImg, worker, &teDataBrowserWorkThread::SwitchImg);
+    connect(this, &teDataBrowserController::sig_ChangeCurrentState, worker, &teDataBrowserWorkThread::ChangeCurrentState);
+    connect(worker, &teDataBrowserWorkThread::sig_IndexChanged, this, &teDataBrowserController::sig_IndexChanged);
+    connect(worker, &teDataBrowserWorkThread::sig_LoadOriginImage, this, &teDataBrowserController::sig_LoadOriginImage);
+    connect(worker, &teDataBrowserWorkThread::sig_LoadPointCloud, this, &teDataBrowserController::sig_LoadPointCloud);
+    connect(worker, &teDataBrowserWorkThread::sig_NeedReload, this, &teDataBrowserController::sig_NeedReload);
+    connect(worker, &teDataBrowserWorkThread::sig_updateResultWidget, this, &teDataBrowserController::sig_updateResultWidget);
+    connect(worker, &teDataBrowserWorkThread::sig_updateTrainWidget, this, &teDataBrowserController::sig_updateTrainWidget);
+#endif
     
     thread->start();
 }
@@ -54,7 +74,7 @@ void teDataBrowserController::setteAiModel(teAiModel* aiModel)
     m_teAiModel = aiModel;
     worker->setteAiModel(aiModel);
 }
-
+#ifndef _CC_
 void teDataBrowserController::UpdateItem(int* pIndex, int len)
 {
     for (int i = 0; i < len; i++) {
@@ -70,7 +90,7 @@ void teDataBrowserController::UpdateItem(int* pIndex, int len)
         }
     }
 }
-
+#else
 void teDataBrowserController::SwitchImg(int pIndex, int len)
 {
     m_teAiModel->setCurrentIndex(pIndex);
@@ -86,12 +106,13 @@ void teDataBrowserController::SwitchImg(int pIndex, int len)
     }
 }
 
-void teDataBrowserController::teUpDataSet(int iNum, int iLayerNum, bool bReset)
-{
-    ImageBrowser->teUpDateSet(iNum, iLayerNum, bReset);
-}
-
 void teDataBrowserController::ChangeCurrentState()
 {
     CurrentState = !CurrentState;
+}
+#endif
+
+void teDataBrowserController::teUpDataSet(int iNum, int iLayerNum, bool bReset)
+{
+    ImageBrowser->teUpDateSet(iNum, iLayerNum, bReset);
 }

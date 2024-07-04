@@ -22,8 +22,12 @@ public:
 	void setteAiModel(teAiModel* aiModel);
 
 public slots:
-	void ChangeCurrentState();
+#ifndef _CC_
+	
 	void UpdateItem(int* pIndex, int len);
+	
+#endif // !_CC_
+	void ChangeCurrentState();
 	void SwitchImg(int pIndex, int len);
 	void teUpDataSet(int iNum, int iLayerNum, bool bReset);
 
