@@ -98,6 +98,7 @@ void te::MainView::loadTrainingImages()
 {
 	QStringList filepaths = QFileDialog::getOpenFileNames(nullptr, u8"选择文件", "", "TIFF Files (*.tif *.tiff)");
 	viewModel.lock()->loadTrainingImages(filepaths);
+	viewModel.lock()->notified(ViewModel::InitPointCloud);
 }
 
 void te::MainView::prepareTrain()

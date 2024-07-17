@@ -1,9 +1,11 @@
 ﻿#include "teModel.h"
 
 #include "Depth2RGB.h"
+#include "IDataStore.h"
 using namespace te;
 
-Model::Model()
+Model::Model(std::unique_ptr<IDataStore> dataStore)
+	:m_dataStore(std::move(dataStore))
 {
 }
 
@@ -51,201 +53,294 @@ void Model::teAiInferResult(AiResult& inferResult, DynamicMatrix& hotmap, void* 
 
 bool Model::isImageAlreadyExist(std::string filepath)
 {
-	return false;
+	return m_dataStore->isImageAlreadyExist(filepath);
 }
 
 std::string Model::getSelectShrinkageChart(int index)
 {
-	return std::string();
+	return m_dataStore->getSelectResultFormResourceTable(index, "ShrinkageChartPath");
 }
 
 std::string Model::getCurrentShrinkageChart()
 {
-	return std::string();
+	return m_dataStore->getSelectResultFormResourceTable(getCurrentIndex(), "ShrinkageChartPath");
 }
 
 std::string Model::getSelectOriginImage(int index)
 {
-	return std::string();
+	return m_dataStore->getSelectResultFormResourceTable(index, "OriginImagePath");
 }
 
 std::string Model::getCurrentOriginImage()
 {
-	return std::string();
+	return m_dataStore->getSelectResultFormResourceTable(getCurrentIndex(), "OriginImagePath");
 }
 
 std::string Model::getSelectPointCloud(int index)
 {
-	return std::string();
+	return m_dataStore->getSelectResultFormResourceTable(index, "PointCloudPath");
 }
 
 std::string Model::getCurrentPointCloud()
 {
-	return std::string();
+	return m_dataStore->getSelectResultFormResourceTable(getCurrentIndex(), "PointCloudPath");
 }
 
 std::string Model::getSelectTrainGt(int index)
 {
-	return std::string();
+	return m_dataStore->getSelectResultFormGtTable(index).first;
 }
 
 std::string Model::getSelectResultGt(int index)
 {
-	return std::string();
+	return m_dataStore->getSelectResultFormGtTable(index).second;
 }
 
 SampleMark Model::getSelectTrainSampleInfo(int index)
 {
-	return SampleMark();
+	return m_dataStore->getSelectResultFormSampleMarkTable(index, "TrainSampleMark");
 }
 
 SampleMark Model::getSelectResultSampleInfo(int index)
 {
-	return SampleMark();
+	return m_dataStore->getSelectResultFormSampleMarkTable(index, "ResultSampleMark");
 }
 
 SampleMark Model::getCurrentTrainSampleInfo()
 {
-	return SampleMark();
+	return m_dataStore->getSelectResultFormSampleMarkTable(getCurrentIndex(), "TrainSampleMark");
 }
 
 SampleMark Model::getCurrentResultSampleInfo()
 {
-	return SampleMark();
+	return m_dataStore->getSelectResultFormSampleMarkTable(getCurrentIndex(), "ResultSampleMark");
 }
 
 QMap<QString, int> Model::getCurrentTrainMarksNumber()
 {
-	return QMap<QString, int>();
+	te::SampleMark temp = getCurrentTrainSampleInfo();
+	QMap<QString, int> nameCounts;
+
+	for (const te::AiInstance& instance : temp.gtDataSet)
+	{
+		QString name = QString::fromStdString(instance.name);
+		nameCounts[name]++;
+	}
+
+	return nameCounts;
 }
 
 QMap<QString, int> Model::getCurrentResultMarksNumber()
 {
-	return QMap<QString, int>();
+	te::SampleMark temp = getCurrentResultSampleInfo();
+	QMap<QString, int> nameCounts;
+
+	for (const te::AiInstance& instance : temp.gtDataSet)
+	{
+		QString name = QString::fromStdString(instance.name);
+		nameCounts[name]++;
+	}
+
+	return nameCounts;
 }
 
 bool Model::updateTrainSampleMark(int index, SampleMark& samplemark)
 {
-	return false;
+	return m_dataStore->updateTrainSampleMark(index, samplemark);
 }
 
 bool Model::updateResultSampleMark(int index, SampleMark& samplemark)
 {
-	return false;
+	return m_dataStore->updateResultSampleMark(index, samplemark);
 }
 
 bool Model::updateCurrentTrainSampleMark(SampleMark& samplemark)
 {
-	return false;
+	return m_dataStore->updateTrainSampleMark(getCurrentIndex(), samplemark);
 }
 
 bool Model::updateCurrentResultSampleMark(SampleMark& samplemark)
 {
-	return false;
+	return m_dataStore->updateResultSampleMark(getCurrentIndex(), samplemark);
+}
+
+int te::Model::getCurrentIndex()
+{
+	int index = 0;
+	if (getData<int>("currentIndex", index))
+	{
+		return index;
+	}
+	return index;
+}
+
+int te::Model::getCurrentLoadImageNum()
+{
+	int index = 0;
+	if (getData<int>("LoadImageNum", index))
+	{
+		return index;
+	}
+	return index;
+}
+
+void te::Model::setCurrentLoadImageNum(int num)
+{
+	setData("LoadImageNum", num);
 }
 
 bool Model::updateShrinkageChart(int index, std::string& filepath)
 {
-	return false;
+	return m_dataStore->updateShrinkageChart(index, filepath);
 }
 
 bool Model::updatePointCloud(int index, std::string& filepath)
 {
-	return false;
+	return m_dataStore->updatePointCloud(index, filepath);
 }
 
 bool Model::updateTrainGtFilePath(int index, std::string& filepath)
 {
-	return false;
+	return m_dataStore->updateTrainGtFilePath(index, filepath);
 }
 
 bool Model::updateResultGtFilePath(int index, std::string& filepath)
 {
-	return false;
+	return m_dataStore->updateResultGtFilePath(index, filepath);
 }
 
 bool Model::clearCurrentTrainSampleMark()
 {
-	return false;
+	return m_dataStore->clearTrainSampleMark(getCurrentIndex());
 }
 
 bool Model::clearAllTestSampleMark()
 {
-	return false;
+	bool ret = true;
+	for (int i = 0; i < getCurrentLoadImageNum(); ++i) {
+		ret = m_dataStore->updateResultSampleMark(i, SampleMark());
+	}
+	return ret;
 }
 
 bool Model::clearAllPointCloud()
 {
-	return false;
+	return m_dataStore->clearAllPointCloud();
 }
 
 bool Model::clearAllShrinkageChart()
 {
-	return false;
+	return m_dataStore->clearAllShrinkageChart();
 }
 
 void Model::DropAllTables()
 {
+	m_dataStore->DropAllTables();
 }
 
 void Model::getTrainSamples(std::vector<SampleInfo>* trainSamples)
 {
+	for (int i = 0; i < getCurrentLoadImageNum(); ++i) {
+		te::SampleInfo sampleInfo;
+		sampleInfo.sampleMark = getSelectTrainSampleInfo(i);
+		te::Image ss = te::Image::load(getSelectOriginImage(i));
+		sampleInfo.sampleData.imageMatrix.push_back(ss);
+		sampleInfo.sampleData.roi = { 0,0,ss.width(),ss.height() };
+
+		trainSamples->push_back(sampleInfo);
+	}
 }
 
 void Model::getResultSamples(std::vector<SampleInfo>* resultSamples)
 {
+	for (int i = 0; i < getCurrentLoadImageNum(); ++i) {
+		te::SampleInfo sampleInfo;
+		sampleInfo.sampleMark = getSelectResultSampleInfo(i);
+
+		resultSamples->push_back(sampleInfo);
+	}
 }
 
 void Model::initThreasholds(int size)
 {
+	ValidPointThresholds = std::vector<double>(size, 0.0);
+	InvalidPointThresholds = std::vector<double>(size, 0.0);
 }
 
 void Model::updateInvalidPointThreshold(double threshold)
 {
+	if (getCurrentIndex() < InvalidPointThresholds.size())
+		InvalidPointThresholds[getCurrentIndex()] = threshold;
 }
 
 double Model::getSelectInvalidPointThreshold(int index)
 {
-	return 0.0;
+	if (index < InvalidPointThresholds.size())
+		return InvalidPointThresholds[index];
+	else
+		return 0;
 }
 
 double Model::getCurrentInvalidPointThreshold()
 {
-	return 0.0;
+	if (getCurrentIndex() < InvalidPointThresholds.size())
+		return InvalidPointThresholds[getCurrentIndex()];
+	else
+		return 0;
 }
 
 void Model::addInvalidPointThreshold(int index, double threshold)
 {
+	InvalidPointThresholds[index] = threshold;
 }
 
 void Model::updateValidPointThreshold(double threshold)
 {
+	if (getCurrentIndex() < ValidPointThresholds.size())
+		ValidPointThresholds[getCurrentIndex()] = threshold;
 }
 
 double Model::getSelectValidPointThreshold(int index)
 {
-	return 0.0;
+	if (index < ValidPointThresholds.size())
+		return ValidPointThresholds[index];
+	else
+		return 0;
 }
 
 double Model::getCurrentValidPointThreshold()
 {
-	return 0.0;
+	if (getCurrentIndex() < ValidPointThresholds.size())
+		return ValidPointThresholds[getCurrentIndex()];
+	else
+		return 0;
 }
 
 void Model::addValidPointThreshold(int index, double threshold)
 {
+	ValidPointThresholds[index] = threshold;
 }
 
 void Model::loadTrainingImages(const QStringList& filePaths)
 {
+	for (QString filePath : filePaths) {
+		if (!isImageAlreadyExist(filePath.toStdString()))
+			m_dataStore->insertOriginImage(filePath.toStdString());
+	}
+	setCurrentLoadImageNum(filePaths.size());
 }
 
 void Model::setCallback(CallbackFunction callback)
 {
+	callback_ = callback;
 }
 
 void Model::triggerCallback(int iteration, float fAvgLoss, float fPosAcc)
 {
+	if (callback_)
+	{
+		callback_(iteration, fAvgLoss, fPosAcc);
+	}
 }
 
 bool Model::savePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZRGB>::Ptr saveCloud)
@@ -261,7 +356,6 @@ void Model::segment(double* clipRange, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cl
 pcl::PointCloud<pcl::PointXYZRGB>::Ptr Model::coordinateAxisRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Elevation_rendering(new pcl::PointCloud<pcl::PointXYZRGB>);
-
 
 	std::shared_ptr<QString> renderAxis;
 	getData("RenderAxis", renderAxis);

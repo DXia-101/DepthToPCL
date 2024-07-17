@@ -12,12 +12,43 @@
 #include "teTestParaRegister.h"
 #include "teTraining.h"
 
+#include"teDataTypeRegistration.h"
+
+TE_BEGIN_NAMESPACE
+
+RTTR_REGISTRATION
+{
+	TE_REGISTER_TYPE(ConnectedRegion)
+	TE_REGISTER_CONSTRUCTOR()
+	TE_REGISTER_PROPERTY(ConnectedRegion, polygons)
+	TE_REGISTER_END
+
+	TE_REGISTER_TYPE(AiInstance)
+	TE_REGISTER_CONSTRUCTOR()
+	TE_REGISTER_PROPERTY(AiInstance, id)
+	TE_REGISTER_PROPERTY(AiInstance, area)
+	TE_REGISTER_PROPERTY(AiInstance, angle)
+	TE_REGISTER_PROPERTY(AiInstance, probit)
+	TE_REGISTER_PROPERTY(AiInstance, name)
+	TE_REGISTER_PROPERTY(AiInstance, contour)
+	TE_REGISTER_END
+
+	TE_REGISTER_TYPE(SampleMark)
+	TE_REGISTER_CONSTRUCTOR()
+	TE_REGISTER_PROPERTY(SampleMark, gtDataSet)
+	TE_REGISTER_PROPERTY(SampleMark, localMask)
+	TE_REGISTER_END
+}
+
+TE_END_NAMESPACE
+
 namespace te
 {
+	class IDataStore;
 	class Model
 	{
 	public:
-		Model();
+		Model(std::unique_ptr<IDataStore> dataStore);
 		~Model();
 	public:
 		//Ai训练相关
@@ -39,6 +70,10 @@ namespace te
 		bool updateResultSampleMark(int index, SampleMark& samplemark);
 		bool updateCurrentTrainSampleMark(SampleMark& samplemark);
 		bool updateCurrentResultSampleMark(SampleMark& samplemark);
+
+		int getCurrentIndex();
+		int getCurrentLoadImageNum();
+		void setCurrentLoadImageNum(int);
 
 	public:
 		//数据管理
@@ -143,9 +178,13 @@ namespace te
 		}
 
 	private:
+		std::unique_ptr<IDataStore> m_dataStore;
+
 		std::unordered_map<std::string, std::any> storage;
 		QMap<QString, QColor> labelstore;
 		CallbackFunction callback_;
 
+		std::vector<double> InvalidPointThresholds;
+		std::vector<double> ValidPointThresholds;
 	};
 }

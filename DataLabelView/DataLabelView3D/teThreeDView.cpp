@@ -196,6 +196,7 @@ void ThreeDView::initPointCloud()
 			}
 		}
 	}
+	menber->renderWindow->Render();
 }
 
 void ThreeDView::updateMarkerPointCloud()

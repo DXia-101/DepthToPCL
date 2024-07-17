@@ -4,6 +4,7 @@
 #include "teThreeDToolbarView.h"
 #include "teThreeDMenuView.h"
 #include "teModel.h"
+#include "teAi3DStorage.h"
 #include "teLabelBrowserView.h"
 #include "teTrainParaView.h"
 #include "teTestParaView.h"
@@ -20,7 +21,9 @@ int main(int argc, char* argv[])
 {
 	QApplication a(argc, argv);
 	MainView* mainView = new MainView();
-	Model* AiModel = new Model();
+
+	auto dbStore = std::make_unique<Ai3DStorage>();
+	Model* AiModel = new Model(std::move(dbStore));
 	ThreeDView* threeDView = new ThreeDView();
 	ThreeDToolbarView* threeDToolbar = new ThreeDToolbarView();
 	ThreeDMenuView* threeDViewMenu = new ThreeDMenuView();
