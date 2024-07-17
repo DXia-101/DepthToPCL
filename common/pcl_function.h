@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #define PCL_FUNCTION_H
 
 #include <vtkActor.h>
@@ -91,4 +91,14 @@ struct currentState
 	int currentIndex;
 	double currentInvalidPointThreshold;
 	double currentValidPointThreshold;
+};
+
+class OBBStruct
+{
+public:
+	Eigen::Vector3f position;
+	Eigen::Quaternionf quat;
+	double length;
+	double width;
+	double height;
 };

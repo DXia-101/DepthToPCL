@@ -1,4 +1,4 @@
-#include <stdio.h>
+ï»¿#include <stdio.h>
 #include "Depth2RGB.h"
 #include "pcl_function.h"
 
@@ -28,7 +28,7 @@ bool TeJetColorCode::cvt16Bit2BGR(cv::Mat& obj16Bit, cv::Mat& objBGR)
 
 		for (size_t w = 0; w < iWidth; w++)
 		{
-			int iIndex = 1023 * pDepth[w] / 65535.0;//½«[0-65535]Ö®¼äµÄÊý¾ÝÓ³Éäµ½[0-1024)Ö®¼ä
+			int iIndex = 1023 * pDepth[w] / 65535.0;//ï¿½ï¿½[0-65535]Ö®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½äµ½[0-1024)Ö®ï¿½ï¿½
 
 			pBGR[w] = m_pJetTab1024[iIndex];
 		}
@@ -56,14 +56,14 @@ bool TeJetColorCode::cvt16Bit2BGR(float minHeight, float maxHeight, cv::Mat& obj
 			float absDepth = pDepth[w] > minHeight ? pDepth[w] : minHeight;
 			absDepth = absDepth < maxHeight ? absDepth : maxHeight;
 			float realDepth = maxHeight == minHeight ? 0 : ((absDepth - minHeight) / (maxHeight - minHeight));
-			int iIndex = 1023 * realDepth;//½«[0-1.0]Ö®¼äµÄÊý¾ÝÓ³Éäµ½[0-1024)Ö®¼ä
+			int iIndex = 1023 * realDepth;//ï¿½ï¿½[0-1.0]Ö®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½äµ½[0-1024)Ö®ï¿½ï¿½
 			pBGR[w] = m_pJetTab1024[iIndex];
 		}
 	}
 	return true;
 }
 
-bool TeJetColorCode::cvt32F2BGR(float minHeight, float maxHeight,cv::Mat& obj32FC1, cv::Mat& objBGR)
+bool TeJetColorCode::cvt32F2BGR(float minHeight, float maxHeight, cv::Mat& obj32FC1, cv::Mat& objBGR)
 {
 	if (obj32FC1.type() != CV_32FC1 || objBGR.type() != CV_8UC3)
 	{
@@ -82,7 +82,7 @@ bool TeJetColorCode::cvt32F2BGR(float minHeight, float maxHeight,cv::Mat& obj32F
 			float absDepth = pDepth[w] > minHeight ? pDepth[w] : minHeight;
 			absDepth = absDepth < maxHeight ? absDepth : maxHeight;
 			float realDepth = maxHeight == minHeight ? 0 : ((absDepth - minHeight) / (maxHeight - minHeight));
-			int iIndex = 1023 * realDepth;//½«[0-1.0]Ö®¼äµÄÊý¾ÝÓ³Éäµ½[0-1024)Ö®¼ä
+			int iIndex = 1023 * realDepth;//ï¿½ï¿½[0-1.0]Ö®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½äµ½[0-1024)Ö®ï¿½ï¿½
 			pBGR[w] = m_pJetTab1024[iIndex];
 		}
 	}
@@ -106,7 +106,7 @@ bool TeJetColorCode::cvt32F2BGR(cv::Mat& obj32FC1, cv::Mat& objBGR)
 		for (size_t w = 0; w < iWidth; w++)
 		{
 			float absDepth = pDepth[w] > 0 ? pDepth[w] : 0.0;
-			int iIndex = 1023 * absDepth;//½«[0-1.0]Ö®¼äµÄÊý¾ÝÓ³Éäµ½[0-1024)Ö®¼ä
+			int iIndex = 1023 * absDepth;//ï¿½ï¿½[0-1.0]Ö®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½äµ½[0-1024)Ö®ï¿½ï¿½
 			if (iIndex > 1023)
 			{
 				iIndex = 1023;
@@ -117,25 +117,25 @@ bool TeJetColorCode::cvt32F2BGR(cv::Mat& obj32FC1, cv::Mat& objBGR)
 	return true;
 }
 
-te::Image TeJetColorCode::dealWithCvt(cv::Mat& image,const double& InvalThreshold,const double& ValThreshold)
+te::Image TeJetColorCode::dealWithCvt(cv::Mat& image, const double& InvalThreshold, const double& ValThreshold)
 {
 	cv::Mat median;
 	te::Image res;
 	median.create(image.size(), CV_8UC3);
-	if (CV_MAT_DEPTH(image.type()) == CV_16U) 
+	if (static_cast<double>(CV_MAT_DEPTH(image.type()) == CV_16U))
 	{
 		if (!cvt16Bit2BGR(InvalThreshold, ValThreshold, image, median))
 		{
 			return res;
 		}
 	}
-	else if (CV_MAT_DEPTH(image.type() == CV_32F)) {
+	else if (static_cast<double>(CV_MAT_DEPTH(image.type()) == CV_32F)) {
 		if (!cvt32F2BGR(InvalThreshold, ValThreshold, image, median))
 		{
 			return res;
 		}
 	}
-	return te::Image(median).clone();
+	return te::Image(median, te::Image::BGR).clone();
 }
 
 void TeJetColorCode::teBuildJetTab()

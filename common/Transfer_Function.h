@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "pcl_function.h"
 #include "teAiExTypes.h"
 #include <QPixmap>
@@ -6,101 +6,97 @@
 #include <QMetaType>
 #include <vector>
 
-class DynamicLabel;
-
-struct ImageInfo {
-	QString ImgPath;
-	QString ImgResolution;
-	QString ImgName;
-};
-
-Q_DECLARE_METATYPE(ImageInfo)
-
 class Transfer_Function
 {
 public:
 	/// <summary>
-	/// µãÔÆ×ªÎªcv::Mat
+	/// ç‚¹äº‘è½¬ä¸ºcv::Mat
 	/// </summary>
-	/// <param name="width">×ª»»ºóÍ¼ÏñµÄ¿í¶È</param>
-	/// <param name="height">×ª»»ºóÍ¼ÏñµÄ¸ß¶È</param>
-	/// <param name="cloudin">´ı×ª»»µãÔÆ</param>
-	/// <param name="imageout">×ª»»ºóµÄcv::Mat</param>
-	static void Cloud2cvMat(int width, int height,pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin, cv::Mat& imageout);
-	
+	/// <param name="width">è½¬æ¢åå›¾åƒçš„å®½åº¦</param>
+	/// <param name="height">è½¬æ¢åå›¾åƒçš„é«˜åº¦</param>
+	/// <param name="cloudin">å¾…è½¬æ¢ç‚¹äº‘</param>
+	/// <param name="imageout">è½¬æ¢åçš„cv::Mat</param>
+	static void Cloud2cvMat(int width, int height, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin, cv::Mat& imageout);
+
 	/// <summary>
-	/// cv::Mat ×ªÎª µãÔÆ
+	/// cv::Mat è½¬ä¸º ç‚¹äº‘
 	/// </summary>
 	/// <param name="minHeight"></param>
 	/// <param name="maxHeight"></param>
-	/// <param name="imageIn">´ı×ª»»µÄcv::Mat</param>
-	/// <param name="cloudOut">×ª»»ºóµÄµãÔÆ</param>
-	static void cvMat2Cloud(double minHeight, double maxHeight,cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudOut);
-	
+	/// <param name="imageIn">å¾…è½¬æ¢çš„cv::Mat</param>
+	/// <param name="cloudOut">è½¬æ¢åçš„ç‚¹äº‘</param>
+	static void cvMat2Cloud(double minHeight, double maxHeight, cv::Mat& imageIn, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudOut);
+
 	/// <summary>
-	/// cv::Mat ²éÕÒÂÖÀª
+	/// cv::Mat æŸ¥æ‰¾è½®å»“
 	/// </summary>
-	/// <param name="Matin">´ı²éÕÒµÄcv::Mat</param>
-	/// <param name="contours">ÕÒµ½µÄÂÖÀª¼¯</param>
+	/// <param name="Matin">å¾…æŸ¥æ‰¾çš„cv::Mat</param>
+	/// <param name="contours">æ‰¾åˆ°çš„è½®å»“é›†</param>
 	static void cvMat2Contour(float minHeight, float maxHeight, cv::Mat& Matin, std::vector<std::vector<cv::Point>>* contours);
 
 	/// <summary>
-	/// µãÔÆ²éÕÒÂÖÀª
+	/// ç‚¹äº‘æŸ¥æ‰¾è½®å»“
 	/// </summary>
-	/// <param name="width">Í¼ÏñµÄ¿í¶È</param>
-	/// <param name="height">Í¼ÏñµÄ¸ß¶È</param>
-	/// <param name="cloudin">´ı²éÕÒµãÔÆ</param>
-	/// <returns>ÕÒµ½µÄÂÖÀª¼¯</returns>
+	/// <param name="width">å›¾åƒçš„å®½åº¦</param>
+	/// <param name="height">å›¾åƒçš„é«˜åº¦</param>
+	/// <param name="cloudin">å¾…æŸ¥æ‰¾ç‚¹äº‘</param>
+	/// <returns>æ‰¾åˆ°çš„è½®å»“é›†</returns>
 	static std::vector<std::vector<cv::Point>> Cloud2Contour(int width, int height, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin);
 
 	/// <summary>
-	/// ÌáÈ¡ÂÖÀª¸²¸ÇµÄÍ¼Ïñ
+	/// æå–è½®å»“è¦†ç›–çš„å›¾åƒ
 	/// </summary>
-	/// <param name="Matin">´ıÌáÈ¡Í¼Ïñ</param>
-	/// <param name="contour">ÂÖÀª</param>
-	/// <param name="extractedImages">ÌáÈ¡ºóµÄcv::Mat</param>
+	/// <param name="Matin">å¾…æå–å›¾åƒ</param>
+	/// <param name="contour">è½®å»“</param>
+	/// <param name="extractedImages">æå–åçš„cv::Mat</param>
 	static void ExtractImage(cv::Mat& Matin, std::vector<cv::Point>* contour, cv::Mat* extractedImages);
 
 	/// <summary>
-	/// ÅĞ¶ÏÒ»¸öµãÊÇ·ñÎ»ÓÚÂÖÀªÄÚ²¿
+	/// åˆ¤æ–­ä¸€ä¸ªç‚¹æ˜¯å¦ä½äºè½®å»“å†…éƒ¨
 	/// </summary>
-	/// <param name="x">µãµÄX×ø±ê</param>
-	/// <param name="y">µãµÄY×ø±ê</param>
-	/// <param name="contour">ÅĞ¶ÏµÄÂÖÀª</param>
-	/// <returns>ÔÚÂÖÀªÄÚ·µ»Øtrue£¬²»ÔÚ·µ»Øfalse</returns>
+	/// <param name="x">ç‚¹çš„Xåæ ‡</param>
+	/// <param name="y">ç‚¹çš„Yåæ ‡</param>
+	/// <param name="contour">åˆ¤æ–­çš„è½®å»“</param>
+	/// <returns>åœ¨è½®å»“å†…è¿”å›trueï¼Œä¸åœ¨è¿”å›false</returns>
 	static bool isPointInsideContour(int x, int y, std::vector<cv::Point>* contour);
-	
+
 	/// <summary>
-	/// ¸ù¾İÂÖÀª½«ÂÖÀªÄÚ²¿Í¼Ïñ×ªµãÔÆ
+	/// æ ¹æ®è½®å»“å°†è½®å»“å†…éƒ¨å›¾åƒè½¬ç‚¹äº‘
 	/// </summary>
-	/// <param name="imageIn">ĞèÒªÌáÈ¡µÄÍ¼Ïñ</param>
-	/// <param name="originX">µãÔÆµÄÔ­µãµÄx×ø±ê</param>
-	/// <param name="originY">µãÔÆµÄÔ­µãµÄy×ø±ê</param>
-	/// <param name="contour">ÌáÈ¡µÄÂÖÀª</param>
-	/// <param name="cloudOut">×ª»»³öµÄµãÔÆ</param>
+	/// <param name="imageIn">éœ€è¦æå–çš„å›¾åƒ</param>
+	/// <param name="originX">ç‚¹äº‘çš„åŸç‚¹çš„xåæ ‡</param>
+	/// <param name="originY">ç‚¹äº‘çš„åŸç‚¹çš„yåæ ‡</param>
+	/// <param name="contour">æå–çš„è½®å»“</param>
+	/// <param name="cloudOut">è½¬æ¢å‡ºçš„ç‚¹äº‘</param>
 	static void ExtractImage2Cloud(cv::Mat& imageIn, float originX, float originY, std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudOut);
 
+	/// <summary>
+	/// æ ¹æ®è½®å»“ä»ç‚¹äº‘ä¸­æå–ç‚¹äº‘
+	/// </summary>
+	/// <param name="cloudIn">å¾…æå–ç‚¹äº‘</param>
+	/// <param name="contour">ä¾æ®çš„è½®å»“</param>
+	/// <param name="cloudOut">æå–åçš„ç‚¹äº‘</param>
 	static void ExtractCloud2Cloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudIn, std::vector<cv::Point>* contour, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudOut);
 
 	/// <summary>
-	/// Ìí¼ÓÍ¼Æ¬ÖĞÔÚÂÖÀª·¶Î§ÄÚµÄµãµ½ÂÖÀªÀï
+	/// æ·»åŠ å›¾ç‰‡ä¸­åœ¨è½®å»“èŒƒå›´å†…çš„ç‚¹åˆ°è½®å»“é‡Œ
 	/// </summary>
-	/// <param name="Matin">²Î¿¼Í¼Æ¬</param>
-	/// <param name="contour">ÂÖÀª·¶Î§</param>
+	/// <param name="Matin">å‚è€ƒå›¾ç‰‡</param>
+	/// <param name="contour">è½®å»“èŒƒå›´</param>
 	static void AddPointsInsideContour(cv::Mat& Matin, std::vector<cv::Point>* contour);
 
 	/// <summary>
-	/// ¼ÓÔØÍ¼Æ¬ÎªQPixmap¸ñÊ½
+	/// åŠ è½½å›¾ç‰‡ä¸ºQPixmapæ ¼å¼
 	/// </summary>
-	/// <param name="filePath">Í¼ÏñÂ·¾¶</param>
-	/// <returns>¼ÓÔØÍ¼Æ¬µÄQPixmap¶ÔÏó</returns>
+	/// <param name="filePath">å›¾åƒè·¯å¾„</param>
+	/// <returns>åŠ è½½å›¾ç‰‡çš„QPixmapå¯¹è±¡</returns>
 	static QPixmap loadPixmap(const QString& filePath);
 
 	/// <summary>
-	/// ½«ÈıÎ¬Vector×ªÎªAiInstance
+	/// å°†ä¸‰ç»´Vectorè½¬ä¸ºAiInstance
 	/// </summary>
-	/// <param name="Contours">ĞèÒª×ª»»µÄÈıÎ¬Vector</param>
-	/// <returns>×ª»»ºóµÄAiInstance</returns>
+	/// <param name="Contours">éœ€è¦è½¬æ¢çš„ä¸‰ç»´Vector</param>
+	/// <returns>è½¬æ¢åçš„AiInstance</returns>
 	static te::AiInstance VectorToAiInstance(std::vector<std::vector<cv::Point>>* Contours);
 };
 
