@@ -11,6 +11,7 @@
 #include "teTrainParaRegister.h"
 #include "teTestParaRegister.h"
 #include "teTraining.h"
+#include "teModelMenber.h"
 
 #include"teDataTypeRegistration.h"
 
@@ -45,6 +46,7 @@ TE_END_NAMESPACE
 namespace te
 {
 	class IDataStore;
+	class ModelMenber;
 	class Model
 	{
 	public:
@@ -56,7 +58,8 @@ namespace te
 		void testModel();
 		void initTrainConfig(TrainParaRegister* para);
 		void initTestConfig(TestParaRegister* para);
-		void modelpathSettings(const char* modelpath);
+		void setmodelpath(std::string modelpath);
+		void stopTrain();
 		Training getTrainHandle();
 
 	private:
@@ -184,7 +187,7 @@ namespace te
 		QMap<QString, QColor> labelstore;
 		CallbackFunction callback_;
 
-		std::vector<double> InvalidPointThresholds;
-		std::vector<double> ValidPointThresholds;
+		ModelMenber* menber;
+
 	};
 }

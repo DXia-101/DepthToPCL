@@ -25,20 +25,23 @@ void ViewModel::loadTrainingImages(const QStringList& filePaths)
 
 void te::ViewModel::prepareTrain(std::string path)
 {
-
+	model->setmodelpath(path);
+	te::TrainParaRegister* train = getTrainPara();
+	model->initTrainConfig(train);
+	model->trainModel();
 }
 
 void te::ViewModel::prepareTest(std::string path)
 {
-
+	model->setmodelpath(path);
+	te::TestParaRegister* test = getTestPara();
+	model->initTestConfig(test);
+	model->testModel();
 }
 
 void te::ViewModel::stopTrain()
 {
-}
-
-void te::ViewModel::savePara()
-{
+	model->stopTrain();
 }
 
 int ViewModel::getCurrentIndex()

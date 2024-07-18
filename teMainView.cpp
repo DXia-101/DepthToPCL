@@ -124,7 +124,6 @@ void te::MainView::saveParameter()
 {
 	viewModel.lock()->notified(ViewModel::TestPara);
 	viewModel.lock()->notified(ViewModel::TrainPara);
-	viewModel.lock()->savePara();
 }
 
 void MainView::setThresholdSpinBox()

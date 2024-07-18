@@ -23,7 +23,7 @@ TrainParaView::TrainParaView(QWidget* parent)
 		});
 
 	te::TrainParaRegister param;
-	te::deserializeJsonFromIFStream("./TrainParaconfig.ini", &param);
+	te::deserializeJsonFromIFStream("./workspace/TrainParaconfig.ini", &param);
 
 	ui->treeView->writeObject_t(param);
 
@@ -40,7 +40,7 @@ void TrainParaView::saveTrainPara()
 	te::TrainParaRegister param;
 	ui->treeView->readObject_t(&param);
 
-	te::serializeJsonToOFStream("./TrainParaconfig.ini", param);
+	te::serializeJsonToOFStream("./workspace/TrainParaconfig.ini", param);
 	ui->treeView->checkItemChange();
 
 	viewModel.lock()->setTrainPara(&param);

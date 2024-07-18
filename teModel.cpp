@@ -2,7 +2,20 @@
 
 #include "Depth2RGB.h"
 #include "IDataStore.h"
+#include "teModelMenber.h"
+#include "teAugmentation.h"
+#include "teImage.h"
+#include "teRapidjsonObjectTree.h"
+#include "teTimer.h"
+#include "teAiExTypes.h"
+#include "teTimer.h"
+
+#include<ctime>
+#include<chrono>
+
 using namespace te;
+
+static AiResult m_InferResult;
 
 Model::Model(std::unique_ptr<IDataStore> dataStore)
 	:m_dataStore(std::move(dataStore))
@@ -15,22 +28,138 @@ Model::~Model()
 
 void Model::trainModel()
 {
+	std::condition_variable cv;
+	AiStatus status;
+	std::string initInfo;
+	std::vector<te::SampleInfo> trainSamples;
+	getTrainSamples(&trainSamples);
+	menber->train_.setDeviceInfo({ E_NVIDIA, menber->DeviceID });
+	menber->train_.setTrainConfig(menber->config);
+	status = menber->train_.init(trainSamples, initInfo);
+
+	if (status != E_Success)
+	{
+		printf("train_.init %d\n", status);
+		system("Pause");
+		return;
+	}
+
+	menber->train_.start(teTrainStateCallBack, &cv);
+
+	{
+		std::mutex lock;
+		std::unique_lock locker(lock);
+		cv.wait(locker);
+	}
+
+	menber->train_.stop();
 }
 
 void Model::testModel()
 {
+	std::condition_variable cv;
+	std::vector<te::SampleInfo> trainSamples;
+	getTrainSamples(&trainSamples);
+	int maxImageW = 0, maxImageH = 0;
+	for (size_t i = 0; i < trainSamples.size(); i++)
+	{
+		if (maxImageW < trainSamples[i].sampleData.roi.width)
+			maxImageW = trainSamples[i].sampleData.roi.width;
+		if (maxImageH < trainSamples[i].sampleData.roi.height)
+			maxImageH = trainSamples[i].sampleData.roi.height;
+	}
+
+	menber->status = menber->infer_.init(maxImageW, maxImageH);
+	if (menber->status != E_Success)
+	{
+		printf("infer_.init %d\n", menber->status);
+		system("Pause");
+		return;
+	}
+	NetMemorySize neededMemory;
+	menber->status = menber->infer_.calcuMemoryWorkspace(10 * 1024 * (uint64_t)1024 * 1024, 10 * 1024 * (uint64_t)1024 * 1024, neededMemory);
+	if (menber->status != E_Success)
+	{
+		printf("infer_.calcuMemoryWorkspace %d\n", menber->status);
+		system("Pause");
+		return;
+	}
+
+	menber->status = menber->infer_.setShareMemoryAddr(nullptr, 0, nullptr, 0);
+	if (menber->status != E_Success)
+	{
+		printf("infer_.setShareMemoryAddr %d\n", menber->status);
+		system("Pause");
+		return;
+	}
+
+	menber->status = menber->infer_.setResultCallbackFunc(teAiInferResult);
+
+	if (!clearAllTestSampleMark())
+		return;
+
+	for (size_t i = 0; i < trainSamples.size(); i++)
+	{
+		std::mutex lock;
+		std::unique_lock locker(lock);
+
+		auto startTimePoint = std::chrono::steady_clock::now();
+		menber->infer_.pushSampleData(trainSamples[i].sampleData, &cv);
+
+		cv.wait(locker);
+		auto endTimePoint = std::chrono::steady_clock::now();
+
+		te::SampleMark samplemark;
+		samplemark.gtDataSet = m_InferResult;
+		updateResultSampleMark(i, samplemark);
+	}
 }
 
 void Model::initTrainConfig(TrainParaRegister* para)
 {
+	ToolType toolType = ToolType::E_PixelDetect_Tool;
+
+	menber->config.batchSize = para->TrainBatchSize;
+	menber->config.patchWidth = para->PatchWidth;
+	menber->config.patchHeight = para->PatchHeight;
+	menber->config.receptiveField_A = para->receptiveField;
+	menber->config.receptiveField_B = 2;
+	menber->config.trainIterCnt = para->trainIterCnt;
+	menber->config.saveFrequency = para->saveFrequency;
+	menber->config.eToolType = toolType;
+	menber->config.eTrainMode = TrainMode::E_TE_RESET;
+	menber->config.locateType = para->eLocateType;
+	menber->config.locateSide = para->locateSide;
+	menber->config.netName = para->netName;
+	menber->config.augmentHandle = nullptr;
+	menber->config.modelPath = menber->modelPath;
+	menber->config.sampleDesc.resize(1);
+	menber->config.sampleDesc = para->sampleDesc;
+	menber->config.augmentHandle = new AugmentProcess();
+	menber->config.augmentHandle = nullptr;
+
+	menber->DeviceID = para->DeviceID;
 }
 
 void Model::initTestConfig(TestParaRegister* para)
 {
+	menber->status = menber->infer_.setMaxBatchSize(para->maxbatchsize);
+	menber->status = menber->infer_.setBatchSize(para->batchsize);
+	menber->status = menber->infer_.setCoutourDesc(para->contourdesc);
+	menber->status = menber->infer_.setComputeDesc(para->deviceinfo);
+	menber->status = menber->infer_.setModelPath(menber->modelPath.c_str());
+	menber->status = menber->infer_.setPrecisionType(para->precision);
+	menber->status = menber->infer_.setExceptionFunc(teException, nullptr);
 }
 
-void Model::modelpathSettings(const char* modelpath)
+void Model::setmodelpath(std::string modelpath)
 {
+	menber->modelPath = modelpath;
+}
+
+void te::Model::stopTrain()
+{
+	menber->train_.stop();
 }
 
 Training Model::getTrainHandle()
@@ -263,62 +392,62 @@ void Model::getResultSamples(std::vector<SampleInfo>* resultSamples)
 
 void Model::initThreasholds(int size)
 {
-	ValidPointThresholds = std::vector<double>(size, 0.0);
-	InvalidPointThresholds = std::vector<double>(size, 0.0);
+	menber->ValidPointThresholds = std::vector<double>(size, 0.0);
+	menber->InvalidPointThresholds = std::vector<double>(size, 0.0);
 }
 
 void Model::updateInvalidPointThreshold(double threshold)
 {
-	if (getCurrentIndex() < InvalidPointThresholds.size())
-		InvalidPointThresholds[getCurrentIndex()] = threshold;
+	if (getCurrentIndex() < menber->InvalidPointThresholds.size())
+		menber->InvalidPointThresholds[getCurrentIndex()] = threshold;
 }
 
 double Model::getSelectInvalidPointThreshold(int index)
 {
-	if (index < InvalidPointThresholds.size())
-		return InvalidPointThresholds[index];
+	if (index < menber->InvalidPointThresholds.size())
+		return menber->InvalidPointThresholds[index];
 	else
 		return 0;
 }
 
 double Model::getCurrentInvalidPointThreshold()
 {
-	if (getCurrentIndex() < InvalidPointThresholds.size())
-		return InvalidPointThresholds[getCurrentIndex()];
+	if (getCurrentIndex() < menber->InvalidPointThresholds.size())
+		return menber->InvalidPointThresholds[getCurrentIndex()];
 	else
 		return 0;
 }
 
 void Model::addInvalidPointThreshold(int index, double threshold)
 {
-	InvalidPointThresholds[index] = threshold;
+	menber->InvalidPointThresholds[index] = threshold;
 }
 
 void Model::updateValidPointThreshold(double threshold)
 {
-	if (getCurrentIndex() < ValidPointThresholds.size())
-		ValidPointThresholds[getCurrentIndex()] = threshold;
+	if (getCurrentIndex() < menber->ValidPointThresholds.size())
+		menber->ValidPointThresholds[getCurrentIndex()] = threshold;
 }
 
 double Model::getSelectValidPointThreshold(int index)
 {
-	if (index < ValidPointThresholds.size())
-		return ValidPointThresholds[index];
+	if (index < menber->ValidPointThresholds.size())
+		return menber->ValidPointThresholds[index];
 	else
 		return 0;
 }
 
 double Model::getCurrentValidPointThreshold()
 {
-	if (getCurrentIndex() < ValidPointThresholds.size())
-		return ValidPointThresholds[getCurrentIndex()];
+	if (getCurrentIndex() < menber->ValidPointThresholds.size())
+		return menber->ValidPointThresholds[getCurrentIndex()];
 	else
 		return 0;
 }
 
 void Model::addValidPointThreshold(int index, double threshold)
 {
-	ValidPointThresholds[index] = threshold;
+	menber->ValidPointThresholds[index] = threshold;
 }
 
 void Model::loadTrainingImages(const QStringList& filePaths)

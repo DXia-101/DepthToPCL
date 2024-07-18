@@ -12,7 +12,7 @@ TestParaView::TestParaView(QWidget* parent)
 
 	ui->treeView->setWriter(std::make_shared<te::ObjectTreeWidgetWriter>());
 	te::TestParaRegister param;
-	te::deserializeJsonFromIFStream("./TestParaconfig.ini", &param);
+	te::deserializeJsonFromIFStream("./workspace/TestParaconfig.ini", &param);
 
 	ui->treeView->writeObject_t(param);
 
@@ -46,7 +46,7 @@ void te::TestParaView::saveTestParameter()
 	te::TestParaRegister param;
 	ui->treeView->readObject_t(&param);
 
-	te::serializeJsonToOFStream("./TestParaconfig.ini", param);
+	te::serializeJsonToOFStream("./workspace/TestParaconfig.ini", param);
 	ui->treeView->checkItemChange();
 
 	viewModel.lock()->setTestPara(&param);

@@ -91,7 +91,6 @@ namespace te {
 		void prepareTrain(std::string);
 		void prepareTest(std::string);
 		void stopTrain();
-		void savePara();
 
 		QColor getLabelColor(const QString&);
 		std::pair<QString, QColor> getCurrentLabelInfo();
