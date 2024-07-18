@@ -336,6 +336,20 @@ void te::ViewModel::setTrainStateMenber(TrainStatisticsViewMenber arg)
 	model->setData("TrainStateMenber", arg);
 }
 
+QVector<QPointF> te::ViewModel::getThreeDMarkerPolygon()
+{
+	QVector<QPointF> vec;
+	if (model->getData("ThreeDMarkerPolygon", vec))
+		return vec;
+	else
+		return vec;
+}
+
+void te::ViewModel::setThreeDMarkerPolygon(QVector<QPointF> vec)
+{
+	model->setData("TrainStateMenberPolygon", vec);
+}
+
 void te::ViewModel::setTrainStatisticsCallback(ViewModel& ptr)
 {
 	model->SetCallback

@@ -91,10 +91,24 @@ void ThreeDMenuView::on_ViewZBtn_clicked()
 
 void ThreeDMenuView::on_startMarkBtn_clicked()
 {
+	if (ui->startMarkBtn->isChecked()) {
+		ui->startMarkBtn->setChecked(true);
+		ui->startMarkBtn->setText(u8"完成标记");
+	}
+	else {
+		ui->startMarkBtn->setChecked(false);
+		ui->startMarkBtn->setText(u8"开始标记");
+	}
 	if (ViewModel::ThreeDMarkView == viewModel.lock()->getCurrentWidgetType())
+	{
 		viewModel.lock()->setCurrentWidgetType(ViewModel::ReceptiveFieldView);
+		viewModel.lock()->notified(ViewModel::HideThreeDMark);
+	}
 	else if (ViewModel::ReceptiveFieldView == viewModel.lock()->getCurrentWidgetType())
+	{
 		viewModel.lock()->setCurrentWidgetType(ViewModel::ThreeDMarkView);
+		viewModel.lock()->notified(ViewModel::ThreeDMark);
+	}
 	viewModel.lock()->notified(ViewModel::StartMark);
 }
 

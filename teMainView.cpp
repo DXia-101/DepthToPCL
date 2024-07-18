@@ -91,6 +91,7 @@ void MainView::setCurrentWidgetForStackLayout()
 	if (widget)
 	{
 		stackLayout->setCurrentWidget(widget);
+		widget->show();
 	}
 }
 

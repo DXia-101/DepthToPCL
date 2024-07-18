@@ -3,6 +3,8 @@
 #include <QObject>
 #include <QMap>
 #include <QString>
+#include <QVector>
+#include <QPointF>
 #include <any>
 #include <memory>
 #include "pcl_function.h"
@@ -56,6 +58,7 @@ namespace te {
 			LabelBrowser,
 			ThreeDMark,
 			StateChange,
+			HideThreeDMark,
 			ShowTrainStateChart,
 			OutOfBounds,
 			UnCheckTrainBox,
@@ -192,6 +195,8 @@ namespace te {
 		void setTrainStatisticsState(int);
 		TrainStatisticsViewMenber getTrainStateMenber();
 		void setTrainStateMenber(TrainStatisticsViewMenber);
+		QVector<QPointF> getThreeDMarkerPolygon();
+		void setThreeDMarkerPolygon(QVector<QPointF>);
 
 	private:
 		void setTrainStatisticsCallback(ViewModel& ptr);

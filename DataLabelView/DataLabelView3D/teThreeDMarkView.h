@@ -14,7 +14,7 @@ namespace te {
 		~ThreeDMarkView();
 
 	protected:
-		void setDrawState();
+		void setDrawState(bool);
 		void initWidget();
 		void enterEvent(QEvent* event) override;
 		void leaveEvent(QEvent* event) override;
@@ -22,6 +22,13 @@ namespace te {
 		void mousePressEvent(QMouseEvent* e) override;
 		void mouseMoveEvent(QMouseEvent* e) override;
 		void mouseReleaseEvent(QMouseEvent* e) override;
+
+	private:
+		bool bDraw;
+		bool bLeftClick;
+		bool bOverDraw;
+
+		QVector<QPointF> pointList;
 
 	public:
 		void bindViewModel(std::shared_ptr<ViewModel>);
