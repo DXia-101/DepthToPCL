@@ -76,14 +76,14 @@ void te::ThreeDToolbarView::initToolbar()
 	QMenu* Filter_menu = new QMenu("工具", menu_bar);
 
 	//QAction* Gaussian_filter = new QAction("Gaussian filter");
-	QAction* CrossSction = new QAction("Cross Section");
+	QAction* CrossSection = new QAction("Cross Section");
 
 	//Filter_menu->addAction(Gaussian_filter);
-	Filter_menu->addAction(CrossSction);
+	Filter_menu->addAction(CrossSection);
 
 	menu_bar->addMenu(Filter_menu);
 
-	connect(CrossSction, &QAction::triggered, this, &ThreeDToolbarView::setCrossSection);
+	connect(CrossSection, &QAction::triggered, this, &ThreeDToolbarView::setCrossSection);
 }
 
 void ThreeDToolbarView::refresh(ViewModel::updateMode)

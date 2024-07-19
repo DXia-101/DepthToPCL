@@ -19,9 +19,9 @@ namespace te {
 		int getSize();
 
 	private:
-		void on_buttonBox_accepted();
-		void on_PointSize_SpinBox_valueChanged(int value);
-		void on_PointSizeHSlider_valueChanged(int value);
+		void ValueAccepted();
+		void spinBoxValueChanged(int value);
+		void sliderValueChanged(int value);
 
 	private:
 		Ui::PointCloudPointSizeSetViewClass* ui;
