@@ -92,6 +92,8 @@ public:
 	QMap<QString, int> getCurrentTrainMarksNumber();
 	QMap<QString, int> getCurrentResultMarksNumber();
 
+	std::pair<int, int> getCurrentImageSize();
+
 	bool updateShrinkageChart(int index, std::string& filepath);
 	bool updatePointCloud(int index, std::string& filepath);
 	bool updateTrainGtFilePath(int index, std::string& filepath);
@@ -185,7 +187,7 @@ public:
 	}
 
 private:
-	static Model* model;
+	static Model* instance;
 
 	std::unique_ptr<IDataStore> m_dataStore;
 

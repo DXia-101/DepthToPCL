@@ -477,12 +477,14 @@ void ViewModel::setThreshold(std::pair<double, double> temp)
 void ViewModel::add3DAiInstance(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 {
 	model->add3DAiInstance(cloud);
+	notified(ViewModel::updateTrainCount);
 	notified(ViewModel::AddMarkerPointCloud);
 }
 
 void ViewModel::add2DAiInstance(QList<GraphicsItem*> polygonItems)
 {
 	model->add2DAiInstance(polygonItems);
+	notified(ViewModel::updateTrainCount);
 	notified(ViewModel::AddMarkerPointCloud);
 }
 

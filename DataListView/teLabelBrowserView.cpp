@@ -32,9 +32,12 @@ LabelBrowserView::~LabelBrowserView()
 
 void LabelBrowserView::refresh(ViewModel::updateMode mode)
 {
-	if (mode == ViewModel::LabelBrowser)
+	if (mode == ViewModel::updateTrainCount)
 	{
 		updateTrainCount();
+	}
+	else if (mode == ViewModel::updateResultCount)
+	{
 		updateResultCount();
 	}
 }

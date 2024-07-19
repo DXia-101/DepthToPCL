@@ -1,5 +1,5 @@
 ﻿#include "teModel.h"
-
+#include "Transfer_Function.h"
 #include "Depth2RGB.h"
 #include "IDataStore.h"
 #include "teModelMenber.h"
@@ -18,15 +18,20 @@
 using namespace te;
 
 static AiResult m_InferResult;
+Model* Model::instance = nullptr;
 
 Model::Model(std::unique_ptr<IDataStore> dataStore)
 	:m_dataStore(std::move(dataStore))
 {
-	model = this;
+	instance = this;
+	menber = new ModelMenber();
 }
 
 Model::~Model()
 {
+	if (instance == this) {
+		instance = nullptr; // 在析构函数中清除静态指针
+	}
 }
 
 QColor stringToColor(QString colorStr)
@@ -211,8 +216,10 @@ void Model::teTrainStateCallBack(AiStatus status, TrainState& stateinfo, void* p
 		auto cv = (std::condition_variable*)param;
 		cv->notify_all();
 	}
+	if (instance != nullptr) {
+		instance->TriggerCallback(stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
+	}
 
-	model->TriggerCallback(stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
 
 	if (stateinfo.fProgress > 0.999999f)
 	{
@@ -324,6 +331,16 @@ QMap<QString, int> Model::getCurrentResultMarksNumber()
 	}
 
 	return nameCounts;
+}
+
+std::pair<int, int> Model::getCurrentImageSize()
+{
+	cv::Mat image = cv::imread(getCurrentOriginImage(), cv::IMREAD_UNCHANGED);
+	if (image.empty()) {
+		std::cerr << "Error: Cloud not read the image." << std::endl;
+		return { 0,0 };
+	}
+	return std::make_pair(image.cols, image.rows);
 }
 
 bool Model::updateTrainSampleMark(int index, SampleMark& samplemark)
@@ -774,10 +791,46 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr te::Model::getPointCloudByContour(pcl::Po
 
 void Model::add3DAiInstance(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 {
+	te::AiInstance instance;
+	instance.name = getCurrentLabel().toStdString();
+	std::vector<std::vector<cv::Point>> contours = Transfer_Function::Cloud2Contour(getCurrentImageSize().first, getCurrentImageSize().second, cloud);
+
+	te::PolygonF polygon;
+	for (const std::vector<cv::Point>& contourPoints : contours) {
+		te::PolygonF::PointType point;
+		for (const cv::Point& contourPoint : contourPoints) {
+			point.x = static_cast<float>(contourPoint.x);
+			point.y = static_cast<float>(contourPoint.y);
+			polygon.push_back(point);
+		}
+		instance.contour.polygons.push_back(polygon);
+		polygon.clear();
+	}
+	te::SampleMark sampleMark = getCurrentTrainSampleInfo();
+	sampleMark.gtDataSet.push_back(instance);
+	updateCurrentTrainSampleMark(sampleMark);
 }
 
 void Model::add2DAiInstance(QList<te::GraphicsItem*> polygonItems)
 {
+	clearCurrentTrainSampleMark();
+	te::SampleMark sampleMark = getCurrentTrainSampleInfo();
+	for (te::GraphicsItem* item : polygonItems) {
+		te::ConnectedRegionGraphicsItem* polygonItem = dynamic_cast<te::ConnectedRegionGraphicsItem*>(item);
+		QList<QPolygonF> contours = polygonItem->polygonList();
+		te::AiInstance instance;
+		instance.name = polygonItem->label().toStdString();
+		te::PolygonF polygon;
+		te::PolygonF::PointType point;
+		for (const QPointF& polygonPoint : contours.front()) {
+			point.x = static_cast<float>(polygonPoint.x());
+			point.y = static_cast<float>(polygonPoint.y());
+			polygon.push_back(point);
+		}
+		instance.contour.polygons.push_back(polygon);
+		sampleMark.gtDataSet.push_back(instance);
+	}
+	updateCurrentTrainSampleMark(sampleMark);
 }
 
 void Model::addLabelInfo(const QString& category, const QColor& color)
