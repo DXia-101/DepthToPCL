@@ -135,7 +135,7 @@ public:
 	void worldToScreen(pcl::PointXYZRGB* input3D, vtkMatrix4x4* transform, vtkMatrix4x4* composit, double* output2D);
 	void axisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
 	void orientedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
-	void subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud2);
+	void subtractTargetPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud2);
 	void perspectiveToAxis(pcl::PointXYZ maxPt, pcl::PointXYZ minPt, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
 	void pcl_crossSection(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_in, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_out);
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr getPointCloudByContour(pcl::PointCloud<pcl::PointXYZRGB>::Ptr, AiInstance*);
@@ -192,7 +192,7 @@ private:
 	std::unique_ptr<IDataStore> m_dataStore;
 
 	std::unordered_map<std::string, std::any> storage;
-	std::map<std::string, std::string> labelstore;
+	std::map<std::string, std::string> labelStore;
 
 	CallbackFunction callback_;
 

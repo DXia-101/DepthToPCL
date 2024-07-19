@@ -63,12 +63,12 @@ ReceptiveFieldView::ReceptiveFieldView(QWidget* parent)
 	setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
 	installEventFilter(this);
 	menber = new ReceptiveFieldViewMenber();
-	menber->ThrDradius = 10.0;
-	menber->TwoDradius = 10.0;
+	menber->ThrDRadius = 10.0;
+	menber->TwoDRadius = 10.0;
 	menber->ReduceTimes = -1;
 	menber->MaxState = false;
 	menber->circleVisible = true;
-	InitStateMachine();
+	initStateMachine();
 }
 
 ReceptiveFieldView::~ReceptiveFieldView()
@@ -90,11 +90,11 @@ void ReceptiveFieldView::refresh(ViewModel::updateMode mode)
 	}
 	else if (mode == ViewModel::OutOfBounds)
 	{
-		OutOfBounds();
+		outOfBounds();
 	}
 }
 
-void ReceptiveFieldView::InitStateMachine()
+void ReceptiveFieldView::initStateMachine()
 {
 	menber->stateMachine = new QStateMachine();
 	menber->TwoDState = new QState(menber->stateMachine);
@@ -112,8 +112,8 @@ void ReceptiveFieldView::InitStateMachine()
 
 void te::ReceptiveFieldView::receptiveFieldChange()
 {
-	menber->ThrDradius = static_cast<float>(viewModel.lock()->getReceptiveField());
-	menber->TwoDradius = static_cast<float>(viewModel.lock()->getReceptiveField());
+	menber->ThrDRadius = static_cast<float>(viewModel.lock()->getReceptiveField());
+	menber->TwoDRadius = static_cast<float>(viewModel.lock()->getReceptiveField());
 	menber->ReduceTimes = -1;
 	update();
 }
@@ -139,9 +139,9 @@ void ReceptiveFieldView::paintEvent(QPaintEvent* event)
 		painter.setPen(pen);
 		painter.setBrush(Qt::NoBrush);
 		if (menber->ThrDState->active())
-			painter.drawEllipse(menber->centerPoint, menber->ThrDradius, menber->ThrDradius);
+			painter.drawEllipse(menber->centerPoint, menber->ThrDRadius, menber->ThrDRadius);
 		else if (menber->TwoDState->active())
-			painter.drawEllipse(menber->centerPoint, menber->TwoDradius, menber->TwoDradius);
+			painter.drawEllipse(menber->centerPoint, menber->TwoDRadius, menber->TwoDRadius);
 		update();
 	}
 }
@@ -179,10 +179,10 @@ void ReceptiveFieldView::wheelEvent(QWheelEvent* event)
 			double dZoomRatio = delta;
 			if (menber->ThrDState->active())
 			{
-				if ((menber->ThrDradius * dZoomRatio) <= 1)
+				if ((menber->ThrDRadius * dZoomRatio) <= 1)
 				{
 					menber->MaxState = false;
-					menber->ThrDradius = menber->ThrDradius;
+					menber->ThrDRadius = menber->ThrDRadius;
 					menber->ReduceTimes++;
 				}
 				else {
@@ -191,29 +191,29 @@ void ReceptiveFieldView::wheelEvent(QWheelEvent* event)
 					}
 					else {
 						if (!menber->MaxState) {
-							menber->ThrDradius *= dZoomRatio;
+							menber->ThrDRadius *= dZoomRatio;
 						}
 						else if (dZoomRatio <= 1) {
 							menber->MaxState = false;
-							menber->ThrDradius *= dZoomRatio;
+							menber->ThrDRadius *= dZoomRatio;
 						}
 					}
 				}
 			}
 			else if (menber->TwoDState->active())
 			{
-				if ((menber->TwoDradius * dZoomRatio) <= 1)
+				if ((menber->TwoDRadius * dZoomRatio) <= 1)
 				{
 					menber->MaxState = false;
-					menber->TwoDradius = menber->ThrDradius;
+					menber->TwoDRadius = menber->ThrDRadius;
 				}
 				else {
 					if (!menber->MaxState) {
-						menber->TwoDradius *= dZoomRatio;
+						menber->TwoDRadius *= dZoomRatio;
 					}
 					else if (dZoomRatio <= 1) {
 						menber->MaxState = false;
-						menber->TwoDradius *= dZoomRatio;
+						menber->TwoDRadius *= dZoomRatio;
 					}
 
 				}
@@ -278,9 +278,9 @@ void ReceptiveFieldView::bindViewModel(std::shared_ptr<ViewModel> vm)
 	}
 }
 
-void ReceptiveFieldView::OutOfBounds()
+void ReceptiveFieldView::outOfBounds()
 {
-	menber->ThrDradius *= 0.80;
+	menber->ThrDRadius *= 0.80;
 	update();
 }
 

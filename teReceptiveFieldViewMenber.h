@@ -9,8 +9,8 @@ namespace te {
 	{
 	public:
 		QPointF centerPoint;
-		double ThrDradius;
-		double TwoDradius;
+		double ThrDRadius;
+		double TwoDRadius;
 		bool MaxState;
 		bool circleVisible;
 		int ReduceTimes;

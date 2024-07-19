@@ -742,7 +742,7 @@ void Model::orientedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 	return;
 }
 
-void Model::subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud2)
+void Model::subtractTargetPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud2)
 {
 }
 
@@ -806,22 +806,22 @@ void Model::add2DAiInstance(QList<te::GraphicsItem*> polygonItems)
 
 void Model::addLabelInfo(const QString& category, const QColor& color)
 {
-	labelstore[category.toStdString()] = color.name().toStdString();
+	labelStore[category.toStdString()] = color.name().toStdString();
 }
 
 void Model::changeLabelInfo(const QString& category, const QColor& color)
 {
-	labelstore[category.toStdString()] = color.name().toStdString();
+	labelStore[category.toStdString()] = color.name().toStdString();
 }
 
 void Model::removeLabelInfo(const QString& category)
 {
-	labelstore.erase(category.toStdString());
+	labelStore.erase(category.toStdString());
 }
 
 QColor Model::getLabelColor(const QString& category)
 {
-	return QColor(QString::fromStdString(labelstore[category.toStdString()]));
+	return QColor(QString::fromStdString(labelStore[category.toStdString()]));
 }
 
 void Model::setThreeDMarkerPolygon(QVector<QPointF> vec)

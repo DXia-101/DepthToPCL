@@ -663,7 +663,7 @@ void ViewModel::orientedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud
 
 void ViewModel::subtractTargetPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud2)
 {
-	model->subtractTargetPointcloud(cloud1, cloud2);
+	model->subtractTargetPointCloud(cloud1, cloud2);
 }
 
 void ViewModel::perspectiveToAxis(pcl::PointXYZ maxPt, pcl::PointXYZ minPt, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)

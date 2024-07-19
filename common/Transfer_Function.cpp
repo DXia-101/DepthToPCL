@@ -52,18 +52,13 @@ void Transfer_Function::cvMat2Contour(float minHeight, float maxHeight, cv::Mat&
 		cv::cvtColor(median, grayImg, cv::COLOR_BGR2GRAY);
 		cv::Mat gry(450, 320, grayImg.type());
 
-		// 使用resize函数进行缩放  
 		cv::resize(grayImg, gry, cv::Size(320, 450), 0, 0, cv::INTER_LINEAR);
 
 		cv::imshow("grayImg", gry);
 		cv::waitKey();
-		//cv::imshow("grayImg", grayImg);
-		//cv::waitKey();
-		//cv::Canny(grayImg, binImg, 100, 150, 3);
 		threshold(grayImg, binImg, 0, 255, cv::ThresholdTypes::THRESH_TRIANGLE);
 		cv::Mat dst(450, 320, binImg.type());
 
-		// 使用resize函数进行缩放  
 		cv::resize(binImg, dst, cv::Size(320, 450), 0, 0, cv::INTER_LINEAR);
 
 		cv::imshow("binImg", dst);
@@ -89,11 +84,6 @@ std::vector<std::vector<cv::Point>> Transfer_Function::Cloud2Contour(int width, 
 			image.at<uchar>(y, x) = 255;
 		}
 	}
-	//cv::Mat dst(450, 320, image.type());
-	//cv::resize(image, dst, cv::Size(320, 450), 0, 0, cv::INTER_LINEAR);
-	//cv::imshow("image", dst);
-	//
-	//cv::waitKey();
 	std::vector<cv::Vec4i> hierarchy;
 	findContours(image, contours, hierarchy, cv::RetrievalModes::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
 
@@ -164,16 +154,11 @@ void Transfer_Function::ExtractCloud2Cloud(pcl::PointCloud<pcl::PointXYZRGB>::Pt
 		maxX = std::max(maxX, point.x);
 		maxY = std::max(maxY, point.y);
 	}
-	//std::cout << minX << " " << minY << " " << maxX << " " << maxY << std::endl;
 
 	for (const auto& point : cloudIn->points)
 	{
 		Eigen::Vector3f pointEigen(point.x, -point.y, point.z);
-
-		//Eigen::Vector3f pointProjected = pointEigen;
 		pointEigen.z() = 0.0;
-		//std::cout << pointEigen.x() << " " << pointEigen.y() << " " << pointEigen.z() << std::endl;
-
 		if (pointEigen.x() >= minX && pointEigen.x() <= maxX && pointEigen.y() >= minY && pointEigen.y() <= maxY)
 		{
 			cv::Point2f p(point.x, -point.y);
@@ -183,7 +168,6 @@ void Transfer_Function::ExtractCloud2Cloud(pcl::PointCloud<pcl::PointXYZRGB>::Pt
 			}
 		}
 	}
-
 	cloudOut->width = cloudOut->points.size();
 	cloudOut->height = 1;
 	cloudOut->is_dense = true;
