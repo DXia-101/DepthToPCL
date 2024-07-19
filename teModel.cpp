@@ -34,29 +34,6 @@ Model::~Model()
 	}
 }
 
-QColor stringToColor(QString colorStr)
-{
-	QColor color;
-	QStringList rgb = colorStr.split(',');
-	if (rgb.size() == 3) {
-		int r = rgb.at(0).toInt();
-		int g = rgb.at(1).toInt();
-		int b = rgb.at(2).toInt();
-		color.setRgb(r, g, b);
-	}
-	else
-		color.setNamedColor(colorStr);
-
-	return color;
-}
-
-QString colorTostring(QColor color)
-{
-	QString str = "";
-	str = QString::number(color.red()) + "," + QString::number(color.green()) + "," + QString::number(color.blue());
-	return str;
-}
-
 void Model::trainModel()
 {
 	std::condition_variable cv;
@@ -829,12 +806,12 @@ void Model::add2DAiInstance(QList<te::GraphicsItem*> polygonItems)
 
 void Model::addLabelInfo(const QString& category, const QColor& color)
 {
-	labelstore[category.toStdString()] = colorTostring(color).toStdString();
+	labelstore[category.toStdString()] = color.name().toStdString();
 }
 
 void Model::changeLabelInfo(const QString& category, const QColor& color)
 {
-	labelstore[category.toStdString()] = colorTostring(color).toStdString();
+	labelstore[category.toStdString()] = color.name().toStdString();
 }
 
 void Model::removeLabelInfo(const QString& category)
@@ -844,7 +821,7 @@ void Model::removeLabelInfo(const QString& category)
 
 QColor Model::getLabelColor(const QString& category)
 {
-	return stringToColor(QString::fromStdString(labelstore[category.toStdString()]));
+	return QColor(QString::fromStdString(labelstore[category.toStdString()]));
 }
 
 void Model::setThreeDMarkerPolygon(QVector<QPointF> vec)

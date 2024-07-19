@@ -661,7 +661,7 @@ void ViewModel::orientedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud
 	model->orientedBoundingBox(cloud);
 }
 
-void ViewModel::subtractTargetPointcloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud2)
+void ViewModel::subtractTargetPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud2)
 {
 	model->subtractTargetPointcloud(cloud1, cloud2);
 }

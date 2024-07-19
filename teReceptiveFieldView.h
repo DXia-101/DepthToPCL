@@ -16,7 +16,7 @@ namespace te {
 		~ReceptiveFieldView();
 
 	protected:
-		void InitStateMachine();
+		void initStateMachine();
 		void receptiveFieldChange();
 
 	protected:
@@ -34,7 +34,7 @@ namespace te {
 
 	protected slots:
 		void refresh(ViewModel::updateMode);
-		void OutOfBounds();
+		void outOfBounds();
 
 	signals:
 		void sig_enterThrD();

@@ -54,8 +54,8 @@ void te::CrossSectionSetView::on_cancelButton_clicked()
 
 void te::CrossSectionSetView::on_okButton_clicked()
 {
-	startRenge = ui->StartLineEdit->text().toInt();
-	endRenge = ui->EndLineEdit->text().toInt();
+	startRange = ui->StartLineEdit->text().toInt();
+	endRange = ui->EndLineEdit->text().toInt();
 	QSettings settings(configFilePath, QSettings::IniFormat);
 	settings.setValue("StartLineEdit", ui->StartLineEdit->text());
 	settings.setValue("EndLineEdit", ui->EndLineEdit->text());

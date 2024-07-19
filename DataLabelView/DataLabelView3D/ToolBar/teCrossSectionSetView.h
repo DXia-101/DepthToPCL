@@ -27,7 +27,7 @@ namespace te {
 	private:
 		Ui::CrossSectionSetViewClass* ui;
 
-		int startRenge, endRenge;
+		int startRange, endRange;
 		QString axis, isSave;
 		QString configFilePath;
 	};
