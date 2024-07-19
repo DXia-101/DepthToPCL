@@ -1,22 +1,22 @@
-#pragma once
+﻿#pragma once
 #include "pcl_function.h"
 
 class InteractorMenber
 {
 public:
-	vtkRenderWindow* m_rendererwindow;
-	vtkSmartPointer<vtkRenderer> m_renderer;
+	vtkRenderWindow* renderwindow;
+	vtkSmartPointer<vtkRenderer> renderer;
 
 	vtkSmartPointer<vtkAxesActor> axes_actor;
 	vtkSmartPointer<vtkTransform> axesTransform;
 
-	std::vector<vtkActor*> m_pSelectedActor = { nullptr };
-	vtkSmartPointer<vtkTransform> m_pRotationTransform = nullptr;
+	std::vector<vtkActor*> selectedActor = { nullptr };
+	vtkSmartPointer<vtkTransform> rotationTransform = nullptr;
 
-	bool m_bLBtnDown = false;
+	bool bLBtnDown = false;
 
-	int m_nOldMousePosX;
-	int m_nOldMousePosY;
+	int nOldMousePosX;
+	int nOldMousePosY;
 
 	vtkProp3D* InteractionProp;
 

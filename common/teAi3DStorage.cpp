@@ -1,5 +1,6 @@
 ﻿#include "teAi3DStorage.h"
 #include <QString>
+#include <QColor>
 #include <QDir>
 using namespace te;
 Ai3DStorage::Ai3DStorage()

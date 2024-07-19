@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <QColor>
 #include "teAiExTypes.h"
 
 namespace te {

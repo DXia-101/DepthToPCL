@@ -15,8 +15,8 @@ using namespace te;
 vtkStandardNewMacro(InteractorStyle);
 InteractorStyle::InteractorStyle()
 {
-	m_Menber = new InteractorMenber();
-	m_Menber->InteractionProp = nullptr;
+	menber = new InteractorMenber();
+	menber->InteractionProp = nullptr;
 }
 
 InteractorStyle::~InteractorStyle()
@@ -25,9 +25,9 @@ InteractorStyle::~InteractorStyle()
 
 void InteractorStyle::setRenderWindow(vtkRenderWindow* window, vtkSmartPointer<vtkRenderer> render, vtkSmartPointer<vtkAxesActor> axes)
 {
-	m_Menber->m_rendererwindow = window;
-	m_Menber->m_renderer = render;
-	m_Menber->axes_actor = axes;
+	menber->renderwindow = window;
+	menber->renderer = render;
+	menber->axes_actor = axes;
 }
 
 void InteractorStyle::OnMouseWheelForward()
@@ -39,96 +39,96 @@ void InteractorStyle::OnMouseWheelBackward()
 {
 	Dolly(0.80);
 }
-//
-//void CustomInteractorStyle::OnMouseMove()
+
+//void InteractorStyle::OnMouseMove()
 //{
-//	//if (!m_bLBtnDown) //没有按下鼠标左键
-//	//{
-//	//	vtkInteractorStyleTrackballCamera::OnMouseMove();
-//	//	return;
-//	//}
+//	if (!menber->bLBtnDown) //没有按下鼠标左键
+//	{
+//		vtkInteractorStyleTrackballCamera::OnMouseMove();
+//		return;
+//	}
 //
-//	//int X = this->Interactor->GetEventPosition()[0];
-//	//int Y = this->Interactor->GetEventPosition()[1];
-//	//double deltX = (X - m_nOldMousePosX);
-//	//double deltY = (Y - m_nOldMousePosY);
-//	//rotateAroundAxis(deltX, deltY, &Actor_xAxis, &Actor_yAxis);
-//	//vtkSmartPointer<vtkMatrix4x4> AxesMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+//	int X = this->Interactor->GetEventPosition()[0];
+//	int Y = this->Interactor->GetEventPosition()[1];
+//	double deltX = (X - menber->nOldMousePosX);
+//	double deltY = (Y - menber->nOldMousePosY);
+//	rotateAroundAxis(deltX, deltY, &menber->Actor_xAxis, &menber->Actor_yAxis);
+//	vtkSmartPointer<vtkMatrix4x4> AxesMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 //
-//	//for (int i = 0; i < 3; ++i)
-//	//{
-//	//	for (int j = 0; j < 3; ++j)
-//	//	{
-//	//		AxesMatrix->SetElement(i, j, mat.at<double>(i, j));
-//	//	}
-//	//}
+//	for (int i = 0; i < 3; ++i)
+//	{
+//		for (int j = 0; j < 3; ++j)
+//		{
+//			AxesMatrix->SetElement(i, j, menber->mat.at<double>(i, j));
+//		}
+//	}
 //
-//	//if (axes_actor != nullptr)
-//	//{
-//	//	if (!axesTransform)
-//	//	{
-//	//		axesTransform = vtkSmartPointer<vtkTransform>::New();
-//	//		axesTransform->Identity();
-//	//	}
-//	//	double* axesCenter = axes_actor->GetCenter();
-//	//	axesTransform->Translate(axesCenter[0], axesCenter[1], axesCenter[2]);
-//	//	axesTransform->Concatenate(AxesMatrix);
-//	//	axesTransform->Translate(-axesCenter[0], -axesCenter[1], -axesCenter[2]);
-//	//	axes_actor->SetUserTransform(axesTransform);
-//	//}
+//	if (menber->axes_actor != nullptr)
+//	{
+//		if (!menber->axesTransform)
+//		{
+//			menber->axesTransform = vtkSmartPointer<vtkTransform>::New();
+//			menber->axesTransform->Identity();
+//		}
+//		double* axesCenter = menber->axes_actor->GetCenter();
+//		menber->axesTransform->Translate(axesCenter[0], axesCenter[1], axesCenter[2]);
+//		menber->axesTransform->Concatenate(AxesMatrix);
+//		menber->axesTransform->Translate(-axesCenter[0], -axesCenter[1], -axesCenter[2]);
+//		menber->axes_actor->SetUserTransform(menber->axesTransform);
+//	}
 //
-//	//if (!m_pRotationTransform)
-//	//{
-//	//	m_pRotationTransform = vtkSmartPointer<vtkTransform>::New();
-//	//	m_pRotationTransform->Identity();
-//	//}
+//	if (!menber->rotationTransform)
+//	{
+//		menber->rotationTransform = vtkSmartPointer<vtkTransform>::New();
+//		menber->rotationTransform->Identity();
+//	}
 //
-//	//m_pRotationTransform->Translate(rotationCenter[0], rotationCenter[1], rotationCenter[2]);
-//	//m_pRotationTransform->Concatenate(AxesMatrix);
-//	//m_pRotationTransform->Translate(-rotationCenter[0], -rotationCenter[1], -rotationCenter[2]);
+//	menber->rotationTransform->Translate(menber->rotationCenter[0], menber->rotationCenter[1], menber->rotationCenter[2]);
+//	menber->rotationTransform->Concatenate(AxesMatrix);
+//	menber->rotationTransform->Translate(-menber->rotationCenter[0], -menber->rotationCenter[1], -menber->rotationCenter[2]);
 //
-//	//for (int i = 0; i < m_pSelectedActor.size(); ++i)
-//	//{
-//	//	if (m_pSelectedActor[i] == nullptr) {
-//	//		continue;
-//	//	}
-//	//	m_pSelectedActor[i]->SetUserTransform(m_pRotationTransform);
-//	//}
-//	//m_nOldMousePosX = X;
-//	//m_nOldMousePosY = Y;
-//	//m_renderer->ResetCameraClippingRange();
-//	//this->Interactor->GetRenderWindow()->Render();
+//	for (int i = 0; i < menber->selectedActor.size(); ++i)
+//	{
+//		if (menber->selectedActor[i] == nullptr) {
+//			continue;
+//		}
+//		menber->selectedActor[i]->SetUserTransform(menber->rotationTransform);
+//	}
+//	menber->nOldMousePosX = X;
+//	menber->nOldMousePosY = Y;
+//	menber->renderer->ResetCameraClippingRange();
+//	this->Interactor->GetRenderWindow()->Render();
 //}
 //
-//void CustomInteractorStyle::OnLeftButtonDown()
+//void InteractorStyle::OnLeftButtonDown()
 //{
-//	/*m_bLBtnDown = true;
+//	menber->bLBtnDown = true;
 //
-//	vtkSmartPointer<vtkPropCollection> propCollection = m_renderer->GetViewProps();
+//	vtkSmartPointer<vtkPropCollection> propCollection = menber->renderer->GetViewProps();
 //	propCollection->InitTraversal();
 //	vtkProp* prop = nullptr;
 //	vtkProp3D* pActor = nullptr;
 //	int pickNum = propCollection->GetNumberOfItems();
-//	m_pSelectedActor.clear();
+//	menber->selectedActor.clear();
 //	while (pickNum > 0)
 //	{
 //		prop = propCollection->GetNextProp();
 //		pActor = vtkProp3D::SafeDownCast(prop);
 //		if (pActor != nullptr)
-//			m_pSelectedActor.push_back(vtkActor::SafeDownCast(pActor));
+//			menber->selectedActor.push_back(vtkActor::SafeDownCast(pActor));
 //		pickNum--;
 //	}
 //	this->Interactor->GetRenderWindow()->Render();
-//	m_nOldMousePosX = this->Interactor->GetEventPosition()[0];
-//	m_nOldMousePosY = this->Interactor->GetEventPosition()[1];
+//	menber->nOldMousePosX = this->Interactor->GetEventPosition()[0];
+//	menber->nOldMousePosY = this->Interactor->GetEventPosition()[1];
 //
-//	vtkInteractorStyleTrackballCamera::OnLeftButtonDown();*/
+//	vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
 //}
 //
-//void CustomInteractorStyle::OnLeftButtonUp()
+//void InteractorStyle::OnLeftButtonUp()
 //{
-//	//m_bLBtnDown = false;
-//	//vtkInteractorStyleTrackballCamera::OnLeftButtonUp();
+//	menber->bLBtnDown = false;
+//	vtkInteractorStyleTrackballCamera::OnLeftButtonUp();
 //}
 
 void InteractorStyle::OnRightButtonDown()
@@ -141,9 +141,9 @@ void InteractorStyle::OnRightButtonUp()
 
 void InteractorStyle::setRotationCenter(double x, double y, double z)
 {
-	//rotationCenter[0] = x;
-	//rotationCenter[1] = y;
-	//rotationCenter[2] = z;
+	menber->rotationCenter[0] = x;
+	menber->rotationCenter[1] = y;
+	menber->rotationCenter[2] = z;
 }
 
 void InteractorStyle::setCallback(CallbackFunction callback)
@@ -153,30 +153,30 @@ void InteractorStyle::setCallback(CallbackFunction callback)
 
 void InteractorStyle::resetData()
 {
-	//Actor_xAxis = { 1.0,0.0,0.0 };
-	//Actor_yAxis = { 0.0,1.0,0.0 };
-	//Axes_xAxis = { 1.0,0.0,0.0 };
-	//Axes_yAxis = { 0.0,1.0,0.0 };
-	//m_pRotationTransform = vtkSmartPointer<vtkTransform>::New();
-	//m_pRotationTransform->Identity();
-	//axesTransform = vtkSmartPointer<vtkTransform>::New();
-	//axesTransform->Identity();
+	menber->Actor_xAxis = { 1.0,0.0,0.0 };
+	menber->Actor_yAxis = { 0.0,1.0,0.0 };
+	menber->Axes_xAxis = { 1.0,0.0,0.0 };
+	menber->Axes_yAxis = { 0.0,1.0,0.0 };
+	menber->rotationTransform = vtkSmartPointer<vtkTransform>::New();
+	menber->rotationTransform->Identity();
+	menber->axesTransform = vtkSmartPointer<vtkTransform>::New();
+	menber->axesTransform->Identity();
 }
 
 vtkSmartPointer<vtkTransform> InteractorStyle::getRotationTransform()
 {
-	return m_Menber->m_pRotationTransform;
+	return menber->rotationTransform;
 }
 
 void InteractorStyle::Dolly(double factor)
 {
 	double initialPosition[3];
-	vtkCamera* cam = m_Menber->m_renderer->GetActiveCamera();
+	vtkCamera* cam = menber->renderer->GetActiveCamera();
 	cam->GetPosition(initialPosition);
 	double oldFocalPoint[3];
 	cam->GetFocalPoint(oldFocalPoint);
 
-	DollyToPosition(factor, this->Interactor->GetEventPosition(), m_Menber->m_renderer);
+	DollyToPosition(factor, this->Interactor->GetEventPosition(), menber->renderer);
 
 	if (isCameraOutOfBounds(cam))
 	{
@@ -184,8 +184,8 @@ void InteractorStyle::Dolly(double factor)
 		cam->SetFocalPoint(oldFocalPoint);
 		triggerCallback();
 	}
-	m_Menber->m_renderer->ResetCameraClippingRange();
-	m_Menber->m_rendererwindow->Render();
+	menber->renderer->ResetCameraClippingRange();
+	menber->renderwindow->Render();
 }
 
 bool InteractorStyle::isCameraOutOfBounds(vtkCamera* camera)
@@ -193,7 +193,7 @@ bool InteractorStyle::isCameraOutOfBounds(vtkCamera* camera)
 	double position[3];
 	camera->GetPosition(position);
 
-	if (position[2] < m_Menber->rotationCenter[2])
+	if (position[2] < menber->rotationCenter[2])
 	{
 		return true;
 	}
@@ -255,13 +255,13 @@ void InteractorStyle::rotateAroundAxis(double dx, double dy, std::vector<double>
 	//		(zAxis.at(2) * baseAxis.at(0) - zAxis.at(0) * baseAxis.at(2)),
 	//		(zAxis.at(0) * baseAxis.at(1) - zAxis.at(1) * baseAxis.at(0))
 	//	};
-	//	mat = cv::Mat();
+	//	menber->mat = cv::Mat();
 	//	RotateAroundAxis(cv::Point3d(yAxis->at(0), yAxis->at(1), yAxis->at(2)), cv::Point3d(0, 0, 0),
 	//		cv::Vec3d(rotateAxis.at(0), rotateAxis.at(1), rotateAxis.at(2)), delta * (M_PI / 180.0),
-	//		OutPoint, mat);
+	//		OutPoint, menber->mat);
 
-	//	mat = mat(cv::Rect(0, 0, 3, 3));
-	//	cv::invert(mat, submatrix);
+	//	menber->mat = menber->mat(cv::Rect(0, 0, 3, 3));
+	//	cv::invert(menber->mat, menber->submatrix);
 	//	cv::Mat matrix1_mat(3, 1, CV_64F);
 
 	//	matrix1_mat.at<double>(0, 0) = yAxis->at(0);
@@ -269,7 +269,7 @@ void InteractorStyle::rotateAroundAxis(double dx, double dy, std::vector<double>
 	//	matrix1_mat.at<double>(2, 0) = yAxis->at(2);
 
 	//	cv::Mat result;
-	//	result = submatrix * matrix1_mat;
+	//	result = menber->submatrix * matrix1_mat;
 
 	//	yAxis->at(0) = result.at<double>(0, 0);
 	//	yAxis->at(1) = result.at<double>(1, 0);
@@ -279,7 +279,7 @@ void InteractorStyle::rotateAroundAxis(double dx, double dy, std::vector<double>
 	//	matrix1_mat.at<double>(1, 0) = xAxis->at(1);
 	//	matrix1_mat.at<double>(2, 0) = xAxis->at(2);
 
-	//	result = submatrix * matrix1_mat;
+	//	result = menber->submatrix * matrix1_mat;
 
 	//	xAxis->at(0) = result.at<double>(0, 0);
 	//	xAxis->at(1) = result.at<double>(1, 0);

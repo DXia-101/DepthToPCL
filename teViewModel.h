@@ -60,6 +60,7 @@ namespace te {
 			StateChange,
 			HideThreeDMark,
 			ShowTrainStateChart,
+			Segement,
 			OutOfBounds,
 			UnCheckTrainBox,
 			TrainStatistics,
@@ -97,12 +98,14 @@ namespace te {
 
 		QColor getLabelColor(const QString&);
 		std::pair<QString, QColor> getCurrentLabelInfo();
-		void changeLabelInfo(const QString&, const QColor&);
+		void changeCurrentLabelInfo(const QString&, const QColor&);
 		void addLabelInfo(const QString&, const QColor&);
 		QMap<QString, int> getTrainMarkerCount();
 		QMap<QString, int> getTestResultCount();
+		QString getCurrentLabel();
+		void setCurrentLabel(QString);
+		void removeLabelInfo(QString);
 
-		void setThrDMarkPointList(QVector<QPointF>);
 		void setThreshold(std::pair<double, double>);
 
 		void add3DAiInstance(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
@@ -143,7 +146,7 @@ namespace te {
 		void getTrainSamples(std::vector<SampleInfo>* trainSamples);
 		void getResultSamples(std::vector<SampleInfo>* resultSamples);
 
-		void segment(double* clipRange, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin, vtkMatrix4x4* transmat);
+		void segment();
 		pcl::PointCloud<pcl::PointXYZRGB>::Ptr coordinateAxisRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
 		void extractingPointCloudsBasedOnContours(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
 		void axisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
@@ -156,7 +159,7 @@ namespace te {
 
 	public:
 		int getCurrentIndex();
-		void setCurrentIndex(int index);
+		void setCurrentIndex(int);
 		int getCurrentDisplayImageLength();
 		void setCurrentDisplayImageLength(int);
 		int getCurrentDisplayImageHeight();
@@ -171,8 +174,14 @@ namespace te {
 		void setThreeDisShowMarkers(int);
 		int getThreeDisShowResults();
 		void setThreeDisShowResults(int);
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr getSegmentPointCloud();
-		void setSegmentPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr);
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr getPointCloudToSegmented();
+		void setPointCloudToSegmented(pcl::PointCloud<pcl::PointXYZRGB>::Ptr);
+		vtkMatrix4x4* getCompositeProjectionTransform();
+		void setCompositeProjectionTransform(vtkMatrix4x4*);
+		vtkMatrix4x4* getThreeDTransmat();
+		void setThreeDTransmat(vtkMatrix4x4*);
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr getSegmentedPointCloud();
+		void setSegmentedPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr);
 		double getPointCloudHeight();
 		void setPointCloudHeight(double);
 		QColor getPointCloudBackgroundColor();
@@ -197,6 +206,10 @@ namespace te {
 		void setTrainStateMenber(TrainStatisticsViewMenber);
 		QVector<QPointF> getThreeDMarkerPolygon();
 		void setThreeDMarkerPolygon(QVector<QPointF>);
+		int* getVtkWindowSize();
+		void setVtkWindowSize(int*);
+		double* getRenderViewport();
+		void setRenderViewport(double*);
 
 	private:
 		void setTrainStatisticsCallback(ViewModel& ptr);

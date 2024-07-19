@@ -9,6 +9,8 @@
 #include "teTimer.h"
 #include "teAiExTypes.h"
 #include "teTimer.h"
+#include <QColor>
+#include <QString>
 
 #include<ctime>
 #include<chrono>
@@ -24,6 +26,29 @@ Model::Model(std::unique_ptr<IDataStore> dataStore)
 
 Model::~Model()
 {
+}
+
+QColor stringToColor(QString colorStr)
+{
+	QColor color;
+	QStringList rgb = colorStr.split(',');
+	if (rgb.size() == 3) {
+		int r = rgb.at(0).toInt();
+		int g = rgb.at(1).toInt();
+		int b = rgb.at(2).toInt();
+		color.setRgb(r, g, b);
+	}
+	else
+		color.setNamedColor(colorStr);
+
+	return color;
+}
+
+QString colorTostring(QColor color)
+{
+	QString str = "";
+	str = QString::number(color.red()) + "," + QString::number(color.green()) + "," + QString::number(color.blue());
+	return str;
 }
 
 void Model::trainModel()
@@ -477,9 +502,52 @@ bool Model::savePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZRGB>::
 	return false;
 }
 
-void Model::segment(double* clipRange, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin, vtkMatrix4x4* transmat)
+int inOrNot1(int poly_sides, double* poly_X, double* poly_Y, double x, double y)
 {
-	return;
+	int i, j;
+	j = poly_sides - 1;
+	int res = 0;
+	for (i = 0; i < poly_sides; i++) {
+		if (((poly_Y[i] < y && poly_Y[j] >= y) || (poly_Y[j] < y && poly_Y[i] >= y)) && (poly_X[i] <= x || poly_X[j] <= x))
+		{
+			res ^= ((poly_X[i] + (y - poly_Y[i]) / (poly_Y[j] - poly_Y[i]) * (poly_X[j] - poly_X[i])) < x);
+		}
+		j = i;
+	}
+	return res;
+}
+
+void Model::segment(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, vtkMatrix4x4* mat, vtkMatrix4x4* transmat)
+{
+	if (cloud == nullptr || cloud->empty()) {
+		return;
+	}
+
+	QVector<QPointF> pointSet = getThreeDMarkerPolygon();
+
+	double* PloyXarr = new double[pointSet.size()];
+	double* PloyYarr = new double[pointSet.size()];
+	for (int i = 0; i < pointSet.size(); ++i)
+	{
+		PloyXarr[i] = pointSet[i].x();
+		PloyYarr[i] = pointSet[i].y();
+	}
+
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cliped = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
+	for (int i = 0; i < cloud->points.size(); ++i)
+	{
+		pcl::PointXYZRGB P3D = cloud->points.at(i);
+		double P2D[2];
+		worldToScreen(&P3D, transmat, mat, P2D);
+		if (inOrNot1(pointSet.size(), PloyXarr, PloyYarr, P2D[0], P2D[1]))
+		{
+			cloud_cliped->points.push_back(cloud->points.at(i));
+		}
+	}
+	if (cloud_cliped->points.size() == 0)
+		return;
+	setSegmentedPointCloud(cloud_cliped);
+
 }
 
 pcl::PointCloud<pcl::PointXYZRGB>::Ptr Model::coordinateAxisRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
@@ -560,12 +628,92 @@ void Model::extractingPointCloudsBasedOnContours(pcl::PointCloud<pcl::PointXYZRG
 	return;
 }
 
-void Model::worldToScreen(int* windowsize, double* viewport, pcl::PointXYZRGB* input3D, vtkMatrix4x4* mat, double* output2D)
+void Model::worldToScreen(pcl::PointXYZRGB* input3D, vtkMatrix4x4* mat, double* output2D)
 {
+	double view[4];
+	{
+		view[0] = static_cast<double>(mat->GetElement(0, 0) * input3D->x + mat->GetElement(0, 1) * input3D->y + mat->GetElement(0, 2) * input3D->z + mat->GetElement(0, 3));
+		view[1] = static_cast<double>(mat->GetElement(1, 0) * input3D->x + mat->GetElement(1, 1) * input3D->y + mat->GetElement(1, 2) * input3D->z + mat->GetElement(1, 3));
+		view[2] = static_cast<double>(mat->GetElement(2, 0) * input3D->x + mat->GetElement(2, 1) * input3D->y + mat->GetElement(2, 2) * input3D->z + mat->GetElement(2, 3));
+		view[3] = static_cast<double>(mat->GetElement(3, 0) * input3D->x + mat->GetElement(3, 1) * input3D->y + mat->GetElement(3, 2) * input3D->z + mat->GetElement(3, 3));
+	};
+
+	if (view[3] != 0.0)
+	{
+		input3D->x = view[0] / view[3];
+		input3D->y = view[1] / view[3];
+		input3D->z = view[2] / view[3];
+	}
+
+	if (getVtkWindowSize())
+	{
+		double dx, dy;
+		int sizex, sizey;
+
+		const int* size = getVtkWindowSize();
+		if (!size)
+		{
+			return;
+		}
+		sizex = size[0];
+		sizey = size[1];
+
+		dx = (input3D->x + 1.0) * (sizex * (getRenderViewport()[2] - getRenderViewport()[0])) / 2.0 +
+			sizex * getRenderViewport()[0];
+		dy = (input3D->y + 1.0) * (sizey * (getRenderViewport()[3] - getRenderViewport()[1])) / 2.0 +
+			sizey * getRenderViewport()[1];
+
+		output2D[0] = dx;
+		output2D[1] = dy;
+	}
 }
 
-void Model::worldToScreen(int* windowsize, double* viewport, pcl::PointXYZRGB* input3D, vtkMatrix4x4* transform, vtkMatrix4x4* composit, double* output2D)
+void Model::worldToScreen(pcl::PointXYZRGB* input3D, vtkMatrix4x4* transform, vtkMatrix4x4* composit, double* output2D)
 {
+	double trans[4];
+	{
+		trans[0] = static_cast<double>(transform->GetElement(0, 0) * input3D->x + transform->GetElement(0, 1) * input3D->y + transform->GetElement(0, 2) * input3D->z + transform->GetElement(0, 3));
+		trans[1] = static_cast<double>(transform->GetElement(1, 0) * input3D->x + transform->GetElement(1, 1) * input3D->y + transform->GetElement(1, 2) * input3D->z + transform->GetElement(1, 3));
+		trans[2] = static_cast<double>(transform->GetElement(2, 0) * input3D->x + transform->GetElement(2, 1) * input3D->y + transform->GetElement(2, 2) * input3D->z + transform->GetElement(2, 3));
+		trans[3] = static_cast<double>(transform->GetElement(3, 0) * input3D->x + transform->GetElement(3, 1) * input3D->y + transform->GetElement(3, 2) * input3D->z + transform->GetElement(3, 3));
+	}
+
+	double view[4];
+	{
+		view[0] = static_cast<double>(composit->GetElement(0, 0) * trans[0] + composit->GetElement(0, 1) * trans[1] + composit->GetElement(0, 2) * trans[2] + composit->GetElement(0, 3));
+		view[1] = static_cast<double>(composit->GetElement(1, 0) * trans[0] + composit->GetElement(1, 1) * trans[1] + composit->GetElement(1, 2) * trans[2] + composit->GetElement(1, 3));
+		view[2] = static_cast<double>(composit->GetElement(2, 0) * trans[0] + composit->GetElement(2, 1) * trans[1] + composit->GetElement(2, 2) * trans[2] + composit->GetElement(2, 3));
+		view[3] = static_cast<double>(composit->GetElement(3, 0) * trans[0] + composit->GetElement(3, 1) * trans[1] + composit->GetElement(3, 2) * trans[2] + composit->GetElement(3, 3));
+	};
+
+	if (view[3] != 0.0)
+	{
+		input3D->x = view[0] / view[3];
+		input3D->y = view[1] / view[3];
+		input3D->z = view[2] / view[3];
+	}
+
+	if (getVtkWindowSize())
+	{
+		double dx, dy;
+		int sizex, sizey;
+
+		const int* size = getVtkWindowSize();
+		if (!size)
+		{
+			return;
+		}
+		sizex = size[0];
+		sizey = size[1];
+
+		dx = (input3D->x + 1.0) * (sizex * (getRenderViewport()[2] - getRenderViewport()[0])) / 2.0 +
+			sizex * getRenderViewport()[0];
+		dy = (input3D->y + 1.0) * (sizey * (getRenderViewport()[3] - getRenderViewport()[1])) / 2.0 +
+			sizey * getRenderViewport()[1];
+
+		output2D[0] = dx;
+		output2D[1] = dy;
+	}
 }
 
 void Model::axisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
@@ -604,35 +752,95 @@ void Model::add2DAiInstance(QList<te::GraphicsItem*> polygonItems)
 {
 }
 
-void Model::addLabelInfo(const QString&, const QColor&)
+void Model::addLabelInfo(const QString& category, const QColor& color)
 {
+	labelstore[category.toStdString()] = colorTostring(color).toStdString();
 }
 
-void Model::changeLabelInfo(const QString&, const QColor&)
+void Model::changeLabelInfo(const QString& category, const QColor& color)
 {
+	labelstore[category.toStdString()] = colorTostring(color).toStdString();
 }
 
-void Model::removeLabelInfo(const QString&)
+void Model::removeLabelInfo(const QString& category)
 {
+	labelstore.erase(category.toStdString());
 }
 
-std::pair<QString, QColor> Model::getCurrentLabelInfo()
+QColor Model::getLabelColor(const QString& category)
 {
-	return std::pair<QString, QColor>();
+	return stringToColor(QString::fromStdString(labelstore[category.toStdString()]));
 }
 
-QColor Model::getLabelColor(const QString&)
+void Model::setThreeDMarkerPolygon(QVector<QPointF> vec)
 {
-	return QColor();
+	setData("ThreeDMarkerPolygon", vec);
 }
 
-void Model::setThrDMarkPointList(QVector<QPointF>)
+QVector<QPointF> Model::getThreeDMarkerPolygon()
 {
+	QVector<QPointF> vec;
+	if (getData("ThreeDMarkerPolygon", vec))
+		return vec;
+	else
+		return vec;
 }
 
-QVector<QPointF> Model::getThrDMarkPointList()
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr te::Model::getSegmentedPointCloud()
 {
-	return QVector<QPointF>();
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud = std::make_shared<pcl::PointCloud<pcl::PointXYZRGB>>();
+	if (getData("SegmentedPointCloud", cloud))
+		return cloud;
+	else
+		return pcl::PointCloud<pcl::PointXYZRGB>::Ptr();
+}
+
+void te::Model::setSegmentedPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
+{
+	setData("SegmentedPointCloud", cloud);
+}
+
+int* te::Model::getVtkWindowSize()
+{
+	int* size = nullptr;
+	if (getData("VtkWindowSize", size))
+		return size;
+	else
+		return size;
+}
+
+void te::Model::setVtkWindowSize(int* size)
+{
+	setData("VtkWindowSize", size);
+}
+
+double* te::Model::getRenderViewport()
+{
+	double* viewport = nullptr;
+	if (getData("RenderViewport", viewport))
+		return viewport;
+	else
+		return viewport;
+}
+
+void te::Model::setRenderViewport(double* viewport)
+{
+	setData("RenderViewport", viewport);
+}
+
+QString te::Model::getCurrentLabel()
+{
+	QString category = "";
+	if (getData("CurrentLabel", category))
+	{
+		return category;
+	}
+	return "";
+}
+
+void te::Model::setCurrentLabel(QString str)
+{
+	setData("CurrentLabel", str);
 }
 
 void te::Model::SetCallback(CallbackFunction callback)

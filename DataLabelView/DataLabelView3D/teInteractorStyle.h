@@ -47,7 +47,7 @@ namespace te {
 		CallbackFunction callback_;
 
 	private:
-		InteractorMenber* m_Menber;
+		InteractorMenber* menber;
 	};
 
 }

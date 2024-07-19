@@ -7,6 +7,7 @@
 
 class QTableWidgetItem;
 class QTableWidget;
+class QVBoxLayout;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class LabelBrowserViewClass; };
@@ -24,7 +25,7 @@ namespace te {
 
 	protected:
 		void initInterface();
-		void sendCurrentItemInfo(QTableWidgetItem* item);
+		void changeCurrentLabelInfo(QTableWidgetItem* item);
 		void saveTableWidget();
 		void loadTableWidget();
 		void addRowToTable(const QString& content, const QColor& fontColor);
@@ -33,10 +34,6 @@ namespace te {
 		void selectCurrentLabel();
 		void selectLabelColor();
 
-		QColor getSelectedRowFontColor();
-		QColor getFontColorByFirstColumnValue(const QString&);
-		QString getSelectedRowCategory();
-
 		void updateTrainCount();
 		void updateResultCount();
 
@@ -44,7 +41,6 @@ namespace te {
 	protected slots:
 		void on_addLabelButton_clicked();
 		void on_deleteLabelButton_clicked();
-		void addLabel(QString category);
 
 	public:
 		void bindViewModel(std::shared_ptr<ViewModel>);
@@ -55,7 +51,7 @@ namespace te {
 	private:
 		std::weak_ptr<ViewModel> viewModel;
 
-		QTableWidget* LabelWidget;
+		QTableWidget* labelWidget;
 
 	private:
 		Ui::LabelBrowserViewClass* ui;

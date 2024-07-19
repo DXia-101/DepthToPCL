@@ -85,6 +85,7 @@ void te::ThreeDView::RerenderWindow()
 	menber->customInteractor->resetData();
 	setCoordinateInfo();
 	menber->renderWindow->Render();
+	menber->customInteractor->resetData();
 }
 
 void ThreeDView::setRotationCenter()
@@ -197,6 +198,10 @@ void ThreeDView::initPointCloud()
 		}
 	}
 	menber->renderWindow->Render();
+	menber->customInteractor->setRotationCenter(getCloudCentroid()[0], getCloudCentroid()[1], getCloudCentroid()[2]);
+	menber->customInteractor->resetData();
+	viewModel.lock()->setVtkWindowSize(menber->renderer->GetVTKWindow()->GetSize());
+	viewModel.lock()->setRenderViewport(menber->renderer->GetViewport());
 }
 
 void ThreeDView::updateMarkerPointCloud()
@@ -233,7 +238,7 @@ void ThreeDView::updateResultPointCloud()
 
 void ThreeDView::addMarkerPointCloud()
 {
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr markPointCloud = viewModel.lock()->getSegmentPointCloud();
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr markPointCloud = viewModel.lock()->getSegmentedPointCloud();
 
 	if (markPointCloud != nullptr)
 	{
@@ -441,6 +446,18 @@ void te::ThreeDView::setOrientedBoundingBox()
 
 }
 
+void te::ThreeDView::saveSegementPara()
+{
+	//double* FBRange = menber->renderer->GetActiveCamera()->GetClippingRange();
+
+	//vtkMatrix4x4* mat = menber->renderer->GetActiveCamera()->GetCompositeProjectionTransformMatrix(menber->renderer->GetTiledAspectRatio(), FBRange[0], FBRange[1]);
+	//vtkMatrix4x4* transmat = menber->customInteractor->getRotationTransform()->GetMatrix();
+
+	//viewModel.lock()->setCompositeProjectionTransform(mat);
+	//viewModel.lock()->setThreeDTransmat(transmat);
+	viewModel.lock()->setPointCloudToSegmented(menber->cloud);
+}
+
 std::vector<double> te::ThreeDView::getCloudCentroid()
 {
 	Eigen::Vector4f centroid;
@@ -470,6 +487,9 @@ void ThreeDView::refresh(ViewModel::updateMode mode)
 		break;
 	case ViewModel::SetCameraPosition:
 		setCameraPosition();
+		break;
+	case ViewModel::Segement:
+		saveSegementPara();
 		break;
 	case ViewModel::AutoAdjustCamera:
 		adjustCamera();

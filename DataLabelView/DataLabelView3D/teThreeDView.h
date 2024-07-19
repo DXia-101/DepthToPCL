@@ -52,6 +52,8 @@ namespace te {
 		void setAxisAlignedBoundingBox();
 		void setOrientedBoundingBox();
 
+		void saveSegementPara();
+
 	private:
 		std::vector<double> getCloudCentroid();
 

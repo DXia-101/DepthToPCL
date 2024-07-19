@@ -23,7 +23,7 @@ void ViewModel::loadTrainingImages(const QStringList& filePaths)
 	model->loadTrainingImages(filePaths);
 }
 
-void te::ViewModel::prepareTrain(std::string path)
+void ViewModel::prepareTrain(std::string path)
 {
 	model->setmodelpath(path);
 	te::TrainParaRegister* train = getTrainPara();
@@ -31,7 +31,7 @@ void te::ViewModel::prepareTrain(std::string path)
 	model->trainModel();
 }
 
-void te::ViewModel::prepareTest(std::string path)
+void ViewModel::prepareTest(std::string path)
 {
 	model->setmodelpath(path);
 	te::TestParaRegister* test = getTestPara();
@@ -39,7 +39,7 @@ void te::ViewModel::prepareTest(std::string path)
 	model->testModel();
 }
 
-void te::ViewModel::stopTrain()
+void ViewModel::stopTrain()
 {
 	model->stopTrain();
 }
@@ -47,7 +47,7 @@ void te::ViewModel::stopTrain()
 int ViewModel::getCurrentIndex()
 {
 	int index = 0;
-	if (model->getData<int>("currentIndex", index))
+	if (model->getData("currentIndex", index))
 	{
 		return index;
 	}
@@ -57,6 +57,21 @@ int ViewModel::getCurrentIndex()
 void ViewModel::setCurrentIndex(int index)
 {
 	model->setData("currentIndex", index);
+}
+
+QString ViewModel::getCurrentLabel()
+{
+	return model->getCurrentLabel();
+}
+
+void ViewModel::setCurrentLabel(QString str)
+{
+	model->setCurrentLabel(str);
+}
+
+void te::ViewModel::removeLabelInfo(QString category)
+{
+	model->removeLabelInfo(category);
 }
 
 int ViewModel::getCurrentDisplayImageLength()
@@ -160,21 +175,21 @@ void ViewModel::setThreeDisShowResults(int arg)
 	model->setData("isShowThreeDResults", arg);
 }
 
-pcl::PointCloud<pcl::PointXYZRGB>::Ptr ViewModel::getSegmentPointCloud()
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr ViewModel::getPointCloudToSegmented()
 {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud = std::make_shared<pcl::PointCloud<pcl::PointXYZRGB>>();
-	if (model->getData("SegmentPointCloud", cloud))
+	if (model->getData("PointCloudToSegmented", cloud))
 		return cloud;
 	else
 		return pcl::PointCloud<pcl::PointXYZRGB>::Ptr();
 }
 
-void ViewModel::setSegmentPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
+void ViewModel::setPointCloudToSegmented(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 {
-	model->setData("SegmentPointCloud", cloud);
+	model->setData("PointCloudToSegmented", cloud);
 }
 
-double te::ViewModel::getPointCloudHeight()
+double ViewModel::getPointCloudHeight()
 {
 	double factor = 1;
 	if (model->getData("PointCloudHeight", factor))
@@ -183,12 +198,12 @@ double te::ViewModel::getPointCloudHeight()
 		return 1;
 }
 
-void te::ViewModel::setPointCloudHeight(double factor)
+void ViewModel::setPointCloudHeight(double factor)
 {
 	model->setData("PointCloudHeight", factor);
 }
 
-QColor te::ViewModel::getPointCloudBackgroundColor()
+QColor ViewModel::getPointCloudBackgroundColor()
 {
 	QColor color = Qt::black;
 	if (model->getData("PointCloudBackgroundColor", color))
@@ -197,12 +212,12 @@ QColor te::ViewModel::getPointCloudBackgroundColor()
 		return QColor();
 }
 
-void te::ViewModel::setPointCloudBackgroundColor(QColor color)
+void ViewModel::setPointCloudBackgroundColor(QColor color)
 {
 	model->setData("PointCloudBackgroundColor", color);
 }
 
-QColor te::ViewModel::getPointCloudColor()
+QColor ViewModel::getPointCloudColor()
 {
 	QColor color = Qt::black;
 	if (model->getData("PointCloudColor", color))
@@ -211,12 +226,12 @@ QColor te::ViewModel::getPointCloudColor()
 		return QColor();
 }
 
-void te::ViewModel::setPointCloudColor(QColor color)
+void ViewModel::setPointCloudColor(QColor color)
 {
 	model->setData("PointCloudColor", color);
 }
 
-int te::ViewModel::getPointCloudPointSize()
+int ViewModel::getPointCloudPointSize()
 {
 	int size = 0;
 	if (model->getData("PointCloudPointSize", size))
@@ -225,12 +240,12 @@ int te::ViewModel::getPointCloudPointSize()
 		return 1;
 }
 
-void te::ViewModel::setPointCloudPointSize(int size)
+void ViewModel::setPointCloudPointSize(int size)
 {
 	model->setData("PointCloudPointSize", size);
 }
 
-QString te::ViewModel::getRenderAxis()
+QString ViewModel::getRenderAxis()
 {
 	QString str = "";
 	if (model->getData("RenderAxis", str))
@@ -239,12 +254,12 @@ QString te::ViewModel::getRenderAxis()
 		return "z";
 }
 
-void te::ViewModel::setRenderAxis(QString str)
+void ViewModel::setRenderAxis(QString str)
 {
 	model->setData("RenderAxis", str);
 }
 
-enum ViewModel::TypeWidget te::ViewModel::getCurrentWidgetType()
+enum ViewModel::TypeWidget ViewModel::getCurrentWidgetType()
 {
 	int pattern = 0;
 	ViewModel::TypeWidget temp;
@@ -259,13 +274,13 @@ enum ViewModel::TypeWidget te::ViewModel::getCurrentWidgetType()
 	return temp;
 }
 
-void te::ViewModel::setCurrentWidgetType(TypeWidget temp)
+void ViewModel::setCurrentWidgetType(TypeWidget temp)
 {
 	int pattern = temp;
 	model->setData("CurrentWidgetType", pattern);
 }
 
-float te::ViewModel::getReceptiveField()
+float ViewModel::getReceptiveField()
 {
 	float factor = 0;
 	if (model->getData("ReceptiveField", factor))
@@ -274,12 +289,12 @@ float te::ViewModel::getReceptiveField()
 		return 1.0;
 }
 
-void te::ViewModel::setReceptiveField(float factor)
+void ViewModel::setReceptiveField(float factor)
 {
 	model->setData("ReceptiveField", factor);
 }
 
-TestParaRegister* te::ViewModel::getTestPara()
+TestParaRegister* ViewModel::getTestPara()
 {
 	TestParaRegister* para = nullptr;
 	if (model->getData("TestPara", para))
@@ -288,12 +303,12 @@ TestParaRegister* te::ViewModel::getTestPara()
 		return para;
 }
 
-void te::ViewModel::setTestPara(TestParaRegister* para)
+void ViewModel::setTestPara(TestParaRegister* para)
 {
 	model->setData("TestPara", para);
 }
 
-TrainParaRegister* te::ViewModel::getTrainPara()
+TrainParaRegister* ViewModel::getTrainPara()
 {
 	TrainParaRegister* para = nullptr;
 	if (model->getData("TrainPara", para))
@@ -302,12 +317,12 @@ TrainParaRegister* te::ViewModel::getTrainPara()
 		return para;
 }
 
-void te::ViewModel::setTrainPara(TrainParaRegister* para)
+void ViewModel::setTrainPara(TrainParaRegister* para)
 {
 	model->setData("TrainPara", para);
 }
 
-int te::ViewModel::getTrainStatisticsState()
+int ViewModel::getTrainStatisticsState()
 {
 	int arg = 0;
 	if (model->getData("TrainStatisticsState", arg))
@@ -316,12 +331,12 @@ int te::ViewModel::getTrainStatisticsState()
 		return arg;
 }
 
-void te::ViewModel::setTrainStatisticsState(int arg)
+void ViewModel::setTrainStatisticsState(int arg)
 {
 	model->setData("TrainStatisticsState", arg);
 }
 
-TrainStatisticsViewMenber te::ViewModel::getTrainStateMenber()
+TrainStatisticsViewMenber ViewModel::getTrainStateMenber()
 {
 	TrainStatisticsViewMenber arg;
 	arg.iteration = 0.0; arg.fAvgLoss = 0.0; arg.fPosAcc = 0.0;
@@ -331,26 +346,80 @@ TrainStatisticsViewMenber te::ViewModel::getTrainStateMenber()
 		return arg;
 }
 
-void te::ViewModel::setTrainStateMenber(TrainStatisticsViewMenber arg)
+void ViewModel::setTrainStateMenber(TrainStatisticsViewMenber arg)
 {
 	model->setData("TrainStateMenber", arg);
 }
 
-QVector<QPointF> te::ViewModel::getThreeDMarkerPolygon()
+QVector<QPointF> ViewModel::getThreeDMarkerPolygon()
 {
-	QVector<QPointF> vec;
-	if (model->getData("ThreeDMarkerPolygon", vec))
-		return vec;
+	return model->getThreeDMarkerPolygon();
+}
+
+void ViewModel::setThreeDMarkerPolygon(QVector<QPointF> vec)
+{
+	model->setThreeDMarkerPolygon(vec);
+}
+
+int* ViewModel::getVtkWindowSize()
+{
+	return model->getVtkWindowSize();
+}
+
+void ViewModel::setVtkWindowSize(int* size)
+{
+	model->setVtkWindowSize(size);
+}
+
+double* ViewModel::getRenderViewport()
+{
+	return model->getRenderViewport();
+}
+
+void ViewModel::setRenderViewport(double* viewport)
+{
+	model->setRenderViewport(viewport);
+}
+
+vtkMatrix4x4* ViewModel::getCompositeProjectionTransform()
+{
+	vtkMatrix4x4* mat;
+	if (model->getData("CompositeProjectionTransform", mat))
+		return mat;
 	else
-		return vec;
+		return mat;
 }
 
-void te::ViewModel::setThreeDMarkerPolygon(QVector<QPointF> vec)
+void ViewModel::setCompositeProjectionTransform(vtkMatrix4x4* mat)
 {
-	model->setData("TrainStateMenberPolygon", vec);
+	model->setData("CompositeProjectionTransform", mat);
 }
 
-void te::ViewModel::setTrainStatisticsCallback(ViewModel& ptr)
+vtkMatrix4x4* ViewModel::getThreeDTransmat()
+{
+	vtkMatrix4x4* mat;
+	if (model->getData("ThreeDTransmat", mat))
+		return mat;
+	else
+		return mat;
+}
+
+void ViewModel::setThreeDTransmat(vtkMatrix4x4* mat)
+{
+	model->setData("ThreeDTransmat", mat);
+}
+
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr ViewModel::getSegmentedPointCloud()
+{
+	return model->getSegmentedPointCloud();
+}
+
+void ViewModel::setSegmentedPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
+{
+	model->setSegmentedPointCloud(cloud);
+}
+
+void ViewModel::setTrainStatisticsCallback(ViewModel& ptr)
 {
 	model->SetCallback
 	(
@@ -372,10 +441,12 @@ QColor ViewModel::getLabelColor(const QString& category)
 
 std::pair<QString, QColor> ViewModel::getCurrentLabelInfo()
 {
-	return model->getCurrentLabelInfo();
+	QString category = getCurrentLabel();
+	QColor color = getLabelColor(category);
+	return std::make_pair(category, color);
 }
 
-void ViewModel::changeLabelInfo(const QString& category, const QColor& color)
+void ViewModel::changeCurrentLabelInfo(const QString& category, const QColor& color)
 {
 	model->changeLabelInfo(category, color);
 	notified(UpdateMarkerPointCloud);
@@ -395,12 +466,6 @@ QMap<QString, int> ViewModel::getTrainMarkerCount()
 QMap<QString, int> ViewModel::getTestResultCount()
 {
 	return model->getCurrentResultMarksNumber();
-}
-
-void ViewModel::setThrDMarkPointList(QVector<QPointF> vec)
-{
-	model->setThrDMarkPointList(vec);
-	emit notified(ViewModel::AddMarkerPointCloud);
 }
 
 void ViewModel::setThreshold(std::pair<double, double> temp)
@@ -441,12 +506,12 @@ void ViewModel::initTestConfig(TestParaRegister* para)
 	model->initTestConfig(para);
 }
 
-double te::ViewModel::getCurrentInvalidPointThreshold()
+double ViewModel::getCurrentInvalidPointThreshold()
 {
 	return model->getCurrentInvalidPointThreshold();
 }
 
-double te::ViewModel::getCurrentValidPointThreshold()
+double ViewModel::getCurrentValidPointThreshold()
 {
 	return model->getCurrentValidPointThreshold();
 }
@@ -491,22 +556,22 @@ std::string ViewModel::getSelectResultGt(int index)
 	return model->getSelectResultGt(index);
 }
 
-SampleMark te::ViewModel::getSelectTrainSampleInfo(int index)
+SampleMark ViewModel::getSelectTrainSampleInfo(int index)
 {
 	return model->getSelectTrainSampleInfo(index);
 }
 
-SampleMark te::ViewModel::getSelectResultSampleInfo(int index)
+SampleMark ViewModel::getSelectResultSampleInfo(int index)
 {
 	return model->getSelectResultSampleInfo(index);
 }
 
-SampleMark te::ViewModel::getCurrentTrainSampleInfo()
+SampleMark ViewModel::getCurrentTrainSampleInfo()
 {
 	return model->getCurrentTrainSampleInfo();
 }
 
-SampleMark te::ViewModel::getCurrentResultSampleInfo()
+SampleMark ViewModel::getCurrentResultSampleInfo()
 {
 	return model->getCurrentResultSampleInfo();
 }
@@ -566,9 +631,12 @@ void ViewModel::getResultSamples(std::vector<SampleInfo>* resultSamples)
 	model->getResultSamples(resultSamples);
 }
 
-void ViewModel::segment(double* clipRange, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin, vtkMatrix4x4* transmat)
+void ViewModel::segment()
 {
-	model->segment(clipRange, cloudin, transmat);
+	vtkMatrix4x4* mat = getCompositeProjectionTransform();
+	vtkMatrix4x4* transmat = getThreeDTransmat();
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud = getPointCloudToSegmented();
+	model->segment(cloud, mat, transmat);
 }
 
 pcl::PointCloud<pcl::PointXYZRGB>::Ptr ViewModel::coordinateAxisRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)

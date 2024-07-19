@@ -98,6 +98,9 @@ void ThreeDMenuView::on_startMarkBtn_clicked()
 	else {
 		ui->startMarkBtn->setChecked(false);
 		ui->startMarkBtn->setText(u8"开始标记");
+		viewModel.lock()->notified(ViewModel::Segement);
+		viewModel.lock()->segment();
+		viewModel.lock()->notified(ViewModel::AddMarkerPointCloud);
 	}
 	if (ViewModel::ThreeDMarkView == viewModel.lock()->getCurrentWidgetType())
 	{
