@@ -22,6 +22,7 @@ static AiResult m_InferResult;
 Model::Model(std::unique_ptr<IDataStore> dataStore)
 	:m_dataStore(std::move(dataStore))
 {
+	model = this;
 }
 
 Model::~Model()
@@ -189,20 +190,47 @@ void te::Model::stopTrain()
 
 Training Model::getTrainHandle()
 {
-	return Training();
+	return menber->train_;
 }
 
 int Model::teException(void* pParam, AiStatus eStatus)
 {
+	if (eStatus != E_Success)
+	{
+		printf("teException.error %d\n", eStatus);
+	}
 	return 0;
 }
 
 void Model::teTrainStateCallBack(AiStatus status, TrainState& stateinfo, void* param)
 {
+	printf("**teTrainStateCallBack**\n");
+	if (status != E_Success)
+	{
+		printf("train_.error %d\n", status);
+		auto cv = (std::condition_variable*)param;
+		cv->notify_all();
+	}
+
+	model->TriggerCallback(stateinfo.iteration, stateinfo.fAvgLoss, stateinfo.fPosAcc);
+
+	if (stateinfo.fProgress > 0.999999f)
+	{
+		auto cv = (std::condition_variable*)param;
+		cv->notify_all();
+	}
 }
 
 void Model::teAiInferResult(AiResult& inferResult, DynamicMatrix& hotmap, void* pCallbackParam)
 {
+	if (inferResult.size() > 0)
+		std::cout << inferResult[0].name << std::endl;
+
+	{
+		m_InferResult = inferResult;
+		auto cv = (std::condition_variable*)pCallbackParam;
+		cv->notify_all();
+	}
 }
 
 bool Model::isImageAlreadyExist(std::string filepath)

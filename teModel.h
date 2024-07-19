@@ -185,6 +185,8 @@ public:
 	}
 
 private:
+	static Model* model;
+
 	std::unique_ptr<IDataStore> m_dataStore;
 
 	std::unordered_map<std::string, std::any> storage;
