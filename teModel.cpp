@@ -690,16 +690,13 @@ void Model::worldToScreen(pcl::PointXYZRGB* input3D, vtkMatrix4x4* mat, double* 
 		input3D->z = view[2] / view[3];
 	}
 
-	if (getVtkWindowSize())
+	if (getVtkWindowSize().size())
 	{
 		double dx, dy;
 		int sizex, sizey;
 
-		const int* size = getVtkWindowSize();
-		if (!size)
-		{
-			return;
-		}
+		std::vector<int> size = getVtkWindowSize();
+
 		sizex = size[0];
 		sizey = size[1];
 
@@ -738,16 +735,13 @@ void Model::worldToScreen(pcl::PointXYZRGB* input3D, vtkMatrix4x4* transform, vt
 		input3D->z = view[2] / view[3];
 	}
 
-	if (getVtkWindowSize())
+	if (getVtkWindowSize().size() != 0)
 	{
 		double dx, dy;
 		int sizex, sizey;
 
-		const int* size = getVtkWindowSize();
-		if (!size)
-		{
-			return;
-		}
+		std::vector<int> size = getVtkWindowSize();
+
 		sizex = size[0];
 		sizey = size[1];
 
@@ -881,30 +875,30 @@ void te::Model::setSegmentedPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cl
 	setData("SegmentedPointCloud", cloud);
 }
 
-int* te::Model::getVtkWindowSize()
+std::vector<int> te::Model::getVtkWindowSize()
 {
-	int* size = nullptr;
+	std::vector<int> size;
 	if (getData("VtkWindowSize", size))
 		return size;
 	else
 		return size;
 }
 
-void te::Model::setVtkWindowSize(int* size)
+void te::Model::setVtkWindowSize(std::vector<int> size)
 {
 	setData("VtkWindowSize", size);
 }
 
-double* te::Model::getRenderViewport()
+std::vector<double> te::Model::getRenderViewport()
 {
-	double* viewport = nullptr;
+	std::vector<double> viewport;
 	if (getData("RenderViewport", viewport))
 		return viewport;
 	else
 		return viewport;
 }
 
-void te::Model::setRenderViewport(double* viewport)
+void te::Model::setRenderViewport(std::vector<double> viewport)
 {
 	setData("RenderViewport", viewport);
 }

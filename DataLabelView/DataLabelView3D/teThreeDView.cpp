@@ -200,8 +200,10 @@ void ThreeDView::initPointCloud()
 	menber->renderWindow->Render();
 	menber->customInteractor->setRotationCenter(getCloudCentroid()[0], getCloudCentroid()[1], getCloudCentroid()[2]);
 	menber->customInteractor->resetData();
-	viewModel.lock()->setVtkWindowSize(menber->renderer->GetVTKWindow()->GetSize());
-	viewModel.lock()->setRenderViewport(menber->renderer->GetViewport());
+	std::vector<int> size(menber->renderer->GetVTKWindow()->GetSize(), menber->renderer->GetVTKWindow()->GetSize() + 2);
+	viewModel.lock()->setVtkWindowSize(size);
+	std::vector<double> viewport(menber->renderer->GetViewport(), menber->renderer->GetViewport() + 3);
+	viewModel.lock()->setRenderViewport(viewport);
 }
 
 void ThreeDView::updateMarkerPointCloud()

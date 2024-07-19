@@ -155,10 +155,10 @@ public:
 	QVector<QPointF> getThreeDMarkerPolygon();
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr getSegmentedPointCloud();
 	void setSegmentedPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr);
-	int* getVtkWindowSize();
-	void setVtkWindowSize(int*);
-	double* getRenderViewport();
-	void setRenderViewport(double*);
+	std::vector<int> getVtkWindowSize();
+	void setVtkWindowSize(std::vector<int>);
+	std::vector<double> getRenderViewport();
+	void setRenderViewport(std::vector<double>);
 public:
 	//与训练状态统计图相关
 	using CallbackFunction = std::function<void(int, float, float)>;

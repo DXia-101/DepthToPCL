@@ -361,50 +361,50 @@ void ViewModel::setThreeDMarkerPolygon(QVector<QPointF> vec)
 	model->setThreeDMarkerPolygon(vec);
 }
 
-int* ViewModel::getVtkWindowSize()
+std::vector<int> ViewModel::getVtkWindowSize()
 {
 	return model->getVtkWindowSize();
 }
 
-void ViewModel::setVtkWindowSize(int* size)
+void ViewModel::setVtkWindowSize(std::vector<int> size)
 {
 	model->setVtkWindowSize(size);
 }
 
-double* ViewModel::getRenderViewport()
+std::vector<double> ViewModel::getRenderViewport()
 {
 	return model->getRenderViewport();
 }
 
-void ViewModel::setRenderViewport(double* viewport)
+void ViewModel::setRenderViewport(std::vector<double> viewport)
 {
 	model->setRenderViewport(viewport);
 }
 
-vtkMatrix4x4* ViewModel::getCompositeProjectionTransform()
+vtkSmartPointer<vtkMatrix4x4> ViewModel::getCompositeProjectionTransform()
 {
-	vtkMatrix4x4* mat;
+	vtkSmartPointer<vtkMatrix4x4> mat;
 	if (model->getData("CompositeProjectionTransform", mat))
 		return mat;
 	else
 		return mat;
 }
 
-void ViewModel::setCompositeProjectionTransform(vtkMatrix4x4* mat)
+void ViewModel::setCompositeProjectionTransform(vtkSmartPointer<vtkMatrix4x4> mat)
 {
 	model->setData("CompositeProjectionTransform", mat);
 }
 
-vtkMatrix4x4* ViewModel::getThreeDTransmat()
+vtkSmartPointer<vtkMatrix4x4> ViewModel::getThreeDTransmat()
 {
-	vtkMatrix4x4* mat;
+	vtkSmartPointer<vtkMatrix4x4> mat;
 	if (model->getData("ThreeDTransmat", mat))
 		return mat;
 	else
 		return mat;
 }
 
-void ViewModel::setThreeDTransmat(vtkMatrix4x4* mat)
+void ViewModel::setThreeDTransmat(vtkSmartPointer<vtkMatrix4x4> mat)
 {
 	model->setData("ThreeDTransmat", mat);
 }

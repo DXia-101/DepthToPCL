@@ -177,10 +177,10 @@ namespace te {
 		void setThreeDisShowResults(int);
 		pcl::PointCloud<pcl::PointXYZRGB>::Ptr getPointCloudToSegmented();
 		void setPointCloudToSegmented(pcl::PointCloud<pcl::PointXYZRGB>::Ptr);
-		vtkMatrix4x4* getCompositeProjectionTransform();
-		void setCompositeProjectionTransform(vtkMatrix4x4*);
-		vtkMatrix4x4* getThreeDTransmat();
-		void setThreeDTransmat(vtkMatrix4x4*);
+		vtkSmartPointer<vtkMatrix4x4> getCompositeProjectionTransform();
+		void setCompositeProjectionTransform(vtkSmartPointer<vtkMatrix4x4>);
+		vtkSmartPointer<vtkMatrix4x4> getThreeDTransmat();
+		void setThreeDTransmat(vtkSmartPointer<vtkMatrix4x4>);
 		pcl::PointCloud<pcl::PointXYZRGB>::Ptr getSegmentedPointCloud();
 		void setSegmentedPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr);
 		double getPointCloudHeight();
@@ -207,10 +207,10 @@ namespace te {
 		void setTrainStateMenber(TrainStatisticsViewMenber);
 		QVector<QPointF> getThreeDMarkerPolygon();
 		void setThreeDMarkerPolygon(QVector<QPointF>);
-		int* getVtkWindowSize();
-		void setVtkWindowSize(int*);
-		double* getRenderViewport();
-		void setRenderViewport(double*);
+		std::vector<int> getVtkWindowSize();
+		void setVtkWindowSize(std::vector<int>);
+		std::vector<double> getRenderViewport();
+		void setRenderViewport(std::vector<double>);
 
 	private:
 		void setTrainStatisticsCallback(ViewModel& ptr);
