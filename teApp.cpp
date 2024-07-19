@@ -59,7 +59,6 @@ App::App(QObject* parent)
 
 	viewModel->setCurrentWidgetType(ViewModel::ReceptiveFieldView);
 	viewModel->notified(ViewModel::StartMark);
-	//threeDView->move(teReceptiveField->pos());
 	threeDView->show();
 
 	mainView->show();
@@ -67,15 +66,4 @@ App::App(QObject* parent)
 
 App::~App()
 {
-	//delete threeDView;
-	//delete threeDToolbar;
-	//delete threeDViewMenu;
-	//delete teLabelBrowser;
-	//delete threeDMark;
-	//delete teReceptiveField;
-	//delete trainPara;
-	//delete testPara;
-	//delete trainStatistics;
-	//delete mainView;
-	//delete AiModel;
 }

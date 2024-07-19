@@ -197,10 +197,10 @@ namespace te {
 		void setCurrentWidgetType(TypeWidget);
 		float getReceptiveField();
 		void setReceptiveField(float);
-		TestParaRegister* getTestPara();
-		void setTestPara(TestParaRegister*);
-		TrainParaRegister* getTrainPara();
-		void setTrainPara(TrainParaRegister*);
+		TestParaRegister getTestPara();
+		void setTestPara(TestParaRegister);
+		TrainParaRegister getTrainPara();
+		void setTrainPara(TrainParaRegister);
 		int getTrainStatisticsState();
 		void setTrainStatisticsState(int);
 		TrainStatisticsViewMenber getTrainStateMenber();
@@ -220,7 +220,6 @@ namespace te {
 
 	private:
 		Model* model;
-
 	};
 
 }

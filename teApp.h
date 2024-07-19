@@ -25,19 +25,6 @@ namespace te {
 		~App();
 
 	private:
-		//MainView* mainView;
-		//std::shared_ptr<ViewModel> viewModel;
-		//Model* AiModel;
-		//ThreeDView* threeDView;
-		//ThreeDToolbarView* threeDToolbar;
-		//ThreeDMenuView* threeDViewMenu;
-		//LabelBrowserView* teLabelBrowser;
-		//ThreeDMarkView* threeDMark;
-		//ReceptiveFieldView* teReceptiveField;
-		//TrainParaView* trainPara;
-		//TestParaView* testPara;
-		//TrainStatisticsView* trainStatistics;
-
 		std::shared_ptr<MainView> mainView;
 		std::shared_ptr<ViewModel> viewModel;
 		std::shared_ptr<Model> AiModel;

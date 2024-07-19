@@ -26,16 +26,16 @@ void ViewModel::loadTrainingImages(const QStringList& filePaths)
 void ViewModel::prepareTrain(std::string path)
 {
 	model->setmodelpath(path);
-	te::TrainParaRegister* train = getTrainPara();
-	model->initTrainConfig(train);
+	te::TrainParaRegister train = getTrainPara();
+	model->initTrainConfig(&train);
 	model->trainModel();
 }
 
 void ViewModel::prepareTest(std::string path)
 {
 	model->setmodelpath(path);
-	te::TestParaRegister* test = getTestPara();
-	model->initTestConfig(test);
+	te::TestParaRegister test = getTestPara();
+	model->initTestConfig(&test);
 	model->testModel();
 }
 
@@ -294,30 +294,30 @@ void ViewModel::setReceptiveField(float factor)
 	model->setData("ReceptiveField", factor);
 }
 
-TestParaRegister* ViewModel::getTestPara()
+TestParaRegister ViewModel::getTestPara()
 {
-	TestParaRegister* para = nullptr;
+	TestParaRegister para;
 	if (model->getData("TestPara", para))
 		return para;
 	else
 		return para;
 }
 
-void ViewModel::setTestPara(TestParaRegister* para)
+void ViewModel::setTestPara(TestParaRegister para)
 {
 	model->setData("TestPara", para);
 }
 
-TrainParaRegister* ViewModel::getTrainPara()
+TrainParaRegister ViewModel::getTrainPara()
 {
-	TrainParaRegister* para = nullptr;
+	TrainParaRegister para;
 	if (model->getData("TrainPara", para))
 		return para;
 	else
 		return para;
 }
 
-void ViewModel::setTrainPara(TrainParaRegister* para)
+void ViewModel::setTrainPara(TrainParaRegister para)
 {
 	model->setData("TrainPara", para);
 }

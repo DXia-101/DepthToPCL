@@ -446,7 +446,7 @@ void te::ThreeDView::setOrientedBoundingBox()
 
 }
 
-void te::ThreeDView::saveSegementPara()
+void te::ThreeDView::saveSegmentPara()
 {
 	//double* FBRange = menber->renderer->GetActiveCamera()->GetClippingRange();
 
@@ -489,7 +489,7 @@ void ThreeDView::refresh(ViewModel::updateMode mode)
 		setCameraPosition();
 		break;
 	case ViewModel::Segement:
-		saveSegementPara();
+		saveSegmentPara();
 		break;
 	case ViewModel::AutoAdjustCamera:
 		adjustCamera();

@@ -43,7 +43,7 @@ void TrainParaView::saveTrainPara()
 	te::serializeJsonToOFStream("./workspace/TrainParaconfig.ini", param);
 	ui->treeView->checkItemChange();
 
-	viewModel.lock()->setTrainPara(&param);
+	viewModel.lock()->setTrainPara(param);
 }
 
 void TrainParaView::on_TrainingCurveCBox_stateChanged(int arg)

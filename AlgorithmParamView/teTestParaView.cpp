@@ -49,5 +49,5 @@ void te::TestParaView::saveTestParameter()
 	te::serializeJsonToOFStream("./workspace/TestParaconfig.ini", param);
 	ui->treeView->checkItemChange();
 
-	viewModel.lock()->setTestPara(&param);
+	viewModel.lock()->setTestPara(param);
 }
