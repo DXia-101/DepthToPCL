@@ -2,7 +2,6 @@
 #include "Transfer_Function.h"
 #include "Depth2RGB.h"
 #include "IDataStore.h"
-#include "teModelMenber.h"
 #include "teAugmentation.h"
 #include "teImage.h"
 #include "teRapidjsonObjectTree.h"
@@ -12,9 +11,32 @@
 #include "Render3DAlgorithm.h"
 #include <QColor>
 #include <QString>
+#include <vector>
+#include <string>
+#include "teTraining.h"
+#include "tePrediction.h"
+
 
 #include<ctime>
 #include<chrono>
+
+namespace te
+{
+	class ModelMenber
+	{
+	public:
+		std::vector<double> InvalidPointThresholds;
+		std::vector<double> ValidPointThresholds;
+
+		std::string modelPath;
+
+		TrainConfig config;
+		int DeviceID;
+		AiStatus status;
+		ModelInfer infer_;
+		Training train_;
+	};
+}
 
 using namespace te;
 

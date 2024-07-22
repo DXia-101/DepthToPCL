@@ -12,7 +12,6 @@
 #include "teTrainParaRegister.h"
 #include "teTestParaRegister.h"
 #include "teTraining.h"
-#include "teModelMenber.h"
 #include "teDataTypeRegistration.h"
 
 TE_BEGIN_NAMESPACE

@@ -1,13 +1,30 @@
 ﻿#include "teReceptiveFieldView.h"
 #include <QPainter>
+#include <QPoint>
 #include <QApplication>
 #include <QPen>
 #include <QStateMachine>
 #include <QState>
 #include <QMouseEvent>
 #include <QWheelEvent>
-#include "teReceptiveFieldViewMenber.h"
 using namespace te;
+
+namespace te {
+	class ReceptiveFieldViewMenber
+	{
+	public:
+		QPointF centerPoint;
+		double ThrDRadius;
+		double TwoDRadius;
+		bool MaxState;
+		bool circleVisible;
+		int ReduceTimes;
+
+		QStateMachine* stateMachine;
+		QState* TwoDState;
+		QState* ThrDState;
+	};
+}
 
 QTransform getZoomMat(const QPoint& center, double dRatio)
 {

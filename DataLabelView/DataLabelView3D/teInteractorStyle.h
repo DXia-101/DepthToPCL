@@ -1,12 +1,11 @@
 ﻿#pragma once
-#include "teInteractorMenber.h"
 #include "pcl_function.h"
 #include <vtkTransform.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 
 namespace te {
-
+	class InteractorMenber;
 	class InteractorStyle : public vtkInteractorStyleTrackballCamera
 	{
 	public:
