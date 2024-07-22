@@ -11,9 +11,9 @@ namespace te {
 	class ThreeDViewMenber
 	{
 	public:
-		vtkRenderWindow* renderWindow;
+		vtkSmartPointer<vtkRenderWindow> renderWindow;
 		vtkSmartPointer<vtkRenderer> renderer;
-		InteractorStyle* customInteractor;
+		vtkSmartPointer<InteractorStyle> customInteractor;
 		vtkSmartPointer<vtkOrientationMarkerWidget> markerWidget;
 		vtkSmartPointer<vtkAxesActor> axes_actor;
 

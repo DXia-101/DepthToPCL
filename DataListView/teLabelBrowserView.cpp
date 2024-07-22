@@ -92,7 +92,7 @@ void LabelBrowserView::saveTableWidget()
 	int rowCount = labelWidget->rowCount();
 	int columnCount = labelWidget->columnCount();
 
-	for (int row = 0; row < rowCount; ++row)
+	for (int row = 3; row < rowCount; ++row)
 	{
 		QTableWidgetItem* item = labelWidget->item(row, 0);
 		std::string category = "", fontcolor = "";
@@ -114,39 +114,39 @@ void LabelBrowserView::saveTableWidget()
 
 void LabelBrowserView::loadTableWidget()
 {
+	labelWidget->insertRow(0);
+	labelWidget->setItem(0, 0, new QTableWidgetItem("LMask"));
+	labelWidget->setItem(0, 1, new QTableWidgetItem("0"));
+	labelWidget->setItem(0, 2, new QTableWidgetItem("0"));
+	labelWidget->setItem(0, 3, new QTableWidgetItem("0"));
+
+	labelWidget->insertRow(1);
+	labelWidget->setItem(1, 0, new QTableWidgetItem("GMask"));
+	labelWidget->setItem(1, 1, new QTableWidgetItem("0"));
+	labelWidget->setItem(1, 2, new QTableWidgetItem("0"));
+	labelWidget->setItem(1, 3, new QTableWidgetItem("0"));
+
+	labelWidget->insertRow(2);
+	labelWidget->setItem(2, 0, new QTableWidgetItem("BG"));
+	labelWidget->setItem(2, 1, new QTableWidgetItem("0"));
+	labelWidget->setItem(2, 2, new QTableWidgetItem("0"));
+	labelWidget->setItem(2, 3, new QTableWidgetItem("0"));
+
+	QTableWidgetItem* currentItem = labelWidget->item(0, 0);
+	viewModel.lock()->addLabelInfo(currentItem->text(), currentItem->foreground().color());
+	currentItem = labelWidget->item(1, 0);
+	viewModel.lock()->addLabelInfo(currentItem->text(), currentItem->foreground().color());
+	currentItem = labelWidget->item(2, 0);
+	viewModel.lock()->addLabelInfo(currentItem->text(), currentItem->foreground().color());
+
+	labelWidget->setCurrentItem(currentItem);
 	JsonFile file;
 	if (!file.open("./workspace/tableconfig.ini"))
 	{
-		labelWidget->insertRow(0);
-		labelWidget->setItem(0, 0, new QTableWidgetItem("LMask"));
-		labelWidget->setItem(0, 1, new QTableWidgetItem("0"));
-		labelWidget->setItem(0, 2, new QTableWidgetItem("0"));
-		labelWidget->setItem(0, 3, new QTableWidgetItem("0"));
-
-		labelWidget->insertRow(1);
-		labelWidget->setItem(1, 0, new QTableWidgetItem("GMask"));
-		labelWidget->setItem(1, 1, new QTableWidgetItem("0"));
-		labelWidget->setItem(1, 2, new QTableWidgetItem("0"));
-		labelWidget->setItem(1, 3, new QTableWidgetItem("0"));
-
-		labelWidget->insertRow(2);
-		labelWidget->setItem(2, 0, new QTableWidgetItem("BG"));
-		labelWidget->setItem(2, 1, new QTableWidgetItem("0"));
-		labelWidget->setItem(2, 2, new QTableWidgetItem("0"));
-		labelWidget->setItem(2, 3, new QTableWidgetItem("0"));
-
-		QTableWidgetItem* currentItem = labelWidget->item(0, 0);
-		viewModel.lock()->addLabelInfo(currentItem->text(), currentItem->foreground().color());
-		currentItem = labelWidget->item(1, 0);
-		viewModel.lock()->addLabelInfo(currentItem->text(), currentItem->foreground().color());
-		currentItem = labelWidget->item(2, 0);
-		viewModel.lock()->addLabelInfo(currentItem->text(), currentItem->foreground().color());
-
-		labelWidget->setCurrentItem(currentItem);
 		return;
 	}
 
-	labelWidget->clearContents();
+	//labelWidget->clearContents();
 	std::map<std::string, std::string> labelconfig;
 	file.read({ "LabelBrowser" }, &labelconfig);
 	for (auto& info : labelconfig)
