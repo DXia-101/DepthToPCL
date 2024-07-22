@@ -424,8 +424,8 @@ void te::ThreeDView::setAxisRender()
 		return;
 	}
 
-	menber->cloud->clear();
-	pcl::copyPointCloud(*viewModel.lock()->coordinateAxisRendering(menber->cloud), *menber->cloud);
+	//menber->cloud->clear();
+	viewModel.lock()->coordinateAxisRendering(menber->cloud);
 	menber->viewer->updatePointCloud(menber->cloud, "cloud");
 	adjustCamera();
 	menber->renderWindow->Render();

@@ -37,7 +37,6 @@ namespace te {
 		void updateTrainCount();
 		void updateResultCount();
 
-
 	protected slots:
 		void on_addLabelButton_clicked();
 		void on_deleteLabelButton_clicked();

@@ -65,17 +65,16 @@ bool Render_3D_Algorithm::SavePointCloud(QString fileName, pcl::PointCloud<pcl::
 /// 分割点云
 /// </summary>
 /// <param name="renderer">待分割点云的渲染器</param>
-/// <param name="cloudin">待分割的点云</param>
+/// <param name="cloud">待分割的点云</param>
 /// <param name="pointSet">分割的轮廓</param>
 /// <param name="transmat">待分割点云的变化矩阵</param>
 /// <returns>分割后的点云</returns>
 
-pcl::PointCloud<pcl::PointXYZRGB>::Ptr Render_3D_Algorithm::Segment(double* clipRange, int* windowsize, double* viewport, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin, const std::vector<QPointF>& pointSet, vtkMatrix4x4* transform, vtkMatrix4x4* rotatemat)
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr Render_3D_Algorithm::Segment(QVector<QPointF> pointSet, std::vector<int> windowsize, std::vector<double> viewport, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, vtkMatrix4x4* transmat, vtkMatrix4x4* rotatemat)
 {
-	if (cloudin->empty()) {
-		return nullptr;
+	if (cloud == nullptr || cloud->empty()) {
+		return pcl::PointCloud<pcl::PointXYZRGB>::Ptr();
 	}
-	double* FBRange = clipRange;
 
 	double* PloyXarr = new double[pointSet.size()];
 	double* PloyYarr = new double[pointSet.size()];
@@ -84,22 +83,20 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr Render_3D_Algorithm::Segment(double* clip
 		PloyXarr[i] = pointSet[i].x();
 		PloyYarr[i] = pointSet[i].y();
 	}
-	const auto& mat = transform;
-	const auto& transmat = rotatemat;
 
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cliped = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
-	for (int i = 0; i < cloudin->points.size(); ++i)
+	for (int i = 0; i < cloud->points.size(); ++i)
 	{
-		pcl::PointXYZRGB P3D = cloudin->points.at(i);
+		pcl::PointXYZRGB P3D = cloud->points.at(i);
 		double P2D[2];
-		WorldToScreen(windowsize, viewport, &P3D, transmat, mat, P2D);
+		WorldToScreen(windowsize, viewport, &P3D, transmat, rotatemat, P2D);
 		if (inOrNot1(pointSet.size(), PloyXarr, PloyYarr, P2D[0], P2D[1]))
 		{
-			cloud_cliped->points.push_back(cloudin->points.at(i));
+			cloud_cliped->points.push_back(cloud->points.at(i));
 		}
 	}
 	if (cloud_cliped->points.size() == 0)
-		return nullptr;
+		return pcl::PointCloud<pcl::PointXYZRGB>::Ptr();
 	return cloud_cliped;
 }
 
@@ -216,7 +213,7 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr Render_3D_Algorithm::ExtractingPointCloud
 /// <param name="mat">坐标变化的复合矩阵</param>
 /// <param name="output2D">转换后的点</param>
 
-void Render_3D_Algorithm::WorldToScreen(int* windowsize, double* viewport, pcl::PointXYZRGB* input3D, vtkMatrix4x4* mat, double* output2D)
+void Render_3D_Algorithm::WorldToScreen(std::vector<int> windowsize, std::vector<double> viewport, pcl::PointXYZRGB* input3D, vtkMatrix4x4* mat, double* output2D)
 {
 	double view[4];
 	{
@@ -233,26 +230,22 @@ void Render_3D_Algorithm::WorldToScreen(int* windowsize, double* viewport, pcl::
 		input3D->z = view[2] / view[3];
 	}
 
-
-	double dx, dy;
-	int sizex, sizey;
-
-	const int* size = windowsize;
-	if (!size)
+	if (windowsize.size())
 	{
-		return;
+		double dx, dy;
+		int sizex, sizey;
+
+		sizex = windowsize[0];
+		sizey = windowsize[1];
+
+		dx = (input3D->x + 1.0) * (sizex * (viewport[2] - viewport[0])) / 2.0 +
+			sizex * viewport[0];
+		dy = (input3D->y + 1.0) * (sizey * (viewport[3] - viewport[1])) / 2.0 +
+			sizey * viewport[1];
+
+		output2D[0] = dx;
+		output2D[1] = dy;
 	}
-	sizex = size[0];
-	sizey = size[1];
-
-	dx = (input3D->x + 1.0) * (sizex * (viewport[2] - viewport[0])) / 2.0 +
-		sizex * viewport[0];
-	dy = (input3D->y + 1.0) * (sizey * (viewport[3] - viewport[1])) / 2.0 +
-		sizey * viewport[1];
-
-	output2D[0] = dx;
-	output2D[1] = dy;
-
 }
 
 /// <summary>
@@ -264,7 +257,7 @@ void Render_3D_Algorithm::WorldToScreen(int* windowsize, double* viewport, pcl::
 /// <param name="composit">点云的变换矩阵</param>
 /// <param name="output2D">转换后的点</param>
 
-void Render_3D_Algorithm::WorldToScreen(int* windowsize, double* viewport, pcl::PointXYZRGB* input3D, vtkMatrix4x4* transform, vtkMatrix4x4* composit, double* output2D)
+void Render_3D_Algorithm::WorldToScreen(std::vector<int> windowsize, std::vector<double> viewport, pcl::PointXYZRGB* input3D, vtkMatrix4x4* transform, vtkMatrix4x4* composit, double* output2D)
 {
 	double trans[4];
 	{
@@ -289,24 +282,22 @@ void Render_3D_Algorithm::WorldToScreen(int* windowsize, double* viewport, pcl::
 		input3D->z = view[2] / view[3];
 	}
 
-	double dx, dy;
-	int sizex, sizey;
-
-	const int* size = windowsize;
-	if (!size)
+	if (windowsize.size() != 0)
 	{
-		return;
+		double dx, dy;
+		int sizex, sizey;
+
+		sizex = windowsize[0];
+		sizey = windowsize[1];
+
+		dx = (input3D->x + 1.0) * (sizex * (viewport[2] - viewport[0])) / 2.0 +
+			sizex * viewport[0];
+		dy = (input3D->y + 1.0) * (sizey * (viewport[3] - viewport[1])) / 2.0 +
+			sizey * viewport[1];
+
+		output2D[0] = dx;
+		output2D[1] = dy;
 	}
-	sizex = size[0];
-	sizey = size[1];
-
-	dx = (input3D->x + 1.0) * (sizex * (viewport[2] - viewport[0])) / 2.0 +
-		sizex * viewport[0];
-	dy = (input3D->y + 1.0) * (sizey * (viewport[3] - viewport[1])) / 2.0 +
-		sizey * viewport[1];
-
-	output2D[0] = dx;
-	output2D[1] = dy;
 }
 
 /// <summary>
@@ -327,12 +318,6 @@ std::pair<pcl::PointXYZRGB, pcl::PointXYZRGB> Render_3D_Algorithm::AxisAlignedBo
 
 	return std::make_pair(min_point_AABB, max_point_AABB);
 }
-
-/// <summary>
-/// 计算点云AABB包围框
-/// </summary>
-/// <param name="cloud">需要计算的点云</param>
-/// <returns>返回点云AABB包围框的两个对顶角</returns>
 
 /// <summary>
 /// 计算点云OBB包围框

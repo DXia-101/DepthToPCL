@@ -641,9 +641,9 @@ void ViewModel::segment()
 	model->segment(cloud, mat, transmat);
 }
 
-pcl::PointCloud<pcl::PointXYZRGB>::Ptr ViewModel::coordinateAxisRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
+void ViewModel::coordinateAxisRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 {
-	return model->coordinateAxisRendering(cloud);
+	model->coordinateAxisRendering(cloud);
 }
 
 void ViewModel::extractingPointCloudsBasedOnContours(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)

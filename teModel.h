@@ -129,10 +129,8 @@ public:
 	//3DCanvas计算相关
 	bool savePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZRGB>::Ptr saveCloud);
 	void segment(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin, vtkMatrix4x4* mat, vtkMatrix4x4* transmat);
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr coordinateAxisRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
-	void extractingPointCloudsBasedOnContours(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
-	void worldToScreen(pcl::PointXYZRGB* input3D, vtkMatrix4x4* mat, double* output2D);
-	void worldToScreen(pcl::PointXYZRGB* input3D, vtkMatrix4x4* transform, vtkMatrix4x4* composit, double* output2D);
+	void coordinateAxisRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
+	void extractingPointCloudsBasedOnContours(pcl::PointCloud<pcl::PointXYZRGB>::Ptr);
 	void axisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
 	void orientedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
 	void subtractTargetPointCloud(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud1, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud2);

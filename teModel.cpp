@@ -9,6 +9,7 @@
 #include "teTimer.h"
 #include "teAiExTypes.h"
 #include "teTimer.h"
+#include "Render3DAlgorithm.h"
 #include <QColor>
 #include <QString>
 
@@ -521,66 +522,21 @@ void Model::triggerCallback(int iteration, float fAvgLoss, float fPosAcc)
 
 bool Model::savePointCloud(QString fileName, pcl::PointCloud<pcl::PointXYZRGB>::Ptr saveCloud)
 {
-	return false;
-}
-
-int inOrNot1(int poly_sides, double* poly_X, double* poly_Y, double x, double y)
-{
-	int i, j;
-	j = poly_sides - 1;
-	int res = 0;
-	for (i = 0; i < poly_sides; i++) {
-		if (((poly_Y[i] < y && poly_Y[j] >= y) || (poly_Y[j] < y && poly_Y[i] >= y)) && (poly_X[i] <= x || poly_X[j] <= x))
-		{
-			res ^= ((poly_X[i] + (y - poly_Y[i]) / (poly_Y[j] - poly_Y[i]) * (poly_X[j] - poly_X[i])) < x);
-		}
-		j = i;
-	}
-	return res;
+	return Render_3D_Algorithm::SavePointCloud(fileName, saveCloud);
 }
 
 void Model::segment(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, vtkMatrix4x4* mat, vtkMatrix4x4* transmat)
 {
-	if (cloud == nullptr || cloud->empty()) {
-		return;
-	}
-
-	QVector<QPointF> pointSet = getThreeDMarkerPolygon();
-
-	double* PloyXarr = new double[pointSet.size()];
-	double* PloyYarr = new double[pointSet.size()];
-	for (int i = 0; i < pointSet.size(); ++i)
-	{
-		PloyXarr[i] = pointSet[i].x();
-		PloyYarr[i] = pointSet[i].y();
-	}
-
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cliped = (new pcl::PointCloud<pcl::PointXYZRGB>())->makeShared();
-	for (int i = 0; i < cloud->points.size(); ++i)
-	{
-		pcl::PointXYZRGB P3D = cloud->points.at(i);
-		double P2D[2];
-		worldToScreen(&P3D, transmat, mat, P2D);
-		if (inOrNot1(pointSet.size(), PloyXarr, PloyYarr, P2D[0], P2D[1]))
-		{
-			cloud_cliped->points.push_back(cloud->points.at(i));
-		}
-	}
-	if (cloud_cliped->points.size() == 0)
-		return;
-	setSegmentedPointCloud(cloud_cliped);
-
+	setSegmentedPointCloud(Render_3D_Algorithm::Segment(getThreeDMarkerPolygon(), getVtkWindowSize(), getRenderViewport(), cloud, mat, transmat));
 }
 
-pcl::PointCloud<pcl::PointXYZRGB>::Ptr Model::coordinateAxisRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
+void Model::coordinateAxisRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 {
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_Elevation_rendering(new pcl::PointCloud<pcl::PointXYZRGB>);
-
-	std::shared_ptr<QString> renderAxis;
+	QString renderAxis = "z";
 	getData("RenderAxis", renderAxis);
 
-	double min, max;
-	if (*renderAxis == "z")
+	double min = 0.0, max = 0.0;
+	if (renderAxis == "z")
 	{
 		min = getCurrentInvalidPointThreshold();
 		max = getCurrentInvalidPointThreshold();
@@ -594,142 +550,31 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr Model::coordinateAxisRendering(pcl::Point
 		max *= factor;
 		min *= factor;
 	}
-	else if (*renderAxis == "x")
+	else if (renderAxis == "x")
 	{
-		std::shared_ptr<pcl::PointXYZ> maxPt;
+		pcl::PointXYZ maxPt;
 		getData("maxPt", maxPt);
-		std::shared_ptr<pcl::PointXYZ> minPt;
+		pcl::PointXYZ minPt;
 		getData("minPt", minPt);
-		min = minPt->x;
-		max = maxPt->x;
+		min = minPt.x;
+		max = maxPt.x;
 	}
-	else if (*renderAxis == "y")
+	else if (renderAxis == "y")
 	{
-		std::shared_ptr<pcl::PointXYZ> maxPt;
+		pcl::PointXYZ maxPt;
 		getData("maxPt", maxPt);
-		std::shared_ptr<pcl::PointXYZ> minPt;
+		pcl::PointXYZ minPt;
 		getData("minPt", minPt);
-		min = minPt->y;
-		max = maxPt->y;
+		min = minPt.y;
+		max = maxPt.y;
 	}
 
-	TeJetColorCode trans;
-	for (int index = 0; index < cloud->points.size(); ++index)
-	{
-		double value = 0;
-		if (*renderAxis == "z")
-		{
-			value = cloud->points[index].z;
-		}
-		else if (*renderAxis == "x")
-		{
-			value = cloud->points[index].x;
-		}
-		else if (*renderAxis == "y")
-		{
-			value = cloud->points[index].y;
-		}
-
-		pcl::PointXYZRGB point = cloud->points[index];
-
-		float absDepth = value > min ? value : min;
-		absDepth = absDepth < max ? absDepth : max;
-		float realDepth = max == min ? 0 : ((absDepth - min) / (max - min));
-		int iIndex = 1023 * realDepth;//将[0-1.0]之间的数据映射到[0-1024)之间
-		point.r = trans.m_pJetTab1024[iIndex].r;
-		point.g = trans.m_pJetTab1024[iIndex].g;
-		point.b = trans.m_pJetTab1024[iIndex].b;
-
-		cloud_Elevation_rendering->push_back(point);
-	}
-	return cloud_Elevation_rendering;
+	Render_3D_Algorithm::CoordinateAxisRendering(cloud, renderAxis, min, max);
 }
 
 void Model::extractingPointCloudsBasedOnContours(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)
 {
 	return;
-}
-
-void Model::worldToScreen(pcl::PointXYZRGB* input3D, vtkMatrix4x4* mat, double* output2D)
-{
-	double view[4];
-	{
-		view[0] = static_cast<double>(mat->GetElement(0, 0) * input3D->x + mat->GetElement(0, 1) * input3D->y + mat->GetElement(0, 2) * input3D->z + mat->GetElement(0, 3));
-		view[1] = static_cast<double>(mat->GetElement(1, 0) * input3D->x + mat->GetElement(1, 1) * input3D->y + mat->GetElement(1, 2) * input3D->z + mat->GetElement(1, 3));
-		view[2] = static_cast<double>(mat->GetElement(2, 0) * input3D->x + mat->GetElement(2, 1) * input3D->y + mat->GetElement(2, 2) * input3D->z + mat->GetElement(2, 3));
-		view[3] = static_cast<double>(mat->GetElement(3, 0) * input3D->x + mat->GetElement(3, 1) * input3D->y + mat->GetElement(3, 2) * input3D->z + mat->GetElement(3, 3));
-	};
-
-	if (view[3] != 0.0)
-	{
-		input3D->x = view[0] / view[3];
-		input3D->y = view[1] / view[3];
-		input3D->z = view[2] / view[3];
-	}
-
-	if (getVtkWindowSize().size())
-	{
-		double dx, dy;
-		int sizex, sizey;
-
-		std::vector<int> size = getVtkWindowSize();
-
-		sizex = size[0];
-		sizey = size[1];
-
-		dx = (input3D->x + 1.0) * (sizex * (getRenderViewport()[2] - getRenderViewport()[0])) / 2.0 +
-			sizex * getRenderViewport()[0];
-		dy = (input3D->y + 1.0) * (sizey * (getRenderViewport()[3] - getRenderViewport()[1])) / 2.0 +
-			sizey * getRenderViewport()[1];
-
-		output2D[0] = dx;
-		output2D[1] = dy;
-	}
-}
-
-void Model::worldToScreen(pcl::PointXYZRGB* input3D, vtkMatrix4x4* transform, vtkMatrix4x4* composit, double* output2D)
-{
-	double trans[4];
-	{
-		trans[0] = static_cast<double>(transform->GetElement(0, 0) * input3D->x + transform->GetElement(0, 1) * input3D->y + transform->GetElement(0, 2) * input3D->z + transform->GetElement(0, 3));
-		trans[1] = static_cast<double>(transform->GetElement(1, 0) * input3D->x + transform->GetElement(1, 1) * input3D->y + transform->GetElement(1, 2) * input3D->z + transform->GetElement(1, 3));
-		trans[2] = static_cast<double>(transform->GetElement(2, 0) * input3D->x + transform->GetElement(2, 1) * input3D->y + transform->GetElement(2, 2) * input3D->z + transform->GetElement(2, 3));
-		trans[3] = static_cast<double>(transform->GetElement(3, 0) * input3D->x + transform->GetElement(3, 1) * input3D->y + transform->GetElement(3, 2) * input3D->z + transform->GetElement(3, 3));
-	}
-
-	double view[4];
-	{
-		view[0] = static_cast<double>(composit->GetElement(0, 0) * trans[0] + composit->GetElement(0, 1) * trans[1] + composit->GetElement(0, 2) * trans[2] + composit->GetElement(0, 3));
-		view[1] = static_cast<double>(composit->GetElement(1, 0) * trans[0] + composit->GetElement(1, 1) * trans[1] + composit->GetElement(1, 2) * trans[2] + composit->GetElement(1, 3));
-		view[2] = static_cast<double>(composit->GetElement(2, 0) * trans[0] + composit->GetElement(2, 1) * trans[1] + composit->GetElement(2, 2) * trans[2] + composit->GetElement(2, 3));
-		view[3] = static_cast<double>(composit->GetElement(3, 0) * trans[0] + composit->GetElement(3, 1) * trans[1] + composit->GetElement(3, 2) * trans[2] + composit->GetElement(3, 3));
-	};
-
-	if (view[3] != 0.0)
-	{
-		input3D->x = view[0] / view[3];
-		input3D->y = view[1] / view[3];
-		input3D->z = view[2] / view[3];
-	}
-
-	if (getVtkWindowSize().size() != 0)
-	{
-		double dx, dy;
-		int sizex, sizey;
-
-		std::vector<int> size = getVtkWindowSize();
-
-		sizex = size[0];
-		sizey = size[1];
-
-		dx = (input3D->x + 1.0) * (sizex * (getRenderViewport()[2] - getRenderViewport()[0])) / 2.0 +
-			sizex * getRenderViewport()[0];
-		dy = (input3D->y + 1.0) * (sizey * (getRenderViewport()[3] - getRenderViewport()[1])) / 2.0 +
-			sizey * getRenderViewport()[1];
-
-		output2D[0] = dx;
-		output2D[1] = dy;
-	}
 }
 
 void Model::axisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud)

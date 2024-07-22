@@ -36,7 +36,7 @@ public:
 	/// <param name="transmat">待分割点云的变化矩阵</param>
 	/// <param name="rotatemat">待分割点云的旋转矩阵</param>
 	/// <returns>分割后的点云</returns>
-	static pcl::PointCloud<pcl::PointXYZRGB>::Ptr Segment(double* clipRange, int* windowsize, double* viewport, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudin, const std::vector<QPointF>& pointSet, vtkMatrix4x4* transmat, vtkMatrix4x4* rotatemat);
+	static pcl::PointCloud<pcl::PointXYZRGB>::Ptr Segment(QVector<QPointF>, std::vector<int>, std::vector<double>, pcl::PointCloud<pcl::PointXYZRGB>::Ptr, vtkMatrix4x4* transmat, vtkMatrix4x4* rotatemat);
 
 	/**
 	 * @brief inOrNot1
@@ -75,7 +75,7 @@ public:
 	/// <param name="input3D">待转换的点</param>
 	/// <param name="mat">坐标变化的复合矩阵</param>
 	/// <param name="output2D">转换后的点</param>
-	static void WorldToScreen(int* windowsize, double* viewport, pcl::PointXYZRGB* input3D, vtkMatrix4x4* mat, double* output2D);
+	static void WorldToScreen(std::vector<int>, std::vector<double>, pcl::PointXYZRGB* input3D, vtkMatrix4x4* mat, double* output2D);
 
 	/// <summary>
 	/// 将点从Canvas转到平面坐标
@@ -86,7 +86,7 @@ public:
 	/// <param name="transform">坐标变化的复合矩阵</param>
 	/// <param name="composit">点云的旋转矩阵</param>
 	/// <param name="output2D">转换后的点</param>
-	static void WorldToScreen(int* windowsize, double* viewport, pcl::PointXYZRGB* input3D, vtkMatrix4x4* transform, vtkMatrix4x4* composit, double* output2D);
+	static void WorldToScreen(std::vector<int>, std::vector<double>, pcl::PointXYZRGB* input3D, vtkMatrix4x4* transform, vtkMatrix4x4* composit, double* output2D);
 
 	/// <summary>
 	/// 计算点云AABB包围框

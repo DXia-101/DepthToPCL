@@ -148,7 +148,7 @@ namespace te {
 		void getResultSamples(std::vector<SampleInfo>* resultSamples);
 
 		void segment();
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr coordinateAxisRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
+		void coordinateAxisRendering(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
 		void extractingPointCloudsBasedOnContours(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
 		void axisAlignedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
 		void orientedBoundingBox(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud);
